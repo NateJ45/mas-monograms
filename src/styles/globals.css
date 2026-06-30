@@ -144,6 +144,11 @@
 /* ---------- Light mode (MAS Monograms palette) ----------- */
 
 :root {
+    /* This site is light-only by design (no dark mode). Tell the browser so
+       native form controls (selects, scrollbars, date inputs) render with
+       light chrome instead of inheriting the OS dark-mode preference. */
+    color-scheme: light;
+
     /* Surfaces — parchment page, white cards */
     --background: #f7f1e6;
     --foreground: #2b2420;

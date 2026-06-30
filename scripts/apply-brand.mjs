@@ -420,7 +420,7 @@ function rewriteSiteTs(config) {
     const borderSoft = config.palette.theme['--color-border-soft'];
     const subs = [
       // name — matches the _name private-variable declaration
-      // (derived fields storageKeyPrefix, themeStorageKey, studio are computed
+      // (derived fields storageKeyPrefix, studio are computed
       //  from _name at runtime, so the script never needs to rewrite them)
       {
         label: 'name',
