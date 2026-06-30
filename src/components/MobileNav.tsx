@@ -41,8 +41,6 @@ interface MobileNavSiteSettings {
 interface Props {
   links: NavItem[];
   siteSettings?: MobileNavSiteSettings | null;
-  logoLightUrl?: string;
-  logoDarkUrl?: string;
   ctaLabel?: string;
   ctaHref?: string;
 }
@@ -59,8 +57,6 @@ function socialIcon(platform: string | undefined) {
 export default function MobileNav({
   links,
   siteSettings,
-  logoLightUrl,
-  logoDarkUrl,
   ctaLabel = 'Request a Quote',
   ctaHref  = '/request-a-quote',
 }: Props) {
@@ -99,7 +95,7 @@ export default function MobileNav({
             <a
               href={ctaHref}
               onClick={close}
-              className="block w-full px-m py-m text-center rounded-md bg-[var(--color-blush,#c9a48a)] text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-[var(--color-blush-hover,#b8926e)] transition-colors"
+              className="block w-full px-m py-m text-center rounded-md bg-[var(--color-rust-cta,#b8492a)] text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-[var(--color-rust-cta-hover,#9c3c20)] transition-colors"
             >
               {ctaLabel}
             </a>
@@ -188,31 +184,24 @@ export default function MobileNav({
           </div>
 
           {/* Logo */}
-          {logoLightUrl && (
-            <div className="border-t border-border-soft px-l py-l flex justify-center">
-              <img
-                src={logoLightUrl}
-                alt="MAS Monograms"
-                width={280}
-                height={60}
-                className="block dark:hidden h-10 w-auto"
-                loading="lazy"
-                decoding="async"
-              />
-              {logoDarkUrl && (
-                <img
-                  src={logoDarkUrl}
-                  alt=""
-                  aria-hidden="true"
-                  width={280}
-                  height={60}
-                  className="hidden dark:block h-10 w-auto"
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-            </div>
-          )}
+          <div className="border-t border-border-soft px-l py-l flex justify-center">
+            <svg
+              viewBox="0 0 420 140"
+              className="h-10 w-auto"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <text x="0" y="52" fontFamily="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" fontWeight="700" fontSize="42" fill="#2B2420" letterSpacing="-0.5">MAS</text>
+              <text x="0" y="90" fontFamily="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" fontWeight="700" fontSize="42" fill="#2B2420" letterSpacing="-0.5">MONOGRAMS</text>
+              <text x="2" y="114" fontFamily="'Work Sans Variable', 'Work Sans', sans-serif" fontWeight="600" fontSize="13" letterSpacing="3" fill="#1F5C4F">MADE JUST FOR YOU</text>
+
+              <g transform="translate(330,0)">
+                <line x1="32" y1="6" x2="32" y2="100" stroke="#2B2420" strokeWidth="4" strokeLinecap="round" />
+                <ellipse cx="32" cy="14" rx="5" ry="9" fill="none" stroke="#2B2420" strokeWidth="3" />
+                <path d="M2,46 Q32,30 62,46" fill="none" stroke="#B8492A" strokeWidth="4.5" strokeLinecap="round" />
+              </g>
+            </svg>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
