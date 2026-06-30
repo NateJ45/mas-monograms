@@ -759,7 +759,7 @@ Find and delete this whole block (it starts with the `/* ---------- Dark mode --
 }
 ```
 
-This supersedes the old CLAUDE.md "no dark mode toggle" rule by removing the dead-but-present infrastructure entirely, rather than leaving an unused `.dark` block that invites someone to wire up a toggle later. The decision (and why) is documented in `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md` and gets restated in `CLAUDE.md` in Task 12.
+This supersedes the old CLAUDE.md "no dark mode toggle" rule by removing the dead-but-present infrastructure entirely, rather than leaving an unused `.dark` block that invites someone to wire up a toggle later. The decision (and why) is documented in `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md` and gets restated in `CLAUDE.md` in Task 14.
 
 - [ ] **Step 9: Fix the `h1`–`h6` base rule's font weight comment**
 
