@@ -8,10 +8,11 @@ export default defineCliConfig({
     projectId: process.env.SANITY_STUDIO_PROJECT_ID || 'placeholder-project-id',
     dataset: process.env.SANITY_STUDIO_DATASET || 'production',
   },
-  // Update studioHost to your desired Sanity Studio subdomain (e.g. 'my-project').
-  // The studio will be published at <studioHost>.sanity.studio after `npm run studio:deploy`.
-  studioHost: 'my-studio',
+  // Published at https://mas-monograms.sanity.studio after `npx sanity deploy`.
+  // This is the hosted editing UI Mary Ann logs into (gated by Sanity auth).
+  studioHost: 'mas-monograms',
   deployment: {
+    appId: 'rluafcqh53g1choxra1lk2jn',
     autoUpdates: true,
   },
   // Typegen reads the extracted schema and writes types into the Astro project's src/lib/.
