@@ -19,6 +19,8 @@ interface Props {
 
 const { variant = 'ink', mark = false, class: className } = Astro.props as Props;
 
+// Mirrors tokens.css: --color-parchment / --color-ink / --color-mustard / --color-rust-cta / --color-pine-teal.
+// Hardcoded because SVG presentation attributes (fill=, stroke=) can't consume CSS custom properties directly.
 const wordmarkColor = variant === 'parchment' ? '#F7F1E6' : '#2B2420';
 const threadColor = variant === 'parchment' ? '#D9A441' : '#B8492A';
 const ringColor = '#1F5C4F';
