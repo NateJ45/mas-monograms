@@ -6,34 +6,34 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource/playfair-display/400.css";
-@import "@fontsource/playfair-display/400-italic.css";
-@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/work-sans";
 
 @custom-variant dark (&:is(.dark *));
 
 /* ---------- Brand tokens ---------------------------------- */
 
 @theme {
-  /* MAS Monograms palette — Ink / Cream / Sage / Blush */
-  --color-primary:      #4a5e4c; /* Sage Dark — links, nav, primary action */
-  --color-primary-dark: #3a4d3c; /* Sage Darker — hover states */
-  --color-accent:       #2c2c28; /* Ink — headings + body */
-  --color-accent-dark:  #1a1a18; /* Ink Dark */
-  --color-secondary:    #8a9e8c; /* Sage Mid — borders, muted accents */
-  --color-tertiary:     #e8ede8; /* Sage Light — section bands, chips */
-  --color-bg:           #faf8f4; /* Cream — primary surface */
-  --color-bg-soft:      #f5ede6; /* Blush Light — soft alternating surface */
-  --color-border-soft:  #e8ede8; /* Sage Light — faint dividers */
+  /* MAS Monograms palette — "Thread Ledger": Parchment / Ink / Pine Teal / Rust / Mustard */
+  --color-primary:      #1f5c4f; /* Pine Teal — links, nav, primary action */
+  --color-primary-dark: #163f37; /* Pine Teal Dark — hover states */
+  --color-accent:       #2b2420; /* Ink — headings + body */
+  --color-accent-dark:  #1a1512; /* Ink Dark */
+  --color-secondary:    #d9a441; /* Mustard — gallery frame accents ONLY (decorative; do not use
+                                     for general borders — see --border below for that role) */
+  --color-tertiary:     #f0e6d2; /* Mustard Light — section bands, chips */
+  --color-bg:           #f7f1e6; /* Parchment — primary surface */
+  --color-bg-soft:      #f0e6d2; /* Mustard-tinted soft alternating surface */
+  --color-border-soft:  #e3d7c0; /* faint dividers on parchment */
   --color-white-pure:   #ffffff;
-  --color-blush:        #c9a48a; /* CTA button — warm, distinct from sage */
-  --color-blush-hover:  #b8926e;
-  --color-muted-text:   #7a7a72;
+  --color-rust-cta:     #b8492a; /* CTA button — the one button-background color */
+  --color-rust-cta-hover: #9c3c20;
+  --color-rust-decorative: #c1542c; /* large text / decorative strokes only, see tokens.css */
+  --color-muted-text:   #6b6258;
 
   /* Fonts */
-  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
-  --font-body:    "DM Sans Variable", "DM Sans", system-ui, -apple-system, sans-serif;
-  --font-script:  "Great Vibes", cursive; /* logo SVG only — not loaded as a web font */
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body:    "Work Sans Variable", "Work Sans", system-ui, -apple-system, sans-serif;
   --font-mono:    ui-monospace, "SF Mono", Consolas, monospace;
 
   /* Fluid heading sizes */
@@ -44,7 +44,7 @@
   --text-h2: clamp(2rem,     4vw,   3rem);
   --text-h1: clamp(2.5rem,   6vw,   5rem);
 
-  --leading-headline-tight: 1.1;   /* Playfair Display reads tighter than sans */
+  --leading-headline-tight: 1.1;   /* Bricolage Grotesque reads tight at display sizes */
   --tracking-eyebrow:       0.08em; /* Uppercase eyebrow labels */
 
   /* Fluid spacing.
@@ -135,55 +135,44 @@
   letter-spacing: var(--tracking-eyebrow);
 }
 
-/* Italic accent words inside headings — Playfair Display's italic
-   cut is distinctly elegant; use <em> for the "accent word" treatment. */
+/* Italic utility — for body copy emphasis only; the new display font
+   has no italic cut, so this is no longer used for heading accent words. */
 @utility font-italic-accent {
   font-style: italic;
-}
-
-/* Script font — Great Vibes, used ONLY in the SVG logo file.
-   Never load this as a web font; the logo SVG is the canonical form. */
-@utility font-script {
-  font-family: var(--font-script);
-  font-weight: 400;
-  font-style: normal;
-  font-size: 1.25em;
-  line-height: 0.9;
-  vertical-align: -0.1em;
-  letter-spacing: 0;
 }
 
 /* ---------- Light mode (MAS Monograms palette) ----------- */
 
 :root {
-    /* Surfaces — cream page, white cards */
-    --background: #faf8f4;
-    --foreground: #2c2c28;
+    /* Surfaces — parchment page, white cards */
+    --background: #f7f1e6;
+    --foreground: #2b2420;
     --card: #ffffff;
-    --card-foreground: #2c2c28;
+    --card-foreground: #2b2420;
     --popover: #ffffff;
-    --popover-foreground: #2c2c28;
+    --popover-foreground: #2b2420;
 
-    /* Brand — sage primary */
-    --primary: #4a5e4c;
+    /* Brand — pine teal primary */
+    --primary: #1f5c4f;
     --primary-foreground: #ffffff;
-    --secondary: #e8ede8;
-    --secondary-foreground: #2c2c28;
+    --secondary: #f0e6d2;
+    --secondary-foreground: #2b2420;
 
-    /* Muted — blush light surface, muted ink text */
-    --muted: #f5ede6;
-    --muted-foreground: #7a7a72;
+    /* Muted — mustard-tinted soft surface, muted ink text */
+    --muted: #f0e6d2;
+    --muted-foreground: #6b6258;
 
-    /* Accent — sage light (subtle hover / focus surface) */
-    --accent: #e8ede8;
-    --accent-foreground: #2c2c28;
+    /* Accent — mustard light (subtle hover / focus surface) */
+    --accent: #f0e6d2;
+    --accent-foreground: #2b2420;
 
     /* States */
     --destructive: oklch(0.577 0.245 27.325);
-    --border: #8a9e8c;
-    --input: #e8ede8;
-    --ring: #4a5e4c;
-    --link: #4a5e4c;
+    --border: #6b6258; /* muted, not the vivid pine-teal accent — see tokens.css's
+                           --color-border for why */
+    --input: #e3d7c0;
+    --ring: #1f5c4f;
+    --link: #1f5c4f;
 
     /* Charts (neutral — not actively used) */
     --chart-1: oklch(0.87 0 0);
@@ -192,22 +181,22 @@
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
 
-    --radius: 0.375rem; /* ~6px — slightly tighter than shadcn default */
+    --radius: 0.25rem; /* ~4px */
 
     /* Sidebar (reserved for admin contexts) */
-    --sidebar: #faf8f4;
-    --sidebar-foreground: #2c2c28;
-    --sidebar-primary: #4a5e4c;
+    --sidebar: #f7f1e6;
+    --sidebar-foreground: #2b2420;
+    --sidebar-primary: #1f5c4f;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #e8ede8;
-    --sidebar-accent-foreground: #2c2c28;
-    --sidebar-border: #8a9e8c;
-    --sidebar-ring: #4a5e4c;
+    --sidebar-accent: #f0e6d2;
+    --sidebar-accent-foreground: #2b2420;
+    --sidebar-border: #6b6258; /* muted, matches --border above */
+    --sidebar-ring: #1f5c4f;
 
-    --tint-rgb: 74, 94, 76; /* Sage Dark in RGB for rgba() overlays */
+    --tint-rgb: 31, 92, 79; /* Pine Teal in RGB for rgba() overlays */
 
-    --primary-accent: #3a4d3c;
-    --secondary-accent: #2c2c28;
+    --primary-accent: #163f37;
+    --secondary-accent: #2b2420;
     --info: #93C5FD;
     --info-foreground: #1E3A5F;
     --success: #86EFAC;
@@ -216,61 +205,7 @@
     --warning-foreground: #713F12;
     --error: oklch(0.577 0.245 27.325);
     --error-foreground: #ffffff;
-    --outline: #4a5e4c;
-}
-
-/* ---------- Dark mode ------------------------------------ */
-/* MAS Monograms is a light, warm brand — the .dark class is intentionally
-   never toggled at runtime (no ThemeToggle in the Nav). These rules keep
-   the CSS cascade complete if something ever adds it. */
-
-.dark {
-    --background: #1c1c1a;
-    --foreground: #f0ede8;
-    --card: #262623;
-    --card-foreground: #f0ede8;
-    --popover: #262623;
-    --popover-foreground: #f0ede8;
-
-    --primary: #8a9e8c;
-    --primary-foreground: #1c1c1a;
-    --secondary: #2c3328;
-    --secondary-foreground: #f0ede8;
-
-    --muted: #262623;
-    --muted-foreground: #9a9a92;
-
-    --accent: #2c3328;
-    --accent-foreground: #f0ede8;
-
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 15%);
-    --input: oklch(1 0 0 / 12%);
-    --ring: #8a9e8c;
-    --link: #8a9e8c;
-
-    --sidebar: #262623;
-    --sidebar-foreground: #f0ede8;
-    --sidebar-primary: #8a9e8c;
-    --sidebar-primary-foreground: #1c1c1a;
-    --sidebar-accent: #2c3328;
-    --sidebar-accent-foreground: #f0ede8;
-    --sidebar-border: oklch(1 0 0 / 15%);
-    --sidebar-ring: #8a9e8c;
-
-    --tint-rgb: 138, 158, 140;
-
-    --primary-accent: #8a9e8c;
-    --secondary-accent: #f0ede8;
-    --info: #93C5FD;
-    --info-foreground: #1E3A5F;
-    --success: #86EFAC;
-    --success-foreground: #14532D;
-    --warning: #FDE68A;
-    --warning-foreground: #713F12;
-    --error: oklch(0.704 0.191 22.216);
-    --error-foreground: #ffffff;
-    --outline: #8a9e8c;
+    --outline: #1f5c4f;
 }
 
 /* ---------- Base resets and defaults ---------------------- */
@@ -290,18 +225,10 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 400; /* Playfair Display reads best at Regular weight */
+    font-weight: 700; /* Bricolage Grotesque reads best bold at display sizes */
     color: var(--color-accent);
     line-height: 1.1;
     letter-spacing: -0.01em;
-  }
-  /* Italic accent words — use <em> inside headings for the editorial touch */
-  h1 em, h2 em, h3 em {
-    font-style: italic;
-    font-weight: 400;
-  }
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: var(--foreground);
   }
 }
 
@@ -504,7 +431,7 @@
   .hero-slide { transition: none; animation: none; transform: none; }
 }
 
-/* Image zoom + sage tint hover */
+/* Image zoom + tint hover */
 @media (prefers-reduced-motion: no-preference) {
   .img-zoom img,
   .img-zoom .img-zoom-target {
@@ -572,7 +499,7 @@
   transform: scaleY(0);
 }
 
-/* Process step connector — sage thread draws downward */
+/* Process step connector — accent thread draws downward */
 .step-connector {
   flex: 1;
   width: 2px;
@@ -684,8 +611,7 @@ body::before {
 /* ---------- Print ----------------------------------------- */
 
 @media print {
-  :root,
-  .dark {
+  :root {
     --background: white;
     --foreground: black;
     --muted: white;
