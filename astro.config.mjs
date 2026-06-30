@@ -2,7 +2,6 @@
 import { defineConfig } from 'astro/config';
 
 import cloudflare from '@astrojs/cloudflare';
-import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
@@ -17,7 +16,7 @@ export default defineConfig({
   // The adapter's default would otherwise wire up the IMAGES binding which
   // is meant for SSR sites that want on-demand transforms (we don't).
   adapter: cloudflare({ imageService: 'compile' }),
-  integrations: [mdx(), sitemap({ filter: (page) => !page.includes('/404') }), react()],
+  integrations: [sitemap({ filter: (page) => !page.includes('/404') }), react()],
   vite: {
     plugins: [tailwindcss()],
   },
