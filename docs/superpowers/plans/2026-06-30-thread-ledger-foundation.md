@@ -274,6 +274,10 @@ Replace the full contents of `src/styles/tokens.css` with:
 
   --color-mustard: #d9a441;         /* Gallery photo "hoop ring" frames, highlights — decorative
                                         only, do not pair with text without checking contrast */
+  --color-mustard-light: #f0e6d2;   /* Mustard Light — section bands, chips, soft alternating
+                                        surface. A pale TINT, not the vivid decorative mustard above
+                                        — section bands always carry text on top, and the vivid
+                                        shade is explicitly not vetted for that. */
 
   /* Semantic aliases. Reference THESE in components where it reads more clearly,
      so the intent survives even if the literal color is retuned later. */
@@ -283,8 +287,11 @@ Replace the full contents of `src/styles/tokens.css` with:
   --color-link: var(--color-pine-teal);
   --color-accent: var(--color-pine-teal);
   --color-surface: var(--color-white);
-  --color-band: var(--color-mustard);
-  --color-border: var(--color-pine-teal);
+  --color-band: var(--color-mustard-light);
+  --color-border: var(--color-muted); /* a muted mid-tone, not the vivid pine-teal accent — kept
+                                          distinct so borders don't compete with links/CTAs.
+                                          Clears WCAG 1.4.11's 3:1 UI-component bar (~5.3:1 on
+                                          parchment). */
   --color-cta-bg: var(--color-rust-cta);
   --color-cta-bg-hover: var(--color-rust-cta-hover);
   --color-cta-text: var(--color-white);
@@ -515,7 +522,8 @@ to:
   --color-primary-dark: #163f37; /* Pine Teal Dark — hover states */
   --color-accent:       #2b2420; /* Ink — headings + body */
   --color-accent-dark:  #1a1512; /* Ink Dark */
-  --color-secondary:    #d9a441; /* Mustard — borders, gallery frame accents */
+  --color-secondary:    #d9a441; /* Mustard — gallery frame accents ONLY (decorative; do not use
+                                     for general borders — see --border below for that role) */
   --color-tertiary:     #f0e6d2; /* Mustard Light — section bands, chips */
   --color-bg:           #f7f1e6; /* Parchment — primary surface */
   --color-bg-soft:      #f0e6d2; /* Mustard-tinted soft alternating surface */
@@ -623,7 +631,8 @@ to:
 
     /* States */
     --destructive: oklch(0.577 0.245 27.325);
-    --border: #1f5c4f;
+    --border: #6b6258; /* muted, not the vivid pine-teal accent — see tokens.css's
+                           --color-border for why */
     --input: #e3d7c0;
     --ring: #1f5c4f;
     --link: #1f5c4f;
@@ -671,7 +680,7 @@ to:
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: #f0e6d2;
     --sidebar-accent-foreground: #2b2420;
-    --sidebar-border: #1f5c4f;
+    --sidebar-border: #6b6258; /* muted, matches --border above */
     --sidebar-ring: #1f5c4f;
 
     --tint-rgb: 31, 92, 79; /* Pine Teal in RGB for rgba() overlays */
