@@ -43,6 +43,7 @@
 
   --color-mustard: #d9a441;         /* Gallery photo "hoop ring" frames, highlights — decorative
                                         only, do not pair with text without checking contrast */
+  --color-mustard-light: #f0e6d2;   /* Mustard Light — section bands, chips, soft alternating surface */
 
   /* Semantic aliases. Reference THESE in components where it reads more clearly,
      so the intent survives even if the literal color is retuned later. */
@@ -52,8 +53,8 @@
   --color-link: var(--color-pine-teal);
   --color-accent: var(--color-pine-teal);
   --color-surface: var(--color-white);
-  --color-band: var(--color-mustard);
-  --color-border: var(--color-pine-teal);
+  --color-band: var(--color-mustard-light);
+  --color-border: var(--color-muted);
   --color-cta-bg: var(--color-rust-cta);
   --color-cta-bg-hover: var(--color-rust-cta-hover);
   --color-cta-text: var(--color-white);
