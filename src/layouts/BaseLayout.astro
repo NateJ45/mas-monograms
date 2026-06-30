@@ -271,11 +271,10 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
     <Footer siteSettings={siteSettings} />
 
     {/*
-      Both islands were previously `client:load` which forced the JS to
-      execute before the first paint completed. Neither is interactive
+      This island was previously `client:load` which forced the JS to
+      execute before the first paint completed. It isn't interactive
       until later in the page lifecycle (BackToTop only appears after the
-      visitor scrolls 600px; Toaster only mounts a region, the toast call
-      sites import it on demand). Hydrating with `client:idle` lets the
+      visitor scrolls 600px). Hydrating with `client:idle` lets the
       browser settle the main thread first and shifts ~10–20ms of TBT off
       the critical path on mobile.
     */}
