@@ -9,20 +9,13 @@
 //   └───────────────────────────────────────
 // Mobile: logo centered, hamburger absolute-right, eyebrow info in drawer.
 
-import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
 import { Mail, Phone } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook, IconBrandPinterest } from '@tabler/icons-react';
 import { ChevronDown } from 'lucide-react';
 import MobileNav from './MobileNav';
-import logoLightAsset from '@/assets/logo-light.svg';
-import logoDarkAsset from '@/assets/logo-dark.svg';
+import Logo from './Logo.astro';
 import { telHref } from '@/lib/phone';
-
-const logoLightImg = await getImage({ src: logoLightAsset });
-const logoDarkImg  = await getImage({ src: logoDarkAsset });
-const logoLightSrcset = logoLightImg.src;
-const logoDarkSrcset  = logoDarkImg.src;
 
 interface SocialLink {
   platform?: string;
@@ -175,29 +168,8 @@ const mobileNavSettings = siteSettings
       class="inline-flex items-center hover:opacity-80 transition-opacity"
       aria-label={`${brandName} home`}
     >
-      <img
-        alt={brandName}
-        width={280}
-        height={60}
-        class="h-12 w-auto"
-        loading="eager"
-        decoding="async"
-        data-theme-logo
-        data-logo-light-src={logoLightImg.src}
-        data-logo-light-srcset={logoLightSrcset}
-        data-logo-dark-src={logoDarkImg.src}
-        data-logo-dark-srcset={logoDarkSrcset}
-      />
+      <Logo variant="ink" class="h-12 w-auto" />
     </a>
-    <script is:inline>
-      (function () {
-        const img = document.querySelector('header img[data-theme-logo]');
-        if (!img) return;
-        const dark = document.documentElement.classList.contains('dark');
-        img.src    = dark ? img.dataset.logoDarkSrc    : img.dataset.logoLightSrc;
-        img.srcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
-      })();
-    </script>
 
     {/* Desktop nav + CTA */}
     <div class="hidden lg:flex items-center gap-l">
@@ -261,8 +233,8 @@ const mobileNavSettings = siteSettings
         class:list={[
           'press-tactile inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold text-white transition-colors',
           isActive('/request-a-quote')
-            ? 'bg-[var(--color-blush-hover,#b8926e)]'
-            : 'bg-[var(--color-blush,#c9a48a)] hover:bg-[var(--color-blush-hover,#b8926e)]',
+            ? 'bg-[var(--color-rust-cta-hover,#9c3c20)]'
+            : 'bg-[var(--color-rust-cta,#b8492a)] hover:bg-[var(--color-rust-cta-hover,#9c3c20)]',
         ]}
       >
         {ctaLabel}
@@ -273,8 +245,6 @@ const mobileNavSettings = siteSettings
       client:only="react"
       links={NAV_ITEMS}
       siteSettings={mobileNavSettings}
-      logoLightUrl={logoLightImg.src}
-      logoDarkUrl={logoDarkImg.src}
       ctaLabel={ctaLabel}
       ctaHref="/request-a-quote"
     />
