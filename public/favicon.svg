@@ -1,27 +1,7 @@
-<!--
-  MAS Monograms favicon. Sage disc with cream "M" initial.
-  Theme behavior:
-    - Light mode: sage disc on light browser tab.
-    - Dark mode: sage lifts slightly so it reads against dark tab strips.
--->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <style>
-    .disc { fill: #4a5e4c; }
-    .mark { fill: #faf8f4; }
-    @media (prefers-color-scheme: dark) {
-      .disc { fill: #5a7060; }
-      .mark { fill: #ffffff; }
-    }
-  </style>
-  <circle class="disc" cx="32" cy="32" r="30" />
-  <text
-    class="mark"
-    x="32"
-    y="32"
-    font-family="Libre Baskerville, Georgia, Cambria, 'Times New Roman', serif"
-    font-size="30"
-    font-weight="700"
-    text-anchor="middle"
-    dominant-baseline="central"
-  >M</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#F7F1E6"/>
+  <circle cx="50" cy="50" r="40" fill="none" stroke="#1F5C4F" stroke-width="2" stroke-dasharray="3 5"/>
+  <line x1="50" y1="22" x2="50" y2="68" stroke="#2B2420" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="50" cy="26" rx="4" ry="7" fill="none" stroke="#2B2420" stroke-width="3"/>
+  <path d="M30,42 Q50,30 70,42" fill="none" stroke="#B8492A" stroke-width="5" stroke-linecap="round"/>
 </svg>
