@@ -2,7 +2,6 @@
 // Foundation, edit with care
 // Site-wide layout. Provides:
 //   - <html lang>, document head, OG/Twitter meta
-//   - Anti-FOUC theme bootstrap (runs before first paint)
 //   - Cormorant Garamond font preload (LCP element on hero)
 //   - Cloudflare Web Analytics beacon (conditional)
 //   - Astro View Transitions <ClientRouter />
@@ -134,9 +133,10 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, follow" />}
 
-    {/* Mobile browser UI chrome color, theme-aware (Soft Linen / Charcoal Dark). */}
-    <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#2A2A2A" media="(prefers-color-scheme: dark)" />
+    {/* Mobile browser UI chrome color — Thread Ledger parchment. Single value:
+        this site has no dark mode, by design (see docs/superpowers/specs/
+        2026-06-30-thread-ledger-redesign-design.md). */}
+    <meta name="theme-color" content="#F7F1E6" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {/* Note: Cormorant Garamond is loaded via @fontsource @import in globals.css.
@@ -172,58 +172,6 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
     {allSchemas.map((json) => (
       <script type="application/ld+json" set:html={json} />
     ))}
-
-    {/* Anti-FOUC theme bootstrap — must run inline before first paint.
-        Also re-applies the theme + theme-aware images (header logo) after
-        every Astro View Transitions navigation: the transition swap
-        replaces <html>'s className with the new page's (empty), so without
-        this listener a user who set dark mode would see the next page
-        render in light. The listener registers exactly once via the
-        __themeBootstrapBound flag. */}
-    <script is:inline define:vars={{ key: site.themeStorageKey }}>
-      (function () {
-        function applyTheme() {
-          let dark = false;
-          try {
-            const stored = localStorage.getItem(key) ?? 'system';
-            dark =
-              stored === 'dark' ||
-              (stored === 'system' &&
-                window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.classList.toggle('dark', dark);
-            document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
-          } catch (_) { /* localStorage unavailable, default light */ }
-
-          // Theme-aware images (header logo) — swap src/srcset to match the
-          // active theme. Single-img approach means only one variant is ever
-          // fetched per page load, so Lighthouse doesn't flag the inactive
-          // variant as "image larger than displayed."
-          const imgs = document.querySelectorAll('img[data-theme-logo]');
-          for (let i = 0; i < imgs.length; i++) {
-            const img = imgs[i];
-            const nextSrc = dark ? img.dataset.logoDarkSrc : img.dataset.logoLightSrc;
-            const nextSrcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
-            if (nextSrc && img.src !== nextSrc) img.src = nextSrc;
-            if (nextSrcset && img.srcset !== nextSrcset) img.srcset = nextSrcset;
-          }
-        }
-        applyTheme();
-        if (!window.__themeBootstrapBound) {
-          window.__themeBootstrapBound = true;
-          // The first applyTheme() runs in <head> before the body is
-          // parsed, so theme-aware imgs below the fold (footer logo) don't
-          // exist yet and never get their src set. Run once more after the
-          // body is in the DOM. (Header logo is handled by its own inline
-          // script directly after the img, so it's already set by here.)
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', applyTheme, { once: true });
-          }
-          // View Transitions: html className gets reset on every swap, so
-          // re-apply the persisted theme after each navigation.
-          document.addEventListener('astro:after-swap', applyTheme);
-        }
-      })();
-    </script>
 
     {/* Cloudflare Web Analytics — conditional, no cookie banner needed. */}
     {cfToken && (

@@ -22,7 +22,6 @@ export const site = {
 
   studio: _name,
   storageKeyPrefix: _slug,
-  themeStorageKey: _slug + '-theme',
 
   // MAS Monograms brand palette — mirrors tokens.css and globals.css.
   // Used by OG image generation scripts and JSON-LD schemas.
