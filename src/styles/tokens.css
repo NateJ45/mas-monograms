@@ -204,5 +204,5 @@ select:focus-visible {
 }
 
 .band {
-  background: var(--color-mustard);
+  background: var(--color-band);
 }
