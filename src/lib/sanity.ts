@@ -42,11 +42,27 @@ import type { SanityImageSource } from '@sanity/image-url';
 const proc: Record<string, string | undefined> = import.meta.env.SSR
   ? ((globalThis as any)?.process?.env ?? {})
   : {};
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID ?? proc.PUBLIC_SANITY_PROJECT_ID;
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET ?? proc.PUBLIC_SANITY_DATASET ?? 'production';
-const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION ?? proc.PUBLIC_SANITY_API_VERSION ?? '2026-05-01';
-const readToken =
-  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ?? proc.SANITY_API_READ_TOKEN;
+
+// Normalize env values before they reach the Sanity client. Dashboard-pasted
+// build variables routinely carry trailing whitespace, a stray carriage return,
+// or accidental surrounding quotes — and an empty value must be treated as unset
+// (not "") so the default applies. A malformed dataset like "" or "production "
+// makes createClient throw "Datasets can only contain lowercase characters…",
+// which crashes the whole build at prerender. clean() defends against all of it.
+const clean = (v: unknown): string | undefined => {
+  const s = String(v ?? '').trim().replace(/^["']|["']$/g, '').trim();
+  return s.length > 0 ? s : undefined;
+};
+
+const projectId = clean(import.meta.env.PUBLIC_SANITY_PROJECT_ID) ?? clean(proc.PUBLIC_SANITY_PROJECT_ID);
+// Sanity datasets are always lowercase, so lowercasing is safe and forgives a
+// "Production"-style typo in the dashboard.
+const dataset = (
+  clean(import.meta.env.PUBLIC_SANITY_DATASET) ?? clean(proc.PUBLIC_SANITY_DATASET) ?? 'production'
+).toLowerCase();
+const apiVersion =
+  clean(import.meta.env.PUBLIC_SANITY_API_VERSION) ?? clean(proc.PUBLIC_SANITY_API_VERSION) ?? '2026-05-01';
+const readToken = clean(import.meta.env.SANITY_API_READ_TOKEN) ?? clean(proc.SANITY_API_READ_TOKEN);
 
 /** Returns true when no real Sanity project has been configured. */
 const PLACEHOLDER_IDS = new Set(['', 'your-project-id', 'placeholder']);
