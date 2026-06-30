@@ -18,7 +18,6 @@ import { getActiveAnnouncement } from '@/lib/queries';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
-import { Toaster } from '@/components/ui/sonner';
 import '@/styles/globals.css';
 // Starwind UI CSS — accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
@@ -281,9 +280,6 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
       the critical path on mobile.
     */}
     <BackToTop client:idle />
-
-    {/* Sonner toast region. Used by CopyEmailButton and ContactForm. Position bottom-right by default. */}
-    <Toaster client:idle position="bottom-right" />
 
     {/* Lenis smooth scroll. The reduced-motion guard in globals.css already
         kills smooth-scroll behavior; we also bail out here so we don't pay
