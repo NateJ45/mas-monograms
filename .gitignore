@@ -25,6 +25,9 @@ tmp/
 studio/schema.json
 studio/dist/
 
+# Lighthouse CI report artifacts
+.lighthouseci/
+
 # transient commit message files
 .git-commit-msg.tmp
 

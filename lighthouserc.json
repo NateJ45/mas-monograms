@@ -1,0 +1,30 @@
+{
+  "ci": {
+    "collect": {
+      "staticDistDir": "./dist/client",
+      "numberOfRuns": 1,
+      "url": [
+        "http://localhost/index.html",
+        "http://localhost/about/index.html",
+        "http://localhost/how-it-works/index.html",
+        "http://localhost/pricing/index.html",
+        "http://localhost/request-a-quote/index.html",
+        "http://localhost/shop-by-item/index.html",
+        "http://localhost/style-gallery/index.html",
+        "http://localhost/font-lettering-guide/index.html",
+        "http://localhost/thread-color-chart/index.html",
+        "http://localhost/clearance/index.html",
+        "http://localhost/thank-you/index.html",
+        "http://localhost/404.html"
+      ]
+    },
+    "assert": {
+      "assertions": {
+        "categories:accessibility": ["error", { "minScore": 1 }]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}
