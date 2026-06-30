@@ -6,7 +6,6 @@
 //   3. Centered logo + tagline
 //   4. Bottom bar: copyright · site credit
 
-import { getImage } from 'astro:assets';
 import { site } from '@/data/site';
 import {
   IconBrandInstagram,
@@ -15,16 +14,8 @@ import {
   IconLink,
 } from '@tabler/icons-react';
 import { Mail, Phone } from 'lucide-react';
-import logoLightAsset from '@/assets/logo-light.png';
-import logoDarkAsset  from '@/assets/logo-dark.png';
+import Logo from './Logo.astro';
 import { telHref } from '@/lib/phone';
-
-const footerLogoLight1x = await getImage({ src: logoLightAsset, format: 'webp', width: 96 });
-const footerLogoLight2x = await getImage({ src: logoLightAsset, format: 'webp', width: 192 });
-const footerLogoDark1x  = await getImage({ src: logoDarkAsset,  format: 'webp', width: 96 });
-const footerLogoDark2x  = await getImage({ src: logoDarkAsset,  format: 'webp', width: 192 });
-const footerLogoLightSrcset = `${footerLogoLight1x.src} 1x, ${footerLogoLight2x.src} 2x`;
-const footerLogoDarkSrcset  = `${footerLogoDark1x.src} 1x, ${footerLogoDark2x.src} 2x`;
 
 interface SocialLink { platform?: string; url?: string; label?: string; }
 interface FooterColumn { title?: string; links?: Array<{ label?: string; href?: string }>; }
@@ -192,19 +183,7 @@ function socialIcon(platform: string | undefined) {
   {/* Logo + tagline */}
   <div class="mx-auto max-w-content px-m pb-l flex flex-col items-center gap-s text-center">
     <a href="/" aria-label={`${brandName} home`} class="inline-block hover:opacity-80 transition-opacity">
-      <img
-        alt={brandName}
-        width={96}
-        height={102}
-        class="h-20 w-auto"
-        loading="lazy"
-        decoding="async"
-        data-theme-logo
-        data-logo-light-src={footerLogoLight1x.src}
-        data-logo-light-srcset={footerLogoLightSrcset}
-        data-logo-dark-src={footerLogoDark1x.src}
-        data-logo-dark-srcset={footerLogoDarkSrcset}
-      />
+      <Logo variant="ink" class="h-20 w-auto" />
     </a>
     {siteSettings?.tagline && (
       <p class="text-sm text-foreground/60 italic max-w-[28rem]">{siteSettings.tagline}</p>
