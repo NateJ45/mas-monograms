@@ -1,0 +1,4 @@
+# Squarespace URL redirects — preserves SEO juice from old site
+/aboutcontact   /about          301
+/shop           /shop-by-item   301
+/cart           /clearance      301

@@ -1,0 +1,218 @@
+/* =============================================================================
+   MAS Monograms: Design Tokens
+   -----------------------------------------------------------------------------
+   This file is the single source of truth for color, type, spacing, and radius.
+   Change a value HERE and it updates everywhere it is used. Do not hard-code
+   these values in component styles; reference the variables instead.
+
+   SAFE TO EDIT YOURSELF: the values (the part after the colon). Tweaking a hex
+   code or a font size here is the intended way to adjust the whole site's look.
+
+   CODE, DO NOT RENAME: the variable names, for example --color-blush. Components
+   all over the site reference these names. Renaming one quietly breaks styling
+   in places you will not think to check.
+
+   Human-readable companion: docs/02-design-system.md.
+   ========================================================================== */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     COLOR
+     The feel: cream paper, ink text, sage as the primary accent, blush for the
+     call to action. The CTA is deliberately blush (warm), NOT sage, so the
+     "Request a Quote" button stands apart from ordinary links and navigation.
+     Keep that separation; it is what makes the one action you care about pop.
+     --------------------------------------------------------------------------- */
+  --color-ink: #2c2c28;          /* Primary text, headings, the logo wordmark */
+  --color-cream: #faf8f4;        /* Default page background, form input fields */
+  --color-white: #ffffff;        /* Cards and raised surfaces */
+  --color-muted: #7a7a72;        /* Secondary text, captions, eyebrows */
+
+  --color-sage-dark: #4a5e4c;    /* Primary accent, links, the logo brushstroke */
+  --color-sage-mid: #8a9e8c;     /* Secondary sage, borders, hover states */
+  --color-sage-light: #e8ede8;   /* Sage backgrounds, section bands, chips */
+  --color-sage-on-dark: #b8d4b8; /* Sage text/accents on dark backgrounds */
+
+  --color-blush: #c9a48a;        /* CTA button color, the logo flourish */
+  --color-blush-hover: #b8926e;  /* CTA button hover state */
+  --color-blush-light: #f5ede6;  /* Blush-tinted backgrounds, soft highlights */
+
+  /* Semantic aliases. Reference THESE in components where it reads more clearly,
+     so the intent survives even if the literal color is retuned later. */
+  --color-bg: var(--color-cream);
+  --color-text: var(--color-ink);
+  --color-text-soft: var(--color-muted);
+  --color-link: var(--color-sage-dark);
+  --color-accent: var(--color-sage-dark);
+  --color-surface: var(--color-white);
+  --color-band: var(--color-sage-light);
+  --color-border: var(--color-sage-mid);
+  --color-cta-bg: var(--color-blush);
+  --color-cta-bg-hover: var(--color-blush-hover);
+  /* White text on blush is the one pairing to verify for contrast at small
+     sizes (see the a11y note in docs/02). If it reads tight, switch this to
+     var(--color-ink) for button labels. */
+  --color-cta-text: var(--color-white);
+
+  /* ---------------------------------------------------------------------------
+     TYPOGRAPHY
+     Three families, all from Google Fonts:
+       Playfair Display (400)  headings, plus the italic accent words
+       DM Sans (300/400/500)   body, UI, buttons, navigation
+       Great Vibes (400)       LOGO ONLY (it lives in the SVG). You do not need
+                               to load it as a web font unless the logo is ever
+                               rendered as live text somewhere.
+     Load Playfair Display and DM Sans site-wide in your base layout.
+     --------------------------------------------------------------------------- */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-script: 'Great Vibes', cursive; /* logo only */
+
+  /* Weights, named so usage stays consistent across components. */
+  --weight-body-light: 300;
+  --weight-body: 400;
+  --weight-body-medium: 500;
+  --weight-heading: 400; /* Playfair reads best at 400 here; avoid heavy weights */
+
+  /* Type scale. Modest and calm: hero headings are large and confident, body is
+     comfortable to read. Adjust the values, keep the names. */
+  --text-xs: 0.75rem;   /* 12px  fine print */
+  --text-sm: 0.875rem;  /* 14px  captions, labels */
+  --text-base: 1rem;    /* 16px  body default */
+  --text-lg: 1.125rem;  /* 18px  lead paragraphs */
+  --text-xl: 1.5rem;    /* 24px  sub-headings */
+  --text-2xl: 2rem;     /* 32px  section headings */
+  --text-3xl: 2.75rem;  /* 44px  page titles */
+  --text-4xl: 3.5rem;   /* 56px  hero headings */
+
+  --leading-body: 1.6;        /* generous line-height for body readability */
+  --leading-tight: 1.2;       /* headings */
+  --tracking-eyebrow: 0.08em; /* looser spacing on small uppercase eyebrows/labels */
+
+  /* ---------------------------------------------------------------------------
+     SPACING
+     One scale, used for padding, gaps, and section rhythm. Prefer these over ad
+     hoc pixel values so the vertical rhythm stays even site-wide.
+     --------------------------------------------------------------------------- */
+  --space-1: 0.25rem;  /* 4px  */
+  --space-2: 0.5rem;   /* 8px  */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-24: 6rem;    /* 96px  full-section top and bottom padding */
+
+  /* ---------------------------------------------------------------------------
+     RADIUS, BORDERS, SHADOW
+     The whole site shares one rounded family (about 6px) and one soft card shadow.
+     --------------------------------------------------------------------------- */
+  --radius: 6px;        /* buttons, inputs, cards, chips */
+  --radius-lg: 12px;    /* larger panels, if needed */
+  --border-width: 1px;
+  --focus-ring: 0 0 0 3px rgba(74, 94, 76, 0.45); /* sage focus ring for keyboard users */
+  --shadow-card: 0 2px 10px rgba(44, 44, 40, 0.08);
+
+  /* ---------------------------------------------------------------------------
+     LAYOUT
+     --------------------------------------------------------------------------- */
+  --content-max: 1140px;   /* max content width for full sections */
+  --content-narrow: 720px; /* comfortable reading measure for long text */
+}
+
+/* =============================================================================
+   Optional starter base styles
+   -----------------------------------------------------------------------------
+   These wire the tokens to the page so things look right immediately. Keep them
+   here or fold them into a global stylesheet, whichever you prefer. They are
+   intentionally minimal; the tokens above are the part that matters.
+   ========================================================================== */
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-weight: var(--weight-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-heading);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+}
+
+a {
+  color: var(--color-link);
+}
+
+/* Every interactive element gets a visible focus state, not only a hover state.
+   This is a real accessibility requirement, not a nicety. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius);
+}
+
+/* The one CTA button style: warm blush, used sparingly so it stays meaningful. */
+.btn-cta {
+  display: inline-block;
+  background: var(--color-cta-bg);
+  color: var(--color-cta-text);
+  font-family: var(--font-body);
+  font-weight: var(--weight-body-medium);
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-cta:hover {
+  background: var(--color-cta-bg-hover);
+}
+
+/* Secondary action: sage outline on transparent, for "Browse the Gallery" links. */
+.btn-secondary {
+  display: inline-block;
+  background: transparent;
+  color: var(--color-sage-dark);
+  font-family: var(--font-body);
+  font-weight: var(--weight-body-medium);
+  padding: var(--space-3) var(--space-6);
+  border: var(--border-width) solid var(--color-sage-mid);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Form fields: cream background, subtle border, sage focus ring (handled above). */
+.field {
+  background: var(--color-cream);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Card surface sitting on the cream page. */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-6);
+}
+
+/* Alternating full-width section band, to separate sections without hard lines. */
+.band {
+  background: var(--color-band);
+}

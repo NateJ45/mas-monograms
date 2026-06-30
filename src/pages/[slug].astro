@@ -1,0 +1,149 @@
+---
+// Dynamic item category pages — one page per itemCategory document.
+// Route: /<slug> e.g. /towels, /bags, /shirts
+// Built-in routes take precedence over this catch-all.
+
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getAllItemCategories, getItemCategoryBySlug, getAllGalleryItems } from '@/lib/queries';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const categories = await getAllItemCategories();
+  return (categories ?? [])
+    .filter((cat: any) => cat?.slug?.current)
+    .map((cat: any) => ({ params: { slug: cat.slug.current } }));
+};
+
+const { slug } = Astro.params as { slug: string };
+
+const [siteSettings, category, allGallery] = await Promise.all([
+  getSiteSettings(),
+  getItemCategoryBySlug(slug),
+  getAllGalleryItems(),
+]);
+
+if (!category) {
+  return Astro.redirect('/404', 307);
+}
+
+const title       = category?.seoTitle       ?? `${category.name} Embroidery — MAS Monograms`;
+const description = category?.seoDescription ?? `Custom embroidered ${category.name?.toLowerCase() ?? 'items'} from MAS Monograms in St. Matthews, SC. Personalized gifts and monograms.`;
+
+// Filter gallery to items related to this category
+const relatedGallery = allGallery.filter(
+  (item: any) => item.relatedCategory?.slug?.current === slug,
+).slice(0, 9);
+
+const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset);
+const primaryHero = heroImages[0] ?? null;
+---
+
+<BaseLayout {title} {description} seoImage={category?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="relative min-h-[60vh] flex items-end overflow-hidden bg-accent">
+    {primaryHero && (
+      <div class="absolute inset-0">
+        <SanityImage
+          source={primaryHero}
+          width={1600}
+          sizes="100vw"
+          class="w-full h-full object-cover opacity-60"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-accent/80 via-accent/30 to-transparent" />
+      </div>
+    )}
+    <div class="relative mx-auto max-w-content px-m py-section-lg">
+      {category?.eyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-cream/80 mb-s">{category.eyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-cream leading-headline-tight mb-m">
+        {category.name}
+      </h1>
+      {category?.description && (
+        <p class="text-cream/80 max-w-xl mb-l">{category.description}</p>
+      )}
+      <a
+        href="/request-a-quote"
+        class="inline-flex items-center px-l py-m rounded-md bg-blush hover:bg-blush-hover text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+      >
+        {category?.ctaLabel ?? 'Request a Quote'}
+      </a>
+    </div>
+  </section>
+
+  {/* Trust items */}
+  {(category?.trustItems ?? []).length > 0 && (
+    <section class="bg-primary py-m">
+      <div class="mx-auto max-w-content px-m">
+        <ul class="flex flex-wrap justify-center gap-l list-none">
+          {(category.trustItems as string[]).map((item: string) => (
+            <li class="text-sm text-white/90 flex items-center gap-xs">
+              <span class="text-white/50" aria-hidden="true">✦</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {/* Gallery — items in this category */}
+  {relatedGallery.length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+          {category.name} Gallery
+        </h2>
+        <div class="columns-2 sm:columns-3 lg:grid-cols-4 gap-m space-y-m">
+          {relatedGallery.map((item: any) => (
+            item.image?.asset && (
+              <div class="break-inside-avoid rounded-xl overflow-hidden border border-border">
+                <SanityImage
+                  source={item.image}
+                  width={400}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  class="w-full h-auto"
+                />
+              </div>
+            )
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Additional hero images as detail grid */}
+  {heroImages.length > 1 && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-m" data-stagger-grid>
+          {heroImages.slice(1).map((img: any) => (
+            <div class="rounded-xl overflow-hidden">
+              <SanityImage
+                source={img}
+                width={600}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                class="w-full h-auto object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CtaBanner
+    ctaLabel={category?.ctaLabel ?? 'Request a Quote'}
+    ctaHref="/request-a-quote"
+  />
+</BaseLayout>
+
+<style>
+  .text-cream { color: #faf8f4; }
+  .text-cream\/80 { color: rgba(250,248,244,0.80); }
+</style>

@@ -1,0 +1,353 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaBanner from '@/components/CtaBanner.astro';
+import {
+  getSiteSettings,
+  getHomePage,
+  getAllItemCategories,
+  getPopularCombinations,
+  getTestimonials,
+  getFeaturedGalleryItems,
+} from '@/lib/queries';
+
+const [siteSettings, page, categories, combos, testimonials, galleryItems] = await Promise.all([
+  getSiteSettings(),
+  getHomePage(),
+  getAllItemCategories(),
+  getPopularCombinations(),
+  getTestimonials(true),
+  getFeaturedGalleryItems(9),
+]);
+
+const title       = page?.seoTitle       ?? siteSettings?.seoTitle ?? 'MAS Monograms — Custom Embroidery in St. Matthews, SC';
+const description = page?.seoDescription ?? siteSettings?.seoDescription ?? 'Hand-embroidered monograms and personalized gifts by Mary Ann Stone. Quality custom embroidery on towels, bags, shirts, baby items, and more.';
+
+// Hero images for carousel/slideshow
+const heroImages = (page?.heroImages ?? []).filter((img: any) => img?.asset);
+const heroImage  = heroImages[0] ?? null;
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage ?? siteSettings?.seoImage} {siteSettings}>
+
+  {/* ── Hero ──────────────────────────────────────────────────────────────── */}
+  <section class="relative min-h-[85vh] flex items-end overflow-hidden bg-accent">
+    {heroImage && (
+      <div class="absolute inset-0">
+        <SanityImage
+          source={heroImage}
+          width={1600}
+          sizes="100vw"
+          class="w-full h-full object-cover opacity-50"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-accent/90 via-accent/40 to-transparent" />
+      </div>
+    )}
+    <div class="relative mx-auto max-w-content px-m py-section-lg">
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-cream/80 mb-s" data-reveal>{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-cream leading-headline-tight mb-m max-w-3xl" data-reveal>
+        {page?.heroHeadline ?? 'Custom Embroidery'}{' '}
+        {page?.heroItalicWord && <em class="italic">{page.heroItalicWord}</em>}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-cream/80 mb-l max-w-xl" data-reveal>{page.heroSubhead}</p>
+      )}
+      <div class="flex flex-wrap gap-m" data-reveal>
+        {page?.heroPrimaryCtaLabel && (
+          <a
+            href={page.heroPrimaryCtaHref ?? '/request-a-quote'}
+            class="inline-flex items-center px-l py-m rounded-md bg-blush hover:bg-blush-hover text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+          >
+            {page.heroPrimaryCtaLabel}
+          </a>
+        )}
+        {page?.heroSecondaryCtaLabel && (
+          <a
+            href={page.heroSecondaryCtaHref ?? '/how-it-works'}
+            class="inline-flex items-center px-l py-m rounded-md border border-cream/40 text-cream hover:bg-cream/10 text-sm uppercase tracking-eyebrow font-semibold transition-colors"
+          >
+            {page.heroSecondaryCtaLabel}
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {/* ── Trust Bar ─────────────────────────────────────────────────────────── */}
+  {(page?.trustItems ?? []).length > 0 && (
+    <section class="bg-primary py-m">
+      <div class="mx-auto max-w-content px-m">
+        {page?.trustHeadline && (
+          <p class="text-xs uppercase tracking-eyebrow text-white/70 text-center mb-s">{page.trustHeadline}</p>
+        )}
+        <ul class="flex flex-wrap justify-center gap-l list-none">
+          {(page.trustItems as string[]).map((item: string) => (
+            <li class="text-sm text-white/90 flex items-center gap-xs">
+              <span class="text-white/50" aria-hidden="true">✦</span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {/* ── Category Grid ─────────────────────────────────────────────────────── */}
+  {categories.length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="text-center mb-l" data-reveal>
+          {page?.categoriesEyebrow && (
+            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.categoriesEyebrow}</p>
+          )}
+          <h2 class="font-display text-h2 text-accent">{page?.categoriesHeadline ?? 'Shop by Item'}</h2>
+          {page?.categoriesSubhead && (
+            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.categoriesSubhead}</p>
+          )}
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m" data-stagger-grid>
+          {categories.slice(0, 8).map((cat: any) => (
+            <a
+              href={`/${cat.slug?.current ?? ''}`}
+              class="group block rounded-xl overflow-hidden border border-border bg-background hover:shadow-lg transition-shadow"
+            >
+              {cat.cardImage?.asset ? (
+                <div class="aspect-square overflow-hidden">
+                  <SanityImage
+                    source={cat.cardImage}
+                    width={400}
+                    height={400}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              ) : (
+                <div class="aspect-square bg-tertiary" />
+              )}
+              <div class="p-s text-center">
+                <p class="font-semibold text-sm text-accent group-hover:text-link transition-colors">
+                  {cat.name}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div class="text-center mt-l">
+          <a href="/shop-by-item" class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors">
+            View all items <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* ── About / Maker ─────────────────────────────────────────────────────── */}
+  {(page?.aboutHeadline || page?.aboutBody) && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
+        {page?.aboutPhoto?.asset && (
+          <div class="relative rounded-2xl overflow-hidden shadow-xl order-last lg:order-first" data-reveal>
+            <SanityImage
+              source={page.aboutPhoto}
+              width={700}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              class="w-full h-auto object-cover"
+            />
+          </div>
+        )}
+        <div data-reveal>
+          {page?.aboutEyebrow && (
+            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.aboutEyebrow}</p>
+          )}
+          <h2 class="font-display text-h2 text-accent mb-m leading-headline-tight">
+            {page.aboutHeadline}
+          </h2>
+          {page?.aboutBody && (
+            <div class="text-foreground/80 mb-l">
+              <PortableText client:idle value={page.aboutBody} />
+            </div>
+          )}
+          {page?.aboutCtaLabel && (
+            <a
+              href={page.aboutCtaHref ?? '/about'}
+              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+            >
+              {page.aboutCtaLabel} <span aria-hidden="true">→</span>
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* ── Process ───────────────────────────────────────────────────────────── */}
+  {(page?.processSteps ?? []).length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="text-center mb-l" data-reveal>
+          {page?.processEyebrow && (
+            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.processEyebrow}</p>
+          )}
+          <h2 class="font-display text-h2 text-accent">{page?.processHeadline ?? 'How It Works'}</h2>
+          {page?.processSubhead && (
+            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.processSubhead}</p>
+          )}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-l mt-l" data-stagger-grid>
+          {(page.processSteps as any[]).map((step: any, i: number) => (
+            <div class="text-center">
+              <div class="w-14 h-14 rounded-full bg-primary text-white font-display text-h4 flex items-center justify-center mx-auto mb-m">
+                {step.number ?? i + 1}
+              </div>
+              <h3 class="font-display text-h4 text-accent mb-xs">{step.label}</h3>
+              {step.body && <p class="text-sm text-foreground/70">{step.body}</p>}
+            </div>
+          ))}
+        </div>
+        {page?.processCtaLabel && (
+          <div class="text-center mt-l">
+            <a
+              href={page.processCtaHref ?? '/how-it-works'}
+              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+            >
+              {page.processCtaLabel} <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  {/* ── Popular Combinations ──────────────────────────────────────────────── */}
+  {combos.length > 0 && (
+    <section class="bg-tertiary py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="text-center mb-l" data-reveal>
+          {page?.combosEyebrow && (
+            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.combosEyebrow}</p>
+          )}
+          <h2 class="font-display text-h2 text-accent">{page?.combosHeadline ?? 'Popular Combinations'}</h2>
+          {page?.combosSubhead && (
+            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.combosSubhead}</p>
+          )}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+          {combos.slice(0, 6).map((combo: any) => (
+            <div class="bg-background rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow">
+              {combo.image?.asset ? (
+                <div class="aspect-[4/3] overflow-hidden">
+                  <SanityImage
+                    source={combo.image}
+                    width={600}
+                    height={450}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div class="aspect-[4/3] bg-bg-soft" />
+              )}
+              <div class="p-m">
+                <h3 class="font-display text-h4 text-accent mb-xs">{combo.name}</h3>
+                {combo.description && <p class="text-sm text-foreground/70">{combo.description}</p>}
+                {(combo.tags ?? []).length > 0 && (
+                  <div class="flex flex-wrap gap-xs mt-s">
+                    {(combo.tags as string[]).map((tag: string) => (
+                      <span class="text-xs px-s py-0.5 rounded-full bg-tertiary text-foreground/70">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* ── Testimonials ──────────────────────────────────────────────────────── */}
+  {testimonials.length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="text-center mb-l" data-reveal>
+          {page?.testimonialsEyebrow && (
+            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.testimonialsEyebrow}</p>
+          )}
+          <h2 class="font-display text-h2 text-accent">{page?.testimonialsHeadline ?? 'What Customers Say'}</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+          {testimonials.slice(0, 6).map((t: any) => (
+            <figure class="bg-background rounded-xl border border-border p-l flex flex-col gap-m">
+              <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
+                "{t.quote}"
+              </blockquote>
+              <figcaption class="text-sm text-foreground/60">
+                <span class="font-semibold text-foreground">{t.attribution}</span>
+                {t.itemOrdered && <span class="block text-xs mt-xs">{t.itemOrdered}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* ── Gallery Preview ───────────────────────────────────────────────────── */}
+  {galleryItems.length > 0 && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="text-center mb-l" data-reveal>
+          {page?.galleryEyebrow && (
+            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.galleryEyebrow}</p>
+          )}
+          <h2 class="font-display text-h2 text-accent">{page?.galleryHeadline ?? 'From the Studio'}</h2>
+          {page?.gallerySubhead && (
+            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.gallerySubhead}</p>
+          )}
+        </div>
+        <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m">
+          {galleryItems.map((item: any) => (
+            item.image?.asset && (
+              <div class="break-inside-avoid rounded-xl overflow-hidden border border-border">
+                <SanityImage
+                  source={item.image}
+                  width={400}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  class="w-full h-auto"
+                />
+              </div>
+            )
+          ))}
+        </div>
+        {page?.galleryCtaLabel && (
+          <div class="text-center mt-l">
+            <a
+              href={page.galleryCtaHref ?? '/style-gallery'}
+              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
+            >
+              {page.galleryCtaLabel} <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>
+
+<style>
+  .text-cream { color: #faf8f4; }
+  .text-cream\/80 { color: rgba(250,248,244,0.80); }
+</style>

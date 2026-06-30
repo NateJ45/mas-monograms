@@ -1,0 +1,468 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import { getSiteSettings, getRequestAQuotePage } from '@/lib/queries';
+
+const [siteSettings, page] = await Promise.all([
+  getSiteSettings(),
+  getRequestAQuotePage(),
+]);
+
+const title       = page?.seoTitle       ?? 'Request a Quote — MAS Monograms';
+const description = page?.seoDescription ?? "Request a custom embroidery quote from MAS Monograms. Tell Mary Ann what you need and she'll get back to you within 1–2 business days.";
+
+const L = {
+  orderInfoHeading:      page?.orderInfoHeading          ?? 'About Your Order',
+  personalInfoHeading:   page?.personalInfoHeading       ?? 'Your Information',
+  attachmentsHeading:    page?.attachmentsHeading        ?? 'Photos (Optional)',
+  additionalHeading:     page?.additionalHeading         ?? 'Anything Else?',
+  itemTypeLabel:         page?.itemTypeLabel             ?? 'What type of item?',
+  itemTypePlaceholder:   page?.itemTypePlaceholder       ?? 'e.g. bath towels, a tote bag, onesies…',
+  itemTypeHelp:          page?.itemTypeHelp              ?? null,
+  itemTypeError:         page?.itemTypeError             ?? 'Please describe the item type.',
+  quantityLabel:         page?.quantityLabel             ?? 'Quantity',
+  quantityPlaceholder:   page?.quantityPlaceholder       ?? 'e.g. 2',
+  quantityHelp:          page?.quantityHelp              ?? null,
+  personalizationLabel:  page?.personalizationLabel      ?? 'Personalization Details',
+  personalizationPlaceholder: page?.personalizationPlaceholder ?? 'Names, initials, dates, monogram style…',
+  personalizationHelp:   page?.personalizationHelp       ?? null,
+  personalizationError:  page?.personalizationError      ?? 'Please describe your personalization.',
+  fontLabel:             page?.fontPreferenceLabel       ?? 'Font Preference (Optional)',
+  fontPlaceholder:       page?.fontPreferencePlaceholder ?? 'Font name, or describe the style',
+  fontHelp:              page?.fontPreferenceHelp        ?? 'Not sure? Browse the Font Guide.',
+  threadLabel:           page?.threadColorLabel          ?? 'Thread Color Preference (Optional)',
+  threadPlaceholder:     page?.threadColorPlaceholder    ?? 'Color name or code, or "I trust your judgment"',
+  threadHelp:            page?.threadColorHelp           ?? 'Browse the Thread Color Chart for reference.',
+  neededByLabel:         page?.neededByLabel             ?? 'Date Needed By (Optional)',
+  neededByHelp:          page?.neededByHelp              ?? 'Rush orders may incur additional charges.',
+  giftLabel:             page?.giftLabel                 ?? 'Is this a gift?',
+  giftOptionYes:         page?.giftOptionYes             ?? 'Yes — please keep it a surprise!',
+  giftOptionNo:          page?.giftOptionNo              ?? 'No',
+  nameLabel:             page?.nameLabel                 ?? 'Your Name',
+  namePlaceholder:       page?.namePlaceholder           ?? 'First and last name',
+  nameError:             page?.nameError                 ?? 'Please enter your name.',
+  emailLabel:            page?.emailLabel                ?? 'Email Address',
+  emailPlaceholder:      page?.emailPlaceholder         ?? 'you@example.com',
+  emailError:            page?.emailError               ?? 'Please enter a valid email.',
+  phoneLabel:            page?.phoneLabel               ?? 'Phone Number (Optional)',
+  phonePlaceholder:      page?.phonePlaceholder         ?? '(843) 555-0100',
+  referralLabel:         page?.referralLabel            ?? 'How did you find us?',
+  referralOptions:       (page?.referralOptions ?? [
+    'Facebook', 'Instagram', 'Word of mouth', 'Returning customer', 'Other'
+  ]) as string[],
+  attachmentsHelp:       page?.attachmentsHelp          ?? 'Upload up to 5 photos (JPG, PNG, WEBP). Max 5 MB each.',
+  attachmentsError:      page?.attachmentsError         ?? 'Each file must be under 5 MB.',
+  notesLabel:            page?.notesLabel               ?? 'Additional Notes',
+  notesPlaceholder:      page?.notesPlaceholder         ?? 'Anything else Mary Ann should know?',
+  submitLabel:           page?.submitLabel              ?? 'Send My Quote Request',
+  submittingLabel:       page?.submittingLabel          ?? 'Sending…',
+  privacyNote:           page?.privacyNote              ?? null,
+};
+
+const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
+      <div data-reveal>
+        {page?.heroEyebrow && (
+          <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+        )}
+        <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+          {page?.heroHeadline ?? 'Request a Custom Quote'}
+        </h1>
+        {page?.heroSubhead && (
+          <p class="text-foreground/75 max-w-xl">{page.heroSubhead}</p>
+        )}
+        {page?.heroBody && (
+          <div class="text-foreground/75 mt-m">
+            <PortableText client:idle value={page.heroBody} />
+          </div>
+        )}
+        {(page?.heroTrustItems ?? []).length > 0 && (
+          <ul class="mt-l space-y-s list-none">
+            {(page.heroTrustItems as string[]).map((item: string) => (
+              <li class="flex items-start gap-s text-sm text-foreground/80">
+                <span class="text-primary mt-0.5" aria-hidden="true">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {page?.heroImage?.asset && (
+        <div class="rounded-2xl overflow-hidden shadow-xl" data-reveal>
+          <SanityImage
+            source={page.heroImage}
+            width={700}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            class="w-full h-auto object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Form */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-3xl px-m">
+
+      <div id="form-success" class="hidden mb-l p-l bg-primary/10 border border-primary/20 rounded-xl text-primary" role="alert" aria-live="polite">
+        <p class="font-semibold">We got it!</p>
+        <p class="text-sm">Redirecting you to the confirmation page…</p>
+      </div>
+      <div id="form-error" class="hidden mb-l p-l bg-red-50 border border-red-200 rounded-xl text-red-800" role="alert" aria-live="polite">
+        <p class="font-semibold">Something went wrong.</p>
+        <p id="form-error-msg" class="text-sm mt-xs">Please try again or email Mary Ann directly.</p>
+      </div>
+
+      <form
+        id="quote-form"
+        method="POST"
+        action="/api/quote"
+        enctype="multipart/form-data"
+        novalidate
+        class="space-y-section-md"
+      >
+
+        {/* ── Order Information ── */}
+        <fieldset class="space-y-l">
+          <legend class="font-display text-h3 text-accent mb-m border-b border-border-soft pb-s w-full">
+            {L.orderInfoHeading}
+          </legend>
+
+          <div class="form-field">
+            <label for="itemType" class="form-label">
+              {L.itemTypeLabel} <span class="text-red-500" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="itemType" name="itemType" type="text"
+              placeholder={L.itemTypePlaceholder}
+              required class="form-input"
+            />
+            {L.itemTypeHelp && <p class="form-help">{L.itemTypeHelp}</p>}
+            <p class="form-error hidden" data-error-for="itemType">{L.itemTypeError}</p>
+          </div>
+
+          <div class="form-field">
+            <label for="quantity" class="form-label">{L.quantityLabel}</label>
+            <input
+              id="quantity" name="quantity" type="number" min="1"
+              placeholder={L.quantityPlaceholder} class="form-input w-32"
+            />
+            {L.quantityHelp && <p class="form-help">{L.quantityHelp}</p>}
+          </div>
+
+          <div class="form-field">
+            <label for="personalization" class="form-label">
+              {L.personalizationLabel} <span class="text-red-500" aria-hidden="true">*</span>
+            </label>
+            <textarea
+              id="personalization" name="personalization" rows="3"
+              placeholder={L.personalizationPlaceholder}
+              required class="form-input"
+            />
+            {L.personalizationHelp && <p class="form-help">{L.personalizationHelp}</p>}
+            <p class="form-error hidden" data-error-for="personalization">{L.personalizationError}</p>
+          </div>
+
+          <div class="form-field">
+            <label for="fontPreference" class="form-label">{L.fontLabel}</label>
+            <input
+              id="fontPreference" name="fontPreference" type="text"
+              placeholder={L.fontPlaceholder} class="form-input"
+            />
+            {L.fontHelp && (
+              <p class="form-help">
+                {L.fontHelp}
+                <a href="/font-lettering-guide" class="ml-xs underline text-link hover:text-primary-dark">Font Guide →</a>
+              </p>
+            )}
+          </div>
+
+          <div class="form-field">
+            <label for="threadColor" class="form-label">{L.threadLabel}</label>
+            <input
+              id="threadColor" name="threadColor" type="text"
+              placeholder={L.threadPlaceholder} class="form-input"
+            />
+            {L.threadHelp && (
+              <p class="form-help">
+                {L.threadHelp}
+                <a href="/thread-color-chart" class="ml-xs underline text-link hover:text-primary-dark">Color Chart →</a>
+              </p>
+            )}
+          </div>
+
+          <div class="form-field">
+            <label for="neededBy" class="form-label">{L.neededByLabel}</label>
+            <input id="neededBy" name="neededBy" type="date" class="form-input w-48" />
+            {L.neededByHelp && <p class="form-help">{L.neededByHelp}</p>}
+          </div>
+
+          <div class="form-field">
+            <p class="form-label">{L.giftLabel}</p>
+            <div class="flex items-center gap-l mt-xs">
+              <label class="flex items-center gap-s text-sm cursor-pointer">
+                <input type="radio" name="isGift" value="yes" class="accent-primary" />
+                <span>{L.giftOptionYes}</span>
+              </label>
+              <label class="flex items-center gap-s text-sm cursor-pointer">
+                <input type="radio" name="isGift" value="no" class="accent-primary" checked />
+                <span>{L.giftOptionNo}</span>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        {/* ── Personal Info ── */}
+        <fieldset class="space-y-l">
+          <legend class="font-display text-h3 text-accent mb-m border-b border-border-soft pb-s w-full">
+            {L.personalInfoHeading}
+          </legend>
+
+          <div class="form-field">
+            <label for="name" class="form-label">
+              {L.nameLabel} <span class="text-red-500" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="name" name="name" type="text"
+              autocomplete="name" placeholder={L.namePlaceholder}
+              required class="form-input"
+            />
+            <p class="form-error hidden" data-error-for="name">{L.nameError}</p>
+          </div>
+
+          <div class="form-field">
+            <label for="email" class="form-label">
+              {L.emailLabel} <span class="text-red-500" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="email" name="email" type="email"
+              autocomplete="email" placeholder={L.emailPlaceholder}
+              required class="form-input"
+            />
+            <p class="form-error hidden" data-error-for="email">{L.emailError}</p>
+          </div>
+
+          <div class="form-field">
+            <label for="phone" class="form-label">{L.phoneLabel}</label>
+            <input
+              id="phone" name="phone" type="tel"
+              autocomplete="tel" placeholder={L.phonePlaceholder}
+              class="form-input w-56"
+            />
+          </div>
+
+          {L.referralOptions.length > 0 && (
+            <div class="form-field">
+              <label for="referral" class="form-label">{L.referralLabel}</label>
+              <select id="referral" name="referral" class="form-input">
+                <option value="">— Select one —</option>
+                {L.referralOptions.map((opt: string) => (
+                  <option value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+          )}
+        </fieldset>
+
+        {/* ── Photos ── */}
+        <fieldset class="space-y-l">
+          <legend class="font-display text-h3 text-accent mb-m border-b border-border-soft pb-s w-full">
+            {L.attachmentsHeading}
+          </legend>
+          <div class="form-field">
+            <div id="drop-zone" class="relative border-2 border-dashed border-border rounded-xl p-l text-center cursor-pointer hover:border-primary/40 transition-colors">
+              <input
+                id="attachments" name="attachments" type="file"
+                accept=".jpg,.jpeg,.png,.webp" multiple
+                class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                aria-describedby="attachments-help"
+              />
+              <p class="text-sm text-foreground/70">
+                Drag & drop photos here, or <span class="text-link underline">click to browse</span>
+              </p>
+              <p id="attachments-help" class="text-xs text-foreground/50 mt-xs">{L.attachmentsHelp}</p>
+            </div>
+            <ul id="file-list" class="mt-s space-y-xs list-none" aria-live="polite" />
+            <p class="form-error hidden" data-error-for="attachments">{L.attachmentsError}</p>
+          </div>
+        </fieldset>
+
+        {/* ── Notes ── */}
+        <fieldset>
+          <legend class="font-display text-h3 text-accent mb-m border-b border-border-soft pb-s w-full">
+            {L.additionalHeading}
+          </legend>
+          <div class="form-field">
+            <label for="notes" class="form-label">{L.notesLabel}</label>
+            <textarea
+              id="notes" name="notes" rows="4"
+              placeholder={L.notesPlaceholder} class="form-input"
+            />
+          </div>
+        </fieldset>
+
+        {/* Turnstile */}
+        {turnstileSiteKey && (
+          <div
+            class="cf-turnstile"
+            data-sitekey={turnstileSiteKey}
+            data-callback="onTurnstileSuccess"
+            data-theme="light"
+          />
+        )}
+
+        {/* Submit */}
+        <div>
+          <button
+            id="submit-btn"
+            type="submit"
+            data-label={L.submitLabel}
+            data-submitting={L.submittingLabel}
+            class="w-full sm:w-auto px-xl py-m rounded-md bg-blush hover:bg-blush-hover text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <span id="submit-label">{L.submitLabel}</span>
+          </button>
+          {L.privacyNote && (
+            <p class="mt-m text-xs text-foreground/50">{L.privacyNote}</p>
+          )}
+        </div>
+
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+{turnstileSiteKey && (
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline />
+)}
+
+<script>
+  let turnstileToken = '';
+  (window as any).onTurnstileSuccess = (token: string) => { turnstileToken = token; };
+
+  const attachmentsInput = document.getElementById('attachments') as HTMLInputElement | null;
+  const fileList         = document.getElementById('file-list') as HTMLUListElement | null;
+  const fileErrorEl      = document.querySelector('[data-error-for="attachments"]') as HTMLElement | null;
+  const MAX_FILE_BYTES   = 5 * 1024 * 1024;
+
+  function renderFileList() {
+    if (!fileList || !attachmentsInput) return;
+    while (fileList.firstChild) fileList.removeChild(fileList.firstChild);
+
+    let hasOversized = false;
+    Array.from(attachmentsInput.files ?? []).forEach((file) => {
+      const oversized = file.size > MAX_FILE_BYTES;
+      if (oversized) hasOversized = true;
+
+      const li   = document.createElement('li');
+      const nameSpan = document.createElement('span');
+      const sizeSpan = document.createElement('span');
+      nameSpan.textContent = file.name;
+      sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ' — TOO LARGE' : ''}`;
+      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-red-600' : 'text-foreground/70'}`;
+      li.appendChild(nameSpan);
+      li.appendChild(sizeSpan);
+      fileList.appendChild(li);
+    });
+
+    fileErrorEl?.classList.toggle('hidden', !hasOversized);
+  }
+
+  attachmentsInput?.addEventListener('change', renderFileList);
+
+  const form        = document.getElementById('quote-form') as HTMLFormElement | null;
+  const submitBtn   = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const submitLabel = document.getElementById('submit-label') as HTMLElement | null;
+  const successEl   = document.getElementById('form-success') as HTMLElement | null;
+  const errorEl     = document.getElementById('form-error') as HTMLElement | null;
+  const errorMsgEl  = document.getElementById('form-error-msg') as HTMLElement | null;
+
+  function setFieldError(fieldId: string, visible: boolean) {
+    const field = document.getElementById(fieldId) as HTMLElement | null;
+    const errEl = document.querySelector(`[data-error-for="${fieldId}"]`) as HTMLElement | null;
+    errEl?.classList.toggle('hidden', !visible);
+    field?.classList.toggle('border-red-400', visible);
+  }
+
+  ['itemType', 'personalization', 'name', 'email'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('input', () => setFieldError(id, false));
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let valid = true;
+    const required: Array<{ id: string; check: (v: string) => boolean }> = [
+      { id: 'itemType',        check: (v) => v.trim().length > 0 },
+      { id: 'personalization', check: (v) => v.trim().length > 0 },
+      { id: 'name',            check: (v) => v.trim().length > 0 },
+      { id: 'email',           check: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+    ];
+    required.forEach(({ id, check }) => {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+      const ok = el ? check(el.value) : false;
+      setFieldError(id, !ok);
+      if (!ok) valid = false;
+    });
+    const files = Array.from(attachmentsInput?.files ?? []);
+    if (files.some((f) => f.size > MAX_FILE_BYTES)) valid = false;
+    if (!valid) return;
+
+    const data = new FormData(form);
+    if (turnstileToken) data.set('cf-turnstile-response', turnstileToken);
+
+    if (submitBtn)   submitBtn.disabled = true;
+    if (submitLabel) submitLabel.textContent = submitBtn?.dataset.submitting ?? 'Sending…';
+    errorEl?.classList.add('hidden');
+
+    try {
+      const res = await fetch('/api/quote', { method: 'POST', body: data });
+      if (res.redirected || res.status === 303) {
+        const dest = res.redirected ? res.url : (res.headers.get('Location') ?? '/thank-you');
+        successEl?.classList.remove('hidden');
+        setTimeout(() => { window.location.href = dest; }, 1200);
+        return;
+      }
+      if (res.ok) {
+        successEl?.classList.remove('hidden');
+        setTimeout(() => { window.location.href = '/thank-you'; }, 1200);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        if (errorMsgEl) errorMsgEl.textContent = (body as { error?: string }).error ?? 'An unexpected error occurred.';
+        errorEl?.classList.remove('hidden');
+        if (submitBtn)   submitBtn.disabled = false;
+        if (submitLabel) submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
+      }
+    } catch {
+      if (errorMsgEl) errorMsgEl.textContent = 'Network error — please check your connection.';
+      errorEl?.classList.remove('hidden');
+      if (submitBtn)   submitBtn.disabled = false;
+      if (submitLabel) submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
+    }
+  });
+</script>
+
+<style>
+  @reference "../styles/globals.css";
+
+  .form-label {
+    @apply block text-xs uppercase tracking-eyebrow font-semibold text-foreground/80 mb-xs;
+  }
+  .form-input {
+    @apply block w-full rounded-md border border-border bg-background px-m py-s text-sm text-foreground
+           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors;
+  }
+  textarea.form-input { resize: vertical; }
+  .form-help  { @apply text-xs text-foreground/50 mt-xs; }
+  .form-error { @apply text-xs text-red-600 mt-xs; }
+  .form-field { @apply flex flex-col; }
+</style>

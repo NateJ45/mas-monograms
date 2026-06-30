@@ -1,0 +1,169 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getClearancePage, getAllClearanceItems } from '@/lib/queries';
+
+const [siteSettings, page, items] = await Promise.all([
+  getSiteSettings(),
+  getClearancePage(),
+  getAllClearanceItems(),
+]);
+
+const title       = page?.seoTitle       ?? 'Clearance — MAS Monograms';
+const description = page?.seoDescription ?? 'Shop pre-made clearance embroidery items at reduced prices. Ready to ship — no custom order wait time.';
+
+const inStockItems = items.filter((item: any) => !item.sold);
+const soldOutItems = items.filter((item: any) => item.sold);
+const buyLabel     = page?.buyButtonLabel  ?? 'Buy Now';
+const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'Clearance'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Intro + notes */}
+  <section class="py-section-md">
+    <div class="mx-auto max-w-3xl px-m">
+      {page?.intro && (
+        <div data-reveal>
+          <PortableText client:idle value={page.intro} />
+        </div>
+      )}
+      {(page?.paymentNote || page?.pickupNote) && (
+        <div class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-m" data-reveal>
+          {page?.paymentNote && (
+            <div class="bg-muted rounded-xl p-m border border-border-soft">
+              <p class="text-sm text-foreground/80">{page.paymentNote}</p>
+            </div>
+          )}
+          {page?.pickupNote && (
+            <div class="bg-muted rounded-xl p-m border border-border-soft">
+              <p class="text-sm text-foreground/80">{page.pickupNote}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Items Grid */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-content px-m">
+      {items.length === 0 ? (
+        <p class="text-center text-foreground/60 py-l">
+          {page?.emptyStateMessage ?? 'No clearance items available at this time. Check back soon!'}
+        </p>
+      ) : (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+          {[...inStockItems, ...soldOutItems].map((item: any) => {
+            const isSold = item.sold;
+            const primaryImage = item.images?.[0];
+            return (
+              <div
+                class:list={[
+                  'rounded-xl border bg-background overflow-hidden flex flex-col',
+                  isSold ? 'border-border opacity-70' : 'border-border hover:shadow-md transition-shadow',
+                ]}
+              >
+                {/* Image */}
+                {primaryImage?.asset ? (
+                  <div class="aspect-[4/3] overflow-hidden relative">
+                    <SanityImage
+                      source={primaryImage}
+                      width={600}
+                      height={450}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      class="w-full h-full object-cover"
+                    />
+                    {isSold && (
+                      <div class="absolute inset-0 bg-background/50 flex items-center justify-center">
+                        <span class="bg-foreground text-background text-xs uppercase tracking-eyebrow font-semibold px-m py-xs rounded-full">
+                          {soldLabel}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div class="aspect-[4/3] bg-tertiary flex items-center justify-center">
+                    <span class="text-foreground/30 text-sm">No photo</span>
+                  </div>
+                )}
+
+                {/* Info */}
+                <div class="p-m flex flex-col flex-1 gap-s">
+                  <h2 class="font-display text-h4 text-accent">{item.name}</h2>
+                  {item.description && (
+                    <p class="text-sm text-foreground/70 line-clamp-3">{item.description}</p>
+                  )}
+
+                  {/* Pricing */}
+                  <div class="flex items-baseline gap-s mt-auto pt-s">
+                    {item.originalPrice && (
+                      <span class="text-sm text-foreground/50 line-through">
+                        ${typeof item.originalPrice === 'number' ? item.originalPrice.toFixed(2) : item.originalPrice}
+                      </span>
+                    )}
+                    {item.salePrice && (
+                      <span class="font-display text-h4 text-blush">
+                        ${typeof item.salePrice === 'number' ? item.salePrice.toFixed(2) : item.salePrice}
+                      </span>
+                    )}
+                    {item.quantityAvailable && !isSold && (
+                      <span class="ml-auto text-xs text-foreground/50">
+                        {item.quantityAvailable} left
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Buy button — Stripe Payment Link, no cart needed */}
+                  {isSold ? (
+                    <button
+                      type="button"
+                      disabled
+                      class="w-full mt-s py-m rounded-md bg-muted text-foreground/40 text-xs uppercase tracking-eyebrow font-semibold cursor-not-allowed"
+                    >
+                      {soldLabel}
+                    </button>
+                  ) : item.stripePaymentLink ? (
+                    <a
+                      href={item.stripePaymentLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="block w-full mt-s py-m rounded-md bg-blush hover:bg-blush-hover text-white text-xs uppercase tracking-eyebrow font-semibold text-center transition-colors press-tactile"
+                    >
+                      {buyLabel}
+                    </a>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>

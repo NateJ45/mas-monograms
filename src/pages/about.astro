@@ -1,0 +1,138 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getAboutPage, getTestimonials } from '@/lib/queries';
+
+const [siteSettings, page, testimonials] = await Promise.all([
+  getSiteSettings(),
+  getAboutPage(),
+  getTestimonials(true),
+]);
+
+const title       = page?.seoTitle       ?? 'About — MAS Monograms';
+const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behind MAS Monograms. One-woman embroidery studio in St. Matthews, SC.';
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
+      <div data-reveal>
+        {page?.heroEyebrow && (
+          <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+        )}
+        <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+          {page?.heroHeadline ?? 'About MAS Monograms'}
+        </h1>
+        {page?.heroSubhead && (
+          <p class="text-foreground/75 max-w-xl">{page.heroSubhead}</p>
+        )}
+      </div>
+      {page?.heroImage?.asset && (
+        <div class="rounded-2xl overflow-hidden shadow-xl" data-reveal>
+          <SanityImage
+            source={page.heroImage}
+            width={700}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            class="w-full h-auto object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Story */}
+  {(page?.storyContent || page?.makerPhoto) && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-start">
+        {page?.makerPhoto?.asset && (
+          <div class="relative" data-reveal>
+            <div class="rounded-2xl overflow-hidden">
+              <SanityImage
+                source={page.makerPhoto}
+                width={700}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                class="w-full h-auto object-cover"
+              />
+            </div>
+            {page?.makerAttribution && (
+              <p class="mt-s text-xs text-foreground/50 text-center">{page.makerAttribution}</p>
+            )}
+          </div>
+        )}
+        <div data-reveal>
+          {page?.storyHeadline && (
+            <h2 class="font-display text-h2 text-accent mb-m leading-headline-tight">
+              {page.storyHeadline}
+            </h2>
+          )}
+          {page?.storyContent && (
+            <div class="text-foreground/80">
+              <PortableText client:idle value={page.storyContent} />
+            </div>
+          )}
+          {page?.studioNote && (
+            <div class="mt-l bg-tertiary rounded-xl p-l">
+              <p class="font-display italic text-h4 text-foreground/85">{page.studioNote}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Values */}
+  {(page?.values ?? []).length > 0 && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        {page?.valuesHeadline && (
+          <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+            {page.valuesHeadline}
+          </h2>
+        )}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+          {(page.values as any[]).map((v: any) => (
+            <div class="bg-background rounded-xl border border-border p-l">
+              <h3 class="font-display text-h4 text-accent mb-s">{v.label}</h3>
+              <p class="text-foreground/75">{v.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Testimonials */}
+  {testimonials.length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+          {testimonials.slice(0, 3).map((t: any) => (
+            <figure class="bg-muted rounded-xl border border-border-soft p-l flex flex-col gap-m">
+              <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
+                "{t.quote}"
+              </blockquote>
+              <figcaption class="text-sm text-foreground/60">
+                <span class="font-semibold text-foreground">{t.attribution}</span>
+                {t.itemOrdered && <span class="block text-xs mt-xs">{t.itemOrdered}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>

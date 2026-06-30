@@ -1,0 +1,136 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import FaqAccordion from '@/components/FaqAccordion';
+import CtaBanner from '@/components/CtaBanner.astro';
+import PortableText from '@/components/PortableText';
+import { getSiteSettings, getPricingPage, getAllPricingTiers, getFaqItemsForPricing } from '@/lib/queries';
+
+const [siteSettings, page, tiers, faqs] = await Promise.all([
+  getSiteSettings(),
+  getPricingPage(),
+  getAllPricingTiers(),
+  getFaqItemsForPricing(),
+]);
+
+const title       = page?.seoTitle       ?? 'Pricing — MAS Monograms';
+const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per-piece rates based on quantity, with add-on options for backing, specialty thread, and rush orders.';
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'Pricing'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Pricing Tiers */}
+  {tiers.length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        {page?.tiersHeadline && (
+          <h2 class="font-display text-h2 text-accent text-center mb-s" data-reveal>
+            {page.tiersHeadline}
+          </h2>
+        )}
+        {page?.tiersSubhead && (
+          <p class="text-foreground/75 text-center mb-l max-w-2xl mx-auto" data-reveal>
+            {page.tiersSubhead}
+          </p>
+        )}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-m" data-stagger-grid>
+          {tiers.map((tier: any) => (
+            <div
+              class:list={[
+                'rounded-xl border p-l flex flex-col gap-s transition-shadow',
+                tier.highlighted
+                  ? 'border-primary bg-tertiary shadow-md ring-2 ring-primary'
+                  : 'border-border bg-background hover:shadow-sm',
+              ]}
+            >
+              {tier.highlighted && (
+                <span class="self-start text-xs uppercase tracking-eyebrow font-semibold text-white bg-primary px-s py-0.5 rounded-full">
+                  Most Popular
+                </span>
+              )}
+              <p class="text-xs uppercase tracking-eyebrow text-foreground/60">{tier.label}</p>
+              <p class="font-display text-h2 text-accent leading-none">
+                <span class="text-base font-body text-foreground/60">from </span>${typeof tier.pricePerPiece === 'number' ? tier.pricePerPiece.toFixed(2) : tier.pricePerPiece}
+              </p>
+              {tier.note && <p class="text-sm text-foreground/75">{tier.note}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Add-ons */}
+  {(page?.addons ?? []).length > 0 && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        {page?.addonsHeadline && (
+          <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+            {page.addonsHeadline}
+          </h2>
+        )}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-m" data-stagger-grid>
+          {(page.addons as any[]).map((addon: any) => (
+            <div class="bg-background rounded-xl border border-border p-l">
+              <p class="font-semibold text-foreground mb-xs">{addon.label}</p>
+              {addon.price && <p class="text-link font-display text-h4">{addon.price}</p>}
+              {addon.note && <p class="text-sm text-foreground/60 mt-xs">{addon.note}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Rush Orders */}
+  {(page?.rushHeadline || page?.rushBody) && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m max-w-3xl" data-reveal>
+        {page?.rushHeadline && (
+          <h2 class="font-display text-h2 text-accent mb-m">{page.rushHeadline}</h2>
+        )}
+        {page?.rushBody && (
+          <PortableText client:visible value={page.rushBody} />
+        )}
+      </div>
+    </section>
+  )}
+
+  {/* FAQ */}
+  {faqs.length > 0 && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        {page?.faqHeadline && (
+          <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+            {page.faqHeadline}
+          </h2>
+        )}
+        <div data-reveal>
+          <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>

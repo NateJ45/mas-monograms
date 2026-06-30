@@ -1,0 +1,46 @@
+---
+// Reusable bottom-of-page CTA section. Every MAS page ends with this.
+// Pull eyebrow/headline/subhead/ctaLabel/ctaHref from the page's Sanity data.
+
+interface Props {
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  eyebrow  = 'Ready to get started?',
+  headline = 'Request a Custom Quote',
+  subhead  = 'Tell us about your project and we\'ll get back to you within one business day.',
+  ctaLabel = 'Request a Quote',
+  ctaHref  = '/request-a-quote',
+} = Astro.props;
+---
+
+<section class="bg-accent text-cream py-section-lg">
+  <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    {eyebrow && (
+      <p class="text-xs uppercase tracking-eyebrow text-cream/70 mb-s">{eyebrow}</p>
+    )}
+    <h2 class="font-display text-h2 text-cream mb-m leading-headline-tight">
+      {headline}
+    </h2>
+    {subhead && (
+      <p class="text-cream/85 mb-l max-w-xl mx-auto">{subhead}</p>
+    )}
+    <a
+      href={ctaHref}
+      class="inline-flex items-center px-l py-m rounded-md bg-blush hover:bg-blush-hover text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+    >
+      {ctaLabel}
+    </a>
+  </div>
+</section>
+
+<style>
+  .text-cream { color: #faf8f4; }
+  .text-cream\/70 { color: rgba(250,248,244,0.70); }
+  .text-cream\/85 { color: rgba(250,248,244,0.85); }
+</style>

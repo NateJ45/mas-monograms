@@ -1,0 +1,207 @@
+// Home page singleton. Every piece of text on the homepage comes from here.
+// No pageBuilder — this page has a fixed section order designed for conversion.
+
+import { defineType, defineField, defineArrayMember } from 'sanity';
+import { HomeIcon } from '@sanity/icons';
+
+export const homePage = defineType({
+  name: 'homePage',
+  title: 'Home Page',
+  type: 'document',
+  icon: HomeIcon,
+  options: { canvasApp: { exclude: true } },
+  groups: [
+    { name: 'seo',         title: 'SEO' },
+    { name: 'hero',        title: 'Hero', default: true },
+    { name: 'trust',       title: 'Trust strip' },
+    { name: 'categories',  title: 'Shop categories' },
+    { name: 'about',       title: 'About / Maker blurb' },
+    { name: 'process',     title: 'Process preview' },
+    { name: 'combos',      title: 'Popular combinations' },
+    { name: 'testimonials',title: 'Testimonials' },
+    { name: 'gallery',     title: 'Gallery preview' },
+    { name: 'cta',         title: 'Final CTA banner' },
+  ],
+  fields: [
+    // ── SEO ──────────────────────────────────────────────────────────────────
+    defineField({ name: 'seoTitle', title: 'SEO title', type: 'string', group: 'seo',
+      description: 'Browser tab + Google title. Aim for 50–60 characters.',
+      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.') }),
+    defineField({ name: 'seoDescription', title: 'SEO description', type: 'text', rows: 3, group: 'seo',
+      description: 'Google results sentence. Aim for 150–160 characters.',
+      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.') }),
+    defineField({ name: 'seoImage', title: 'Social share image', type: 'image', group: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })] }),
+
+    // ── Hero ─────────────────────────────────────────────────────────────────
+    defineField({
+      name: 'heroImages',
+      title: 'Hero background images',
+      type: 'array',
+      group: 'hero',
+      description: 'Two or more images create a slow cross-fading slideshow. Landscape orientation works best.',
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })],
+        }),
+      ],
+      validation: (Rule) => Rule.required().min(1),
+    }),
+    defineField({ name: 'heroEyebrow', title: 'Eyebrow', type: 'string', group: 'hero',
+      description: 'Small label above the headline. E.g. "Handcrafted in St. Matthews, SC".',
+      validation: (R) => R.required().max(80) }),
+    defineField({ name: 'heroHeadline', title: 'Headline', type: 'string', group: 'hero',
+      description: 'The main hero headline. Can wrap two lines. Use <em> syntax for italic accent words.',
+      validation: (R) => R.required().max(100) }),
+    defineField({ name: 'heroItalicWord', title: 'Italic accent word (optional)', type: 'string', group: 'hero',
+      description: 'One word from the headline to italicize in Playfair Display. Must match exactly.' }),
+    defineField({ name: 'heroSubhead', title: 'Subhead', type: 'text', rows: 2, group: 'hero',
+      description: 'One or two sentences below the headline.',
+      validation: (R) => R.required().max(200) }),
+    defineField({ name: 'heroPrimaryCtaLabel', title: 'Primary CTA label', type: 'string', group: 'hero',
+      initialValue: 'Request a Quote', validation: (R) => R.required().max(40) }),
+    defineField({ name: 'heroPrimaryCtaHref', title: 'Primary CTA destination', type: 'string', group: 'hero',
+      initialValue: '/request-a-quote', validation: (R) => R.required() }),
+    defineField({ name: 'heroSecondaryCtaLabel', title: 'Secondary CTA label (optional)', type: 'string', group: 'hero' }),
+    defineField({ name: 'heroSecondaryCtaHref', title: 'Secondary CTA destination (optional)', type: 'string', group: 'hero' }),
+
+    // ── Trust strip ───────────────────────────────────────────────────────────
+    defineField({
+      name: 'trustItems',
+      title: 'Trust strip items',
+      type: 'array',
+      group: 'trust',
+      description: 'Short reassuring lines in the strip below the hero. E.g. "No minimums on custom orders" or "Satisfaction guaranteed".',
+      of: [defineArrayMember({ type: 'string' })],
+      validation: (Rule) => Rule.required().min(2).max(6),
+    }),
+
+    // ── Shop categories section ───────────────────────────────────────────────
+    defineField({ name: 'categoriesEyebrow', title: 'Eyebrow', type: 'string', group: 'categories',
+      description: 'Small label above the categories heading. E.g. "Shop by item".',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'categoriesHeadline', title: 'Headline', type: 'string', group: 'categories',
+      description: 'Section heading. E.g. "What would you like embroidered?"',
+      validation: (R) => R.required().max(80) }),
+    defineField({ name: 'categoriesSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'categories' }),
+    defineField({ name: 'categoriesCtaLabel', title: '"See all items" CTA label', type: 'string', group: 'categories',
+      initialValue: 'View all items', validation: (R) => R.required().max(50) }),
+    defineField({ name: 'categoriesCtaHref', title: '"See all items" CTA destination', type: 'string', group: 'categories',
+      initialValue: '/shop-by-item', validation: (R) => R.required() }),
+
+    // ── About / Maker blurb ───────────────────────────────────────────────────
+    defineField({ name: 'aboutEyebrow', title: 'Eyebrow', type: 'string', group: 'about',
+      description: 'E.g. "Meet Mary Ann".',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'aboutHeadline', title: 'Headline', type: 'string', group: 'about',
+      validation: (R) => R.required().max(80) }),
+    defineField({
+      name: 'aboutBody',
+      title: 'Body copy',
+      type: 'array',
+      group: 'about',
+      description: 'Two to three sentences about Mary Ann. Warm, personal.',
+      of: [
+        defineArrayMember({
+          type: 'block',
+          styles: [{ title: 'Paragraph', value: 'normal' }],
+          lists: [],
+          marks: {
+            decorators: [{ title: 'Bold', value: 'strong' }, { title: 'Italic', value: 'em' }],
+            annotations: [],
+          },
+        }),
+      ],
+      validation: (R) => R.required(),
+    }),
+    defineField({ name: 'aboutPhoto', title: 'Photo', type: 'image', group: 'about',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })],
+      validation: (R) => R.required() }),
+    defineField({ name: 'aboutCtaLabel', title: 'CTA label', type: 'string', group: 'about',
+      initialValue: 'Learn about Mary Ann', validation: (R) => R.required().max(50) }),
+    defineField({ name: 'aboutCtaHref', title: 'CTA destination', type: 'string', group: 'about',
+      initialValue: '/about', validation: (R) => R.required() }),
+
+    // ── Process preview ───────────────────────────────────────────────────────
+    defineField({ name: 'processEyebrow', title: 'Eyebrow', type: 'string', group: 'process',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'processHeadline', title: 'Headline', type: 'string', group: 'process',
+      validation: (R) => R.required().max(80) }),
+    defineField({ name: 'processSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'process' }),
+    defineField({
+      name: 'processSteps',
+      title: 'Process steps',
+      type: 'array',
+      group: 'process',
+      description: 'Short preview steps (3–4). More detail lives on the How It Works page.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'processStep',
+          fields: [
+            defineField({ name: 'number', title: 'Step number', type: 'string', description: 'E.g. "01"', validation: (R) => R.required() }),
+            defineField({ name: 'label', title: 'Step name', type: 'string', validation: (R) => R.required() }),
+            defineField({ name: 'body', title: 'Short description', type: 'text', rows: 2, validation: (R) => R.required() }),
+          ],
+          preview: { select: { title: 'label', subtitle: 'number' } },
+        }),
+      ],
+      validation: (Rule) => Rule.required().min(2).max(5),
+    }),
+    defineField({ name: 'processCtaLabel', title: 'CTA label', type: 'string', group: 'process',
+      initialValue: 'See how it works', validation: (R) => R.required().max(50) }),
+    defineField({ name: 'processCtaHref', title: 'CTA destination', type: 'string', group: 'process',
+      initialValue: '/how-it-works', validation: (R) => R.required() }),
+
+    // ── Popular combinations ──────────────────────────────────────────────────
+    defineField({ name: 'combosEyebrow', title: 'Eyebrow', type: 'string', group: 'combos',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'combosHeadline', title: 'Headline', type: 'string', group: 'combos',
+      validation: (R) => R.required().max(80) }),
+    defineField({ name: 'combosSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'combos' }),
+    defineField({ name: 'combosCtaLabel', title: 'CTA label', type: 'string', group: 'combos',
+      initialValue: 'Request a quote', validation: (R) => R.required().max(50) }),
+    defineField({ name: 'combosCtaHref', title: 'CTA destination', type: 'string', group: 'combos',
+      initialValue: '/request-a-quote', validation: (R) => R.required() }),
+
+    // ── Testimonials ──────────────────────────────────────────────────────────
+    defineField({ name: 'testimonialsEyebrow', title: 'Eyebrow', type: 'string', group: 'testimonials',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'testimonialsHeadline', title: 'Headline', type: 'string', group: 'testimonials',
+      validation: (R) => R.required().max(80) }),
+    defineField({ name: 'testimonialsSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'testimonials' }),
+    defineField({ name: 'testimonialsReviewsNote', title: 'Attribution line (optional)', type: 'string', group: 'testimonials',
+      description: 'E.g. "Reviews from Facebook and Google."' }),
+
+    // ── Gallery preview ───────────────────────────────────────────────────────
+    defineField({ name: 'galleryEyebrow', title: 'Eyebrow', type: 'string', group: 'gallery',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'galleryHeadline', title: 'Headline', type: 'string', group: 'gallery',
+      validation: (R) => R.required().max(80) }),
+    defineField({ name: 'gallerySubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'gallery' }),
+    defineField({ name: 'galleryCtaLabel', title: 'CTA label', type: 'string', group: 'gallery',
+      initialValue: 'View full style gallery', validation: (R) => R.required().max(50) }),
+    defineField({ name: 'galleryCtaHref', title: 'CTA destination', type: 'string', group: 'gallery',
+      initialValue: '/style-gallery', validation: (R) => R.required() }),
+
+    // ── Final CTA banner ──────────────────────────────────────────────────────
+    defineField({ name: 'ctaEyebrow', title: 'Eyebrow', type: 'string', group: 'cta',
+      validation: (R) => R.required().max(60) }),
+    defineField({ name: 'ctaHeadline', title: 'Headline', type: 'string', group: 'cta',
+      validation: (R) => R.required().max(100) }),
+    defineField({ name: 'ctaSubhead', title: 'Body copy (optional)', type: 'text', rows: 2, group: 'cta' }),
+    defineField({ name: 'ctaLabel', title: 'Button label', type: 'string', group: 'cta',
+      initialValue: 'Request a Quote', validation: (R) => R.required().max(50) }),
+    defineField({ name: 'ctaHref', title: 'Button destination', type: 'string', group: 'cta',
+      initialValue: '/request-a-quote', validation: (R) => R.required() }),
+    defineField({ name: 'ctaBackgroundImage', title: 'Background image (optional)', type: 'image', group: 'cta',
+      description: 'Full-bleed photo behind the CTA. The site adds a dark overlay for readability.',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })] }),
+  ],
+  preview: { prepare: () => ({ title: 'Home Page' }) },
+});

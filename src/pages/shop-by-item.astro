@@ -1,0 +1,96 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getShopIndexPage, getAllItemCategories } from '@/lib/queries';
+
+const [siteSettings, page, categories] = await Promise.all([
+  getSiteSettings(),
+  getShopIndexPage(),
+  getAllItemCategories(),
+]);
+
+const title       = page?.seoTitle       ?? 'Shop by Item — MAS Monograms';
+const description = page?.seoDescription ?? 'Browse all the items Mary Ann can embroider — towels, bags, shirts, baby gifts, and more.';
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'Shop by Item'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Category Grid */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-content px-m">
+      {page?.gridIntro && (
+        <p class="text-foreground/75 text-center mb-l max-w-2xl mx-auto" data-reveal>
+          {page.gridIntro}
+        </p>
+      )}
+      {categories.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+          {categories.map((cat: any) => (
+            <a
+              href={`/${cat.slug?.current ?? ''}`}
+              class="group block rounded-xl overflow-hidden border border-border bg-background hover:shadow-lg transition-shadow"
+            >
+              {cat.cardImage?.asset ? (
+                <div class="aspect-[4/3] overflow-hidden">
+                  <SanityImage
+                    source={cat.cardImage}
+                    width={600}
+                    height={450}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
+              ) : (
+                <div class="aspect-[4/3] bg-tertiary flex items-center justify-center">
+                  <span class="text-foreground/30 text-sm">No image</span>
+                </div>
+              )}
+              <div class="p-m">
+                {cat.eyebrow && (
+                  <p class="text-xs uppercase tracking-eyebrow text-link mb-xs">{cat.eyebrow}</p>
+                )}
+                <h2 class="font-display text-h4 text-accent mb-xs group-hover:text-link transition-colors">
+                  {cat.name}
+                </h2>
+                {cat.description && (
+                  <p class="text-sm text-foreground/70 line-clamp-2">{cat.description}</p>
+                )}
+                <span class="mt-m inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link">
+                  {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
+                </span>
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="text-center text-foreground/60 py-l">
+          Item categories coming soon — check back or <a href="/request-a-quote" class="text-link underline">request a quote</a> for any item.
+        </p>
+      )}
+    </div>
+  </section>
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>

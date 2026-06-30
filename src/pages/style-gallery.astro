@@ -1,0 +1,166 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getStyleGalleryPage, getAllGalleryItems } from '@/lib/queries';
+
+const [siteSettings, page, items] = await Promise.all([
+  getSiteSettings(),
+  getStyleGalleryPage(),
+  getAllGalleryItems(),
+]);
+
+const title       = page?.seoTitle       ?? 'Style Gallery — MAS Monograms';
+const description = page?.seoDescription ?? 'Browse the MAS Monograms photo gallery for inspiration — see real embroidery samples across fonts, items, and color combinations.';
+
+// Build filter tags from gallery items
+const allTags = Array.from(new Set(
+  items.flatMap((item: any) => item.tags ?? [])
+)).sort() as string[];
+
+const filterAllLabel = page?.filterAllLabel ?? 'All';
+const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFilterTags ?? [];
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'Style Gallery'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Gallery with client-side filter */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-content px-m">
+
+      {/* Filter bar */}
+      {allTags.length > 0 && (
+        <div class="flex flex-wrap gap-s justify-center mb-l" id="gallery-filters" role="group" aria-label="Filter gallery">
+          <button
+            type="button"
+            data-filter="all"
+            class="gallery-filter active-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-primary bg-primary text-white transition-colors"
+            aria-pressed="true"
+          >
+            {filterAllLabel}
+          </button>
+          {additionalTags.map((t) => (
+            <button
+              type="button"
+              data-filter={t.tag}
+              class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-foreground/80 hover:border-primary hover:text-link transition-colors"
+              aria-pressed="false"
+            >
+              {t.label}
+            </button>
+          ))}
+          {allTags.filter(tag => !additionalTags.some(at => at.tag === tag)).map((tag) => (
+            <button
+              type="button"
+              data-filter={tag}
+              class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-foreground/80 hover:border-primary hover:text-link transition-colors"
+              aria-pressed="false"
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {items.length > 0 ? (
+        <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m" id="gallery-grid">
+          {items.map((item: any) => (
+            <div
+              class="gallery-item break-inside-avoid rounded-xl overflow-hidden border border-border bg-background"
+              data-tags={JSON.stringify(item.tags ?? [])}
+            >
+              {item.image?.asset && (
+                <SanityImage
+                  source={item.image}
+                  width={400}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  class="w-full h-auto object-cover"
+                />
+              )}
+              {(item.relatedCategory?.name || item.relatedFont?.name) && (
+                <div class="px-s py-xs">
+                  {item.relatedCategory?.name && (
+                    <p class="text-xs text-foreground/60">{item.relatedCategory.name}</p>
+                  )}
+                  {item.relatedFont?.name && (
+                    <p class="text-xs text-foreground/50 italic">{item.relatedFont.name} font</p>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="text-center text-foreground/60 py-l">
+          {page?.emptyStateMessage ?? 'Gallery photos coming soon.'}
+        </p>
+      )}
+      <div id="gallery-empty" class="hidden text-center py-l">
+        <p class="text-foreground/60">
+          {page?.emptyStateMessage ?? 'No items match that filter.'}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>
+
+<script>
+  function initGalleryFilter() {
+    const filters = document.querySelectorAll<HTMLButtonElement>('.gallery-filter');
+    const items = document.querySelectorAll<HTMLElement>('.gallery-item');
+    const emptyMsg = document.getElementById('gallery-empty');
+    if (!filters.length || !items.length) return;
+
+    filters.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tag = btn.dataset.filter ?? 'all';
+
+        // Update button states
+        filters.forEach((b) => {
+          const active = b.dataset.filter === tag;
+          b.setAttribute('aria-pressed', String(active));
+          b.classList.toggle('active-filter', active);
+          b.classList.toggle('bg-primary', active);
+          b.classList.toggle('text-white', active);
+          b.classList.toggle('border-primary', active);
+          b.classList.toggle('text-foreground/80', !active);
+        });
+
+        // Filter items
+        let visible = 0;
+        items.forEach((item) => {
+          const tags: string[] = JSON.parse(item.dataset.tags ?? '[]');
+          const show = tag === 'all' || tags.includes(tag);
+          item.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        if (emptyMsg) emptyMsg.classList.toggle('hidden', visible > 0);
+      });
+    });
+  }
+  initGalleryFilter();
+  document.addEventListener('astro:page-load', initGalleryFilter);
+</script>

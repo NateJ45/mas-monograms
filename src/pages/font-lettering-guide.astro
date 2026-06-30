@@ -1,0 +1,123 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getFontGuidePage, getAllFonts } from '@/lib/queries';
+
+const [siteSettings, page, fonts] = await Promise.all([
+  getSiteSettings(),
+  getFontGuidePage(),
+  getAllFonts(),
+]);
+
+const title       = page?.seoTitle       ?? 'Font & Lettering Guide — MAS Monograms';
+const description = page?.seoDescription ?? 'Browse all embroidery fonts and lettering styles available at MAS Monograms. See preview photos of each font on actual embroidered fabric.';
+
+// Group fonts by styleTag
+const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
+  const key = font.styleTag ?? 'Other';
+  if (!acc[key]) acc[key] = [];
+  acc[key].push(font);
+  return acc;
+}, {} as Record<string, any[]>);
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'Font & Lettering Guide'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Intro */}
+  {page?.intro && (
+    <section class="py-section-md">
+      <div class="mx-auto max-w-3xl px-m" data-reveal>
+        <PortableText client:idle value={page.intro} />
+      </div>
+    </section>
+  )}
+
+  {/* Font Grid */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-content px-m">
+      {page?.fontGridEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link text-center mb-s" data-reveal>
+          {page.fontGridEyebrow}
+        </p>
+      )}
+      {page?.fontGridHeadline && (
+        <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+          {page.fontGridHeadline}
+        </h2>
+      )}
+
+      {fonts.length > 0 ? (
+        Object.entries(styleGroups).map(([style, styleFonts]) => (
+          <div class="mb-section-lg" data-reveal>
+            <h3 class="text-xs uppercase tracking-eyebrow text-foreground/60 mb-m border-b border-border-soft pb-s">
+              {style}
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-m" data-stagger-grid>
+              {(styleFonts as any[]).map((font: any) => (
+                <div class="group rounded-xl border border-border bg-background overflow-hidden hover:shadow-sm transition-shadow">
+                  {font.previewImage?.asset ? (
+                    <div class="aspect-square bg-tertiary overflow-hidden">
+                      <SanityImage
+                        source={font.previewImage}
+                        width={300}
+                        height={300}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ) : (
+                    <div class="aspect-square bg-tertiary flex items-center justify-center">
+                      <span class="font-display text-h2 text-foreground/20">Aa</span>
+                    </div>
+                  )}
+                  <div class="p-s">
+                    <p class="font-semibold text-sm text-accent">{font.name}</p>
+                    {font.popular && (
+                      <span class="text-xs text-blush font-semibold">Popular</span>
+                    )}
+                    {font.bestFor && (
+                      <p class="text-xs text-foreground/60 mt-xs">{font.bestFor}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      ) : (
+        <p class="text-center text-foreground/60 py-l">Font guide coming soon.</p>
+      )}
+
+      {page?.customFontNote && (
+        <div class="mt-l bg-muted rounded-xl p-l text-center" data-reveal>
+          <p class="text-foreground/75">{page.customFontNote}</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>

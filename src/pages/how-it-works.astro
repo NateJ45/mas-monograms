@@ -1,0 +1,109 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import FaqAccordion from '@/components/FaqAccordion';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getHowItWorksPage, getFaqItemsForHowItWorks } from '@/lib/queries';
+
+const [siteSettings, page, faqs] = await Promise.all([
+  getSiteSettings(),
+  getHowItWorksPage(),
+  getFaqItemsForHowItWorks(),
+]);
+
+const title       = page?.seoTitle       ?? 'How It Works — MAS Monograms';
+const description = page?.seoDescription ?? 'See exactly how the MAS Monograms process works, from placing your request to receiving your finished embroidered items.';
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'How It Works'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Process Steps */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-content px-m">
+      {page?.stepsHeadline && (
+        <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+          {page.stepsHeadline}
+        </h2>
+      )}
+      {(page?.steps ?? []).length > 0 && (
+        <ol class="space-y-section-md">
+          {(page.steps as any[]).map((step: any, i: number) => (
+            <li class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-l items-start" data-reveal>
+              <div class="flex items-center gap-m md:flex-col md:items-center md:gap-s">
+                <span class="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white font-display text-h4 flex items-center justify-center">
+                  {step.number ?? i + 1}
+                </span>
+                {i < (page.steps as any[]).length - 1 && (
+                  <div class="step-connector hidden md:block w-px flex-1 min-h-[3rem] bg-border-soft relative overflow-hidden mt-2" aria-hidden="true">
+                    <div class="absolute inset-0 bg-primary origin-top" style="transform: scaleY(0)"></div>
+                  </div>
+                )}
+              </div>
+              <div class="pb-l">
+                <h3 class="font-display text-h3 text-accent mb-s">{step.label}</h3>
+                {step.body && (
+                  <div class="text-foreground/80 prose prose-sm max-w-none">
+                    <PortableText client:visible value={step.body} />
+                  </div>
+                )}
+                {step.image?.asset && (
+                  <div class="mt-m rounded-xl overflow-hidden">
+                    <SanityImage
+                      source={step.image}
+                      width={800}
+                      sizes="(max-width: 768px) 100vw, 800px"
+                      class="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  </section>
+
+  {/* FAQ */}
+  {faqs.length > 0 && (
+    <section class="bg-muted py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        {page?.faqHeadline && (
+          <h2 class="font-display text-h2 text-accent mb-s text-center" data-reveal>
+            {page.faqHeadline}
+          </h2>
+        )}
+        {page?.faqSubhead && (
+          <p class="text-foreground/75 text-center mb-l" data-reveal>{page.faqSubhead}</p>
+        )}
+        <div data-reveal>
+          <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
+        </div>
+      </div>
+    </section>
+  )}
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>

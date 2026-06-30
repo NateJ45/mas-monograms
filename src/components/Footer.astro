@@ -1,0 +1,236 @@
+---
+// MAS Monograms site footer.
+// Structure:
+//   1. 4px sage accent stripe
+//   2. 4-column link grid (editor-managed via siteSettings.footerColumns, or fallback)
+//   3. Centered logo + tagline
+//   4. Bottom bar: copyright · site credit
+
+import { getImage } from 'astro:assets';
+import { site } from '@/data/site';
+import {
+  IconBrandInstagram,
+  IconBrandFacebook,
+  IconBrandPinterest,
+  IconLink,
+} from '@tabler/icons-react';
+import { Mail, Phone } from 'lucide-react';
+import logoLightAsset from '@/assets/logo-light.png';
+import logoDarkAsset  from '@/assets/logo-dark.png';
+import { telHref } from '@/lib/phone';
+
+const footerLogoLight1x = await getImage({ src: logoLightAsset, format: 'webp', width: 96 });
+const footerLogoLight2x = await getImage({ src: logoLightAsset, format: 'webp', width: 192 });
+const footerLogoDark1x  = await getImage({ src: logoDarkAsset,  format: 'webp', width: 96 });
+const footerLogoDark2x  = await getImage({ src: logoDarkAsset,  format: 'webp', width: 192 });
+const footerLogoLightSrcset = `${footerLogoLight1x.src} 1x, ${footerLogoLight2x.src} 2x`;
+const footerLogoDarkSrcset  = `${footerLogoDark1x.src} 1x, ${footerLogoDark2x.src} 2x`;
+
+interface SocialLink { platform?: string; url?: string; label?: string; }
+interface FooterColumn { title?: string; links?: Array<{ label?: string; href?: string }>; }
+
+interface Props {
+  siteSettings?: {
+    title?: string;
+    tagline?: string;
+    email?: string;
+    phone?: string;
+    address?: { street?: string; city?: string; state?: string; zip?: string } | null;
+    socialLinks?: SocialLink[] | null;
+    googleBusinessUrl?: string;
+    footerColumns?: FooterColumn[] | null;
+    footerCredit?: string;
+    footerCreditUrl?: string;
+  } | null;
+}
+
+const { siteSettings } = Astro.props as Props;
+
+const brandName      = siteSettings?.title ?? site.name;
+const email          = siteSettings?.email ?? '';
+const phone          = siteSettings?.phone ?? '';
+const address        = siteSettings?.address;
+const socialLinks    = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
+const siteCredit     = siteSettings?.footerCredit;
+const siteCreditUrl  = siteSettings?.footerCreditUrl;
+const currentYear    = new Date().getFullYear();
+
+// Resolve editor-managed footer columns; fall back to MAS defaults.
+const sanityColumns = (siteSettings?.footerColumns ?? []).filter(
+  (c) => c.title && Array.isArray(c.links) && c.links.length > 0,
+);
+const useCustomColumns = sanityColumns.length > 0;
+
+function socialIcon(platform: string | undefined) {
+  switch (platform) {
+    case 'Instagram': return IconBrandInstagram;
+    case 'Facebook':  return IconBrandFacebook;
+    case 'Pinterest': return IconBrandPinterest;
+    default:          return IconLink;
+  }
+}
+---
+
+<footer class="bg-muted text-foreground">
+  <div class="h-1 bg-primary" aria-hidden="true"></div>
+
+  <div class="mx-auto max-w-content px-m pt-l pb-m grid gap-l grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 text-center sm:text-left">
+
+    {useCustomColumns ? (
+      sanityColumns.map((col, i) => (
+        <nav aria-labelledby={`footer-col-${i}`}>
+          <p id={`footer-col-${i}`} class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            {col.title}
+          </p>
+          <ul class="text-sm space-y-2 list-none p-0">
+            {(col.links ?? []).map((link) => (
+              <li>
+                <a href={link.href ?? '#'} class="text-foreground/85 hover:text-link transition-colors">
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    ) : (
+      <>
+        {/* EXPLORE */}
+        <nav aria-labelledby="footer-explore">
+          <p id="footer-explore" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            Explore
+          </p>
+          <ul class="text-sm space-y-2 list-none p-0">
+            <li><a href="/how-it-works"  class="text-foreground/85 hover:text-link transition-colors">How It Works</a></li>
+            <li><a href="/pricing"        class="text-foreground/85 hover:text-link transition-colors">Pricing</a></li>
+            <li><a href="/shop-by-item"   class="text-foreground/85 hover:text-link transition-colors">Shop by Item</a></li>
+            <li><a href="/style-gallery"  class="text-foreground/85 hover:text-link transition-colors">Style Gallery</a></li>
+            <li><a href="/about"          class="text-foreground/85 hover:text-link transition-colors">About</a></li>
+          </ul>
+        </nav>
+
+        {/* RESOURCES */}
+        <nav aria-labelledby="footer-resources">
+          <p id="footer-resources" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            Resources
+          </p>
+          <ul class="text-sm space-y-2 list-none p-0">
+            <li><a href="/font-lettering-guide"  class="text-foreground/85 hover:text-link transition-colors">Font &amp; Lettering Guide</a></li>
+            <li><a href="/thread-color-chart"    class="text-foreground/85 hover:text-link transition-colors">Thread Color Chart</a></li>
+            <li><a href="/clearance"             class="text-foreground/85 hover:text-link transition-colors">Clearance</a></li>
+          </ul>
+        </nav>
+
+        {/* CONNECT */}
+        <nav aria-labelledby="footer-connect">
+          <p id="footer-connect" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            Connect
+          </p>
+          <ul class="text-sm space-y-2 list-none p-0">
+            <li>
+              <a href="/request-a-quote" class="text-foreground/85 hover:text-link transition-colors font-semibold">
+                Request a Quote
+              </a>
+            </li>
+            {email && (
+              <li>
+                <a href={`mailto:${email}`} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
+                  <Mail size={13} aria-hidden="true" />
+                  {email}
+                </a>
+              </li>
+            )}
+            {phone && (
+              <li>
+                <a href={telHref(phone)} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
+                  <Phone size={13} aria-hidden="true" />
+                  {phone}
+                </a>
+              </li>
+            )}
+            {address?.city && (
+              <li class="text-foreground/75 text-sm">
+                {[address.city, address.state].filter(Boolean).join(', ')}
+              </li>
+            )}
+          </ul>
+        </nav>
+
+        {/* GET IN TOUCH — social icons */}
+        <div>
+          <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            Follow Along
+          </p>
+          {socialLinks.length > 0 ? (
+            <ul class="flex justify-center sm:justify-start flex-wrap gap-s list-none p-0">
+              {socialLinks.map((link) => {
+                const Icon = socialIcon(link.platform);
+                const ariaLabel = link.label ?? link.platform ?? 'Social link';
+                return (
+                  <li>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={ariaLabel}
+                      class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors"
+                    >
+                      <Icon size={20} stroke={1.5} />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p class="text-sm text-foreground/60">Find us on social media.</p>
+          )}
+        </div>
+      </>
+    )}
+  </div>
+
+  {/* Logo + tagline */}
+  <div class="mx-auto max-w-content px-m pb-l flex flex-col items-center gap-s text-center">
+    <a href="/" aria-label={`${brandName} home`} class="inline-block hover:opacity-80 transition-opacity">
+      <img
+        alt={brandName}
+        width={96}
+        height={102}
+        class="h-20 w-auto"
+        loading="lazy"
+        decoding="async"
+        data-theme-logo
+        data-logo-light-src={footerLogoLight1x.src}
+        data-logo-light-srcset={footerLogoLightSrcset}
+        data-logo-dark-src={footerLogoDark1x.src}
+        data-logo-dark-srcset={footerLogoDarkSrcset}
+      />
+    </a>
+    {siteSettings?.tagline && (
+      <p class="text-sm text-foreground/60 italic max-w-[28rem]">{siteSettings.tagline}</p>
+    )}
+  </div>
+
+  {/* Bottom bar */}
+  <div class="border-t border-border">
+    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-xs text-xs text-foreground/80 text-center">
+      <p>© {currentYear} {brandName}</p>
+      <div class="flex items-center gap-m">
+        {siteCredit && (
+          siteCreditUrl ? (
+            <a
+              href={siteCreditUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-2 hover:text-link transition-colors"
+            >
+              {siteCredit}
+            </a>
+          ) : (
+            <span>{siteCredit}</span>
+          )
+        )}
+      </div>
+    </div>
+  </div>
+</footer>

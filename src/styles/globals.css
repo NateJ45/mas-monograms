@@ -1,0 +1,732 @@
+/* MAS Monograms — global stylesheet. Foundation, edit with care.
+   Brand tokens declared here (Tailwind 4 @theme block) and mapped
+   onto shadcn's semantic tokens (:root / .dark) so brand identity
+   carries everywhere the design system is referenced. */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/400-italic.css";
+@import "@fontsource-variable/dm-sans";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------- Brand tokens ---------------------------------- */
+
+@theme {
+  /* MAS Monograms palette — Ink / Cream / Sage / Blush */
+  --color-primary:      #4a5e4c; /* Sage Dark — links, nav, primary action */
+  --color-primary-dark: #3a4d3c; /* Sage Darker — hover states */
+  --color-accent:       #2c2c28; /* Ink — headings + body */
+  --color-accent-dark:  #1a1a18; /* Ink Dark */
+  --color-secondary:    #8a9e8c; /* Sage Mid — borders, muted accents */
+  --color-tertiary:     #e8ede8; /* Sage Light — section bands, chips */
+  --color-bg:           #faf8f4; /* Cream — primary surface */
+  --color-bg-soft:      #f5ede6; /* Blush Light — soft alternating surface */
+  --color-border-soft:  #e8ede8; /* Sage Light — faint dividers */
+  --color-white-pure:   #ffffff;
+  --color-blush:        #c9a48a; /* CTA button — warm, distinct from sage */
+  --color-blush-hover:  #b8926e;
+  --color-muted-text:   #7a7a72;
+
+  /* Fonts */
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body:    "DM Sans Variable", "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-script:  "Great Vibes", cursive; /* logo SVG only — not loaded as a web font */
+  --font-mono:    ui-monospace, "SF Mono", Consolas, monospace;
+
+  /* Fluid heading sizes */
+  --text-h6: 1rem;
+  --text-h5: clamp(1.125rem, 1.5vw, 1.25rem);
+  --text-h4: clamp(1.25rem,  2vw,   1.5rem);
+  --text-h3: clamp(1.5rem,   2.5vw, 2rem);
+  --text-h2: clamp(2rem,     4vw,   3rem);
+  --text-h1: clamp(2.5rem,   6vw,   5rem);
+
+  --leading-headline-tight: 1.1;   /* Playfair Display reads tighter than sans */
+  --tracking-eyebrow:       0.08em; /* Uppercase eyebrow labels */
+
+  /* Fluid spacing.
+     Note: section-padding sizes use --spacing-section-* prefix (not --spacing-xl)
+     to avoid silently breaking max-w-xl / max-w-2xl in Tailwind v4. */
+  --spacing-xs:           clamp(0.25rem, 0.5vw, 0.5rem);
+  --spacing-s:            clamp(0.5rem,  1vw,   1rem);
+  --spacing-m:            clamp(1rem,    2vw,   1.5rem);
+  --spacing-l:            clamp(2rem,    4vw,   3rem);
+  --spacing-section-md:   clamp(3rem,    6vw,   5rem);
+  --spacing-section-lg:   clamp(4rem,    8vw,   7rem);
+
+  --container-content: 82.5rem; /* ~1140px */
+
+  --default-transition-duration: 440ms;
+  --default-transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- shadcn semantic token map -------------------- */
+
+@theme inline {
+    --font-heading: var(--font-display);
+    --font-sans: var(--font-body);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    /* bg-accent must be theme-aware (shadcn convention — soft hover surface).
+       @theme inline wins over the static @theme declaration above. */
+    --color-accent: var(--accent);
+    --color-link: var(--link);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+    --animate-marquee:          marquee var(--duration) infinite linear;
+    --animate-marquee-vertical:  marquee-vertical var(--duration) linear infinite;
+    --animate-spotlight:         spotlight 2s ease 0.75s 1 forwards;
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(-100% - var(--gap))); }
+    }
+    @keyframes marquee-vertical {
+      from { transform: translateY(0); }
+      to   { transform: translateY(calc(-100% - var(--gap))); }
+    }
+    @keyframes spotlight {
+      0%   { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
+      100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+    }
+}
+
+/* ---------- Typographic utilities -------------------------*/
+
+@utility leading-headline-tight {
+  line-height: var(--leading-headline-tight);
+}
+
+@utility tracking-eyebrow {
+  letter-spacing: var(--tracking-eyebrow);
+}
+
+/* Italic accent words inside headings — Playfair Display's italic
+   cut is distinctly elegant; use <em> for the "accent word" treatment. */
+@utility font-italic-accent {
+  font-style: italic;
+}
+
+/* Script font — Great Vibes, used ONLY in the SVG logo file.
+   Never load this as a web font; the logo SVG is the canonical form. */
+@utility font-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.25em;
+  line-height: 0.9;
+  vertical-align: -0.1em;
+  letter-spacing: 0;
+}
+
+/* ---------- Light mode (MAS Monograms palette) ----------- */
+
+:root {
+    /* Surfaces — cream page, white cards */
+    --background: #faf8f4;
+    --foreground: #2c2c28;
+    --card: #ffffff;
+    --card-foreground: #2c2c28;
+    --popover: #ffffff;
+    --popover-foreground: #2c2c28;
+
+    /* Brand — sage primary */
+    --primary: #4a5e4c;
+    --primary-foreground: #ffffff;
+    --secondary: #e8ede8;
+    --secondary-foreground: #2c2c28;
+
+    /* Muted — blush light surface, muted ink text */
+    --muted: #f5ede6;
+    --muted-foreground: #7a7a72;
+
+    /* Accent — sage light (subtle hover / focus surface) */
+    --accent: #e8ede8;
+    --accent-foreground: #2c2c28;
+
+    /* States */
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: #8a9e8c;
+    --input: #e8ede8;
+    --ring: #4a5e4c;
+    --link: #4a5e4c;
+
+    /* Charts (neutral — not actively used) */
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+
+    --radius: 0.375rem; /* ~6px — slightly tighter than shadcn default */
+
+    /* Sidebar (reserved for admin contexts) */
+    --sidebar: #faf8f4;
+    --sidebar-foreground: #2c2c28;
+    --sidebar-primary: #4a5e4c;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e8ede8;
+    --sidebar-accent-foreground: #2c2c28;
+    --sidebar-border: #8a9e8c;
+    --sidebar-ring: #4a5e4c;
+
+    --tint-rgb: 74, 94, 76; /* Sage Dark in RGB for rgba() overlays */
+
+    --primary-accent: #3a4d3c;
+    --secondary-accent: #2c2c28;
+    --info: #93C5FD;
+    --info-foreground: #1E3A5F;
+    --success: #86EFAC;
+    --success-foreground: #14532D;
+    --warning: #FDE68A;
+    --warning-foreground: #713F12;
+    --error: oklch(0.577 0.245 27.325);
+    --error-foreground: #ffffff;
+    --outline: #4a5e4c;
+}
+
+/* ---------- Dark mode ------------------------------------ */
+/* MAS Monograms is a light, warm brand — the .dark class is intentionally
+   never toggled at runtime (no ThemeToggle in the Nav). These rules keep
+   the CSS cascade complete if something ever adds it. */
+
+.dark {
+    --background: #1c1c1a;
+    --foreground: #f0ede8;
+    --card: #262623;
+    --card-foreground: #f0ede8;
+    --popover: #262623;
+    --popover-foreground: #f0ede8;
+
+    --primary: #8a9e8c;
+    --primary-foreground: #1c1c1a;
+    --secondary: #2c3328;
+    --secondary-foreground: #f0ede8;
+
+    --muted: #262623;
+    --muted-foreground: #9a9a92;
+
+    --accent: #2c3328;
+    --accent-foreground: #f0ede8;
+
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 15%);
+    --input: oklch(1 0 0 / 12%);
+    --ring: #8a9e8c;
+    --link: #8a9e8c;
+
+    --sidebar: #262623;
+    --sidebar-foreground: #f0ede8;
+    --sidebar-primary: #8a9e8c;
+    --sidebar-primary-foreground: #1c1c1a;
+    --sidebar-accent: #2c3328;
+    --sidebar-accent-foreground: #f0ede8;
+    --sidebar-border: oklch(1 0 0 / 15%);
+    --sidebar-ring: #8a9e8c;
+
+    --tint-rgb: 138, 158, 140;
+
+    --primary-accent: #8a9e8c;
+    --secondary-accent: #f0ede8;
+    --info: #93C5FD;
+    --info-foreground: #1E3A5F;
+    --success: #86EFAC;
+    --success-foreground: #14532D;
+    --warning: #FDE68A;
+    --warning-foreground: #713F12;
+    --error: oklch(0.704 0.191 22.216);
+    --error-foreground: #ffffff;
+    --outline: #8a9e8c;
+}
+
+/* ---------- Base resets and defaults ---------------------- */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: var(--font-body);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 400; /* Playfair Display reads best at Regular weight */
+    color: var(--color-accent);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  /* Italic accent words — use <em> inside headings for the editorial touch */
+  h1 em, h2 em, h3 em {
+    font-style: italic;
+    font-weight: 400;
+  }
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: var(--foreground);
+  }
+}
+
+/* ---------- Skip-to-main link ----------------------------- */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary-dark, #3a4d3c);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  top: 0.5rem;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ---------- Polish layer ---------------------------------- */
+
+[data-reveal] {
+  opacity: 0;
+  translate: 0 0.75rem;
+  transition-property: opacity, translate, transform, box-shadow, border-color;
+  transition-duration: 600ms, 600ms, 440ms, 440ms, 440ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, translate;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.nav-underline {
+  position: relative;
+}
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -0.35rem;
+  height: 2px;
+  width: 100%;
+  background-color: var(--primary);
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-underline:hover::after,
+.nav-underline:focus-visible::after,
+.nav-underline[aria-current="page"]::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: transparent;
+  z-index: 60;
+  pointer-events: none;
+}
+.reading-progress__bar {
+  height: 100%;
+  width: 100%;
+  background-color: var(--primary);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 80ms linear;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.site-header[data-state="hidden"] {
+  transform: translateY(-100%);
+}
+
+.card-lift {
+  transition-property: box-shadow, transform, border-color, color, background-color;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 440ms;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px -18px rgba(44, 44, 40, 0.22);
+}
+.dark .card-lift:hover {
+  box-shadow: 0 16px 34px -18px rgba(0, 0, 0, 0.6);
+}
+
+.card-lift-slow {
+  transition-duration: 1500ms;
+}
+
+[data-stagger-grid] > .card-lift-slow {
+  transition-duration: 600ms, 600ms, 1500ms, 1500ms, 1500ms;
+}
+
+.surface-warm {
+  background-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    rgba(var(--tint-rgb), 0.06),
+    transparent 70%
+  );
+}
+
+.press-tactile {
+  transition-property: background-color, color, border-color, outline-color, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 440ms;
+}
+.press-tactile:active {
+  transform: translateY(1px);
+  transition-duration: 60ms;
+}
+
+@layer base {
+  a,
+  button,
+  summary,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="tab"] {
+    transition-property: color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke, box-shadow, transform, opacity;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transition-duration: 440ms;
+  }
+}
+
+/* Gallery filter visibility */
+.is-filtered-out {
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Hero entry stagger */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-entry-stagger > * {
+  opacity: 0;
+  animation: hero-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-entry-stagger > *:nth-child(1) { animation-delay:   0ms; }
+.hero-entry-stagger > *:nth-child(2) { animation-delay: 120ms; }
+.hero-entry-stagger > *:nth-child(3) { animation-delay: 240ms; }
+.hero-entry-stagger > *:nth-child(4) { animation-delay: 360ms; }
+.hero-entry-stagger > *:nth-child(5) { animation-delay: 480ms; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-entry-stagger > * {
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* Hero background slideshow — Ken Burns + cross-fade */
+.hero-slideshow { position: absolute; inset: 0; }
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+  transform-origin: center;
+  animation: hero-kb 16s ease-in-out infinite alternate;
+  will-change: opacity, transform;
+}
+.hero-slide.is-active { opacity: 1; }
+.hero-slide:nth-child(3n + 2) { transform-origin: top left; animation-duration: 18s; }
+.hero-slide:nth-child(3n + 3) { transform-origin: bottom right; animation-duration: 20s; }
+@keyframes hero-kb {
+  from { transform: scale(1); }
+  to   { transform: scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide { transition: none; animation: none; transform: none; }
+}
+
+/* Image zoom + sage tint hover */
+@media (prefers-reduced-motion: no-preference) {
+  .img-zoom img,
+  .img-zoom .img-zoom-target {
+    transition: transform 1500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .img-tint {
+    transition: background 400ms ease;
+  }
+}
+.img-tint {
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--tint-rgb), 0);
+  pointer-events: none;
+}
+.group:hover .img-zoom img,
+.group:hover .img-zoom .img-zoom-target,
+.img-zoom:hover img,
+.img-zoom:hover .img-zoom-target {
+  transform: scale(1.06);
+}
+.group:hover .img-zoom .img-tint,
+.img-zoom:hover .img-tint                { background: rgba(var(--tint-rgb), 0.15); }
+.group:hover .img-zoom .img-tint.img-tint-light,
+.img-zoom:hover .img-tint.img-tint-light { background: rgba(var(--tint-rgb), 0.08); }
+
+/* Grid stagger entrance */
+[data-stagger-grid] > * {
+  opacity: 0;
+  translate: 0 14px;
+  transition-property: opacity, translate, transform, box-shadow, border-color;
+  transition-duration: 600ms, 600ms, 440ms, 440ms, 440ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-stagger-grid].is-staggered > * {
+  opacity: 1;
+  translate: 0;
+}
+[data-stagger-grid].is-staggered > *:nth-child(1)   { transition-delay:   0ms,   0ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(2)   { transition-delay: 100ms, 100ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(3)   { transition-delay: 200ms, 200ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(4)   { transition-delay: 300ms, 300ms, 0ms, 0ms, 0ms; }
+[data-stagger-grid].is-staggered > *:nth-child(n+5) { transition-delay: 400ms, 400ms, 0ms, 0ms, 0ms; }
+
+[data-stagger-grid] > .is-filtered-out {
+  opacity: 0 !important;
+  transform: scale(0.96) !important;
+  transition-property: opacity, transform !important;
+  transition-duration: 360ms !important;
+  transition-delay: 0s !important;
+}
+
+/* Image curtain reveal */
+.img-curtain {
+  position: absolute;
+  inset: 0;
+  background: var(--background);
+  transform-origin: top center;
+  transform: scaleY(1);
+  transition: transform 900ms cubic-bezier(0.77, 0, 0.175, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+.img-curtain.is-revealed {
+  transform: scaleY(0);
+}
+
+/* Process step connector — sage thread draws downward */
+.step-connector {
+  flex: 1;
+  width: 2px;
+  min-height: 2rem;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+.step-connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  transform-origin: top;
+  transform: scaleY(0);
+  transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms;
+}
+.step-connector.is-visible::after {
+  transform: scaleY(1);
+}
+
+/* View transitions — cross-fade <main>, pin header + footer */
+main#main        { view-transition-name: main-content; }
+.site-header     { view-transition-name: site-header; }
+footer           { view-transition-name: site-footer; }
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+::view-transition-old(main-content) { animation: vt-fade-out 150ms ease forwards; }
+::view-transition-new(main-content) { animation: vt-fade-in  200ms ease forwards; }
+
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+/* Paper grain texture on cream surface */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+}
+
+/* Blockquote — About page pull quotes */
+.prose-blockquote {
+  border-left: 3px solid var(--primary);
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  margin: var(--spacing-m) 0;
+}
+.prose-blockquote p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.65;
+  color: var(--foreground);
+  margin: 0;
+}
+.prose-blockquote cite {
+  display: block;
+  font-size: 0.65rem;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--primary);
+  margin-top: 0.5rem;
+}
+
+/* ---------- Reduced motion -------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html { scroll-behavior: auto !important; }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+  }
+  [data-stagger-grid] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    translate: none !important;
+  }
+  .img-curtain { display: none !important; }
+  .step-connector::after { transform: scaleY(1) !important; transition: none !important; }
+}
+
+/* ---------- Print ----------------------------------------- */
+
+@media print {
+  :root,
+  .dark {
+    --background: white;
+    --foreground: black;
+    --muted: white;
+    --border: #d4d4d4;
+  }
+  html, body { background: white !important; color: black !important; font-size: 11pt; }
+  body::before { display: none !important; }
+
+  .site-header,
+  footer,
+  .reading-progress,
+  [data-back-to-top],
+  .no-print { display: none !important; }
+
+  [class*="fixed"] { display: none !important; }
+
+  a { color: black !important; text-decoration: underline; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+    text-decoration: none;
+  }
+  a[href^="/"]::after,
+  a[href^="#"]::after,
+  a[href^="mailto:"]::after,
+  a[href^="tel:"]::after { content: ""; }
+
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  figure, .card-lift { page-break-inside: avoid; }
+  img { max-width: 100%; max-height: 8in; height: auto; }
+
+  body::after {
+    content: "MAS Monograms · mas-monograms.com";
+    display: block;
+    margin-top: 0.5in;
+    padding-top: 0.25in;
+    border-top: 1px solid #d4d4d4;
+    font-size: 9pt;
+    color: #666;
+    text-align: center;
+    font-family: var(--font-body);
+  }
+}

@@ -1,0 +1,339 @@
+---
+// MAS Monograms site header.
+// Two rows on desktop, one on mobile:
+//   ┌────────────────────────────────────── 4px accent stripe
+//   │ ─────────────────────────────────────── eyebrow strip (desktop only)
+//   │   [tagline]              email · phone · IG · FB
+//   ├────────────────────────────────────── main nav row
+//   │   [logo]      How It Works · Pricing · Shop · Gallery · About   [Request a Quote]
+//   └───────────────────────────────────────
+// Mobile: logo centered, hamburger absolute-right, eyebrow info in drawer.
+
+import { getImage } from 'astro:assets';
+import { site } from '@/data/site';
+import { Mail, Phone } from 'lucide-react';
+import { IconBrandInstagram, IconBrandFacebook, IconBrandPinterest } from '@tabler/icons-react';
+import { ChevronDown } from 'lucide-react';
+import MobileNav from './MobileNav';
+import logoLightAsset from '@/assets/logo-light.svg';
+import logoDarkAsset from '@/assets/logo-dark.svg';
+import { telHref } from '@/lib/phone';
+
+const logoLightImg = await getImage({ src: logoLightAsset });
+const logoDarkImg  = await getImage({ src: logoDarkAsset });
+const logoLightSrcset = logoLightImg.src;
+const logoDarkSrcset  = logoDarkImg.src;
+
+interface SocialLink {
+  platform?: string;
+  url?: string;
+  label?: string;
+}
+
+interface Props {
+  siteSettings?: {
+    title?: string;
+    tagline?: string;
+    email?: string;
+    phone?: string;
+    socialLinks?: SocialLink[] | null;
+    quoteCtaLabel?: string;
+    navItems?: Array<{
+      _type?: string;
+      label?: string;
+      href?: string;
+      links?: Array<{ label?: string; href?: string }>;
+    }> | null;
+  } | null;
+}
+
+const { siteSettings } = Astro.props as Props;
+
+const brandName   = siteSettings?.title ?? site.name;
+const email       = siteSettings?.email ?? '';
+const phone       = siteSettings?.phone ?? '';
+const ctaLabel    = siteSettings?.quoteCtaLabel ?? 'Request a Quote';
+const socialLinks = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
+
+function socialIcon(platform: string | undefined) {
+  switch (platform) {
+    case 'Instagram': return IconBrandInstagram;
+    case 'Facebook':  return IconBrandFacebook;
+    case 'Pinterest': return IconBrandPinterest;
+    default:          return null;
+  }
+}
+
+type NavFlat     = { kind: 'flat';     label: string; href: string };
+type NavDropdown = { kind: 'dropdown'; label: string; items: { label: string; href: string }[] };
+type NavItem     = NavFlat | NavDropdown;
+
+const FALLBACK_NAV: NavItem[] = [
+  { kind: 'flat', label: 'How It Works', href: '/how-it-works' },
+  { kind: 'flat', label: 'Pricing',       href: '/pricing' },
+  { kind: 'flat', label: 'Shop by Item',  href: '/shop-by-item' },
+  { kind: 'flat', label: 'Style Gallery', href: '/style-gallery' },
+  { kind: 'flat', label: 'About',         href: '/about' },
+];
+
+function normaliseSanityNav(
+  items: NonNullable<typeof siteSettings>['navItems'],
+): NavItem[] {
+  if (!items?.length) return FALLBACK_NAV;
+  return items
+    .filter((item) => item.label)
+    .map((item) => {
+      if (item._type === 'navGroup' && Array.isArray(item.links) && item.links.length > 0) {
+        return {
+          kind: 'dropdown' as const,
+          label: item.label ?? '',
+          items: item.links
+            .filter((l) => l.label && l.href)
+            .map((l) => ({ label: l.label!, href: l.href! })),
+        };
+      }
+      return { kind: 'flat' as const, label: item.label!, href: item.href ?? '#' };
+    });
+}
+
+const NAV_ITEMS = normaliseSanityNav(siteSettings?.navItems);
+
+const pathname = Astro.url.pathname;
+function isActive(href: string) {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
+}
+function isGroupActive(items: { href: string }[]) {
+  return items.some((item) => isActive(item.href));
+}
+
+const mobileNavSettings = siteSettings
+  ? {
+      tagline:     siteSettings.tagline,
+      email:       siteSettings.email,
+      phone:       siteSettings.phone,
+      socialLinks: siteSettings.socialLinks,
+    }
+  : null;
+---
+
+<header class="site-header bg-background">
+  <div class="h-1 bg-primary" aria-hidden="true"></div>
+
+  {/* Eyebrow strip — desktop only */}
+  <div class="hidden lg:block bg-muted border-b border-border-soft">
+    <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
+      <p class="text-xs uppercase tracking-eyebrow text-foreground/80">
+        {siteSettings?.tagline ?? site.name}
+      </p>
+      <div class="flex items-center gap-m">
+        {email && (
+          <a
+            href={`mailto:${email}`}
+            class="inline-flex items-center gap-xs text-xs text-foreground hover:text-link transition-colors"
+          >
+            <Mail size={12} aria-hidden="true" />
+            {email}
+          </a>
+        )}
+        {phone && (
+          <a
+            href={telHref(phone)}
+            class="inline-flex items-center gap-xs text-xs text-foreground hover:text-link transition-colors"
+          >
+            <Phone size={12} aria-hidden="true" />
+            {phone}
+          </a>
+        )}
+        {socialLinks.length > 0 && (
+          <div class="flex items-center gap-1">
+            {socialLinks.map((link) => {
+              const Icon = socialIcon(link.platform);
+              if (!Icon) return null;
+              return (
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label ?? link.platform}
+                  class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-accent hover:text-link transition-colors"
+                >
+                  <Icon size={14} stroke={1.5} />
+                </a>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {/* Main nav row */}
+  <div class="relative mx-auto flex max-w-content items-center justify-center lg:justify-between px-l py-m border-b border-border">
+    <a
+      href="/"
+      class="inline-flex items-center hover:opacity-80 transition-opacity"
+      aria-label={`${brandName} home`}
+    >
+      <img
+        alt={brandName}
+        width={280}
+        height={60}
+        class="h-12 w-auto"
+        loading="eager"
+        decoding="async"
+        data-theme-logo
+        data-logo-light-src={logoLightImg.src}
+        data-logo-light-srcset={logoLightSrcset}
+        data-logo-dark-src={logoDarkImg.src}
+        data-logo-dark-srcset={logoDarkSrcset}
+      />
+    </a>
+    <script is:inline>
+      (function () {
+        const img = document.querySelector('header img[data-theme-logo]');
+        if (!img) return;
+        const dark = document.documentElement.classList.contains('dark');
+        img.src    = dark ? img.dataset.logoDarkSrc    : img.dataset.logoLightSrc;
+        img.srcset = dark ? img.dataset.logoDarkSrcset : img.dataset.logoLightSrcset;
+      })();
+    </script>
+
+    {/* Desktop nav + CTA */}
+    <div class="hidden lg:flex items-center gap-l">
+      <nav class="site-nav flex items-center gap-l" aria-label="Primary">
+        {NAV_ITEMS.map((item) =>
+          item.kind === 'flat' ? (
+            <a
+              href={item.href}
+              class:list={[
+                'nav-underline text-sm tracking-wide transition-colors',
+                isActive(item.href)
+                  ? 'text-link font-semibold'
+                  : 'text-foreground hover:text-link',
+              ]}
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <details class="site-nav__group relative">
+              <summary
+                class:list={[
+                  'nav-underline text-sm tracking-wide transition-colors',
+                  'inline-flex items-center gap-0.5 cursor-pointer select-none list-none',
+                  'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm',
+                  isGroupActive(item.items)
+                    ? 'text-link font-semibold'
+                    : 'text-foreground hover:text-link',
+                ]}
+                aria-current={isGroupActive(item.items) ? 'page' : undefined}
+              >
+                {item.label}
+                <ChevronDown
+                  size={14}
+                  className="site-nav__chevron mt-px transition-transform duration-150"
+                  aria-hidden="true"
+                />
+              </summary>
+              <div class="site-nav__menu absolute left-0 top-full mt-2 min-w-[200px] rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 z-50">
+                {item.items.map((sub) => (
+                  <a
+                    href={sub.href}
+                    class:list={[
+                      'block rounded-md px-2.5 py-1.5 text-sm transition-colors',
+                      'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground outline-none',
+                      isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
+                    ]}
+                    aria-current={isActive(sub.href) ? 'page' : undefined}
+                  >
+                    {sub.label}
+                  </a>
+                ))}
+              </div>
+            </details>
+          )
+        )}
+      </nav>
+      <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
+      <a
+        href="/request-a-quote"
+        class:list={[
+          'press-tactile inline-flex items-center px-m py-2 rounded-md text-xs uppercase tracking-eyebrow font-semibold text-white transition-colors',
+          isActive('/request-a-quote')
+            ? 'bg-[var(--color-blush-hover,#b8926e)]'
+            : 'bg-[var(--color-blush,#c9a48a)] hover:bg-[var(--color-blush-hover,#b8926e)]',
+        ]}
+      >
+        {ctaLabel}
+      </a>
+    </div>
+
+    <MobileNav
+      client:only="react"
+      links={NAV_ITEMS}
+      siteSettings={mobileNavSettings}
+      logoLightUrl={logoLightImg.src}
+      logoDarkUrl={logoDarkImg.src}
+      ctaLabel={ctaLabel}
+      ctaHref="/request-a-quote"
+    />
+  </div>
+</header>
+
+<style>
+  .site-nav__group > summary { list-style: none; }
+  .site-nav__group > summary::-webkit-details-marker,
+  .site-nav__group > summary::marker { display: none; content: ""; }
+  .site-nav__group[open] > summary .site-nav__chevron { transform: rotate(180deg); }
+  .site-nav__menu { display: none; }
+  .site-nav__group[open] > .site-nav__menu { display: block; }
+</style>
+
+<script>
+  function currentGroups() {
+    return Array.from(document.querySelectorAll<HTMLDetailsElement>('.site-nav__group'));
+  }
+  function closeAllGroups(except?: HTMLDetailsElement) {
+    for (const g of currentGroups()) { if (g !== except) g.open = false; }
+  }
+  function initHeaderNav() {
+    const groups = currentGroups();
+    if (groups.length === 0) return;
+    for (const group of groups) {
+      const summary = group.querySelector('summary');
+      let closeTimer: number | undefined;
+      const cancelClose = () => {
+        if (closeTimer) { window.clearTimeout(closeTimer); closeTimer = undefined; }
+      };
+      group.addEventListener('pointerenter', (e) => {
+        if (e.pointerType === 'touch') return;
+        cancelClose(); closeAllGroups(group); group.open = true;
+      });
+      group.addEventListener('pointerleave', (e) => {
+        if (e.pointerType === 'touch') return;
+        cancelClose();
+        closeTimer = window.setTimeout(() => { group.open = false; }, 140);
+      });
+      summary?.addEventListener('click', () => { if (!group.open) closeAllGroups(group); });
+      group.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => { group.open = false; });
+      });
+    }
+  }
+  const w = window as typeof window & { __headerNavBound?: boolean };
+  if (!w.__headerNavBound) {
+    w.__headerNavBound = true;
+    document.addEventListener('pointerdown', (e) => {
+      const target = e.target as Node;
+      if (!currentGroups().some((g) => g.contains(target))) closeAllGroups();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const openGroup = currentGroups().find((g) => g.open);
+      if (openGroup) { openGroup.open = false; openGroup.querySelector('summary')?.focus(); }
+    });
+  }
+  initHeaderNav();
+  document.addEventListener('astro:page-load', initHeaderNav);
+</script>

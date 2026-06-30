@@ -1,0 +1,17 @@
+# Cloudflare applies these headers to every route.
+# Content-Security-Policy beyond frame-ancestors is intentionally not set here — getting it
+# right requires auditing every inline script (incl. Astro ClientRouter) and the Cloudflare
+# Analytics beacon. The frame-ancestors directive below is the critical one for the Studio
+# iframe-pane preview. Revisit a full CSP post-launch.
+#
+# frame-ancestors: allows the Sanity Studio (both the hosted Sanity.io deploy and local dev
+# servers) to iframe the live site for the iframe-pane preview plugin.
+# 'self' lets the site embed itself. Modern browsers prefer CSP frame-ancestors over
+# X-Frame-Options when both are present.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: frame-ancestors 'self' https://*.sanity.studio https://www.sanity.io https://*.sanity.io http://localhost:3333 http://localhost:3334
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin

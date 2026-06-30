@@ -1,0 +1,40 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getSiteSettings, getNotFoundPage } from '@/lib/queries';
+
+const [siteSettings, page] = await Promise.all([
+  getSiteSettings(),
+  getNotFoundPage(),
+]);
+
+const title = 'Page Not Found — MAS Monograms';
+const description = 'The page you\'re looking for doesn\'t exist. Let\'s get you back on track.';
+---
+
+<BaseLayout {title} {description} {siteSettings} noindex>
+  <section class="min-h-[80vh] flex items-center py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      <p class="text-xs uppercase tracking-eyebrow text-link mb-s">404</p>
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.headline ?? 'Page Not Found'}
+      </h1>
+      <p class="text-foreground/70 mb-l max-w-md mx-auto">
+        {page?.subhead ?? 'The page you\'re looking for doesn\'t exist or may have moved.'}
+      </p>
+      <div class="flex flex-wrap gap-m justify-center">
+        <a
+          href={page?.primaryCtaHref ?? '/request-a-quote'}
+          class="inline-flex items-center px-l py-m rounded-md bg-blush hover:bg-blush-hover text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+        >
+          {page?.primaryCtaLabel ?? 'Request a Quote'}
+        </a>
+        <a
+          href={page?.secondaryCtaHref ?? '/shop-by-item'}
+          class="inline-flex items-center px-l py-m rounded-md border border-border text-foreground hover:bg-muted text-sm uppercase tracking-eyebrow font-semibold transition-colors"
+        >
+          {page?.secondaryCtaLabel ?? 'Shop by Item'}
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

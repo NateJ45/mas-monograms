@@ -1,0 +1,117 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import PortableText from '@/components/PortableText';
+import CtaBanner from '@/components/CtaBanner.astro';
+import { getSiteSettings, getThreadChartPage, getAllThreadColors } from '@/lib/queries';
+
+const [siteSettings, page, colors] = await Promise.all([
+  getSiteSettings(),
+  getThreadChartPage(),
+  getAllThreadColors(),
+]);
+
+const title       = page?.seoTitle       ?? 'Thread Color Chart — MAS Monograms';
+const description = page?.seoDescription ?? 'Browse the full thread color chart for MAS Monograms embroidery. See all available colors with DMC numbers and photo swatches.';
+
+// Group colors by colorFamily
+const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
+  const key = c.colorFamily ?? 'Other';
+  if (!acc[key]) acc[key] = [];
+  acc[key].push(c);
+  return acc;
+}, {} as Record<string, any[]>);
+---
+
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+
+  {/* Hero */}
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+      {page?.heroEyebrow && (
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+      )}
+      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        {page?.heroHeadline ?? 'Thread Color Chart'}
+      </h1>
+      {page?.heroSubhead && (
+        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+      )}
+    </div>
+  </section>
+
+  {/* Intro */}
+  {page?.intro && (
+    <section class="py-section-md">
+      <div class="mx-auto max-w-3xl px-m" data-reveal>
+        <PortableText client:idle value={page.intro} />
+      </div>
+    </section>
+  )}
+
+  {/* Color Chart */}
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-content px-m">
+      {colors.length > 0 ? (
+        Object.entries(familyGroups).map(([family, familyColors]) => (
+          <div class="mb-section-lg" data-reveal>
+            <h2 class="text-xs uppercase tracking-eyebrow text-foreground/60 mb-m border-b border-border-soft pb-s">
+              {family}
+            </h2>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-s" data-stagger-grid>
+              {(familyColors as any[]).map((color: any) => (
+                <div class="group flex flex-col items-center gap-xs text-center" title={`${color.name}${color.dmcNumber ? ` (DMC ${color.dmcNumber})` : ''}`}>
+                  {/* Color swatch — photo if available, hex fill as fallback */}
+                  {color.swatchImage?.asset ? (
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-border group-hover:scale-110 transition-transform">
+                      <SanityImage
+                        source={color.swatchImage}
+                        width={48}
+                        height={48}
+                        sizes="48px"
+                        class="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : color.hexColor ? (
+                    <div
+                      class="w-12 h-12 rounded-full border-2 border-border group-hover:scale-110 transition-transform"
+                      style={`background-color: ${color.hexColor};`}
+                      aria-label={color.name}
+                    />
+                  ) : (
+                    <div class="w-12 h-12 rounded-full bg-border-soft border-2 border-border" />
+                  )}
+                  <p class="text-xs text-foreground/80 leading-tight font-medium">{color.name}</p>
+                  {color.dmcNumber && (
+                    <p class="text-[10px] text-foreground/50">DMC {color.dmcNumber}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      ) : (
+        <p class="text-center text-foreground/60 py-l">Thread color chart coming soon.</p>
+      )}
+
+      {page?.matchingNote && (
+        <div class="mt-l bg-muted rounded-xl p-l" data-reveal>
+          <p class="text-foreground/75">{page.matchingNote}</p>
+        </div>
+      )}
+      {page?.customColorNote && (
+        <div class="mt-m bg-bg-soft rounded-xl p-l border border-blush/20" data-reveal>
+          <p class="text-foreground/75">{page.customColorNote}</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <CtaBanner
+    eyebrow={page?.ctaEyebrow}
+    headline={page?.ctaHeadline}
+    subhead={page?.ctaSubhead}
+    ctaLabel={page?.ctaLabel}
+    ctaHref={page?.ctaHref}
+  />
+</BaseLayout>
