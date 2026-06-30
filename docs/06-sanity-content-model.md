@@ -1,5 +1,10 @@
 # 06: Sanity Content Model
 
+> **Status: superseded by the live schema.** This describes the originally-planned model. The actual
+> shipped schema is in `studio/schemaTypes/` and differs in places (field names, some `text`→Portable
+> Text fields, complexity-based `pricingTier`, no Seasonal type). Treat `studio/schemaTypes/` +
+> `src/lib/queries.ts` as the source of truth; current state in `docs/08`.
+
 Every content type the site needs, in plain language. The files in `sanity/schemas/` implement the
 first few as full working examples (`itemCategory`, `font`, `threadColor`, `testimonial`,
 `siteSettings`); use those as the pattern and build the rest from this spec.

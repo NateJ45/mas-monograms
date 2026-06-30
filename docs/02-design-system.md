@@ -1,5 +1,8 @@
 # 02: Design System
 
+> **Status: current.** This visual system is implemented in `src/styles/tokens.css` + `globals.css`
+> and matches the live site. See `docs/08-deployment-and-status.md` for overall project status.
+
 The visual system carried over from the Squarespace build. This doc is the human-readable version;
 `src/styles/tokens.css` is the machine version. Change a value in the token file, not in the 40
 places it gets used.

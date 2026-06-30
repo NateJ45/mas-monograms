@@ -1,5 +1,8 @@
 # 04: Fonts & Lettering
 
+> **Status: original spec.** All 18 fonts are seeded as `font` docs; 3 monogram styles have preview
+> images, the other 15 still need previews uploaded (see `docs/08`). Preserved as the catalog source.
+
 The full lettering catalog, and the single most fiddly piece of content to model. Read the key fact
 first, then the catalog.
 

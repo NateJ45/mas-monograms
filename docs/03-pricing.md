@@ -1,5 +1,9 @@
 # 03: Pricing
 
+> **Status: original spec.** These numbers are seeded as the four `pricingTier` docs (rendered
+> "from $X" by complexity). Preserved as the authoritative source; current state in
+> `docs/08-deployment-and-status.md`.
+
 Authoritative pricing, transcribed from Mary Ann's scan (`assets/pricing-scan.png`). These are the
 real numbers. The Pricing page and the per-category callouts should present them as starting prices
 and ranges, with the standing message that the exact price depends on the item, stitch count, and

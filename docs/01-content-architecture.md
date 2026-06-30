@@ -1,5 +1,9 @@
 # 01: Content Architecture
 
+> **Status: original spec.** The site is built, content-seeded, and live. This doc is preserved as
+> the original migration spec and verbatim source copy; for current as-built state see
+> `docs/08-deployment-and-status.md` (deploy + status) and `docs/07` (component/route map).
+
 Every page, what it is for, its sections, and the copy that is live today. Copy is reproduced close
 to verbatim from the Squarespace site so you do not have to rewrite it, with one change: all
 em-dashes have been converted to commas, colons, or periods to match the house style. Italics in the

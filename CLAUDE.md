@@ -5,9 +5,18 @@ Mary Ann Stone's custom embroidery studio site in St. Matthews, SC.
 Built by Nate's Creations (nathanjnixon86@gmail.com).
 Migrated from Squarespace 7.1 → Astro 6 + Sanity 7/5 + Cloudflare Workers.
 
+## Status (current — 2026-06-30)
+Built and **deployed**; all content seeded into Sanity and rendering live.
+- Live site: https://mas-monograms.nathanjnixon86.workers.dev (custom domain `mas-monograms.com` pending)
+- Studio (Mary Ann's editor): https://mas-monograms.sanity.studio
+- Repo `NateJ45/mas-monograms` (private) → auto-deploys via **Cloudflare Workers Builds** on push to `main`
+- Remaining before launch: images (all empty except 3 fonts), placeholder content (email, socials,
+  testimonial names, thread inventory), quote-form secrets + R2 bucket. Full checklist + env-var
+  matrix in `docs/08-deployment-and-status.md`.
+
 ## Stack
 - **Astro 6.3+** — `output: 'static'`, `@astrojs/cloudflare` adapter, Sharp image service
-- **Cloudflare Workers** — unified Pages/Workers platform, `wrangler deploy`, `wrangler.jsonc`
+- **Cloudflare Workers** — unified Pages/Workers platform, Git auto-deploy (Workers Builds), `wrangler.jsonc`
 - **Sanity 7 client + Studio 5** — headless CMS
 - **Tailwind CSS 4** via `@tailwindcss/vite`
 - **Resend** — transactional email from the quote form Worker
@@ -103,6 +112,9 @@ Schema.org type comes from `siteSettings.businessType` field.
 
 ## Project notes
 - `npm run typegen` must be run after any schema changes to regenerate `sanity.types.ts`
-- Studio runs at localhost:3333 (`cd studio && npm run dev`)
+- Studio runs at localhost:3333 (`cd studio && npm run dev`); deploy it with `cd studio && npx sanity deploy`
 - Astro dev runs at localhost:4321 (`npm run dev`)
-- Deploy: `npm run build && wrangler deploy`
+- Deploy: push to `main` → Cloudflare Workers Builds auto-builds & deploys. The site reads Sanity at
+  build time, so Sanity vars must be set as **build** variables in the Cloudflare dashboard, not
+  runtime (see `docs/08`). Local `wrangler deploy` is not the normal path.
+- Content was bulk-seeded via `node scripts/seed-content.mjs` (re-runnable, deterministic ids)

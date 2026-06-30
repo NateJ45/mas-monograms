@@ -1,5 +1,9 @@
 # 05: Quote Form & Backend
 
+> **Status: built, secrets pending.** Implemented as `request-a-quote.astro` + `src/pages/api/quote.ts`
+> (a Worker endpoint, not a `functions/` Pages Function). The form renders; sending needs the runtime
+> secrets + R2 bucket listed in `docs/08-deployment-and-status.md`.
+
 This is the conversion engine. On Squarespace it was a native Form Block that emailed Mary Ann. That
 black box is gone, so the form is now real code: an HTML form in Astro that posts to a Cloudflare
 Pages Function, which validates the data, emails Mary Ann (and the customer), then redirects to the
