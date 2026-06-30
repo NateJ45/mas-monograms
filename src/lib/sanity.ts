@@ -31,10 +31,22 @@ import { createClient, type SanityClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url';
 
-const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
-const dataset = import.meta.env.PUBLIC_SANITY_DATASET ?? 'production';
-const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01';
-const readToken = import.meta.env.SANITY_API_READ_TOKEN as string | undefined;
+// Build-time config resolution. Read from import.meta.env (local `.env` and
+// PUBLIC_-prefixed vars) with a process.env fallback for CI build servers.
+// Cloudflare Workers Builds injects configured build variables into process.env,
+// but Vite only surfaces PUBLIC_-prefixed vars through import.meta.env — so a
+// non-prefixed secret like SANITY_API_READ_TOKEN would otherwise be invisible at
+// build time, leaving collections empty and the dynamic category pages ungenerated.
+// `proc` is only touched server-side (import.meta.env.SSR) so the browser bundle
+// never references `process`.
+const proc: Record<string, string | undefined> = import.meta.env.SSR
+  ? ((globalThis as any)?.process?.env ?? {})
+  : {};
+const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID ?? proc.PUBLIC_SANITY_PROJECT_ID;
+const dataset = import.meta.env.PUBLIC_SANITY_DATASET ?? proc.PUBLIC_SANITY_DATASET ?? 'production';
+const apiVersion = import.meta.env.PUBLIC_SANITY_API_VERSION ?? proc.PUBLIC_SANITY_API_VERSION ?? '2026-05-01';
+const readToken =
+  (import.meta.env.SANITY_API_READ_TOKEN as string | undefined) ?? proc.SANITY_API_READ_TOKEN;
 
 /** Returns true when no real Sanity project has been configured. */
 const PLACEHOLDER_IDS = new Set(['', 'your-project-id', 'placeholder']);
