@@ -33,3 +33,6 @@ studio/dist/
 
 # jetbrains setting folder
 .idea/
+
+# Brainstorming visual companion
+.superpowers/
