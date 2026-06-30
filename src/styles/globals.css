@@ -327,9 +327,6 @@
   transform: translateY(-2px);
   box-shadow: 0 16px 34px -18px rgba(44, 44, 40, 0.22);
 }
-.dark .card-lift:hover {
-  box-shadow: 0 16px 34px -18px rgba(0, 0, 0, 0.6);
-}
 
 .card-lift-slow {
   transition-duration: 1500ms;
