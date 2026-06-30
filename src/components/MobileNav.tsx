@@ -183,7 +183,8 @@ export default function MobileNav({
             )}
           </div>
 
-          {/* Logo */}
+          {/* Logo — decorative here; the header link above already provides the
+              "MAS Monograms home" accessible name, so this is intentionally aria-hidden. */}
           <div className="border-t border-border-soft px-l py-l flex justify-center">
             <svg
               viewBox="0 0 420 140"
