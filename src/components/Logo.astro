@@ -1,0 +1,56 @@
+---
+// Foundation, edit with care.
+// The Thread Ledger wordmark + needle-and-thread cross, as an inline SVG.
+// No runtime theme switching: pick the variant that matches the surface
+// this instance sits on at the call site, e.g.:
+//   <Logo variant="ink" />        on the parchment header
+//   <Logo variant="parchment" />  on the dark-ink footer
+//   <Logo mark />                 compact hoop+needle mark only, no wordmark
+
+interface Props {
+  /** "ink" (default) for placement on light/parchment surfaces.
+   *  "parchment" for placement on dark-ink surfaces (e.g. the footer). */
+  variant?: 'ink' | 'parchment';
+  /** Render only the compact hoop-ring + needle mark, no wordmark text.
+   *  Use for small/square contexts (e.g. a future app icon source). */
+  mark?: boolean;
+  class?: string;
+}
+
+const { variant = 'ink', mark = false, class: className } = Astro.props as Props;
+
+const wordmarkColor = variant === 'parchment' ? '#F7F1E6' : '#2B2420';
+const threadColor = variant === 'parchment' ? '#D9A441' : '#B8492A';
+const ringColor = '#1F5C4F';
+---
+
+{mark ? (
+  <svg
+    viewBox="0 0 100 100"
+    class={className}
+    aria-hidden="true"
+    focusable="false"
+  >
+    <circle cx="50" cy="50" r="44" fill="none" stroke={ringColor} stroke-width="1.5" stroke-dasharray="3 5" />
+    <line x1="50" y1="20" x2="50" y2="68" stroke={wordmarkColor} stroke-width="3.5" stroke-linecap="round" />
+    <ellipse cx="50" cy="24" rx="3.5" ry="6" fill="none" stroke={wordmarkColor} stroke-width="2.5" />
+    <path d="M30,40 Q50,28 70,40" fill="none" stroke={threadColor} stroke-width="3.5" stroke-linecap="round" />
+  </svg>
+) : (
+  <svg
+    viewBox="0 0 420 140"
+    class={className}
+    aria-hidden="true"
+    focusable="false"
+  >
+    <text x="0" y="52" font-family="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MAS</text>
+    <text x="0" y="90" font-family="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MONOGRAMS</text>
+    <text x="2" y="114" font-family="'Work Sans Variable', 'Work Sans', sans-serif" font-weight="600" font-size="13" letter-spacing="3" fill={ringColor}>MADE JUST FOR YOU</text>
+
+    <g transform="translate(330,0)">
+      <line x1="32" y1="6" x2="32" y2="100" stroke={wordmarkColor} stroke-width="4" stroke-linecap="round" />
+      <ellipse cx="32" cy="14" rx="5" ry="9" fill="none" stroke={wordmarkColor} stroke-width="3" />
+      <path d="M2,46 Q32,30 62,46" fill="none" stroke={threadColor} stroke-width="4.5" stroke-linecap="round" />
+    </g>
+  </svg>
+)}
