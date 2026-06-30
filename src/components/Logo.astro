@@ -3,13 +3,14 @@
 // The Thread Ledger wordmark + needle-and-thread cross, as an inline SVG.
 // No runtime theme switching: pick the variant that matches the surface
 // this instance sits on at the call site, e.g.:
-//   <Logo variant="ink" />        on the parchment header
-//   <Logo variant="parchment" />  on the dark-ink footer
+//   <Logo variant="ink" />        on light surfaces (header, footer — both parchment/mustard)
+//   <Logo variant="parchment" />  on a dark-ink surface, if one is ever introduced
 //   <Logo mark />                 compact hoop+needle mark only, no wordmark
 
 interface Props {
-  /** "ink" (default) for placement on light/parchment surfaces.
-   *  "parchment" for placement on dark-ink surfaces (e.g. the footer). */
+  /** "ink" (default) for placement on light/parchment/mustard surfaces — this covers every
+   *  surface in the current design (header, footer, page background).
+   *  "parchment" for placement on a dark-ink surface, if one is ever introduced. */
   variant?: 'ink' | 'parchment';
   /** Render only the compact hoop-ring + needle mark, no wordmark text.
    *  Use for small/square contexts (e.g. a future app icon source). */
