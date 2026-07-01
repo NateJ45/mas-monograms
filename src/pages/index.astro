@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/Hero.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
@@ -32,51 +33,17 @@ const heroImage  = heroImages[0] ?? null;
 <BaseLayout {title} {description} seoImage={page?.seoImage ?? siteSettings?.seoImage} {siteSettings}>
 
   {/* ── Hero ──────────────────────────────────────────────────────────────── */}
-  <section class="relative min-h-[85vh] flex items-end overflow-hidden bg-accent">
-    {heroImage && (
-      <div class="absolute inset-0">
-        <SanityImage
-          source={heroImage}
-          width={1600}
-          sizes="100vw"
-          class="w-full h-full object-cover opacity-50"
-          loading="eager"
-          fetchpriority="high"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-accent/90 via-accent/40 to-transparent" />
-      </div>
-    )}
-    <div class="relative mx-auto max-w-content px-m py-section-lg">
-      {page?.heroEyebrow && (
-        <p class="text-xs uppercase tracking-eyebrow text-cream/80 mb-s" data-reveal>{page.heroEyebrow}</p>
-      )}
-      <h1 class="font-display text-h1 text-cream leading-headline-tight mb-m max-w-3xl" data-reveal>
-        {page?.heroHeadline ?? 'Custom Embroidery'}{' '}
-        {page?.heroItalicWord && <em class="italic">{page.heroItalicWord}</em>}
-      </h1>
-      {page?.heroSubhead && (
-        <p class="text-cream/80 mb-l max-w-xl" data-reveal>{page.heroSubhead}</p>
-      )}
-      <div class="flex flex-wrap gap-m" data-reveal>
-        {page?.heroPrimaryCtaLabel && (
-          <a
-            href={page.heroPrimaryCtaHref ?? '/request-a-quote'}
-            class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#b8492a)] hover:bg-[var(--color-rust-cta-hover,#9c3c20)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
-          >
-            {page.heroPrimaryCtaLabel}
-          </a>
-        )}
-        {page?.heroSecondaryCtaLabel && (
-          <a
-            href={page.heroSecondaryCtaHref ?? '/how-it-works'}
-            class="inline-flex items-center px-l py-m rounded-md border border-cream/40 text-cream hover:bg-cream/10 text-sm uppercase tracking-eyebrow font-semibold transition-colors"
-          >
-            {page.heroSecondaryCtaLabel}
-          </a>
-        )}
-      </div>
-    </div>
-  </section>
+  <Hero
+    eyebrow={page?.heroEyebrow}
+    headline={page?.heroHeadline ?? 'Custom Embroidery'}
+    headlineItalicSuffix={page?.heroItalicWord}
+    subhead={page?.heroSubhead}
+    backgroundImage={heroImage}
+    primaryCta={page?.heroPrimaryCtaLabel ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' } : null}
+    secondaryCta={page?.heroSecondaryCtaLabel ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/how-it-works' } : null}
+    headingId="hero-heading"
+    size="tall"
+  />
 
   {/* ── Trust Bar ─────────────────────────────────────────────────────────── */}
   {(page?.trustItems ?? []).length > 0 && (
@@ -346,8 +313,3 @@ const heroImage  = heroImages[0] ?? null;
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
-
-<style>
-  .text-cream { color: #faf8f4; }
-  .text-cream\/80 { color: rgba(250,248,244,0.80); }
-</style>
