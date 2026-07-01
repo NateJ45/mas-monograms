@@ -54,6 +54,14 @@ already-decided "tactile & craft-themed, used purposefully" motion direction.
   `itemCategory` internal links resolve via its `slug` field directly (`/${slug}`), same pattern
   the removed `journalEntry`/`page` branches used — just pointed at the type that's actually real
   here.
+- **New `href` passthrough field**: checking the actual Sanity schema (`studio/schemaTypes/homePage.ts`,
+  `itemCategory.ts`) shows hero CTAs are NOT structured document references at all — they're plain
+  `string` fields already holding a resolved URL (`homePage.heroPrimaryCtaHref`) or, for category
+  pages, a hardcoded `/request-a-quote` with no href field in the schema at all. Add `href?: string`
+  to the `CtaBlock` interface, checked first in `resolveHref()` before the `linkType` switch. This
+  is NOT the same as `linkType: 'external'` — that branch forces `newTab = true` (via
+  `isExternal`), which would be wrong for these same-site links. The new `href` path leaves
+  `newTab` at its normal `openInNewTab`-controlled default (`false` unless explicitly set).
 - **Colors**: primary variant becomes `bg-[var(--color-rust-cta,#b8492a)] text-white
   hover:bg-[var(--color-rust-cta-hover,#9c3c20)]` (matching the pattern already used in
   `CtaBanner.astro`, `404.astro`, `clearance.astro`, `request-a-quote.astro`, and now
@@ -99,30 +107,41 @@ Replace the current inline `<section>` (lines ~30-79, the hand-rolled image hero
   headlineItalicSuffix={page?.heroItalicWord}
   subhead={page?.heroSubhead}
   backgroundImage={page?.heroImage}
-  primaryCta={{ label: page?.heroPrimaryCtaLabel, linkType: 'internal', internalLink: { _type: 'requestAQuotePage' } }}
-  secondaryCta={{ label: page?.heroSecondaryCtaLabel, linkType: 'internal', internalLink: { _type: 'howItWorksPage' } }}
+  primaryCta={page?.heroPrimaryCtaLabel ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' } : null}
+  secondaryCta={page?.heroSecondaryCtaLabel ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/how-it-works' } : null}
   headingId="hero-heading"
   size="tall"
 />
 ```
 
-The exact prop wiring for `primaryCta`/`secondaryCta` needs to match whatever
-`page.heroPrimaryCtaHref`/`heroSecondaryCtaHref` actually resolve to today (currently hardcoded
-fallbacks to `/request-a-quote` and `/how-it-works` in the existing inline markup) — the
-implementation task will confirm the exact Sanity field shape against `src/lib/queries.ts` and
-preserve today's fallback behavior exactly, just routed through `CtaLink` instead of a raw `<a>`.
-Delete the page-scoped `.text-cream`/`.text-cream\/80` `<style>` block entirely — no longer needed
-once the hero uses `Hero.astro`'s token-based `text-bg`.
+This uses the new `href` passthrough field on `CtaBlock` (see the `CtaLink.astro` section above) —
+`heroPrimaryCtaHref`/`heroSecondaryCtaHref` are plain `string` Sanity fields already holding a
+resolved URL, exactly preserving today's fallback behavior (`/request-a-quote` and
+`/how-it-works`). Delete the page-scoped `.text-cream`/`.text-cream\/80` `<style>` block entirely —
+no longer needed once the hero uses `Hero.astro`'s token-based `text-bg`.
 
 ### 4. Migrate `[slug].astro`'s hero to `<Hero />`
 
-Same pattern: replace the inline hero section (lines ~50-77) with `<Hero
-backgroundImages={category.heroImages} eyebrow={category.eyebrow} headline={category.name}
-subhead={category.description} primaryCta={{...}} headingId="category-heading" size="short" />`,
-using `category.heroImages` (the array Plan 2 populated) directly as `backgroundImages` — this
-also means category pages with 2+ hero images now get the cross-fading slideshow treatment for
-free, which they don't have today. Delete the matching `.text-cream` page-scoped `<style>` block
-here too.
+Same pattern: replace the inline hero section (lines ~50-77) with:
+
+```astro
+<Hero
+  backgroundImages={category.heroImages}
+  eyebrow={category.eyebrow}
+  headline={category.name}
+  subhead={category.description}
+  primaryCta={{ label: category?.ctaLabel ?? 'Request a Quote', href: '/request-a-quote' }}
+  headingId="category-heading"
+  size="short"
+/>
+```
+
+`itemCategory`'s schema has no `ctaHref` field at all — the current inline markup hardcodes
+`/request-a-quote` directly, so the migrated version preserves that exactly via the same `href`
+passthrough field on `CtaBlock`. Using `category.heroImages` (the array Plan 2 populated) directly
+as `backgroundImages` also means category pages with 2+ hero images now get the cross-fading
+slideshow treatment for free, which they don't have today. Delete the matching `.text-cream`
+page-scoped `<style>` block here too.
 
 ## What this phase does NOT do
 
