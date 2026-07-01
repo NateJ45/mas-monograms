@@ -33,10 +33,16 @@ const [siteSettings, page, categories, combos, testimonials, galleryItems, allFo
 // ComboPreview data: real categories/fonts/colors, curated to a small,
 // visually varied set. Fonts filtered to ones with an actual specimen photo
 // (10 of 18 have none — see docs/superpowers/specs/2026-07-01-combo-preview-design.md).
-const comboCategories = (categories ?? []).slice(0, 8).map((c: any) => ({
-  name: c.name,
-  slug: c.slug?.current ?? '',
-}));
+// "Bring Your Own Item" is excluded — you can't preview a font/thread
+// pairing on an item that hasn't been specified, unlike every other
+// category here.
+const comboCategories = (categories ?? [])
+  .filter((c: any) => c.slug?.current !== 'bring-your-own-item')
+  .slice(0, 8)
+  .map((c: any) => ({
+    name: c.name,
+    slug: c.slug?.current ?? '',
+  }));
 const comboFonts = (allFonts ?? [])
   .filter((f: any) => f.previewImage?.asset)
   .slice(0, 6)
