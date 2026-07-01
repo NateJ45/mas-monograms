@@ -95,10 +95,17 @@ const hasImage = effectiveImages.length > 0;
 // The exact fill height comes from the .hero-fill class plus the measured
 // --header-h variable (see the inline script and scoped <style> below).
 // "short" stays a generous editorial band for interior pages.
+// NOTE: the full-viewport fill only makes sense behind a background image. The
+// no-image text fallback uses a bounded band instead (see the !hasImage branch
+// below) so it never renders as a screen-height void.
 const wrapperHeight =
   size === 'tall'
     ? 'hero-fill'
     : 'min-h-[42svh] md:min-h-[52svh]';
+
+// No-image text hero: a generous editorial band, never the full-viewport fill.
+// Used regardless of the `size` prop because a 100svh empty band reads as a void.
+const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
 ---
 
 {/* Full-viewport home hero plumbing (size="tall" only): measure the sticky
@@ -213,7 +220,7 @@ const wrapperHeight =
   </section>
 ) : (
   <section class="bg-background" aria-labelledby={headingId}>
-    <div class:list={['mx-auto max-w-content px-m py-section-lg flex items-end', wrapperHeight]}>
+    <div class:list={['mx-auto max-w-content px-m py-section-lg flex items-end', textWrapperHeight]}>
       <SectionHeading
         eyebrow={eyebrow}
         headline={headline}
