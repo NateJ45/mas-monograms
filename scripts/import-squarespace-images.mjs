@@ -187,8 +187,62 @@ async function main() {
     return;
   }
 
-  console.log('\n--dry-run not set, but upload/write logic is not implemented in this task yet.');
-  console.log('This is expected at this stage of the plan — see Task 9.');
+  console.log('\nUploading images and writing documents...\n');
+
+  let uploaded = 0;
+  let skipped = 0;
+
+  async function uploadImage(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+    const buffer = Buffer.from(await res.arrayBuffer());
+    const filename = url.split('/').pop().split('?')[0];
+    const asset = await client.assets.upload('image', buffer, { filename });
+    return asset._id;
+  }
+
+  for (const entry of manifest.galleryItems) {
+    const assetId = await uploadImage(entry.sourceUrl);
+    const doc = buildGalleryItemDoc(entry, assetId);
+    await client.createOrReplace(doc);
+    uploaded += 1;
+    console.log(`  galleryItem: ${doc._id}`);
+  }
+
+  for (const entry of manifest.fonts) {
+    const assetId = await uploadImage(entry.sourceUrl);
+    const doc = buildFontDoc(entry, assetId);
+    await client.createOrReplace(doc);
+    uploaded += 1;
+    console.log(`  font: ${doc._id}`);
+  }
+
+  for (const entry of manifest.threadColors) {
+    const doc = buildThreadColorDoc(entry);
+    await client.createOrReplace(doc);
+    uploaded += 1;
+    console.log(`  threadColor: ${doc._id}`);
+  }
+
+  for (const [slug, entry] of Object.entries(manifest.categoryImages)) {
+    const cardImageAssetId = await uploadImage(entry.cardImageUrl);
+    const heroImages = [];
+    for (let i = 0; i < entry.heroImageUrls.length; i++) {
+      const assetId = await uploadImage(entry.heroImageUrls[i]);
+      heroImages.push({ assetId, alt: entry.heroAlts[i] });
+    }
+    const patch = buildCategoryImagePatch({ cardImageAssetId, cardAlt: entry.cardAlt, heroImages });
+    await client.patch(`category-${slug}`).set(patch).commit();
+    uploaded += 1;
+    console.log(`  itemCategory patched: category-${slug}`);
+  }
+
+  if (manifest.categoriesMissingPhotos.length > 0) {
+    skipped = manifest.categoriesMissingPhotos.length;
+    console.log(`\nSkipped (no fitting photo found): ${manifest.categoriesMissingPhotos.join(', ')}`);
+  }
+
+  console.log(`\nDone. ${uploaded} document(s) created/updated, ${skipped} category/categories intentionally skipped.`);
 }
 
 main().catch((err) => {
