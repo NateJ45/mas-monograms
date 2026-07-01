@@ -28,7 +28,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
         {page?.heroHeadline ?? 'How It Works'}
       </h1>
       {page?.heroSubhead && (
-        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
     </div>
   </section>
@@ -56,7 +56,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
               <div class="pb-l">
                 <h3 class="font-display text-h3 text-foreground mb-s">{step.label}</h3>
                 {step.body && (
-                  <div class="text-foreground/80 prose prose-sm max-w-none">
+                  <div class="text-[var(--color-text-secondary)] prose prose-sm max-w-none">
                     <PortableText client:visible value={step.body} />
                   </div>
                 )}
@@ -88,7 +88,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
           </h2>
         )}
         {page?.faqSubhead && (
-          <p class="text-foreground/75 text-center mb-l" data-reveal>{page.faqSubhead}</p>
+          <p class="text-[var(--color-text-secondary)] text-center mb-l" data-reveal>{page.faqSubhead}</p>
         )}
         <div data-reveal>
           <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />

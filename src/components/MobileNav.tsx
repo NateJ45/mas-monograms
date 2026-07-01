@@ -85,7 +85,7 @@ export default function MobileNav({
           className="w-[min(380px,90vw)] sm:max-w-none bg-background border-t-4 border-t-primary p-0 gap-0 flex flex-col overflow-y-auto"
         >
           <SheetHeader className="px-l pt-xl pb-m">
-            <SheetTitle className="text-xs uppercase tracking-eyebrow text-foreground/80 font-body font-normal">
+            <SheetTitle className="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] font-body font-normal">
               Menu
             </SheetTitle>
           </SheetHeader>
@@ -124,7 +124,7 @@ export default function MobileNav({
               }
               return (
                 <div key={item.label}>
-                  <p className="px-l pt-m pb-xs text-xs uppercase tracking-eyebrow text-foreground/80">
+                  <p className="px-l pt-m pb-xs text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">
                     {item.label}
                   </p>
                   {item.items.map((sub) => (
@@ -147,7 +147,7 @@ export default function MobileNav({
 
           {/* Contact + social */}
           <div className="border-t border-border-soft px-l pt-m pb-s">
-            <p className="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+            <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
               Get in touch
             </p>
             {email && (

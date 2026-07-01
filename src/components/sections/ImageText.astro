@@ -52,7 +52,7 @@ const bodyClass = `text-foreground/85 text-lg leading-relaxed ${heading || eyebr
     </div>
 
     <div class:list={[imageFirst ? 'md:order-2' : 'md:order-1']}>
-      {eyebrow && <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">{eyebrow}</p>}
+      {eyebrow && <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">{eyebrow}</p>}
       {heading && <h2 id={headingId} class="font-display text-h2 text-foreground">{heading}</h2>}
       {body && <PortableText value={body} className={bodyClass} />}
       {cta?.label && (

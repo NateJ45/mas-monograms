@@ -20,7 +20,7 @@ const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
         {quote}
       </blockquote>
       {(attribution || detail) && (
-        <p class="mt-l text-sm uppercase tracking-eyebrow text-foreground/80">
+        <p class="mt-l text-sm uppercase tracking-eyebrow text-[var(--color-text-secondary)]">
           {attribution}{attribution && detail ? ' · ' : ''}{detail}
         </p>
       )}

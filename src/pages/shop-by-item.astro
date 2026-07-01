@@ -26,7 +26,7 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
         {page?.heroHeadline ?? 'Shop by Item'}
       </h1>
       {page?.heroSubhead && (
-        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
     </div>
   </section>
@@ -35,7 +35,7 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {page?.gridIntro && (
-        <p class="text-foreground/75 text-center mb-l max-w-2xl mx-auto" data-reveal>
+        <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto" data-reveal>
           {page.gridIntro}
         </p>
       )}
@@ -69,7 +69,7 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
                   {cat.name}
                 </h2>
                 {cat.description && (
-                  <p class="text-sm text-foreground/70 line-clamp-2">{cat.description}</p>
+                  <p class="text-sm text-[var(--color-text-secondary)] line-clamp-2">{cat.description}</p>
                 )}
                 <span class="mt-m inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link">
                   {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
@@ -79,7 +79,7 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
           ))}
         </div>
       ) : (
-        <p class="text-center text-foreground/60 py-l">
+        <p class="text-center text-[var(--color-text-secondary)] py-l">
           Item categories coming soon — check back or <a href="/request-a-quote" class="text-link underline">request a quote</a> for any item.
         </p>
       )}

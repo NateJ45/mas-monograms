@@ -94,7 +94,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
     <div>
       <p class="font-display text-h3 text-foreground">{testimonial.attribution}</p>
       {attributionMeta && (
-        <p class="mt-xs text-xs uppercase tracking-eyebrow text-foreground/80">{attributionMeta}</p>
+        <p class="mt-xs text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">{attributionMeta}</p>
       )}
       {testimonial.relatedProject?.slug && (
         <p class="mt-m">
@@ -109,7 +109,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
 
       {/* Source platform badge — same logic as TestimonialCard. */}
       {sourceBadge && (
-        <p class="mt-m inline-flex items-center text-xs text-foreground/75 bg-muted px-s py-0.5 rounded-full border border-border-soft">
+        <p class="mt-m inline-flex items-center text-xs text-[var(--color-text-secondary)] bg-muted px-s py-0.5 rounded-full border border-border-soft">
           {sourceBadge}
         </p>
       )}

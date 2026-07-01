@@ -48,7 +48,7 @@ const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
         <div class="aspect-[4/5] bg-muted rounded-md" aria-hidden="true"></div>
       )}
       {attribution && (
-        <p class="mt-s text-xs uppercase tracking-widest text-foreground/80">{attribution}</p>
+        <p class="mt-s text-xs uppercase tracking-widest text-[var(--color-text-secondary)]">{attribution}</p>
       )}
     </div>
 
@@ -60,16 +60,16 @@ const bg = surface === 'muted' ? 'bg-muted' : 'bg-background';
       )}
 
       {(credentialLine || serviceAreaLine) && (
-        <div class="mt-section-md pt-l border-t border-border-soft space-y-m text-foreground/80">
+        <div class="mt-section-md pt-l border-t border-border-soft space-y-m text-[var(--color-text-secondary)]">
           {credentialLine && (
             <p>
-              <span class="block text-xs uppercase tracking-widest text-foreground/80 mb-xs">Background</span>
+              <span class="block text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-xs">Background</span>
               {credentialLine}
             </p>
           )}
           {serviceAreaLine && (
             <p>
-              <span class="block text-xs uppercase tracking-widest text-foreground/80 mb-xs">Service area</span>
+              <span class="block text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-xs">Service area</span>
               {serviceAreaLine}
             </p>
           )}

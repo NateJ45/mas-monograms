@@ -28,7 +28,7 @@ const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per
         {page?.heroHeadline ?? 'Pricing'}
       </h1>
       {page?.heroSubhead && (
-        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
     </div>
   </section>
@@ -43,7 +43,7 @@ const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per
           </h2>
         )}
         {page?.tiersSubhead && (
-          <p class="text-foreground/75 text-center mb-l max-w-2xl mx-auto" data-reveal>
+          <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto" data-reveal>
             {page.tiersSubhead}
           </p>
         )}
@@ -62,11 +62,11 @@ const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per
                   Most Popular
                 </span>
               )}
-              <p class="text-xs uppercase tracking-eyebrow text-foreground/60">{tier.label}</p>
+              <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">{tier.label}</p>
               <p class="font-display text-h2 text-foreground leading-none">
-                <span class="text-base font-body text-foreground/60">from </span>${typeof tier.pricePerPiece === 'number' ? tier.pricePerPiece.toFixed(2) : tier.pricePerPiece}
+                <span class="text-base font-body text-[var(--color-text-secondary)]">from </span>${typeof tier.pricePerPiece === 'number' ? tier.pricePerPiece.toFixed(2) : tier.pricePerPiece}
               </p>
-              {tier.note && <p class="text-sm text-foreground/75">{tier.note}</p>}
+              {tier.note && <p class="text-sm text-[var(--color-text-secondary)]">{tier.note}</p>}
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per
             <div class="bg-background rounded-xl border border-border p-l">
               <p class="font-semibold text-foreground mb-xs">{addon.label}</p>
               {addon.price && <p class="text-link font-display text-h4">{addon.price}</p>}
-              {addon.note && <p class="text-sm text-foreground/60 mt-xs">{addon.note}</p>}
+              {addon.note && <p class="text-sm text-[var(--color-text-secondary)] mt-xs">{addon.note}</p>}
             </div>
           ))}
         </div>

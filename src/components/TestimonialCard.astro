@@ -105,7 +105,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
     <div class="min-w-0">
       <p class="font-display text-h4 text-foreground leading-tight">{testimonial.attribution}</p>
       {attributionMeta && (
-        <p class="mt-xs text-xs uppercase tracking-eyebrow text-foreground/80">{attributionMeta}</p>
+        <p class="mt-xs text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">{attributionMeta}</p>
       )}
     </div>
   </figcaption>
@@ -125,7 +125,7 @@ const sourceBadge = testimonial.sourceType ? SOURCE_LABELS[testimonial.sourceTyp
   {/* Source platform badge — shows which review platform the quote came from.
       Omitted when sourceType is absent, 'direct', or 'other'. */}
   {sourceBadge && (
-    <p class="mt-s inline-flex items-center text-xs text-foreground/75 bg-muted px-s py-0.5 rounded-full border border-border-soft">
+    <p class="mt-s inline-flex items-center text-xs text-[var(--color-text-secondary)] bg-muted px-s py-0.5 rounded-full border border-border-soft">
       {sourceBadge}
     </p>
   )}

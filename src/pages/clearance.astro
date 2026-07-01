@@ -32,7 +32,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
         {page?.heroHeadline ?? 'Clearance'}
       </h1>
       {page?.heroSubhead && (
-        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
     </div>
   </section>
@@ -49,12 +49,12 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
         <div class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-m" data-reveal>
           {page?.paymentNote && (
             <div class="bg-tertiary rounded-xl p-m border border-border-soft">
-              <p class="text-sm text-foreground/80">{page.paymentNote}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{page.paymentNote}</p>
             </div>
           )}
           {page?.pickupNote && (
             <div class="bg-tertiary rounded-xl p-m border border-border-soft">
-              <p class="text-sm text-foreground/80">{page.pickupNote}</p>
+              <p class="text-sm text-[var(--color-text-secondary)]">{page.pickupNote}</p>
             </div>
           )}
         </div>
@@ -66,7 +66,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {items.length === 0 ? (
-        <p class="text-center text-foreground/60 py-l">
+        <p class="text-center text-[var(--color-text-secondary)] py-l">
           {page?.emptyStateMessage ?? 'No clearance items available at this time. Check back soon!'}
         </p>
       ) : (
@@ -111,13 +111,13 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
                 <div class="p-m flex flex-col flex-1 gap-s">
                   <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
                   {item.description && (
-                    <p class="text-sm text-foreground/70 line-clamp-3">{item.description}</p>
+                    <p class="text-sm text-[var(--color-text-secondary)] line-clamp-3">{item.description}</p>
                   )}
 
                   {/* Pricing */}
                   <div class="flex items-baseline gap-s mt-auto pt-s">
                     {item.originalPrice && (
-                      <span class="text-sm text-foreground/50 line-through">
+                      <span class="text-sm text-[var(--color-text-tertiary)] line-through">
                         ${typeof item.originalPrice === 'number' ? item.originalPrice.toFixed(2) : item.originalPrice}
                       </span>
                     )}
@@ -127,7 +127,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
                       </span>
                     )}
                     {item.quantityAvailable && !isSold && (
-                      <span class="ml-auto text-xs text-foreground/50">
+                      <span class="ml-auto text-xs text-[var(--color-text-tertiary)]">
                         {item.quantityAvailable} left
                       </span>
                     )}

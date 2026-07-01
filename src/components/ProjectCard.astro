@@ -71,11 +71,11 @@ const roomLabel = humanizeRoom(project.roomType);
     <h3 class="font-display text-h4 text-foreground group-hover:text-primary-dark transition-colors">
       {project.title}
     </h3>
-    <p class="mt-xs text-xs uppercase tracking-widest text-foreground/80">
+    <p class="mt-xs text-xs uppercase tracking-widest text-[var(--color-text-tertiary)]">
       {project.location}{project.location && project.year ? ' · ' : ''}{project.year}
     </p>
     {project.briefSummary && (
-      <p class="mt-s text-sm text-foreground/80">{project.briefSummary}</p>
+      <p class="mt-s text-sm text-[var(--color-text-secondary)]">{project.briefSummary}</p>
     )}
   </div>
 </a>

@@ -76,17 +76,17 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
           {page?.heroHeadline ?? 'Request a Custom Quote'}
         </h1>
         {page?.heroSubhead && (
-          <p class="text-foreground/75 max-w-xl">{page.heroSubhead}</p>
+          <p class="text-[var(--color-text-secondary)] max-w-xl">{page.heroSubhead}</p>
         )}
         {page?.heroBody && (
-          <div class="text-foreground/75 mt-m">
+          <div class="text-[var(--color-text-secondary)] mt-m">
             <PortableText client:idle value={page.heroBody} />
           </div>
         )}
         {(page?.heroTrustItems ?? []).length > 0 && (
           <ul class="mt-l space-y-s list-none">
             {(page.heroTrustItems as string[]).map((item: string) => (
-              <li class="flex items-start gap-s text-sm text-foreground/80">
+              <li class="flex items-start gap-s text-sm text-[var(--color-text-secondary)]">
                 <span class="text-primary mt-0.5" aria-hidden="true">✓</span>
                 {item}
               </li>
@@ -286,10 +286,10 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
                 class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
                 aria-describedby="attachments-help"
               />
-              <p class="text-sm text-foreground/70">
+              <p class="text-sm text-[var(--color-text-secondary)]">
                 Drag & drop photos here, or <span class="text-link underline">click to browse</span>
               </p>
-              <p id="attachments-help" class="text-xs text-foreground/50 mt-xs">{L.attachmentsHelp}</p>
+              <p id="attachments-help" class="text-xs text-[var(--color-text-secondary)] mt-xs">{L.attachmentsHelp}</p>
             </div>
             <ul id="file-list" class="mt-s space-y-xs list-none" aria-live="polite" />
             <p class="form-error hidden" data-error-for="attachments">{L.attachmentsError}</p>
@@ -332,7 +332,7 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
             <span id="submit-label">{L.submitLabel}</span>
           </button>
           {L.privacyNote && (
-            <p class="mt-m text-xs text-foreground/50">{L.privacyNote}</p>
+            <p class="mt-m text-xs text-[var(--color-text-secondary)]">{L.privacyNote}</p>
           )}
         </div>
 
@@ -368,7 +368,7 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
       const sizeSpan = document.createElement('span');
       nameSpan.textContent = file.name;
       sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ' — TOO LARGE' : ''}`;
-      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-red-600' : 'text-foreground/70'}`;
+      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-red-600' : 'text-[var(--color-text-secondary)]'}`;
       li.appendChild(nameSpan);
       li.appendChild(sizeSpan);
       fileList.appendChild(li);
@@ -455,14 +455,14 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
   @reference "../styles/globals.css";
 
   .form-label {
-    @apply block text-xs uppercase tracking-eyebrow font-semibold text-foreground/80 mb-xs;
+    @apply block text-xs uppercase tracking-eyebrow font-semibold text-[var(--color-text-secondary)] mb-xs;
   }
   .form-input {
     @apply block w-full rounded-md border border-border bg-background px-m py-s text-sm text-foreground
            focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors;
   }
   textarea.form-input { resize: vertical; }
-  .form-help  { @apply text-xs text-foreground/50 mt-xs; }
+  .form-help  { @apply text-xs text-[var(--color-text-secondary)] mt-xs; }
   .form-error { @apply text-xs text-red-600 mt-xs; }
   .form-field { @apply flex flex-col; }
 </style>

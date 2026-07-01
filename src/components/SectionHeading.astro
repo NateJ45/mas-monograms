@@ -63,11 +63,11 @@ const headingClass =
 
 const wrapperAlign = align === 'center' ? 'text-center mx-auto' : 'text-left';
 const toneHeadline = tone === 'inverse' ? 'text-bg' : 'text-foreground';
-// Default tone swapped from text-secondary (Warm Taupe, fails AA at 12px) to
-// text-foreground/80 (4.77:1 on Cream). Inverse tone (used on FinalCta's
-// dark Charcoal panel) keeps cream-on-dark.
-const toneEyebrow = tone === 'inverse' ? 'text-bg/75' : 'text-foreground/80';
-const toneSub = tone === 'inverse' ? 'text-bg/80' : 'text-foreground/80';
+// Default tone uses the AA-safe secondary text token (Secondary Taupe, #5A5148,
+// 6.72:1 on Linen) instead of opacity-dimmed ink, which fails AA at small sizes.
+// Inverse tone (used on FinalCta's dark Ink panel) keeps cream-on-dark.
+const toneEyebrow = tone === 'inverse' ? 'text-bg/75' : 'text-[var(--color-text-secondary)]';
+const toneSub = tone === 'inverse' ? 'text-bg/80' : 'text-[var(--color-text-secondary)]';
 
 // Bronze hairline accent beneath the eyebrow. Matches the brand-stripe
 // signature now repeating on every marketing card so section headings read

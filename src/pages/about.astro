@@ -28,7 +28,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
           {page?.heroHeadline ?? 'About MAS Monograms'}
         </h1>
         {page?.heroSubhead && (
-          <p class="text-foreground/75 max-w-xl">{page.heroSubhead}</p>
+          <p class="text-[var(--color-text-secondary)] max-w-xl">{page.heroSubhead}</p>
         )}
       </div>
       {page?.heroImage?.asset && (
@@ -61,7 +61,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
               />
             </div>
             {page?.makerAttribution && (
-              <p class="mt-s text-xs text-foreground/50 text-center">{page.makerAttribution}</p>
+              <p class="mt-s text-xs text-[var(--color-text-tertiary)] text-center">{page.makerAttribution}</p>
             )}
           </div>
         )}
@@ -72,7 +72,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
             </h2>
           )}
           {page?.storyContent && (
-            <div class="text-foreground/80">
+            <div class="text-[var(--color-text-secondary)]">
               <PortableText client:idle value={page.storyContent} />
             </div>
           )}
@@ -99,7 +99,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
           {(page.values as any[]).map((v: any) => (
             <div class="bg-background rounded-xl border border-border p-l">
               <h3 class="font-display text-h4 text-foreground mb-s">{v.label}</h3>
-              <p class="text-foreground/75">{v.body}</p>
+              <p class="text-[var(--color-text-secondary)]">{v.body}</p>
             </div>
           ))}
         </div>
@@ -117,7 +117,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
               <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
                 "{t.quote}"
               </blockquote>
-              <figcaption class="text-sm text-foreground/60">
+              <figcaption class="text-sm text-[var(--color-text-secondary)]">
                 <span class="font-semibold text-foreground">{t.attribution}</span>
                 {t.itemOrdered && <span class="block text-xs mt-xs">{t.itemOrdered}</span>}
               </figcaption>

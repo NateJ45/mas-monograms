@@ -27,13 +27,13 @@ const description = page?.seoDescription ?? 'Your quote request has been receive
             {page?.headline ?? 'Thank You!'}
           </h1>
           {page?.body && (
-            <div class="text-foreground/80 mb-l">
+            <div class="text-[var(--color-text-secondary)] mb-l">
               <PortableText client:idle value={page.body} />
             </div>
           )}
           {page?.expectedResponseTime && (
             <div class="bg-tertiary rounded-xl p-m mb-l">
-              <p class="text-sm text-foreground/70">
+              <p class="text-sm text-[var(--color-text-secondary)]">
                 <strong class="text-foreground">Expected response time:</strong>{' '}
                 {page.expectedResponseTime}
               </p>
@@ -41,14 +41,14 @@ const description = page?.seoDescription ?? 'Your quote request has been receive
           )}
           {(page?.nextSteps ?? []).length > 0 && (
             <div class="mb-l">
-              <p class="text-xs uppercase tracking-eyebrow text-foreground/60 mb-s">What's next</p>
+              <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">What's next</p>
               <ol class="space-y-s list-none">
                 {(page.nextSteps as string[]).map((step: string, i: number) => (
                   <li class="flex items-start gap-m">
                     <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center mt-0.5">
                       {i + 1}
                     </span>
-                    <span class="text-foreground/80">{step}</span>
+                    <span class="text-[var(--color-text-secondary)]">{step}</span>
                   </li>
                 ))}
               </ol>

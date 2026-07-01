@@ -64,7 +64,7 @@ const isGrid = variant === 'grid';
       <>
         {services.length >= 3 && (
           <nav class="mt-m flex flex-col items-center gap-s" aria-label="On this page">
-            <p class="text-xs uppercase tracking-eyebrow text-foreground/80">On this page</p>
+            <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">On this page</p>
             <ul class="flex flex-wrap justify-center gap-xs list-none p-0">
               {services.map((service: any) =>
                 service.slug?.current ? (

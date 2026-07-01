@@ -35,7 +35,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
         {page?.heroHeadline ?? 'Font & Lettering Guide'}
       </h1>
       {page?.heroSubhead && (
-        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
     </div>
   </section>
@@ -66,7 +66,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
       {fonts.length > 0 ? (
         Object.entries(styleGroups).map(([style, styleFonts]) => (
           <div class="mb-section-lg" data-reveal>
-            <h3 class="text-xs uppercase tracking-eyebrow text-foreground/60 mb-m border-b border-border-soft pb-s">
+            <h3 class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-m border-b border-border-soft pb-s">
               {style}
             </h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-m" data-stagger-grid>
@@ -93,7 +93,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
                       <span class="text-xs text-primary font-semibold">Popular</span>
                     )}
                     {font.bestFor && (
-                      <p class="text-xs text-foreground/60 mt-xs">{font.bestFor}</p>
+                      <p class="text-xs text-[var(--color-text-secondary)] mt-xs">{font.bestFor}</p>
                     )}
                   </div>
                 </div>
@@ -102,12 +102,12 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
           </div>
         ))
       ) : (
-        <p class="text-center text-foreground/60 py-l">Font guide coming soon.</p>
+        <p class="text-center text-[var(--color-text-secondary)] py-l">Font guide coming soon.</p>
       )}
 
       {page?.customFontNote && (
         <div class="mt-l bg-tertiary rounded-xl p-l text-center" data-reveal>
-          <p class="text-foreground/75">{page.customFontNote}</p>
+          <p class="text-[var(--color-text-secondary)]">{page.customFontNote}</p>
         </div>
       )}
     </div>

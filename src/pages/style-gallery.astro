@@ -34,7 +34,7 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
         {page?.heroHeadline ?? 'Style Gallery'}
       </h1>
       {page?.heroSubhead && (
-        <p class="text-foreground/75 max-w-2xl mx-auto">{page.heroSubhead}</p>
+        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
     </div>
   </section>
@@ -58,7 +58,7 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
             <button
               type="button"
               data-filter={t.tag}
-              class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-foreground/80 hover:border-primary hover:text-link transition-colors"
+              class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-[var(--color-text-secondary)] hover:border-primary hover:text-link transition-colors"
               aria-pressed="false"
             >
               {t.label}
@@ -68,7 +68,7 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
             <button
               type="button"
               data-filter={tag}
-              class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-foreground/80 hover:border-primary hover:text-link transition-colors"
+              class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-[var(--color-text-secondary)] hover:border-primary hover:text-link transition-colors"
               aria-pressed="false"
             >
               {tag}
@@ -97,10 +97,10 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
               {(item.relatedCategory?.name || item.relatedFont?.name) && (
                 <div class="px-s py-xs">
                   {item.relatedCategory?.name && (
-                    <p class="text-xs text-foreground/60">{item.relatedCategory.name}</p>
+                    <p class="text-xs text-[var(--color-text-secondary)]">{item.relatedCategory.name}</p>
                   )}
                   {item.relatedFont?.name && (
-                    <p class="text-xs text-foreground/50 italic">{item.relatedFont.name} font</p>
+                    <p class="text-xs text-[var(--color-text-tertiary)] italic">{item.relatedFont.name} font</p>
                   )}
                 </div>
               )}
@@ -108,12 +108,12 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
           ))}
         </div>
       ) : (
-        <p class="text-center text-foreground/60 py-l">
+        <p class="text-center text-[var(--color-text-secondary)] py-l">
           {page?.emptyStateMessage ?? 'Gallery photos coming soon.'}
         </p>
       )}
       <div id="gallery-empty" class="hidden text-center py-l">
-        <p class="text-foreground/60">
+        <p class="text-[var(--color-text-secondary)]">
           {page?.emptyStateMessage ?? 'No items match that filter.'}
         </p>
       </div>
@@ -148,7 +148,7 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
           b.classList.toggle('bg-primary', active);
           b.classList.toggle('text-white', active);
           b.classList.toggle('border-primary', active);
-          b.classList.toggle('text-foreground/80', !active);
+          b.classList.toggle('text-[var(--color-text-secondary)]', !active);
         });
 
         // Filter items

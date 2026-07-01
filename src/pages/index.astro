@@ -115,7 +115,7 @@ const heroImage  = heroImages[0] ?? null;
           )}
           <h2 class="font-display text-h2 text-foreground">{page?.categoriesHeadline ?? 'Shop by Item'}</h2>
           {page?.categoriesSubhead && (
-            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.categoriesSubhead}</p>
+            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.categoriesSubhead}</p>
           )}
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m" data-stagger-grid>
@@ -163,7 +163,7 @@ const heroImage  = heroImages[0] ?? null;
             {page.aboutHeadline}
           </h2>
           {page?.aboutBody && (
-            <div class="text-foreground/80 mb-l">
+            <div class="text-[var(--color-text-secondary)] mb-l">
               <PortableText client:idle value={page.aboutBody} />
             </div>
           )}
@@ -190,7 +190,7 @@ const heroImage  = heroImages[0] ?? null;
           )}
           <h2 class="font-display text-h2 text-foreground">{page?.processHeadline ?? 'How It Works'}</h2>
           {page?.processSubhead && (
-            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.processSubhead}</p>
+            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.processSubhead}</p>
           )}
         </div>
         <ol class="space-y-l mt-l">
@@ -232,7 +232,7 @@ const heroImage  = heroImages[0] ?? null;
           )}
           <h2 class="font-display text-h2 text-foreground">{page?.combosHeadline ?? 'Popular Combinations'}</h2>
           {page?.combosSubhead && (
-            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.combosSubhead}</p>
+            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.combosSubhead}</p>
           )}
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
@@ -255,11 +255,11 @@ const heroImage  = heroImages[0] ?? null;
               )}
               <div class="p-m">
                 <h3 class="font-display text-h4 text-foreground mb-xs">{combo.name}</h3>
-                {combo.description && <p class="text-sm text-foreground/70">{combo.description}</p>}
+                {combo.description && <p class="text-sm text-[var(--color-text-secondary)]">{combo.description}</p>}
                 {(combo.tags ?? []).length > 0 && (
                   <div class="flex flex-wrap gap-xs mt-s">
                     {(combo.tags as string[]).map((tag: string) => (
-                      <span class="text-xs px-s py-0.5 rounded-full bg-tertiary text-foreground/70">{tag}</span>
+                      <span class="text-xs px-s py-0.5 rounded-full bg-tertiary text-[var(--color-text-secondary)]">{tag}</span>
                     ))}
                   </div>
                 )}
@@ -287,7 +287,7 @@ const heroImage  = heroImages[0] ?? null;
               <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
                 "{t.quote}"
               </blockquote>
-              <figcaption class="text-sm text-foreground/60">
+              <figcaption class="text-sm text-[var(--color-text-secondary)]">
                 <span class="font-semibold text-foreground">{t.attribution}</span>
                 {t.itemOrdered && <span class="block text-xs mt-xs">{t.itemOrdered}</span>}
               </figcaption>
@@ -308,7 +308,7 @@ const heroImage  = heroImages[0] ?? null;
           )}
           <h2 class="font-display text-h2 text-foreground">{page?.galleryHeadline ?? 'From the Studio'}</h2>
           {page?.gallerySubhead && (
-            <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.gallerySubhead}</p>
+            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.gallerySubhead}</p>
           )}
         </div>
         <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m">

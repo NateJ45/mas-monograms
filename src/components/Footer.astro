@@ -70,7 +70,7 @@ function socialIcon(platform: string | undefined) {
     {useCustomColumns ? (
       sanityColumns.map((col, i) => (
         <nav aria-labelledby={`footer-col-${i}`}>
-          <p id={`footer-col-${i}`} class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          <p id={`footer-col-${i}`} class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
             {col.title}
           </p>
           <ul class="text-sm space-y-2 list-none p-0">
@@ -88,7 +88,7 @@ function socialIcon(platform: string | undefined) {
       <>
         {/* EXPLORE */}
         <nav aria-labelledby="footer-explore">
-          <p id="footer-explore" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          <p id="footer-explore" class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
             Explore
           </p>
           <ul class="text-sm space-y-2 list-none p-0">
@@ -102,7 +102,7 @@ function socialIcon(platform: string | undefined) {
 
         {/* RESOURCES */}
         <nav aria-labelledby="footer-resources">
-          <p id="footer-resources" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          <p id="footer-resources" class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
             Resources
           </p>
           <ul class="text-sm space-y-2 list-none p-0">
@@ -114,7 +114,7 @@ function socialIcon(platform: string | undefined) {
 
         {/* CONNECT */}
         <nav aria-labelledby="footer-connect">
-          <p id="footer-connect" class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          <p id="footer-connect" class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
             Connect
           </p>
           <ul class="text-sm space-y-2 list-none p-0">
@@ -140,7 +140,7 @@ function socialIcon(platform: string | undefined) {
               </li>
             )}
             {address?.city && (
-              <li class="text-foreground/75 text-sm">
+              <li class="text-[var(--color-text-secondary)] text-sm">
                 {[address.city, address.state].filter(Boolean).join(', ')}
               </li>
             )}
@@ -149,7 +149,7 @@ function socialIcon(platform: string | undefined) {
 
         {/* GET IN TOUCH — social icons */}
         <div>
-          <p class="text-xs uppercase tracking-eyebrow text-foreground/80 mb-s">
+          <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
             Follow Along
           </p>
           {socialLinks.length > 0 ? (
@@ -173,7 +173,7 @@ function socialIcon(platform: string | undefined) {
               })}
             </ul>
           ) : (
-            <p class="text-sm text-foreground/60">Find us on social media.</p>
+            <p class="text-sm text-[var(--color-text-secondary)]">Find us on social media.</p>
           )}
         </div>
       </>
@@ -186,13 +186,13 @@ function socialIcon(platform: string | undefined) {
       <Logo variant="ink" class="h-20 w-auto" />
     </a>
     {siteSettings?.tagline && (
-      <p class="text-sm text-foreground/60 italic max-w-[28rem]">{siteSettings.tagline}</p>
+      <p class="text-sm text-[var(--color-text-secondary)] italic max-w-[28rem]">{siteSettings.tagline}</p>
     )}
   </div>
 
   {/* Bottom bar */}
   <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-xs text-xs text-foreground/80 text-center">
+    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-xs text-xs text-[var(--color-text-secondary)] text-center">
       <p>© {currentYear} {brandName}</p>
       <div class="flex items-center gap-m">
         {siteCredit && (

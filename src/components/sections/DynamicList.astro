@@ -97,7 +97,7 @@ const fallbackLabel: Record<string, string> = {
                   )}
                   <div class="p-m">
                     {item.meta && (
-                      <p class="text-xs uppercase tracking-eyebrow text-foreground/70 mb-xs">
+                      <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)] mb-xs">
                         {formatDate(item.meta)}
                       </p>
                     )}
@@ -105,7 +105,7 @@ const fallbackLabel: Record<string, string> = {
                       {item.title}
                     </h3>
                     {item.summary && (
-                      <p class="mt-xs text-sm text-foreground/80 leading-relaxed line-clamp-3">
+                      <p class="mt-xs text-sm text-[var(--color-text-secondary)] leading-relaxed line-clamp-3">
                         {item.summary}
                       </p>
                     )}
@@ -114,7 +114,7 @@ const fallbackLabel: Record<string, string> = {
               ) : (
                 <div class="h-full rounded-md border border-border-soft bg-card p-m">
                   <h3 class="font-display text-h4 text-foreground">{item.title}</h3>
-                  {item.summary && <p class="mt-xs text-sm text-foreground/80 leading-relaxed">{item.summary}</p>}
+                  {item.summary && <p class="mt-xs text-sm text-[var(--color-text-secondary)] leading-relaxed">{item.summary}</p>}
                 </div>
               )}
             </li>
@@ -139,14 +139,14 @@ const fallbackLabel: Record<string, string> = {
                     <p class="mt-xs text-xs font-semibold uppercase tracking-eyebrow text-link">{item.meta}</p>
                   )}
                   {item.summary && (
-                    <p class="mt-s text-sm text-foreground/80 leading-relaxed line-clamp-3">{item.summary}</p>
+                    <p class="mt-s text-sm text-[var(--color-text-secondary)] leading-relaxed line-clamp-3">{item.summary}</p>
                   )}
                 </a>
               ) : (
                 <div class="h-full rounded-md border border-border-soft bg-card p-m">
                   <h3 class="font-display text-h4 text-foreground">{item.title}</h3>
                   {item.meta && <p class="mt-xs text-xs font-semibold uppercase tracking-eyebrow text-link">{item.meta}</p>}
-                  {item.summary && <p class="mt-s text-sm text-foreground/80 leading-relaxed line-clamp-3">{item.summary}</p>}
+                  {item.summary && <p class="mt-s text-sm text-[var(--color-text-secondary)] leading-relaxed line-clamp-3">{item.summary}</p>}
                 </div>
               )}
             </li>
@@ -168,7 +168,7 @@ const fallbackLabel: Record<string, string> = {
                 <footer class="mt-m">
                   <cite class="not-italic">
                     <p class="font-semibold text-sm text-foreground">{item.title}</p>
-                    {item.meta && <p class="text-xs text-foreground/70">{item.meta}</p>}
+                    {item.meta && <p class="text-xs text-[var(--color-text-tertiary)]">{item.meta}</p>}
                   </cite>
                 </footer>
               </blockquote>
@@ -184,13 +184,13 @@ const fallbackLabel: Record<string, string> = {
             <div class="py-m">
               <dt class="font-semibold text-foreground leading-snug">{item.title}</dt>
               {item.summary && (
-                <dd class="mt-xs text-sm text-foreground/80 leading-relaxed">{item.summary}</dd>
+                <dd class="mt-xs text-sm text-[var(--color-text-secondary)] leading-relaxed">{item.summary}</dd>
               )}
               {/* answer is a Portable Text array -- render plain text fallback for
                   the inline block. For full rich text the FaqAccordion island is the
                   right component (see /faq page). */}
               {!item.summary && Array.isArray((item as any).answer) && (item as any).answer.length > 0 && (
-                <dd class="mt-xs text-sm text-foreground/80 leading-relaxed">
+                <dd class="mt-xs text-sm text-[var(--color-text-secondary)] leading-relaxed">
                   {(item as any).answer
                     .filter((b: any) => b._type === 'block')
                     .map((b: any) => b.children?.map((c: any) => c.text).join(''))
