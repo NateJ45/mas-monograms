@@ -492,6 +492,10 @@ export function getClearancePage(): Promise<any> {
       soldOutLabel,
       buyButtonLabel,
       emptyStateMessage,
+      emptyStateCtaLabel,
+      emptyStateCtaHref,
+      emptyStateSecondaryLabel,
+      emptyStateSecondaryHref,
       ctaEyebrow,
       ctaHeadline,
       ctaSubhead,
@@ -537,7 +541,9 @@ export function getThankYouPage(): Promise<any> {
       nextSteps,
       image ${IMG},
       ctaLabel,
-      ctaHref
+      ctaHref,
+      secondaryCtaLabel,
+      secondaryCtaHref
     }`,
     {},
     null,

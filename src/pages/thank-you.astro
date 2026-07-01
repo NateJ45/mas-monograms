@@ -54,13 +54,25 @@ const description = page?.seoDescription ?? 'Your quote request has been receive
               </ol>
             </div>
           )}
-          {page?.ctaLabel && page?.ctaHref && (
-            <a
-              href={page.ctaHref}
-              class="inline-flex items-center px-l py-m rounded-md bg-primary hover:bg-primary-dark text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
-            >
-              {page.ctaLabel}
-            </a>
+          {((page?.ctaLabel && page?.ctaHref) || (page?.secondaryCtaLabel && page?.secondaryCtaHref)) && (
+            <div class="flex flex-col sm:flex-row sm:items-center gap-m">
+              {page?.ctaLabel && page?.ctaHref && (
+                <a
+                  href={page.ctaHref}
+                  class="inline-flex items-center px-l py-m rounded-md bg-primary hover:bg-primary-dark text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+                >
+                  {page.ctaLabel}
+                </a>
+              )}
+              {page?.secondaryCtaLabel && page?.secondaryCtaHref && (
+                <a
+                  href={page.secondaryCtaHref}
+                  class="text-sm font-semibold text-link underline hover:text-primary-dark transition-colors"
+                >
+                  {page.secondaryCtaLabel} →
+                </a>
+              )}
+            </div>
           )}
         </div>
 

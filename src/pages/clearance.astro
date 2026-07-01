@@ -66,9 +66,27 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {items.length === 0 ? (
-        <p class="text-center text-[var(--color-text-secondary)] py-l">
-          {page?.emptyStateMessage ?? 'No clearance items available at this time. Check back soon!'}
-        </p>
+        <div class="text-center py-l" data-reveal>
+          <p class="text-[var(--color-text-secondary)]">
+            {page?.emptyStateMessage ?? 'No clearance items available at this time. Check back soon!'}
+          </p>
+          <div class="mt-l flex flex-col sm:flex-row items-center justify-center gap-m">
+            <a
+              href={page?.emptyStateCtaHref ?? '/request-a-quote'}
+              class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+            >
+              {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
+            </a>
+            {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
+              <a
+                href={page?.emptyStateSecondaryHref ?? '/shop-by-item'}
+                class="text-sm font-semibold text-link underline hover:text-primary-dark transition-colors"
+              >
+                {page?.emptyStateSecondaryLabel ?? 'Browse what I make'} →
+              </a>
+            )}
+          </div>
+        </div>
       ) : (
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
           {[...inStockItems, ...soldOutItems].map((item: any) => {

@@ -69,6 +69,13 @@ export const thankYouPage = defineType({
       initialValue: 'Explore the gallery', validation: (R) => R.required() }),
     defineField({ name: 'ctaHref', title: 'Continue browsing CTA destination', type: 'string', group: 'content',
       initialValue: '/style-gallery', validation: (R) => R.required() }),
+
+    defineField({ name: 'secondaryCtaLabel', title: 'Secondary CTA label (optional)', type: 'string', group: 'content',
+      description: 'A second onward path shown beside the main button. E.g. "See how it works". Leave blank to hide it.',
+      initialValue: 'Browse the style gallery' }),
+    defineField({ name: 'secondaryCtaHref', title: 'Secondary CTA destination (optional)', type: 'string', group: 'content',
+      description: 'Where the secondary link goes. E.g. /style-gallery.',
+      initialValue: '/style-gallery' }),
   ],
   preview: { prepare: () => ({ title: 'Thank You Page' }) },
 });
