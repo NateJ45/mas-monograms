@@ -112,6 +112,10 @@ export const homePage = defineType({
       initialValue: 'View all items', validation: (R) => R.required().max(50) }),
     defineField({ name: 'categoriesCtaHref', title: '"See all items" CTA destination', type: 'string', group: 'categories',
       initialValue: '/shop-by-item', validation: (R) => R.required() }),
+    defineField({ name: 'comboPreviewEyebrow', title: 'Combo preview eyebrow (optional)', type: 'string', group: 'categories',
+      description: 'Small label above the "build your own combination" picker. Leave blank to use a sensible default.' }),
+    defineField({ name: 'comboPreviewHeadline', title: 'Combo preview headline (optional)', type: 'string', group: 'categories' }),
+    defineField({ name: 'comboPreviewSubhead', title: 'Combo preview subhead (optional)', type: 'text', rows: 2, group: 'categories' }),
 
     // ── About / Maker blurb ───────────────────────────────────────────────────
     defineField({ name: 'aboutEyebrow', title: 'Eyebrow', type: 'string', group: 'about',

@@ -956,6 +956,9 @@ export type HomePage = {
   categoriesSubhead?: string;
   categoriesCtaLabel?: string;
   categoriesCtaHref?: string;
+  comboPreviewEyebrow?: string;
+  comboPreviewHeadline?: string;
+  comboPreviewSubhead?: string;
   aboutEyebrow?: string;
   aboutHeadline?: string;
   aboutBody?: Array<{

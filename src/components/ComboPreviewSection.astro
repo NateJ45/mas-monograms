@@ -19,21 +19,24 @@ interface Props {
   categories: CategoryOption[];
   fonts: FontOption[];
   threadColors: ThreadOption[];
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
 }
 
-const { categories, fonts, threadColors } = Astro.props as Props;
+const { categories, fonts, threadColors, eyebrow, headline, subhead } = Astro.props as Props;
 
 const hasEnoughData = categories.length > 0 && fonts.length > 0 && threadColors.length > 0;
 ---
 
 {hasEnoughData && (
-  <section class="bg-tertiary py-section-lg">
+  <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       <div class="text-center mb-l">
-        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">Try It Out</p>
-        <h2 class="font-display text-h2 text-foreground">Preview Your Combination</h2>
+        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{eyebrow ?? 'Try It Out'}</p>
+        <h2 class="font-display text-h2 text-foreground">{headline ?? 'Preview Your Combination'}</h2>
         <p class="text-foreground/70 mt-s max-w-xl mx-auto">
-          Pick an item, a font, and a thread color to see how they might look together.
+          {subhead ?? 'Pick an item, a font, and a thread color to see how they might look together.'}
         </p>
       </div>
       <ComboPreview categories={categories} fonts={fonts} threadColors={threadColors} client:visible />
