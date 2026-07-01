@@ -8,6 +8,9 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/bricolage-grotesque";
 @import "@fontsource-variable/work-sans";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/mulish";
+@import "@fontsource/petemoss";
 
 @custom-variant dark (&:is(.dark *));
 
