@@ -71,9 +71,9 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
             </h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-m" data-stagger-grid>
               {(styleFonts as any[]).map((font: any) => (
-                <div class="group rounded-xl border border-border bg-background overflow-hidden hover:shadow-sm transition-shadow">
+                <div class="group rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-sm transition-shadow">
                   {font.previewImage?.asset ? (
-                    <div class="aspect-square bg-tertiary overflow-hidden">
+                    <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
                       <SanityImage
                         source={font.previewImage}
                         width={300}
@@ -83,7 +83,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
                       />
                     </div>
                   ) : (
-                    <div class="aspect-square bg-tertiary flex items-center justify-center">
+                    <div class="aspect-square bg-tertiary flex items-center justify-center rounded-[calc(var(--radius-xl)-0.25rem)]">
                       <span class="font-display text-h2 text-foreground/20">Aa</span>
                     </div>
                   )}
@@ -106,7 +106,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
       )}
 
       {page?.customFontNote && (
-        <div class="mt-l bg-muted rounded-xl p-l text-center" data-reveal>
+        <div class="mt-l bg-tertiary rounded-xl p-l text-center" data-reveal>
           <p class="text-foreground/75">{page.customFontNote}</p>
         </div>
       )}
