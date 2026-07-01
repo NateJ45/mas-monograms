@@ -81,10 +81,10 @@ const heroImage  = heroImages[0] ?? null;
           {categories.slice(0, 8).map((cat: any) => (
             <a
               href={`/${cat.slug?.current ?? ''}`}
-              class="group block rounded-xl overflow-hidden border border-border bg-background hover:shadow-lg transition-shadow"
+              class="group block rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-lg transition-shadow"
             >
               {cat.cardImage?.asset ? (
-                <div class="aspect-square overflow-hidden">
+                <div class="aspect-square overflow-hidden rounded-[calc(theme(borderRadius.xl)-0.25rem)]">
                   <SanityImage
                     source={cat.cardImage}
                     width={400}
@@ -115,7 +115,7 @@ const heroImage  = heroImages[0] ?? null;
 
   {/* ── About / Maker ─────────────────────────────────────────────────────── */}
   {(page?.aboutHeadline || page?.aboutBody) && (
-    <section class="bg-muted py-section-lg">
+    <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
         {page?.aboutPhoto?.asset && (
           <div class="relative rounded-2xl overflow-hidden shadow-xl order-last lg:order-first" data-reveal>
@@ -205,16 +205,18 @@ const heroImage  = heroImages[0] ?? null;
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
           {combos.slice(0, 6).map((combo: any) => (
-            <div class="bg-background rounded-xl overflow-hidden border border-border hover:shadow-md transition-shadow">
+            <div class="bg-background rounded-xl overflow-hidden hover:shadow-md transition-shadow">
               {combo.image?.asset ? (
-                <div class="aspect-[4/3] overflow-hidden">
-                  <SanityImage
-                    source={combo.image}
-                    width={600}
-                    height={450}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    class="w-full h-full object-cover"
-                  />
+                <div class="aspect-[4/3] p-1 bg-secondary">
+                  <div class="w-full h-full overflow-hidden rounded-sm">
+                    <SanityImage
+                      source={combo.image}
+                      width={600}
+                      height={450}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
               ) : (
                 <div class="aspect-[4/3] bg-bg-soft" />
@@ -266,7 +268,7 @@ const heroImage  = heroImages[0] ?? null;
 
   {/* ── Gallery Preview ───────────────────────────────────────────────────── */}
   {galleryItems.length > 0 && (
-    <section class="bg-muted py-section-lg">
+    <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
         <div class="text-center mb-l" data-reveal>
           {page?.galleryEyebrow && (
@@ -280,13 +282,15 @@ const heroImage  = heroImages[0] ?? null;
         <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m">
           {galleryItems.map((item: any) => (
             item.image?.asset && (
-              <div class="break-inside-avoid rounded-xl overflow-hidden border border-border">
-                <SanityImage
-                  source={item.image}
-                  width={400}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  class="w-full h-auto"
-                />
+              <div class="break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary">
+                <div class="overflow-hidden rounded-sm">
+                  <SanityImage
+                    source={item.image}
+                    width={400}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    class="w-full h-auto"
+                  />
+                </div>
               </div>
             )
           ))}
