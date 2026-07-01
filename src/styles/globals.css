@@ -39,10 +39,12 @@
   --color-text-tertiary:  #67614f; /* Tertiary — caption text, 5.35:1 on Linen */
   --color-brass-text:     #835a24; /* Brass Text — text-safe brass (pricing figures, meta), 5.27:1 on Linen */
 
-  /* Fonts */
-  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
-  --font-body:    "Work Sans Variable", "Work Sans", system-ui, -apple-system, sans-serif;
-  --font-mono:    ui-monospace, "SF Mono", Consolas, monospace;
+  /* Fonts — "Heirloom Coast": Fraunces headings, Mulish body, Petemoss monogram.
+     --font-heading is mapped to --font-display in the @theme inline block below. */
+  --font-display:  "Fraunces Variable", serif;
+  --font-body:     "Mulish Variable", sans-serif;
+  --font-monogram: "Petemoss", cursive;
+  --font-mono:     ui-monospace, "SF Mono", Consolas, monospace;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;
@@ -76,6 +78,7 @@
 @theme inline {
     --font-heading: var(--font-display);
     --font-sans: var(--font-body);
+    --font-monogram: var(--font-monogram);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

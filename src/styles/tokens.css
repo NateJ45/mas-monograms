@@ -66,21 +66,20 @@
 
   /* ---------------------------------------------------------------------------
      TYPOGRAPHY
-     Two families, both self-hosted via @fontsource-variable (no Google Fonts
-     runtime dependency):
-       Bricolage Grotesque (400/600/700)  headings — characterful sans, no serif
-       Work Sans (400/500/600)            body, UI, buttons, navigation
-     No script font in the type system — the logo's needle-and-thread cross is
-     a hand-built SVG (see src/components/Logo.astro), not a webfont.
+     Self-hosted via @fontsource(-variable) (no Google Fonts runtime dependency):
+       Fraunces (variable)   headings/display — warm high-contrast serif
+       Mulish (variable)     body, UI, buttons, navigation
+       Petemoss              monogram/script accent (decorative flourishes only)
      --------------------------------------------------------------------------- */
-  --font-heading: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif;
-  --font-body: 'Work Sans Variable', 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading: 'Fraunces Variable', serif;
+  --font-body: 'Mulish Variable', sans-serif;
+  --font-monogram: 'Petemoss', cursive;
 
   /* Weights, named so usage stays consistent across components. */
   --weight-body: 400;
   --weight-body-medium: 500;
   --weight-body-semibold: 600;
-  --weight-heading: 700; /* Bricolage Grotesque reads best bold at display sizes */
+  --weight-heading: 700; /* Fraunces reads well bold at display sizes */
   --weight-heading-medium: 600;
 
   /* Type scale. Adjust the values, keep the names. */
