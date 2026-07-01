@@ -3,9 +3,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import StatsRow from '@/components/StatsRow.astro';
 import ProcessStep from '@/components/ProcessStep.astro';
+import ComboPreviewSection from '@/components/ComboPreviewSection.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
+import { urlFor } from '@/lib/sanity';
 import {
   getSiteSettings,
   getHomePage,
@@ -13,16 +15,43 @@ import {
   getPopularCombinations,
   getTestimonials,
   getFeaturedGalleryItems,
+  getAllFonts,
+  getAllThreadColors,
 } from '@/lib/queries';
 
-const [siteSettings, page, categories, combos, testimonials, galleryItems] = await Promise.all([
+const [siteSettings, page, categories, combos, testimonials, galleryItems, allFonts, allThreadColors] = await Promise.all([
   getSiteSettings(),
   getHomePage(),
   getAllItemCategories(),
   getPopularCombinations(),
   getTestimonials(true),
   getFeaturedGalleryItems(9),
+  getAllFonts(),
+  getAllThreadColors(),
 ]);
+
+// ComboPreview data: real categories/fonts/colors, curated to a small,
+// visually varied set. Fonts filtered to ones with an actual specimen photo
+// (10 of 18 have none — see docs/superpowers/specs/2026-07-01-combo-preview-design.md).
+const comboCategories = (categories ?? []).slice(0, 8).map((c: any) => ({
+  name: c.name,
+  slug: c.slug?.current ?? '',
+}));
+const comboFonts = (allFonts ?? [])
+  .filter((f: any) => f.previewImage?.asset)
+  .slice(0, 6)
+  .map((f: any) => ({
+    name: f.name,
+    previewUrl: urlFor(f.previewImage).width(240).auto('format').url(),
+    alt: f.previewImage.alt ?? f.name,
+  }));
+// One color per family for visual variety, in a fixed, real, verified order
+// (all 8 names confirmed present in the live threadColor catalog from Plan 2).
+const COMBO_THREAD_NAMES = ['Navy', 'Forest Green', 'True Red', 'Purple', 'Bright Gold', 'Charcoal', 'Bright White', 'Bronze'];
+const comboThreadColors = COMBO_THREAD_NAMES
+  .map((name) => (allThreadColors ?? []).find((c: any) => c.name === name))
+  .filter((c: any) => !!c)
+  .map((c: any) => ({ name: c.name, hex: c.hexColor }));
 
 const title       = page?.seoTitle       ?? siteSettings?.seoTitle ?? 'MAS Monograms — Custom Embroidery in St. Matthews, SC';
 const description = page?.seoDescription ?? siteSettings?.seoDescription ?? 'Hand-embroidered monograms and personalized gifts by Mary Ann Stone. Quality custom embroidery on towels, bags, shirts, baby items, and more.';
@@ -117,6 +146,15 @@ const heroImage  = heroImages[0] ?? null;
       </div>
     </section>
   )}
+
+  <ComboPreviewSection
+    categories={comboCategories}
+    fonts={comboFonts}
+    threadColors={comboThreadColors}
+    eyebrow={page?.comboPreviewEyebrow}
+    headline={page?.comboPreviewHeadline}
+    subhead={page?.comboPreviewSubhead}
+  />
 
   {/* ── About / Maker ─────────────────────────────────────────────────────── */}
   {(page?.aboutHeadline || page?.aboutBody) && (
