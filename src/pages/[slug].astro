@@ -5,6 +5,7 @@
 
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Hero from '@/components/Hero.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
 import { getSiteSettings, getAllItemCategories, getItemCategoryBySlug, getAllGalleryItems } from '@/lib/queries';
@@ -37,44 +38,20 @@ const relatedGallery = allGallery.filter(
 ).slice(0, 9);
 
 const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset);
-const primaryHero = heroImages[0] ?? null;
 ---
 
 <BaseLayout {title} {description} seoImage={category?.seoImage} {siteSettings}>
 
   {/* Hero */}
-  <section class="relative min-h-[60vh] flex items-end overflow-hidden bg-accent">
-    {primaryHero && (
-      <div class="absolute inset-0">
-        <SanityImage
-          source={primaryHero}
-          width={1600}
-          sizes="100vw"
-          class="w-full h-full object-cover opacity-60"
-          loading="eager"
-          fetchpriority="high"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-accent/80 via-accent/30 to-transparent" />
-      </div>
-    )}
-    <div class="relative mx-auto max-w-content px-m py-section-lg">
-      {category?.eyebrow && (
-        <p class="text-xs uppercase tracking-eyebrow text-cream/80 mb-s">{category.eyebrow}</p>
-      )}
-      <h1 class="font-display text-h1 text-cream leading-headline-tight mb-m">
-        {category.name}
-      </h1>
-      {category?.description && (
-        <p class="text-cream/80 max-w-xl mb-l">{category.description}</p>
-      )}
-      <a
-        href="/request-a-quote"
-        class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#b8492a)] hover:bg-[var(--color-rust-cta-hover,#9c3c20)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
-      >
-        {category?.ctaLabel ?? 'Request a Quote'}
-      </a>
-    </div>
-  </section>
+  <Hero
+    backgroundImages={heroImages}
+    eyebrow={category?.eyebrow}
+    headline={category.name}
+    subhead={category?.description}
+    primaryCta={{ label: category?.ctaLabel ?? 'Request a Quote', href: '/request-a-quote' }}
+    headingId="category-heading"
+    size="short"
+  />
 
   {/* Trust items */}
   {(category?.trustItems ?? []).length > 0 && (
@@ -142,8 +119,3 @@ const primaryHero = heroImages[0] ?? null;
     ctaHref="/request-a-quote"
   />
 </BaseLayout>
-
-<style>
-  .text-cream { color: #faf8f4; }
-  .text-cream\/80 { color: rgba(250,248,244,0.80); }
-</style>
