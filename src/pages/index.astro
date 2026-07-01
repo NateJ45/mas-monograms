@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import StatsRow from '@/components/StatsRow.astro';
+import ProcessStep from '@/components/ProcessStep.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
@@ -169,17 +170,21 @@ const heroImage  = heroImages[0] ?? null;
             <p class="text-foreground/70 mt-s max-w-xl mx-auto">{page.processSubhead}</p>
           )}
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-l mt-l" data-stagger-grid>
+        <ol class="space-y-l mt-l">
           {(page.processSteps as any[]).map((step: any, i: number) => (
-            <div class="text-center">
-              <div class="w-14 h-14 rounded-full bg-primary text-white font-display text-h4 flex items-center justify-center mx-auto mb-m">
-                {step.number ?? i + 1}
-              </div>
-              <h3 class="font-display text-h4 text-foreground mb-xs">{step.label}</h3>
-              {step.body && <p class="text-sm text-foreground/70">{step.body}</p>}
-            </div>
+            <li data-reveal>
+              <ProcessStep
+                step={{
+                  stepNumber: parseInt(step.number, 10) || i + 1,
+                  title: step.label,
+                  shortDescription: step.body,
+                }}
+                variant="preview"
+                isLast={i === (page.processSteps as any[]).length - 1}
+              />
+            </li>
           ))}
-        </div>
+        </ol>
         {page?.processCtaLabel && (
           <div class="text-center mt-l">
             <a
