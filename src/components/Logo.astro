@@ -1,6 +1,6 @@
 ---
 // Foundation, edit with care.
-// The Thread Ledger wordmark + needle-and-thread cross, as an inline SVG.
+// The Heirloom Coast wordmark + needle-and-thread cross, as an inline SVG.
 // No runtime theme switching: pick the variant that matches the surface
 // this instance sits on at the call site, e.g.:
 //   <Logo variant="ink" />        on light surfaces (header, footer — both parchment/mustard)
@@ -20,11 +20,12 @@ interface Props {
 
 const { variant = 'ink', mark = false, class: className } = Astro.props as Props;
 
-// Mirrors tokens.css: --color-parchment / --color-ink / --color-mustard / --color-rust-cta / --color-pine-teal.
+// Heirloom Coast — mirrors tokens.css: --color-parchment (Linen) / --color-ink (Heirloom Ink)
+// / --color-rust-cta (Claret) / --color-pine-teal (Heritage Indigo).
 // Hardcoded because SVG presentation attributes (fill=, stroke=) can't consume CSS custom properties directly.
-const wordmarkColor = variant === 'parchment' ? '#F7F1E6' : '#2B2420';
-const threadColor = variant === 'parchment' ? '#D9A441' : '#B8492A';
-const ringColor = '#1F5C4F';
+const wordmarkColor = variant === 'parchment' ? '#F4EEE3' : '#26312E'; // Linen on dark / Heirloom Ink on light
+const threadColor = '#8C3A2E';  // Claret — needle-thread arc
+const ringColor = '#28486B';    // Heritage Indigo — hoop ring + "made just for you"
 ---
 
 {mark ? (
@@ -46,9 +47,9 @@ const ringColor = '#1F5C4F';
     aria-hidden="true"
     focusable="false"
   >
-    <text x="0" y="52" font-family="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MAS</text>
-    <text x="0" y="90" font-family="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MONOGRAMS</text>
-    <text x="2" y="114" font-family="'Work Sans Variable', 'Work Sans', sans-serif" font-weight="600" font-size="13" letter-spacing="3" fill={ringColor}>MADE JUST FOR YOU</text>
+    <text x="0" y="52" font-family="'Fraunces Variable', serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MAS</text>
+    <text x="0" y="90" font-family="'Fraunces Variable', serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MONOGRAMS</text>
+    <text x="2" y="114" font-family="'Mulish Variable', sans-serif" font-weight="600" font-size="13" letter-spacing="3" fill={ringColor}>MADE JUST FOR YOU</text>
 
     <g transform="translate(330,0)">
       <line x1="32" y1="6" x2="32" y2="100" stroke={wordmarkColor} stroke-width="4" stroke-linecap="round" />

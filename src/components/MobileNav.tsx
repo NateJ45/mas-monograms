@@ -192,14 +192,15 @@ export default function MobileNav({
               aria-hidden="true"
               focusable="false"
             >
-              <text x="0" y="52" fontFamily="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" fontWeight="700" fontSize="42" fill="#2B2420" letterSpacing="-0.5">MAS</text>
-              <text x="0" y="90" fontFamily="'Bricolage Grotesque Variable', 'Bricolage Grotesque', sans-serif" fontWeight="700" fontSize="42" fill="#2B2420" letterSpacing="-0.5">MONOGRAMS</text>
-              <text x="2" y="114" fontFamily="'Work Sans Variable', 'Work Sans', sans-serif" fontWeight="600" fontSize="13" letterSpacing="3" fill="#1F5C4F">MADE JUST FOR YOU</text>
+              {/* Heirloom Coast — mirrors Logo.astro: Heirloom Ink #26312E, Heritage Indigo #28486B, Claret #8C3A2E. */}
+              <text x="0" y="52" fontFamily="'Fraunces Variable', serif" fontWeight="700" fontSize="42" fill="#26312E" letterSpacing="-0.5">MAS</text>
+              <text x="0" y="90" fontFamily="'Fraunces Variable', serif" fontWeight="700" fontSize="42" fill="#26312E" letterSpacing="-0.5">MONOGRAMS</text>
+              <text x="2" y="114" fontFamily="'Mulish Variable', sans-serif" fontWeight="600" fontSize="13" letterSpacing="3" fill="#28486B">MADE JUST FOR YOU</text>
 
               <g transform="translate(330,0)">
-                <line x1="32" y1="6" x2="32" y2="100" stroke="#2B2420" strokeWidth="4" strokeLinecap="round" />
-                <ellipse cx="32" cy="14" rx="5" ry="9" fill="none" stroke="#2B2420" strokeWidth="3" />
-                <path d="M2,46 Q32,30 62,46" fill="none" stroke="#B8492A" strokeWidth="4.5" strokeLinecap="round" />
+                <line x1="32" y1="6" x2="32" y2="100" stroke="#26312E" strokeWidth="4" strokeLinecap="round" />
+                <ellipse cx="32" cy="14" rx="5" ry="9" fill="none" stroke="#26312E" strokeWidth="3" />
+                <path d="M2,46 Q32,30 62,46" fill="none" stroke="#8C3A2E" strokeWidth="4.5" strokeLinecap="round" />
               </g>
             </svg>
           </div>
