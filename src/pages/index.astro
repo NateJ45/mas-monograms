@@ -84,7 +84,7 @@ const heroImage  = heroImages[0] ?? null;
               class="group block rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-lg transition-shadow"
             >
               {cat.cardImage?.asset ? (
-                <div class="aspect-square overflow-hidden rounded-[calc(theme(borderRadius.xl)-0.25rem)]">
+                <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
                   <SanityImage
                     source={cat.cardImage}
                     width={400}
@@ -208,7 +208,7 @@ const heroImage  = heroImages[0] ?? null;
             <div class="bg-background rounded-xl overflow-hidden hover:shadow-md transition-shadow">
               {combo.image?.asset ? (
                 <div class="aspect-[4/3] p-1 bg-secondary">
-                  <div class="w-full h-full overflow-hidden rounded-sm">
+                  <div class="w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
                     <SanityImage
                       source={combo.image}
                       width={600}
@@ -283,7 +283,7 @@ const heroImage  = heroImages[0] ?? null;
           {galleryItems.map((item: any) => (
             item.image?.asset && (
               <div class="break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary">
-                <div class="overflow-hidden rounded-sm">
+                <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
                   <SanityImage
                     source={item.image}
                     width={400}
