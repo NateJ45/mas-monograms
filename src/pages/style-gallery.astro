@@ -81,16 +81,18 @@ const additionalTags: Array<{ label: string; tag: string }> = page?.additionalFi
         <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m" id="gallery-grid">
           {items.map((item: any) => (
             <div
-              class="gallery-item break-inside-avoid rounded-xl overflow-hidden border border-border bg-background"
+              class="gallery-item break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary"
               data-tags={JSON.stringify(item.tags ?? [])}
             >
               {item.image?.asset && (
-                <SanityImage
-                  source={item.image}
-                  width={400}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  class="w-full h-auto object-cover"
-                />
+                <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+                  <SanityImage
+                    source={item.image}
+                    width={400}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    class="w-full h-auto object-cover"
+                  />
+                </div>
               )}
               {(item.relatedCategory?.name || item.relatedFont?.name) && (
                 <div class="px-s py-xs">
