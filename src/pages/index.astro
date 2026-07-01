@@ -251,7 +251,34 @@ const heroImage  = heroImages[0] ?? null;
                   </div>
                 </div>
               ) : (
-                <div class="aspect-[4/3] bg-tertiary" />
+                /* No-photo fallback: a typographic "recipe" card built from the
+                   combo's own Sanity fields. The combination name is set large
+                   in the Petemoss monogram font (decorative script, distinct
+                   from the Fraunces <h3> below) on a Paper ground with a brass
+                   hairline frame, echoing the hoop-ring signature used on real
+                   photo tiles. Related category + first tag read as small
+                   labels so the tile is clearly intentional, not blank. */
+                <div class="aspect-[4/3] p-1 bg-secondary">
+                  <div
+                    class="w-full h-full rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex flex-col items-center justify-center text-center px-m py-s"
+                  >
+                    {combo.relatedCategory?.name && (
+                      <p class="text-[0.6rem] uppercase tracking-eyebrow text-[var(--color-text-tertiary)] mb-xs">
+                        {combo.relatedCategory.name}
+                      </p>
+                    )}
+                    <p
+                      class="font-[var(--font-monogram)] text-primary leading-none text-[clamp(2.25rem,5vw,3.25rem)]"
+                    >
+                      {combo.name}
+                    </p>
+                    {(combo.tags ?? []).length > 0 && (
+                      <p class="mt-s text-[0.6rem] uppercase tracking-eyebrow text-[var(--color-text-secondary)]">
+                        {(combo.tags as string[])[0]}
+                      </p>
+                    )}
+                  </div>
+                </div>
               )}
               <div class="p-m">
                 <h3 class="font-display text-h4 text-foreground mb-xs">{combo.name}</h3>

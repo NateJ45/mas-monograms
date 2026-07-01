@@ -46,10 +46,21 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
     </div>
   </section>
 
-  {/* Story */}
+  {/* Story — photo-optional. With a makerPhoto it's a two-column layout;
+      without one (current state) the prose runs as a single centered column
+      instead of stranding in a half-width block. The signed maker
+      attribution renders beneath the prose in BOTH cases so the
+      "Mary Ann Stone · Founder" signature always shows. */}
   {(page?.storyContent || page?.makerPhoto) && (
     <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-start">
+      <div
+        class:list={[
+          'mx-auto max-w-content px-m',
+          page?.makerPhoto?.asset
+            ? 'grid grid-cols-1 lg:grid-cols-2 gap-section-md items-start'
+            : '',
+        ]}
+      >
         {page?.makerPhoto?.asset && (
           <div class="relative" data-reveal>
             <div class="rounded-2xl overflow-hidden">
@@ -60,12 +71,9 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
                 class="w-full h-auto object-cover"
               />
             </div>
-            {page?.makerAttribution && (
-              <p class="mt-s text-xs text-[var(--color-text-tertiary)] text-center">{page.makerAttribution}</p>
-            )}
           </div>
         )}
-        <div data-reveal>
+        <div class:list={[!page?.makerPhoto?.asset && 'max-w-3xl mx-auto']} data-reveal>
           {page?.storyHeadline && (
             <h2 class="font-display text-h2 text-foreground mb-m leading-headline-tight">
               {page.storyHeadline}
@@ -75,6 +83,9 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
             <div class="text-[var(--color-text-secondary)]">
               <PortableText client:idle value={page.storyContent} />
             </div>
+          )}
+          {page?.makerAttribution && (
+            <p class="mt-l font-display italic text-lg text-primary">{page.makerAttribution}</p>
           )}
           {page?.studioNote && (
             <div class="mt-l bg-tertiary rounded-xl p-l">

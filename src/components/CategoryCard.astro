@@ -38,7 +38,36 @@ const { name, slug, cardImage } = Astro.props as Props;
       />
     </div>
   ) : (
-    <div class="aspect-square bg-tertiary" />
+    /* No-photo fallback (e.g. "Bring Your Own Item"): an intentional tile with
+       a hand-built embroidery-hoop + needle-and-thread motif on a Paper ground,
+       not a blank rectangle. The hoop ring is drawn in Brass (decorative use)
+       and the needle/thread in Heritage Indigo. The category name repeats below
+       the tile, so no text is needed inside the motif. */
+    <div class="aspect-square rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex items-center justify-center">
+      <svg
+        viewBox="0 0 100 100"
+        class="w-1/2 h-1/2 opacity-90 transition-transform duration-500 group-hover:scale-105"
+        fill="none"
+        aria-hidden="true"
+      >
+        {/* Embroidery hoop — outer + inner ring in Brass */}
+        <circle cx="50" cy="52" r="30" stroke="var(--color-secondary)" stroke-width="3" />
+        <circle cx="50" cy="52" r="24" stroke="var(--color-secondary)" stroke-width="1.5" opacity="0.7" />
+        {/* Hoop tension bracket at the top */}
+        <rect x="44" y="16" width="12" height="8" rx="2" stroke="var(--color-secondary)" stroke-width="2" />
+        {/* Needle + thread in Heritage Indigo, stitched across the hoop */}
+        <line x1="34" y1="66" x2="66" y2="40" stroke="var(--color-primary)" stroke-width="2.5" stroke-linecap="round" />
+        <path
+          d="M34 66 q-6 6 -2 12"
+          stroke="var(--color-primary)"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          opacity="0.75"
+        />
+        {/* Needle eye */}
+        <circle cx="65" cy="41" r="2" stroke="var(--color-primary)" stroke-width="1.5" />
+      </svg>
+    </div>
   )}
   <div class="p-s text-center">
     <p class="font-semibold text-sm text-foreground group-hover:text-link transition-colors">
