@@ -16,6 +16,14 @@
 // re-running after a partial failure is safe. itemCategory image patches use
 // client.patch().set() on the existing category-${slug} document.
 //
+// Note: image uploads themselves are NOT deduped on retry — re-running after
+// a partial failure re-uploads already-succeeded images as new Sanity assets
+// (the old assets become orphaned, not auto-deleted). Document writes stay
+// correct either way since they're idempotent, but a retry after a late
+// failure will leave some duplicate assets in the dataset. Acceptable for
+// this one-time migration script; not worth an existence-check for a script
+// run 0-2 times.
+//
 // Usage:
 //   node scripts/import-squarespace-images.mjs --dry-run   # validate only, no writes
 //   node scripts/import-squarespace-images.mjs             # actually import
@@ -196,45 +204,61 @@ async function main() {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
     const buffer = Buffer.from(await res.arrayBuffer());
-    const filename = url.split('/').pop().split('?')[0];
+    const filename = filenameFromUrl(url);
     const asset = await client.assets.upload('image', buffer, { filename });
     return asset._id;
   }
 
-  for (const entry of manifest.galleryItems) {
-    const assetId = await uploadImage(entry.sourceUrl);
-    const doc = buildGalleryItemDoc(entry, assetId);
-    await client.createOrReplace(doc);
-    uploaded += 1;
-    console.log(`  galleryItem: ${doc._id}`);
+  for (const [i, entry] of manifest.galleryItems.entries()) {
+    try {
+      const assetId = await uploadImage(entry.sourceUrl);
+      const doc = buildGalleryItemDoc(entry, assetId);
+      await client.createOrReplace(doc);
+      uploaded += 1;
+      console.log(`  galleryItem: ${doc._id}`);
+    } catch (err) {
+      throw new Error(`Failed on galleryItems[${i}] (sourceUrl: ${entry.sourceUrl}): ${err.message}`);
+    }
   }
 
-  for (const entry of manifest.fonts) {
-    const assetId = await uploadImage(entry.sourceUrl);
-    const doc = buildFontDoc(entry, assetId);
-    await client.createOrReplace(doc);
-    uploaded += 1;
-    console.log(`  font: ${doc._id}`);
+  for (const [i, entry] of manifest.fonts.entries()) {
+    try {
+      const assetId = await uploadImage(entry.sourceUrl);
+      const doc = buildFontDoc(entry, assetId);
+      await client.createOrReplace(doc);
+      uploaded += 1;
+      console.log(`  font: ${doc._id}`);
+    } catch (err) {
+      throw new Error(`Failed on fonts[${i}] (name: ${entry.name}, sourceUrl: ${entry.sourceUrl}): ${err.message}`);
+    }
   }
 
-  for (const entry of manifest.threadColors) {
-    const doc = buildThreadColorDoc(entry);
-    await client.createOrReplace(doc);
-    uploaded += 1;
-    console.log(`  threadColor: ${doc._id}`);
+  for (const [i, entry] of manifest.threadColors.entries()) {
+    try {
+      const doc = buildThreadColorDoc(entry);
+      await client.createOrReplace(doc);
+      uploaded += 1;
+      console.log(`  threadColor: ${doc._id}`);
+    } catch (err) {
+      throw new Error(`Failed on threadColors[${i}] (name: ${entry.name}): ${err.message}`);
+    }
   }
 
   for (const [slug, entry] of Object.entries(manifest.categoryImages)) {
-    const cardImageAssetId = await uploadImage(entry.cardImageUrl);
-    const heroImages = [];
-    for (let i = 0; i < entry.heroImageUrls.length; i++) {
-      const assetId = await uploadImage(entry.heroImageUrls[i]);
-      heroImages.push({ assetId, alt: entry.heroAlts[i] });
+    try {
+      const cardImageAssetId = await uploadImage(entry.cardImageUrl);
+      const heroImages = [];
+      for (let i = 0; i < entry.heroImageUrls.length; i++) {
+        const assetId = await uploadImage(entry.heroImageUrls[i]);
+        heroImages.push({ assetId, alt: entry.heroAlts[i] });
+      }
+      const patch = buildCategoryImagePatch({ cardImageAssetId, cardAlt: entry.cardAlt, heroImages });
+      await client.patch(`category-${slug}`).set(patch).commit();
+      uploaded += 1;
+      console.log(`  itemCategory patched: category-${slug}`);
+    } catch (err) {
+      throw new Error(`Failed on categoryImages.${slug}: ${err.message}`);
     }
-    const patch = buildCategoryImagePatch({ cardImageAssetId, cardAlt: entry.cardAlt, heroImages });
-    await client.patch(`category-${slug}`).set(patch).commit();
-    uploaded += 1;
-    console.log(`  itemCategory patched: category-${slug}`);
   }
 
   if (manifest.categoriesMissingPhotos.length > 0) {
