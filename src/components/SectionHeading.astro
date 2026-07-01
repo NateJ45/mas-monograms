@@ -23,6 +23,11 @@ import { splitScriptAccent } from '@/lib/scriptAccent';
 interface Props {
   eyebrow?: string;
   headline?: string;
+  /** Optional word/phrase rendered in italics immediately after the headline
+      (e.g. Home's "Custom monogramming, made just for you." pattern where the
+      completing phrase is a Sanity-editable accent). Mirrors the same-named
+      prop on Hero.astro so the no-image hero renders the full headline. */
+  headlineItalicSuffix?: string;
   subhead?: string;
   headingId: string;
   level?: 'h1' | 'h2' | 'h3';
@@ -40,6 +45,7 @@ interface Props {
 const {
   eyebrow,
   headline,
+  headlineItalicSuffix,
   subhead,
   headingId,
   level = 'h2',
@@ -93,18 +99,21 @@ const accentAlign = align === 'center' ? 'mx-auto' : '';
         {scriptFound
           ? <>{scriptBefore}<span class="font-script">{scriptWord}</span>{scriptAfter}</>
           : headline}
+        {headlineItalicSuffix && <>{' '}<em class="italic font-display">{headlineItalicSuffix}</em></>}
       </h1>
     ) : level === 'h2' ? (
       <h2 id={headingId} class:list={[headingClass, toneHeadline]}>
         {scriptFound
           ? <>{scriptBefore}<span class="font-script">{scriptWord}</span>{scriptAfter}</>
           : headline}
+        {headlineItalicSuffix && <>{' '}<em class="italic font-display">{headlineItalicSuffix}</em></>}
       </h2>
     ) : (
       <h3 id={headingId} class:list={[headingClass, toneHeadline]}>
         {scriptFound
           ? <>{scriptBefore}<span class="font-script">{scriptWord}</span>{scriptAfter}</>
           : headline}
+        {headlineItalicSuffix && <>{' '}<em class="italic font-display">{headlineItalicSuffix}</em></>}
       </h3>
     )
   )}
