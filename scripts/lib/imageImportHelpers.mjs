@@ -10,6 +10,10 @@
  * @param {string} input
  * @returns {string}
  */
+// Deliberately duplicated from src/lib/slugify.ts, not imported: scripts/*.mjs
+// files run as plain Node ESM outside the Astro/TS build, and nothing in
+// scripts/ imports from src/ anywhere in this repo (a runtime-boundary
+// convention, not an oversight). Keep this local copy if slugify.ts changes.
 function slugify(input) {
   return input
     .normalize('NFKD')
