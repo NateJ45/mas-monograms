@@ -1555,9 +1555,10 @@ No script font. The logo's needle-and-thread cross is a hand-built inline SVG
 
 `src/components/Logo.astro` — a needle-and-thread cross in the same horizontal lockup the brand has
 always used (wordmark left, cross standing right, small-caps line beneath). Accepts a `variant` prop
-(`"ink"` for light/parchment surfaces, `"parchment"` for dark-ink surfaces) and a `mark` prop (render
-only the compact hoop-ring + needle, no wordmark). No runtime theme switching — each placement picks
-its variant at build time based on the surface it sits on.
+(`"ink"` for light/parchment/mustard surfaces — this covers every surface in the current design,
+header and footer alike — `"parchment"` for a dark-ink surface, if one is ever introduced) and a
+`mark` prop (render only the compact hoop-ring + needle, no wordmark). No runtime theme switching —
+each placement picks its variant at build time based on the surface it sits on.
 
 A brush-textured pass (closer to a hand-painted cross) is a known follow-up, not yet built — see the
 design spec's "Open follow-ups" section.
