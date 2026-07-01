@@ -95,12 +95,12 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
       )}
 
       {page?.matchingNote && (
-        <div class="mt-l bg-muted rounded-xl p-l" data-reveal>
+        <div class="mt-l bg-tertiary rounded-xl p-l" data-reveal>
           <p class="text-foreground/75">{page.matchingNote}</p>
         </div>
       )}
       {page?.customColorNote && (
-        <div class="mt-m bg-bg-soft rounded-xl p-l border border-[var(--color-secondary,#d9a441)]/20" data-reveal>
+        <div class="mt-m bg-tertiary rounded-xl p-l border border-[var(--color-secondary,#d9a441)]/20" data-reveal>
           <p class="text-foreground/75">{page.customColorNote}</p>
         </div>
       )}

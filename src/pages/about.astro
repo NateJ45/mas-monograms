@@ -88,7 +88,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
 
   {/* Values */}
   {(page?.values ?? []).length > 0 && (
-    <section class="bg-muted py-section-lg">
+    <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.valuesHeadline && (
           <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
@@ -113,7 +113,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
       <div class="mx-auto max-w-content px-m">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
           {testimonials.slice(0, 3).map((t: any) => (
-            <figure class="bg-muted rounded-xl border border-border-soft p-l flex flex-col gap-m">
+            <figure class="bg-tertiary rounded-xl border border-border-soft p-l flex flex-col gap-m">
               <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
                 "{t.quote}"
               </blockquote>
