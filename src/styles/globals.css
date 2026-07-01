@@ -6,8 +6,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/bricolage-grotesque";
-@import "@fontsource-variable/work-sans";
 @import "@fontsource-variable/fraunces";
 @import "@fontsource-variable/mulish";
 @import "@fontsource/petemoss";
@@ -54,7 +52,7 @@
   --text-h2: clamp(2rem,     4vw,   3rem);
   --text-h1: clamp(2.5rem,   6vw,   5rem);
 
-  --leading-headline-tight: 1.1;   /* Bricolage Grotesque reads tight at display sizes */
+  --leading-headline-tight: 1.1;   /* Fraunces reads tight at display sizes */
   --tracking-eyebrow:       0.08em; /* Uppercase eyebrow labels */
 
   /* Fluid spacing.
@@ -246,7 +244,7 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 700; /* Bricolage Grotesque reads best bold at display sizes */
+    font-weight: 700; /* Fraunces reads well bold at display sizes */
     /* Use --foreground (Heirloom Ink) directly. --color-accent is now also Ink
        (accent-trap defused), but headings reference --foreground so they stay
        stable regardless of any future accent remap. */

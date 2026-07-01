@@ -93,7 +93,7 @@
   --text-4xl: 3.5rem;   /* 56px  hero headings */
 
   --leading-body: 1.6;        /* generous line-height for body readability */
-  --leading-tight: 1.1;       /* headings — Bricolage Grotesque reads tighter than a serif */
+  --leading-tight: 1.1;       /* headings — tight leading for Fraunces at display sizes */
   --tracking-eyebrow: 0.08em; /* looser spacing on small uppercase eyebrows/labels */
 
   /* ---------------------------------------------------------------------------
