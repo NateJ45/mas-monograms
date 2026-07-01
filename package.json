@@ -23,7 +23,7 @@
     "studio:import": "node scripts/import-content.mjs",
     "seed": "node scripts/seed-core.mjs",
     "lighthouse": "npm run build && npx lhci autorun",
-    "test": "node --experimental-strip-types --test src/lib/*.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/*.test.ts scripts/lib/*.test.mjs",
     "check": "npm run typegen && npm run build && npm --prefix studio run build && npm test",
     "lint": "eslint src/**/*.{ts,tsx,astro} scripts/**/*.mjs",
     "lint:fix": "eslint --fix src/**/*.{ts,tsx,astro} scripts/**/*.mjs",
