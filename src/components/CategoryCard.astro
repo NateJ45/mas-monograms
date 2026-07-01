@@ -1,0 +1,48 @@
+---
+// Safe to edit by hand
+// A single item-category card: hoop-ring-framed image + name, linking to
+// /{slug}. Extracted from index.astro's Category Grid section (Phase B1)
+// so both Home's grid and category pages' "Explore Other Items" cross-sell
+// (Phase C) share one implementation — same markup, same visual treatment.
+
+import SanityImage from '@/components/SanityImage.astro';
+
+interface CardImage {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  name: string;
+  slug: string;
+  cardImage?: CardImage | null;
+}
+
+const { name, slug, cardImage } = Astro.props as Props;
+---
+
+<a
+  href={`/${slug}`}
+  class="group block rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-lg transition-shadow"
+>
+  {cardImage?.asset ? (
+    <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+      <SanityImage
+        source={cardImage}
+        width={400}
+        height={400}
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+      />
+    </div>
+  ) : (
+    <div class="aspect-square bg-tertiary" />
+  )}
+  <div class="p-s text-center">
+    <p class="font-semibold text-sm text-foreground group-hover:text-link transition-colors">
+      {name}
+    </p>
+  </div>
+</a>
