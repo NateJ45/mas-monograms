@@ -19,28 +19,22 @@ const {
 } = Astro.props;
 ---
 
-<section class="bg-accent text-cream py-section-lg">
+<section class="bg-accent-dark text-bg py-section-lg">
   <div class="mx-auto max-w-content px-m text-center" data-reveal>
     {eyebrow && (
-      <p class="text-xs uppercase tracking-eyebrow text-cream/70 mb-s">{eyebrow}</p>
+      <p class="text-xs uppercase tracking-eyebrow text-bg/70 mb-s">{eyebrow}</p>
     )}
-    <h2 class="font-display text-h2 text-cream mb-m leading-headline-tight">
+    <h2 class="font-display text-h2 text-bg mb-m leading-headline-tight">
       {headline}
     </h2>
     {subhead && (
-      <p class="text-cream/85 mb-l max-w-xl mx-auto">{subhead}</p>
+      <p class="text-bg/85 mb-l max-w-xl mx-auto">{subhead}</p>
     )}
     <a
       href={ctaHref}
-      class="inline-flex items-center px-l py-m rounded-md bg-blush hover:bg-blush-hover text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+      class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#b8492a)] hover:bg-[var(--color-rust-cta-hover,#9c3c20)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
     >
       {ctaLabel}
     </a>
   </div>
 </section>
-
-<style>
-  .text-cream { color: #faf8f4; }
-  .text-cream\/70 { color: rgba(250,248,244,0.70); }
-  .text-cream\/85 { color: rgba(250,248,244,0.85); }
-</style>
