@@ -50,9 +50,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
                   {step.number ?? i + 1}
                 </span>
                 {i < (page.steps as any[]).length - 1 && (
-                  <div class="step-connector hidden md:block w-px flex-1 min-h-[3rem] bg-border-soft relative overflow-hidden mt-2" aria-hidden="true">
-                    <div class="absolute inset-0 bg-primary origin-top" style="transform: scaleY(0)"></div>
-                  </div>
+                  <div class="step-connector hidden md:block w-px flex-1 min-h-[3rem]" aria-hidden="true"></div>
                 )}
               </div>
               <div class="pb-l">
