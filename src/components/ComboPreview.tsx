@@ -51,12 +51,16 @@ function PickerRow<T>({
   selectedIndex,
   onSelect,
   renderOption,
+  optionLabel,
 }: {
   label: string;
   options: T[];
   selectedIndex: number;
   onSelect: (i: number) => void;
   renderOption: (option: T, isSelected: boolean) => React.ReactNode;
+  /** Accessible name for each option button (required for icon/swatch-only
+   *  options like the thread colors, which have no visible text). */
+  optionLabel?: (option: T) => string;
 }) {
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -102,6 +106,7 @@ function PickerRow<T>({
             type="button"
             role="radio"
             aria-checked={i === selectedIndex}
+            aria-label={optionLabel ? optionLabel(option) : undefined}
             tabIndex={i === selectedIndex ? 0 : -1}
             onClick={() => onSelect(i)}
             className="min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
@@ -178,6 +183,7 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
           options={threadColors}
           selectedIndex={threadIndex}
           onSelect={setThreadIndex}
+          optionLabel={(opt) => opt.name}
           renderOption={(opt, isSelected) => (
             <span
               className={`inline-flex items-center justify-center w-11 h-11 rounded-full border-2 ${
