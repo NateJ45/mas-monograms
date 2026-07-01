@@ -94,26 +94,6 @@ const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset)
     </section>
   )}
 
-  {/* Additional hero images as detail grid */}
-  {heroImages.length > 1 && (
-    <section class="bg-muted py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-m" data-stagger-grid>
-          {heroImages.slice(1).map((img: any) => (
-            <div class="rounded-xl overflow-hidden">
-              <SanityImage
-                source={img}
-                width={600}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                class="w-full h-auto object-cover"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
-
   <CtaBanner
     ctaLabel={category?.ctaLabel ?? 'Request a Quote'}
     ctaHref="/request-a-quote"
