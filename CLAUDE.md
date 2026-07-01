@@ -14,6 +14,10 @@ Built and **deployed**; all content seeded into Sanity and rendering live.
   testimonial names, thread inventory), quote-form secrets + R2 bucket. Full checklist + env-var
   matrix in `docs/08-deployment-and-status.md`.
 
+## Design system note
+The visual identity described below ("Thread Ledger") superseded the original cream/sage/blush
+system. Full rationale: `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
+
 ## Stack
 - **Astro 6.3+** — `output: 'static'`, `@astrojs/cloudflare` adapter, Sharp image service
 - **Cloudflare Workers** — unified Pages/Workers platform, Git auto-deploy (Workers Builds), `wrangler.jsonc`
@@ -30,9 +34,11 @@ Every string visible on the site must come from Sanity: headings, prose,
 button labels, form labels, pricing, gallery captions, FAQ answers.
 Mary Ann must be able to edit everything without touching code.
 
-### No dark mode toggle
-The brand is warm cream/sage/ink. `.dark` CSS exists but is never applied at runtime.
-Do NOT add a ThemeToggle component.
+### No dark mode
+The brand is warm parchment/ink/pine-teal/rust ("Thread Ledger"). There is no `.dark` CSS, no
+theme toggle, and no theme-bootstrap script anywhere in the codebase — this was a considered
+decision (not just an unused old rule), see `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
+Do NOT add a ThemeToggle component or reintroduce a `.dark` class.
 
 ### No Web3Forms
 The quote form backend is a Cloudflare Worker + Resend. Do not use Web3Forms.
@@ -46,21 +52,26 @@ The buy button is a plain `<a href={...}>` that links to Stripe.
 are set via `wrangler secret put`. Never write them into `.env` or commit them.
 
 ## Typography
-- **Playfair Display 400 + 400-italic** — headings. `<em>` inside headings italicizes in Playfair.
-- **DM Sans Variable** — body / UI text.
-- **Great Vibes** — SVG logo ONLY. Not loaded as a web font anywhere else.
+- **Bricolage Grotesque Variable** — headings (weight 700, 600 for sub-headings). No serif anywhere
+  in the system — this is deliberate, see the design spec referenced below.
+- **Work Sans Variable** — body / UI text.
+- No script font. The logo's needle-and-thread cross is a hand-built inline SVG
+  (`src/components/Logo.astro`), not a webfont.
 - **Embroidery fonts are NOT web fonts** — each `font` document has a `previewImage` field.
 
 ## Color palette
 | Token | Hex | Use |
 |-------|-----|-----|
-| Ink | `#2c2c28` | default text |
-| Cream | `#faf8f4` | page background |
-| Sage Dark | `#4a5e4c` | primary / links |
-| Sage Mid | `#8a9e8c` | secondary / muted |
-| Sage Light | `#e8ede8` | tints / subtle bg |
-| Blush | `#c9a48a` | CTA buttons ONLY |
-| Blush Hover | `#b8926e` | CTA hover state |
+| Ink | `#2b2420` | default text |
+| Parchment | `#f7f1e6` | page background |
+| Pine Teal | `#1f5c4f` | primary / links |
+| Muted | `#6b6258` | secondary text |
+| Rust — decorative | `#c1542c` | large text (18px+) and decorative strokes only |
+| Rust — CTA | `#b8492a` | CTA buttons ONLY (the decorative shade is too light for small white-on-rust text) |
+| Mustard | `#d9a441` | gallery photo "hoop ring" frames, highlights |
+
+Full rationale, contrast math, and what NOT to use these for:
+`docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
 
 ## Routes
 | Page | Route | Schema |
