@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
+import StatsRow from '@/components/StatsRow.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
@@ -63,6 +64,9 @@ const heroImage  = heroImages[0] ?? null;
       </div>
     </section>
   )}
+
+  {/* ── Stats Strip ───────────────────────────────────────────────────────── */}
+  <StatsRow stats={page?.statsItems ?? []} />
 
   {/* ── Category Grid ─────────────────────────────────────────────────────── */}
   {categories.length > 0 && (

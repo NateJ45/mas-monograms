@@ -89,6 +89,7 @@ export function getHomePage(): Promise<any> {
       trustEyebrow,
       trustHeadline,
       trustItems,
+      statsItems[]{ number, suffix, label },
       categoriesEyebrow,
       categoriesHeadline,
       categoriesSubhead,
