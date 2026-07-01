@@ -17,22 +17,27 @@
 /* ---------- Brand tokens ---------------------------------- */
 
 @theme {
-  /* MAS Monograms palette — "Thread Ledger": Parchment / Ink / Pine Teal / Rust / Mustard */
-  --color-primary:      #1f5c4f; /* Pine Teal — links, nav, primary action */
-  --color-primary-dark: #163f37; /* Pine Teal Dark — hover states */
-  --color-accent:       #2b2420; /* Ink — headings + body */
-  --color-accent-dark:  #1a1512; /* Ink Dark */
-  --color-secondary:    #d9a441; /* Mustard — gallery frame accents ONLY (decorative; do not use
-                                     for general borders — see --border below for that role) */
-  --color-tertiary:     #f0e6d2; /* Mustard Light — section bands, chips */
-  --color-bg:           #f7f1e6; /* Parchment — primary surface */
-  --color-bg-soft:      #f0e6d2; /* Mustard-tinted soft alternating surface */
-  --color-border-soft:  #e3d7c0; /* faint dividers on parchment */
+  /* MAS Monograms palette — "Heirloom Coast": Linen / Ink / Heritage Indigo / Claret / Brass */
+  --color-primary:      #28486b; /* Heritage Indigo — links, nav, primary accent — 8.16:1 on Linen */
+  --color-primary-dark: #1c3550; /* Indigo Deep — link / secondary hover */
+  --color-accent:       #26312e; /* Heirloom Ink — see @theme inline note re: text-accent/bg-accent */
+  --color-accent-dark:  #1a1512; /* Ink Dark — HeroBackground scrim; kept genuinely dark on purpose */
+  --color-secondary:    #b98a3e; /* Brass Decorative — DECORATIVE ONLY, ~2.7:1 on Linen, never text
+                                     on a light surface (hoop-ring frames, hairline rules only) */
+  --color-tertiary:     #e4e2d3; /* Sage Linen Band — alt section band / chip */
+  --color-bg:           #f4eee3; /* Linen — primary surface (Ink on it = 11.65:1) */
+  --color-bg-soft:      #e4e2d3; /* Sage Linen Band — soft alternating surface */
+  --color-border-soft:  #d8cfbc; /* border soft — faint dividers on Linen */
   --color-white-pure:   #ffffff;
-  --color-rust-cta:     #b8492a; /* CTA button — the one button-background color */
-  --color-rust-cta-hover: #9c3c20;
-  --color-rust-decorative: #c1542c; /* large text / decorative strokes only, see tokens.css */
-  --color-muted-text:   #6b6258;
+  --color-rust-cta:     #8c3a2e; /* Claret — CTA button background ONLY (white 7.61:1) */
+  --color-rust-cta-hover: #722c22; /* Claret Deep — CTA hover */
+  --color-rust-decorative: #8c3a2e; /* Claret — large text / decorative strokes */
+  --color-muted-text:   #5a5148;   /* Secondary Taupe — 6.72:1 on Linen */
+
+  /* AA-safe text tokens (Heirloom Coast) — exposed as text- and bg- utilities */
+  --color-text-secondary: #5a5148; /* Secondary Taupe — secondary text, 6.72:1 on Linen */
+  --color-text-tertiary:  #67614f; /* Tertiary — caption text, 5.35:1 on Linen */
+  --color-brass-text:     #835a24; /* Brass Text — text-safe brass (pricing figures, meta), 5.27:1 on Linen */
 
   /* Fonts */
   --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", system-ui, sans-serif;
@@ -99,8 +104,12 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
-    /* bg-accent must be theme-aware (shadcn convention — soft hover surface).
-       @theme inline wins over the static @theme declaration above. */
+    /* ACCENT-TRAP DEFUSED (Heirloom Coast): --color-accent drives both text-accent
+       and bg-accent, so it must be safe in BOTH roles. It resolves to var(--accent),
+       which is now the dark Heirloom Ink (#26312E) — so text-accent is legible on the
+       light page, and bg-accent hover surfaces (Header/dropdown) render as a dark chip
+       paired with the light --accent-foreground (#FBF8F1). Never remap --accent to a
+       near-white value again: that is what caused prior invisible-text regressions. */
     --color-accent: var(--accent);
     --color-link: var(--link);
     --radius-sm: calc(var(--radius) * 0.6);
@@ -152,35 +161,36 @@
        light chrome instead of inheriting the OS dark-mode preference. */
     color-scheme: light;
 
-    /* Surfaces — parchment page, white cards */
-    --background: #f7f1e6;
-    --foreground: #2b2420;
-    --card: #ffffff;
-    --card-foreground: #2b2420;
-    --popover: #ffffff;
-    --popover-foreground: #2b2420;
+    /* Surfaces — linen page, paper cards */
+    --background: #f4eee3; /* Linen */
+    --foreground: #26312e; /* Heirloom Ink */
+    --card: #fbf8f1; /* Paper — raised card/surface */
+    --card-foreground: #26312e;
+    --popover: #fbf8f1;
+    --popover-foreground: #26312e;
 
-    /* Brand — pine teal primary */
-    --primary: #1f5c4f;
+    /* Brand — Heritage Indigo primary */
+    --primary: #28486b; /* Heritage Indigo */
     --primary-foreground: #ffffff;
-    --secondary: #f0e6d2;
-    --secondary-foreground: #2b2420;
+    --secondary: #e4e2d3; /* Sage Linen Band */
+    --secondary-foreground: #26312e;
 
-    /* Muted — mustard-tinted soft surface, muted ink text */
-    --muted: #f0e6d2;
-    --muted-foreground: #6b6258;
+    /* Muted — Sage Linen Band soft surface, taupe muted text */
+    --muted: #e4e2d3;
+    --muted-foreground: #5a5148; /* Secondary Taupe — 6.72:1 on Linen */
 
-    /* Accent — mustard light (subtle hover / focus surface) */
-    --accent: #f0e6d2;
-    --accent-foreground: #2b2420;
+    /* Accent — ACCENT-TRAP DEFUSED: this is dark Heirloom Ink so text-accent stays
+       legible and bg-accent hover surfaces render as a dark chip with light
+       --accent-foreground. Do NOT set this to a near-white value (prior regressions). */
+    --accent: #26312e; /* Heirloom Ink */
+    --accent-foreground: #fbf8f1; /* Paper — light text on the dark accent chip */
 
     /* States */
     --destructive: oklch(0.577 0.245 27.325);
-    --border: #6b6258; /* muted, not the vivid pine-teal accent — see tokens.css's
-                           --color-border for why */
-    --input: #e3d7c0;
-    --ring: #1f5c4f;
-    --link: #1f5c4f;
+    --border: #b7ad99; /* border hairline — visible on Linen */
+    --input: #d8cfbc; /* border soft */
+    --ring: #28486b; /* Heritage Indigo focus ring */
+    --link: #28486b; /* Heritage Indigo */
 
     /* Charts (neutral — not actively used) */
     --chart-1: oklch(0.87 0 0);
@@ -192,19 +202,19 @@
     --radius: 0.25rem; /* ~4px */
 
     /* Sidebar (reserved for admin contexts) */
-    --sidebar: #f7f1e6;
-    --sidebar-foreground: #2b2420;
-    --sidebar-primary: #1f5c4f;
+    --sidebar: #f4eee3;
+    --sidebar-foreground: #26312e;
+    --sidebar-primary: #28486b;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f0e6d2;
-    --sidebar-accent-foreground: #2b2420;
-    --sidebar-border: #6b6258; /* muted, matches --border above */
-    --sidebar-ring: #1f5c4f;
+    --sidebar-accent: #e4e2d3; /* Sage Linen Band — light surface (sidebar hover) */
+    --sidebar-accent-foreground: #26312e;
+    --sidebar-border: #b7ad99; /* matches --border above */
+    --sidebar-ring: #28486b;
 
-    --tint-rgb: 31, 92, 79; /* Pine Teal in RGB for rgba() overlays */
+    --tint-rgb: 40, 72, 107; /* Heritage Indigo in RGB for rgba() overlays */
 
-    --primary-accent: #163f37;
-    --secondary-accent: #2b2420;
+    --primary-accent: #1c3550; /* Indigo Deep */
+    --secondary-accent: #26312e; /* Heirloom Ink */
     --info: #93C5FD;
     --info-foreground: #1E3A5F;
     --success: #86EFAC;
@@ -213,7 +223,7 @@
     --warning-foreground: #713F12;
     --error: oklch(0.577 0.245 27.325);
     --error-foreground: #ffffff;
-    --outline: #1f5c4f;
+    --outline: #28486b; /* Heritage Indigo */
 }
 
 /* ---------- Base resets and defaults ---------------------- */
@@ -234,10 +244,9 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: 700; /* Bricolage Grotesque reads best bold at display sizes */
-    /* Ink, not --color-accent: the @theme inline block below remaps
-       --color-accent to the shadcn "soft hover surface" token (Mustard
-       Light) for UI primitives like dropdown-menu.tsx. Headings need the
-       stable Ink color regardless of that remap. */
+    /* Use --foreground (Heirloom Ink) directly. --color-accent is now also Ink
+       (accent-trap defused), but headings reference --foreground so they stay
+       stable regardless of any future accent remap. */
     color: var(--foreground);
     line-height: 1.1;
     letter-spacing: -0.01em;
@@ -252,7 +261,7 @@
   top: 0;
   z-index: 100;
   padding: 0.75rem 1.25rem;
-  background: var(--color-primary-dark, #163f37);
+  background: var(--color-primary-dark, #1c3550);
   color: #ffffff;
   text-decoration: none;
   font-weight: 600;
