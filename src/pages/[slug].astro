@@ -79,13 +79,15 @@ const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset)
         <div class="columns-2 sm:columns-3 lg:grid-cols-4 gap-m space-y-m">
           {relatedGallery.map((item: any) => (
             item.image?.asset && (
-              <div class="break-inside-avoid rounded-xl overflow-hidden border border-border">
-                <SanityImage
-                  source={item.image}
-                  width={400}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  class="w-full h-auto"
-                />
+              <div class="break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary">
+                <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+                  <SanityImage
+                    source={item.image}
+                    width={400}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    class="w-full h-auto"
+                  />
+                </div>
               </div>
             )
           ))}
