@@ -1,23 +1,24 @@
 ---
 // Safe to edit by hand
 // Page hero. Two shapes:
-//   1) "image" hero (home, optionally Process/Services if a hero photo is added)
-//      — full-bleed Sanity background image with a dark scrim, h1 + subhead + CTAs overlay.
-//   2) "text" hero (About, Contact, FAQ, Process by default)
-//      — clean editorial heading on Soft Linen with eyebrow + headline + subhead.
+//   1) "image" hero (Home, item category pages) — full-bleed Sanity background
+//      image with a dark scrim (rendered by HeroBackground.astro), h1 + subhead
+//      + CTAs overlay.
+//   2) "text" hero (used when no backgroundImage/backgroundImages is passed) —
+//      clean editorial heading on Parchment with eyebrow + headline + subhead,
+//      via SectionHeading.
 //
-// The image hero is the LCP element on the homepage. SanityImage is set to loading="eager"
-// in that case and the headline uses font-display (Cormorant Garamond), which BaseLayout
-// preloads inline. Don't add layout-shift animations to this section.
+// The image hero is the LCP element on the homepage. SanityImage is set to
+// loading="eager" in that case. Don't add layout-shift animations to this section.
 
 import HeroBackground from '@/components/HeroBackground.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
-import { splitScriptAccent } from '@/lib/scriptAccent';
 import { ChevronDown } from 'lucide-react';
 
 interface CtaBlock {
   label?: string;
+  href?: string;
   linkType?: 'internal' | 'external' | 'email' | 'phone';
   internalLink?: { _type?: string; slug?: string } | null;
   externalUrl?: string;
@@ -36,6 +37,10 @@ interface SanityImageObject {
 interface Props {
   eyebrow?: string;
   headline: string;
+  /** Optional word/phrase rendered in italics immediately after the headline
+      (e.g. Home's "Custom Embroidery, Made Just For You" pattern where the
+      last word is a Sanity-editable accent). */
+  headlineItalicSuffix?: string;
   subhead?: string;
   backgroundImage?: SanityImageObject | null;
   /** Optional list of hero images. 2+ render a cross-fading slideshow; 1 (or
@@ -46,27 +51,12 @@ interface Props {
   headingId: string;
   /** "tall" = fills the viewport below the header on first load (homepage), "short" = generous but not full screen (interior pages). */
   size?: 'tall' | 'short';
-  /**
-   * Optional list of words to cycle through in place of the FIRST word of the
-   * headline. Animates once on first visit per session, then locks back to
-   * the original. Honors prefers-reduced-motion. Pass undefined to skip.
-   */
-  rotatingWords?: string[];
-  /**
-   * Optional single word/phrase in the headline to render in script
-   * (the script accent font). One per hero — the editorial-signature flourish.
-   * The first occurrence in the headline string is wrapped. If the word
-   * isn't found, the headline renders unchanged.
-   *
-   * Don't combine with `rotatingWords` — they may target the same first
-   * word; pick one effect per hero. If both are passed, rotatingWords wins.
-   */
-  scriptAccent?: string;
 }
 
 const {
   eyebrow,
   headline,
+  headlineItalicSuffix,
   subhead,
   backgroundImage,
   backgroundImages,
@@ -74,31 +64,7 @@ const {
   secondaryCta,
   headingId,
   size = 'short',
-  rotatingWords,
-  scriptAccent,
 } = Astro.props as Props;
-
-// Split the headline into a first word + the rest, so the rotator can swap
-// the first word in place without touching the rest of the line. Matches
-// alphanumerics + apostrophes; falls back to the whole headline if the regex
-// doesn't catch (e.g., headline starts with punctuation).
-const rotateEnabled = Array.isArray(rotatingWords) && rotatingWords.length > 1;
-const firstWordMatch = rotateEnabled ? headline.match(/^([\w'’]+)(.*)$/s) : null;
-const headlineFirst = firstWordMatch ? firstWordMatch[1] : headline;
-const headlineRest = firstWordMatch ? firstWordMatch[2] : '';
-const rotatingPayload = rotateEnabled ? JSON.stringify([headlineFirst, ...rotatingWords!]) : '';
-
-// Script accent: split the headline around the accent word so it can be
-// rendered in three pieces (before / accent-span / after). Only fires when
-// rotatingWords isn't active — the two flourishes shouldn't compete.
-// Delegates to the shared splitScriptAccent helper so Hero and SectionHeading
-// use identical logic.
-const {
-  found: scriptFound,
-  before: scriptBefore,
-  word: scriptWord,
-  after: scriptAfter,
-} = splitScriptAccent(rotateEnabled ? headline : headline, rotateEnabled ? undefined : scriptAccent);
 
 // Subhead emphasis: parse markdown-style _word_ markers into <em> spans so
 // editors can italicize a key word in the Sanity subhead without HTML.
@@ -177,58 +143,6 @@ const wrapperHeight =
   </script>
 )}
 
-{/* Rotating-word animator. Runs once per session: cycles the wrapped word
-    through alternates every 850ms for ~5 seconds, then locks back to the
-    original. Skipped under prefers-reduced-motion or when sessionStorage
-    already holds the seen flag. Inline + idempotent so View Transitions
-    don't re-trigger on every navigation. */}
-{rotateEnabled && (
-  <script is:inline>
-    (function () {
-      try {
-        if (sessionStorage.getItem('hero-word-rotated') === '1') return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      } catch (_) { /* ignore */ }
-
-      function init() {
-        const el = document.querySelector('[data-rotating-word]');
-        if (!el || el.dataset.rotated === '1') return;
-        el.dataset.rotated = '1';
-        let words;
-        try { words = JSON.parse(el.dataset.rotatingWords || '[]'); } catch (_) { return; }
-        if (!Array.isArray(words) || words.length < 2) return;
-
-        const original = words[0];
-        const intervalMs = 850;
-        // words.length ticks lands us on the original at the final cycle
-        // because words[length % length] === words[0] === original. The
-        // earlier `length + 1` produced one redundant tick that flashed the
-        // original word twice in a row at the end of the sequence.
-        const totalCycles = words.length;
-        let count = 0;
-
-        const id = setInterval(() => {
-          count += 1;
-          const target = count >= totalCycles ? original : words[count % words.length];
-          el.style.transition = 'opacity 200ms ease-out';
-          el.style.opacity = '0';
-          setTimeout(() => {
-            el.textContent = target;
-            el.style.opacity = '1';
-          }, 200);
-
-          if (count >= totalCycles) {
-            clearInterval(id);
-            try { sessionStorage.setItem('hero-word-rotated', '1'); } catch (_) {}
-          }
-        }, intervalMs);
-      }
-      init();
-      document.addEventListener('astro:page-load', init);
-    })();
-  </script>
-)}
-
 {hasImage ? (
   <section
     class:list={[
@@ -263,19 +177,7 @@ const wrapperHeight =
           <div class="mt-xs mb-m h-px w-12 bg-bg/40" aria-hidden="true"></div>
         )}
         <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
-          {rotateEnabled ? (
-            <>
-              <span data-rotating-word data-rotating-words={rotatingPayload}>
-                {headlineFirst}
-              </span>{headlineRest}
-            </>
-          ) : scriptFound ? (
-            <>
-              {scriptBefore}<span class="font-script">{scriptWord}</span>{scriptAfter}
-            </>
-          ) : (
-            headline
-          )}
+          {headline}{headlineItalicSuffix && <>{' '}<em class="italic">{headlineItalicSuffix}</em></>}
         </h1>
         {subhead && (
           <p class="mt-m max-w-2xl text-lg text-bg/90">
