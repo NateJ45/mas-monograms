@@ -6,6 +6,7 @@
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
+import CategoryCard from '@/components/CategoryCard.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
 import { getSiteSettings, getAllItemCategories, getItemCategoryBySlug, getAllGalleryItems } from '@/lib/queries';
@@ -19,15 +20,28 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 const { slug } = Astro.params as { slug: string };
 
-const [siteSettings, category, allGallery] = await Promise.all([
+const [siteSettings, category, allGallery, allCategories] = await Promise.all([
   getSiteSettings(),
   getItemCategoryBySlug(slug),
   getAllGalleryItems(),
+  getAllItemCategories(),
 ]);
 
 if (!category) {
   return Astro.redirect('/404', 307);
 }
+
+// "Explore Other Items" cross-sell: every OTHER category, ranked by how
+// many real gallery photos are tagged to it (categories with more real
+// content to show are more useful cross-sell destinations), capped at 3.
+const otherCategories = (allCategories ?? [])
+  .filter((c: any) => c.slug?.current && c.slug.current !== slug)
+  .map((c: any) => ({
+    ...c,
+    galleryCount: allGallery.filter((item: any) => item.relatedCategory?.slug?.current === c.slug?.current).length,
+  }))
+  .sort((a: any, b: any) => b.galleryCount - a.galleryCount)
+  .slice(0, 3);
 
 const title       = category?.seoTitle       ?? `${category.name} Embroidery — MAS Monograms`;
 const description = category?.seoDescription ?? `Custom embroidered ${category.name?.toLowerCase() ?? 'items'} from MAS Monograms in St. Matthews, SC. Personalized gifts and monograms.`;
@@ -90,6 +104,22 @@ const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset)
                 </div>
               </div>
             )
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Explore Other Items — cross-sell */}
+  {otherCategories.length > 0 && (
+    <section class="bg-tertiary py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+          Explore Other Items
+        </h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-m max-w-3xl mx-auto" data-stagger-grid>
+          {otherCategories.map((cat: any) => (
+            <CategoryCard name={cat.name} slug={cat.slug?.current ?? ''} cardImage={cat.cardImage} />
           ))}
         </div>
       </div>
