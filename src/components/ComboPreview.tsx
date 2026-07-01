@@ -162,7 +162,7 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
         </p>
         <a
           href="/request-a-quote"
-          className="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-[var(--color-rust-cta,#b8492a)] text-white hover:bg-[var(--color-rust-cta-hover,#9c3c20)] transition-colors"
+          className="press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] text-white hover:bg-[var(--color-rust-cta-hover,#722C22)] transition-colors"
         >
           Get a Quote for This Combination
         </a>

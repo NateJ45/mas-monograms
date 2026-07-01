@@ -122,7 +122,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
                       </span>
                     )}
                     {item.salePrice && (
-                      <span class="font-display text-h4 text-[var(--color-rust-decorative,#c1542c)]">
+                      <span class="font-display text-h4 text-[var(--color-rust-decorative,#8C3A2E)]">
                         ${typeof item.salePrice === 'number' ? item.salePrice.toFixed(2) : item.salePrice}
                       </span>
                     )}
@@ -147,7 +147,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
                       href={item.stripePaymentLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="block w-full mt-s py-m rounded-md bg-[var(--color-rust-cta,#b8492a)] hover:bg-[var(--color-rust-cta-hover,#9c3c20)] text-white text-xs uppercase tracking-eyebrow font-semibold text-center transition-colors press-tactile"
+                      class="block w-full mt-s py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-eyebrow font-semibold text-center transition-colors press-tactile"
                     >
                       {buyLabel}
                     </a>
