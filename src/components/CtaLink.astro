@@ -1,27 +1,31 @@
 ---
 // Safe to edit by hand
-// Resolves a Sanity ctaBlock to the right <a href>:
-//   - internal: maps the referenced page _type to its route (homePage → /, etc.)
-//   - external: passes through the URL, opens in new tab by default
-//   - email: builds a mailto: link
-//   - phone: builds a tel: link
+// Resolves a CtaBlock to the right <a href>. A CtaBlock can specify its
+// destination one of five ways (checked in this order):
+//   - href: a pre-resolved URL string, used as-is. This is how Home's and
+//     item category pages' hero CTAs work today — their Sanity fields
+//     (homePage.heroPrimaryCtaHref, etc.) already store a plain string, not
+//     a structured document reference, so there's nothing to "resolve."
+//     Does NOT force a new tab (respects openInNewTab like any other case).
+//   - internal: maps the referenced Sanity document's _type to its route.
+//   - external: passes the URL through, opens in a new tab by default.
+//   - email: builds a mailto: link.
+//   - phone: builds a tel: link.
 //
 // Two visual variants + a tone modifier:
-//   - "primary" — Bronze CTA pill (per CLAUDE.md: bg-primary-dark + text-white, NOT bg-primary,
-//     to clear WCAG AA on small label text; hover state goes to Charcoal Dark)
-//   - "secondary" — outlined link with bronze border + text-link, theme-aware in both modes
-//   - `onDark` toggle — for CTAs sitting over a dark surface (hero image overlay,
-//     Charcoal Dark Final CTA panel). Swaps the secondary variant from bronze
-//     text-on-light to cream text-on-transparent so it's actually legible
-//     against the dark background. Passing a `class` override to recolor used
-//     to work, but Tailwind v4 generates utilities alphabetically and
-//     `text-link` > `text-bg` in the cascade — the bronze always won. Use
-//     onDark={true} from now on instead of overriding via className.
+//   - "primary" — Rust CTA pill (bg-[var(--color-rust-cta)] + text-white,
+//     the one button-background color per CLAUDE.md's palette table)
+//   - "secondary" — outlined link with pine-teal border + text-link
+//   - `onDark` toggle — for CTAs sitting over a dark surface (hero image
+//     overlay). Swaps the secondary variant from pine-teal-on-light to
+//     white-on-transparent so it's actually legible against the dark scrim.
 //
 // Both variants share generous padding, uppercase tracking, and a 44×44 minimum tap target.
 
 interface CtaBlock {
   label?: string;
+  /** A pre-resolved URL. Takes precedence over linkType if both are set. */
+  href?: string;
   linkType?: 'internal' | 'external' | 'email' | 'phone';
   internalLink?: { _type?: string; slug?: string } | null;
   externalUrl?: string;
@@ -46,36 +50,36 @@ const {
   cta,
   variant = 'primary',
   onDark = false,
-  fallbackHref = '/contact',
+  fallbackHref = '/request-a-quote',
   fallbackLabel = 'Get in touch',
   class: extraClass = '',
 } = Astro.props as Props;
 
 // Map Sanity document _type to its route. Mirrors the routes in src/pages/.
-// Singletons go to a fixed path; journalEntry uses {slug} for the dynamic
-// /journal/[slug] route.
+// Singletons go to a fixed path; itemCategory uses its own slug field.
 const TYPE_TO_PATH: Record<string, string> = {
   homePage: '/',
+  howItWorksPage: '/how-it-works',
+  pricingPage: '/pricing',
   aboutPage: '/about',
-  processPage: '/process',
-  servicesPage: '/services',
-  faqPage: '/faq',
-  contactPage: '/contact',
-  journalPage: '/journal',
+  requestAQuotePage: '/request-a-quote',
+  shopIndexPage: '/shop-by-item',
+  styleGalleryPage: '/style-gallery',
+  fontGuidePage: '/font-lettering-guide',
+  threadChartPage: '/thread-color-chart',
+  clearancePage: '/clearance',
+  thankYouPage: '/thank-you',
 };
 
 function resolveHref(c?: CtaBlock | null): string {
-  if (!c?.linkType) return fallbackHref;
+  if (!c) return fallbackHref;
+  if (c.href) return c.href;
+  if (!c.linkType) return fallbackHref;
   switch (c.linkType) {
     case 'internal': {
       const t = c.internalLink?._type;
       if (!t) return fallbackHref;
-      // Slug-based types need the slug appended. Singletons use a fixed path.
-      if (t === 'journalEntry' && c.internalLink?.slug) {
-        return `/journal/${c.internalLink.slug}`;
-      }
-      // Custom pages (type 'page') route via /[slug].astro.
-      if (t === 'page' && c.internalLink?.slug) {
+      if (t === 'itemCategory' && c.internalLink?.slug) {
         return `/${c.internalLink.slug}`;
       }
       return TYPE_TO_PATH[t] ?? fallbackHref;
@@ -93,27 +97,22 @@ function resolveHref(c?: CtaBlock | null): string {
 
 const href = resolveHref(cta);
 const label = cta?.label ?? fallbackLabel;
-const isExternal = cta?.linkType === 'external';
+// A raw href or an internal/email/phone link never auto-opens in a new tab —
+// only an actual linkType: 'external' CTA does, unless openInNewTab overrides it.
+const isExternal = !cta?.href && cta?.linkType === 'external';
 const newTab = cta?.openInNewTab || isExternal;
 
-// Per CLAUDE.md: bg-primary + white at button label sizes hits only 4.05:1 (under AA 4.5:1).
-// Use bg-primary-dark (#7A5D4C) + literal text-white → 5.5:1. Hover deepens to Charcoal Dark.
-//
-// Focus ring offset uses --background by default, but under onDark we offset
-// against transparent so the ring still reads on the photographic surface.
 const baseClasses =
   onDark
     ? 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
     : 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
-// onDark swaps the secondary variant from bronze-on-light to cream-on-transparent.
-// The primary variant keeps the bronze button — bronze on top of the dark hero
-// gradient still reads at 5.5:1 (white-on-bronze-dark) and stays visually anchored.
+// Primary variant always uses Rust CTA (the one button-background color
+// per CLAUDE.md's palette table) regardless of onDark — rust reads clearly
+// on both parchment and the hero's dark scrim.
 const variantClasses = (() => {
   if (variant === 'primary') {
-    return onDark
-      ? 'bg-primary-dark text-white hover:bg-primary'
-      : 'bg-primary-dark text-white hover:bg-accent-dark';
+    return 'bg-[var(--color-rust-cta,#b8492a)] text-white hover:bg-[var(--color-rust-cta-hover,#9c3c20)]';
   }
   // secondary
   return onDark
