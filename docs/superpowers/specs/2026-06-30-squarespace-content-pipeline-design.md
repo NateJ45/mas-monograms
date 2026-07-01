@@ -111,10 +111,10 @@ seed-scripts' "re-runnable, deterministic ids" convention from `CLAUDE.md`. Re-r
 after a partial failure skips documents that already have an uploaded asset rather than
 re-downloading/re-uploading everything.
 
-**Auth**: uses the existing `SANITY_API_READ_TOKEN` environment variable (loaded via the existing
-`loadEnv.mjs` helper) — Nate has already upgraded this token's permission level to include write
-access and updated both the local `.env` and the corresponding Cloudflare value, rather than
-introducing a second token variable. If a write actually fails with a permissions error, the script
+**Auth**: uses `SANITY_API_WRITE_TOKEN`, loaded via the existing `scripts/lib/loadEnv.mjs` helper —
+this is the established convention already used by `scripts/seed-core.mjs`, not a new variable this
+plan invents. Nate has added the token to `.env` (confirmed present). If a write actually fails with
+a permissions error, the script
 reports that clearly (the exact Sanity API error) rather than retrying blindly or silently
 continuing.
 
