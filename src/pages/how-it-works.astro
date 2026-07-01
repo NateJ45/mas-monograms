@@ -24,7 +24,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
-      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
         {page?.heroHeadline ?? 'How It Works'}
       </h1>
       {page?.heroSubhead && (
@@ -37,7 +37,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {page?.stepsHeadline && (
-        <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
           {page.stepsHeadline}
         </h2>
       )}
@@ -56,7 +56,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
                 )}
               </div>
               <div class="pb-l">
-                <h3 class="font-display text-h3 text-accent mb-s">{step.label}</h3>
+                <h3 class="font-display text-h3 text-foreground mb-s">{step.label}</h3>
                 {step.body && (
                   <div class="text-foreground/80 prose prose-sm max-w-none">
                     <PortableText client:visible value={step.body} />
@@ -85,7 +85,7 @@ const description = page?.seoDescription ?? 'See exactly how the MAS Monograms p
     <section class="bg-muted py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.faqHeadline && (
-          <h2 class="font-display text-h2 text-accent mb-s text-center" data-reveal>
+          <h2 class="font-display text-h2 text-foreground mb-s text-center" data-reveal>
             {page.faqHeadline}
           </h2>
         )}

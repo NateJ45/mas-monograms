@@ -28,7 +28,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
-      <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
         {page?.heroHeadline ?? 'Clearance'}
       </h1>
       {page?.heroSubhead && (
@@ -107,7 +107,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
 
                 {/* Info */}
                 <div class="p-m flex flex-col flex-1 gap-s">
-                  <h2 class="font-display text-h4 text-accent">{item.name}</h2>
+                  <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
                   {item.description && (
                     <p class="text-sm text-foreground/70 line-clamp-3">{item.description}</p>
                   )}

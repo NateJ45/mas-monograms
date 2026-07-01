@@ -24,7 +24,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
         {page?.heroEyebrow && (
           <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
         )}
-        <h1 class="font-display text-h1 text-accent leading-headline-tight mb-m">
+        <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
           {page?.heroHeadline ?? 'About MAS Monograms'}
         </h1>
         {page?.heroSubhead && (
@@ -67,7 +67,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
         )}
         <div data-reveal>
           {page?.storyHeadline && (
-            <h2 class="font-display text-h2 text-accent mb-m leading-headline-tight">
+            <h2 class="font-display text-h2 text-foreground mb-m leading-headline-tight">
               {page.storyHeadline}
             </h2>
           )}
@@ -91,14 +91,14 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
     <section class="bg-muted py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.valuesHeadline && (
-          <h2 class="font-display text-h2 text-accent text-center mb-l" data-reveal>
+          <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
             {page.valuesHeadline}
           </h2>
         )}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
           {(page.values as any[]).map((v: any) => (
             <div class="bg-background rounded-xl border border-border p-l">
-              <h3 class="font-display text-h4 text-accent mb-s">{v.label}</h3>
+              <h3 class="font-display text-h4 text-foreground mb-s">{v.label}</h3>
               <p class="text-foreground/75">{v.body}</p>
             </div>
           ))}
