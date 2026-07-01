@@ -51,7 +51,7 @@ function AnimatedNumber({ target, suffix, duration, run }: {
     <span>
       {value}
       {suffix && (
-        <span className="text-[0.6em] align-super text-secondary">{suffix}</span>
+        <span className="text-[0.6em] align-super text-primary">{suffix}</span>
       )}
     </span>
   );
