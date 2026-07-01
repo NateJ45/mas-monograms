@@ -48,12 +48,12 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
       {(page?.paymentNote || page?.pickupNote) && (
         <div class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-m" data-reveal>
           {page?.paymentNote && (
-            <div class="bg-muted rounded-xl p-m border border-border-soft">
+            <div class="bg-tertiary rounded-xl p-m border border-border-soft">
               <p class="text-sm text-foreground/80">{page.paymentNote}</p>
             </div>
           )}
           {page?.pickupNote && (
-            <div class="bg-muted rounded-xl p-m border border-border-soft">
+            <div class="bg-tertiary rounded-xl p-m border border-border-soft">
               <p class="text-sm text-foreground/80">{page.pickupNote}</p>
             </div>
           )}
@@ -83,21 +83,23 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
               >
                 {/* Image */}
                 {primaryImage?.asset ? (
-                  <div class="aspect-[4/3] overflow-hidden relative">
-                    <SanityImage
-                      source={primaryImage}
-                      width={600}
-                      height={450}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      class="w-full h-full object-cover"
-                    />
-                    {isSold && (
-                      <div class="absolute inset-0 bg-background/50 flex items-center justify-center">
-                        <span class="bg-foreground text-background text-xs uppercase tracking-eyebrow font-semibold px-m py-xs rounded-full">
-                          {soldLabel}
-                        </span>
-                      </div>
-                    )}
+                  <div class="aspect-[4/3] p-1 bg-secondary">
+                    <div class="w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] relative">
+                      <SanityImage
+                        source={primaryImage}
+                        width={600}
+                        height={450}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        class="w-full h-full object-cover"
+                      />
+                      {isSold && (
+                        <div class="absolute inset-0 bg-background/50 flex items-center justify-center">
+                          <span class="bg-foreground text-background text-xs uppercase tracking-eyebrow font-semibold px-m py-xs rounded-full">
+                            {soldLabel}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div class="aspect-[4/3] bg-tertiary flex items-center justify-center">
@@ -136,7 +138,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
                     <button
                       type="button"
                       disabled
-                      class="w-full mt-s py-m rounded-md bg-muted text-foreground/40 text-xs uppercase tracking-eyebrow font-semibold cursor-not-allowed"
+                      class="w-full mt-s py-m rounded-md bg-tertiary text-foreground/40 text-xs uppercase tracking-eyebrow font-semibold cursor-not-allowed"
                     >
                       {soldLabel}
                     </button>
