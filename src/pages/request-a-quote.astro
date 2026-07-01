@@ -362,6 +362,54 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
 )}
 
 <script>
+  // ── Pre-fill from the home "Preview Your Combination" deep link ──
+  // The ComboPreview CTA links here with ?item=&font=&thread=&initials=.
+  // Populate the matching free-text fields on load, only when a param is
+  // present, and never clobber anything the visitor has already typed.
+  (function prefillFromQuery() {
+    const params = new URLSearchParams(window.location.search);
+    if (![...params.keys()].length) return;
+
+    // Turn a category slug ("bath-towels") into a friendly label ("Bath Towels").
+    const humanize = (slug: string) =>
+      slug
+        .split(/[-_]/)
+        .filter(Boolean)
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+
+    const setValue = (id: string, value: string) => {
+      const el = document.getElementById(id) as
+        | HTMLInputElement
+        | HTMLTextAreaElement
+        | null;
+      if (!el || el.value.trim().length > 0) return; // don't overwrite user input
+      el.value = value;
+    };
+
+    const item = params.get('item');
+    if (item) setValue('itemType', humanize(item));
+
+    const font = params.get('font');
+    if (font) setValue('fontPreference', font);
+
+    const thread = params.get('thread');
+    if (thread) setValue('threadColor', thread);
+
+    const initials = params.get('initials');
+    if (initials) {
+      const field = document.getElementById('personalization') as
+        | HTMLTextAreaElement
+        | null;
+      if (field) {
+        const line = `Initials: ${initials}`;
+        field.value = field.value.trim().length > 0
+          ? `${field.value.trim()}\n${line}`
+          : line;
+      }
+    }
+  })();
+
   let turnstileToken = '';
   (window as any).onTurnstileSuccess = (token: string) => { turnstileToken = token; };
 
