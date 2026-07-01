@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface CategoryOption {
   name: string;
@@ -33,16 +33,51 @@ function PickerRow<T>({
   onSelect: (i: number) => void;
   renderOption: (option: T, isSelected: boolean) => React.ReactNode;
 }) {
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function moveTo(nextIndex: number) {
+    const clamped = (nextIndex + options.length) % options.length;
+    onSelect(clamped);
+    buttonRefs.current[clamped]?.focus();
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        e.preventDefault();
+        moveTo(selectedIndex + 1);
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        e.preventDefault();
+        moveTo(selectedIndex - 1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        moveTo(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        moveTo(options.length - 1);
+        break;
+    }
+  }
+
   return (
     <fieldset className="flex flex-col gap-xs">
       <legend className="text-xs uppercase tracking-eyebrow text-muted-foreground mb-xs">{label}</legend>
-      <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-s">
+      <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-s" onKeyDown={handleKeyDown}>
         {options.map((option, i) => (
           <button
             key={i}
+            ref={(el) => {
+              buttonRefs.current[i] = el;
+            }}
             type="button"
             role="radio"
             aria-checked={i === selectedIndex}
+            tabIndex={i === selectedIndex ? 0 : -1}
             onClick={() => onSelect(i)}
             className="min-h-[44px] min-w-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
           >
