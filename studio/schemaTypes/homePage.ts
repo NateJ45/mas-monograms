@@ -78,6 +78,27 @@ export const homePage = defineType({
       of: [defineArrayMember({ type: 'string' })],
       validation: (Rule) => Rule.required().min(2).max(6),
     }),
+    defineField({
+      name: 'statsItems',
+      title: 'Stats strip items',
+      type: 'array',
+      group: 'trust',
+      description: 'Short numeric credibility stats shown as an animated strip below the trust bar. Only use real, verifiable facts — no invented numbers.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'statItem',
+          fields: [
+            defineField({ name: 'number', title: 'Number', type: 'number', validation: (R) => R.required() }),
+            defineField({ name: 'suffix', title: 'Suffix (optional)', type: 'string', description: 'E.g. "+", "%", "day".' }),
+            defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required().max(40) }),
+          ],
+          preview: { select: { number: 'number', suffix: 'suffix', label: 'label' },
+            prepare: ({ number, suffix, label }: any) => ({ title: `${number}${suffix ?? ''} — ${label}` }) },
+        }),
+      ],
+      validation: (Rule) => Rule.max(4),
+    }),
 
     // ── Shop categories section ───────────────────────────────────────────────
     defineField({ name: 'categoriesEyebrow', title: 'Eyebrow', type: 'string', group: 'categories',

@@ -944,6 +944,13 @@ export type HomePage = {
   heroSecondaryCtaLabel?: string;
   heroSecondaryCtaHref?: string;
   trustItems?: Array<string>;
+  statsItems?: Array<{
+    number?: number;
+    suffix?: string;
+    label?: string;
+    _type: 'statItem';
+    _key: string;
+  }>;
   categoriesEyebrow?: string;
   categoriesHeadline?: string;
   categoriesSubhead?: string;
