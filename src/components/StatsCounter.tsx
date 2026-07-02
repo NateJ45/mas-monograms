@@ -64,6 +64,18 @@ export default function StatsCounter({ stats }: Props) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    // If the row is already on screen when this mounts — e.g. it sits at/above
+    // the fold on load, so client:visible hydrates it there — start counting
+    // right away. The IntersectionObserver's 0.2 threshold can miss that case
+    // (only a sliver is visible at hydration), leaving the numbers stuck at 0
+    // until the user scrolls. This makes the count-up fire on first paint too.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
