@@ -204,9 +204,9 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
             <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.processSubhead}</p>
           )}
         </div>
-        <ol class="space-y-l mt-l">
+        <ol class="grid grid-cols-2 lg:grid-cols-4 gap-l mt-l list-none" data-stagger-grid>
           {(page.processSteps as any[]).map((step: any, i: number) => (
-            <li data-reveal>
+            <li class="h-full">
               <ProcessStep
                 step={{
                   stepNumber: parseInt(step.number, 10) || i + 1,

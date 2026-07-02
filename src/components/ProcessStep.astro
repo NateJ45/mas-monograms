@@ -36,6 +36,31 @@ const { step, variant = 'preview', isLast = false } = Astro.props as Props;
 const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0') : '01');
 ---
 
+{variant === 'preview' ? (
+  /* ── Home preview: compact vertical-stack card ──────────────────────────────
+     The homepage renders these steps in a horizontal grid (2-up on mobile,
+     4-across on desktop — see the <ol> in index.astro), so each step is a
+     self-contained card with the numeral, illustration, title, and short line
+     stacked top-to-bottom. This replaces the old number-left / content-right
+     row, which left a vast empty right column on desktop. The left-to-right
+     reading order of the grid itself conveys the sequence, so the vertical
+     connector thread is dropped here (it only made sense in the tall list). */
+  <article class="flex flex-col items-start gap-s h-full">
+    <div class="flex items-center gap-s">
+      <span class="font-display text-[clamp(2.5rem,6vw,3.5rem)] leading-none text-link/85 select-none">
+        {padNum(step.stepNumber)}
+      </span>
+      <ProcessStepIllustration stepNumber={step.stepNumber} />
+    </div>
+    <h3 class="font-display text-h4 text-foreground mt-xs">{step.title}</h3>
+    {step.shortDescription && (
+      <p class="text-sm text-foreground/85">{step.shortDescription}</p>
+    )}
+    {step.tierNote && (
+      <p class="mt-auto pt-s text-xs italic text-muted-foreground">{step.tierNote}</p>
+    )}
+  </article>
+) : (
 <article class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-m md:gap-l items-stretch">
   <div class="flex flex-col items-start gap-s">
     {/* Soft-sage line illustration above the step numeral. Renders nothing for
@@ -48,32 +73,23 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
   </div>
 
   <div>
-    {/* A11y: step title bumps up to H2 in the "full" variant because on the
-        Process page each step IS a major page section beneath the H1. In the
-        homepage "preview" variant the steps are nested under a "How It Works"
-        section H2, so H3 is the correct relative level there. */}
+    {/* A11y: on the Process page each step IS a major page section beneath the
+        H1, so the title is an H2. (The homepage preview variant renders its own
+        H3 in the compact-card branch above.) */}
     <header class="flex flex-wrap items-baseline gap-x-m gap-y-xs">
-      {variant === 'full' ? (
-        <h2 class="font-display text-h3 text-foreground">{step.title}</h2>
-      ) : (
-        <h3 class="font-display text-h3 text-foreground">{step.title}</h3>
-      )}
+      <h2 class="font-display text-h3 text-foreground">{step.title}</h2>
       {step.timeEstimate && (
         <p class="text-xs uppercase tracking-widest text-[var(--color-text-secondary)]">{step.timeEstimate}</p>
       )}
     </header>
 
-    {variant === 'preview' && step.shortDescription && (
-      <p class="mt-s text-foreground/85 max-w-2xl">{step.shortDescription}</p>
-    )}
-
-    {variant === 'full' && step.fullDescription && (
+    {step.fullDescription && (
       <div class="mt-s max-w-2xl">
         <PortableText client:visible value={step.fullDescription} />
       </div>
     )}
 
-    {variant === 'full' && step.features && step.features.length > 0 && (
+    {step.features && step.features.length > 0 && (
       <ul class="mt-m grid gap-1.5 sm:grid-cols-2 text-sm text-foreground/85 max-w-2xl">
         {step.features.map((f) => (
           <li class="flex items-start gap-s">
@@ -92,3 +108,4 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
     )}
   </div>
 </article>
+)}
