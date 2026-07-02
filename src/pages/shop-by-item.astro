@@ -16,13 +16,16 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
 
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
+  {/* Hero — deliberately compact. The band is a headline plus one lead line,
+      not a tall empty parchment void over the grid. The subhead sits directly
+      under the headline; the longer gridIntro (if present) still leads the
+      grid below, so we don't duplicate the intro copy up here. */}
+  <section class="bg-tertiary py-section-md">
     <div class="mx-auto max-w-content px-m text-center" data-reveal>
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-s">
         {page?.heroHeadline ?? 'Shop by Item'}
       </h1>
       {page?.heroSubhead && (

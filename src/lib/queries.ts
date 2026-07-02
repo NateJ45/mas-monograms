@@ -206,6 +206,7 @@ export function getAboutPage(): Promise<any> {
       makerPhoto ${IMG},
       makerAttribution,
       studioNote,
+      recentWorkHeadline,
       valuesHeadline,
       values[] { label, body },
       ctaEyebrow,

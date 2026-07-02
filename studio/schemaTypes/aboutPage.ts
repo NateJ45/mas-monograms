@@ -82,6 +82,9 @@ export const aboutPage = defineType({
       validation: (R) => R.required() }),
     defineField({ name: 'studioNote', title: 'Studio note (optional)', type: 'string', group: 'story',
       description: 'One short line about the studio. E.g. "Handcrafted in St. Matthews, SC since 2015."' }),
+    defineField({ name: 'recentWorkHeadline', title: 'Recent work heading (optional)', type: 'string', group: 'story',
+      description: 'Heading above the strip of recent work photos (pulled from featured gallery items). Defaults to "Recent work from the studio".',
+      validation: (R) => R.max(80) }),
 
     // Values section
     defineField({ name: 'valuesEyebrow', title: 'Values eyebrow', type: 'string', group: 'values' }),

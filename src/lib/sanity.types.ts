@@ -794,6 +794,7 @@ export type AboutPage = {
   };
   makerAttribution?: string;
   studioNote?: string;
+  recentWorkHeadline?: string;
   valuesEyebrow?: string;
   valuesHeadline?: string;
   values?: Array<{

@@ -3,13 +3,20 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
-import { getSiteSettings, getAboutPage, getTestimonials } from '@/lib/queries';
+import { getSiteSettings, getAboutPage, getTestimonials, getFeaturedGalleryItems } from '@/lib/queries';
 
-const [siteSettings, page, testimonials] = await Promise.all([
+const [siteSettings, page, testimonials, recentWork] = await Promise.all([
   getSiteSettings(),
   getAboutPage(),
   getTestimonials(true),
+  getFeaturedGalleryItems(3),
 ]);
+
+// The About page has no portrait (deliberately absent), so it can read as an
+// imagery void. Fill it with real work that already exists — up to three
+// featured gallery photos in the brass hoop-ring frame treatment.
+const recentWorkPhotos = (recentWork ?? []).filter((item: any) => item?.image?.asset).slice(0, 3);
+const recentWorkHeadline = page?.recentWorkHeadline ?? 'Recent work from the studio';
 
 const title       = page?.seoTitle       ?? 'About — MAS Monograms';
 const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behind MAS Monograms. One-woman embroidery studio in St. Matthews, SC.';
@@ -92,6 +99,34 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
               <p class="font-display italic text-h4 text-foreground/85">{page.studioNote}</p>
             </div>
           )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Recent work strip — real featured gallery photos in the brass hoop-ring
+      frame treatment. Fills the imagery gap on this otherwise text-heavy page
+      using assets that already exist (no new photography). */}
+  {recentWorkPhotos.length > 0 && (
+    <section class="py-section-lg">
+      <div class="mx-auto max-w-content px-m">
+        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+          {recentWorkHeadline}
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-m max-w-4xl mx-auto" data-stagger-grid>
+          {recentWorkPhotos.map((item: any) => (
+            <div class="rounded-xl overflow-hidden p-1 bg-secondary">
+              <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+                <SanityImage
+                  source={item.image}
+                  width={500}
+                  height={500}
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  class="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
