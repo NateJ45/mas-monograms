@@ -204,7 +204,7 @@ export default function MobileNav({
                     <p
                       key={`g-${row.label}`}
                       className="mnav-item pt-m pb-xs text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]"
-                      style={delay(140 + i * 55)}
+                      style={delay(140 + i * 45)}
                     >
                       {row.label}
                     </p>
@@ -217,21 +217,21 @@ export default function MobileNav({
                     href={row.href}
                     onClick={close}
                     aria-current={active ? 'page' : undefined}
-                    className="mnav-item group flex items-center justify-between gap-m py-4 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
-                    style={delay(140 + i * 55)}
+                    className="mnav-item group flex items-center justify-between gap-m py-3 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+                    style={delay(140 + i * 45)}
                   >
                     <span className="flex flex-col gap-0.5">
                       <span
                         className={
-                          'font-display leading-[0.95] tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
-                          (row.size === 'lg' ? 'text-4xl ' : 'text-2xl ') +
+                          'font-display leading-tight tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                          (row.size === 'lg' ? 'text-2xl ' : 'text-lg ') +
                           (active ? 'text-link' : 'text-foreground')
                         }
                       >
                         {row.label}
                       </span>
                       {row.desc && (
-                        <span className="font-body text-sm text-[var(--color-text-secondary)]">{row.desc}</span>
+                        <span className="font-body text-xs text-[var(--color-text-secondary)]">{row.desc}</span>
                       )}
                     </span>
                     {/* Arrow: the non-colour hover/active cue, slides in from the left. */}
@@ -244,7 +244,7 @@ export default function MobileNav({
                           : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100')
                       }
                     >
-                      <ChevronRight size={row.size === 'lg' ? 24 : 20} />
+                      <ChevronRight size={row.size === 'lg' ? 20 : 18} />
                     </span>
                   </a>
                 );
@@ -252,7 +252,7 @@ export default function MobileNav({
             </nav>
 
             {/* Primary conversion action. */}
-            <div className="mnav-item mt-l" style={delay(140 + rows.length * 55 + 40)}>
+            <div className="mnav-item mt-l" style={delay(140 + rows.length * 45 + 40)}>
               <a
                 href={ctaHref}
                 onClick={close}
@@ -266,7 +266,7 @@ export default function MobileNav({
                 shorter than the viewport; scrolls naturally when it isn't. */}
             <div
               className="mnav-item mt-auto pt-l"
-              style={delay(140 + rows.length * 55 + 100)}
+              style={delay(140 + rows.length * 45 + 100)}
             >
               <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
                 Get in touch
