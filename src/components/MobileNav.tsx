@@ -5,14 +5,18 @@
 // Design language borrowed from the Nixon Creative Studio portfolio menu and
 // adapted to Heirloom Coast: a full-screen Linen panel (not a narrow drawer),
 // a wordmark + close in the top bar, a positioning line, then the nav as a big
-// editorial index — large Fraunces labels each with a short descriptor,
-// hairline-divided rows, a slide-in arrow, and a staggered cascade on open.
-// A claret CTA, then a pinned "Get in touch" block (email / phone / socials).
-// No dark mode, no theme toggle — this brand is light-only.
+// editorial index — large Fraunces labels, hairline-divided rows, a slide-in
+// arrow, and a staggered cascade on open. A claret CTA, then a pinned "Get in
+// touch" block. No dark mode, no theme toggle — this brand is light-only.
+//
+// Because MAS has far more nav items than the portfolio (8 shop categories, an
+// inspiration cluster), dropdown groups are COLLAPSIBLE accordions: collapsed
+// by default so the menu stays short, the group holding the active page
+// auto-opens, and collapsed sub-links are `inert` so they leave the tab order.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
 import {
   IconBrandInstagram,
   IconBrandFacebook,
@@ -70,6 +74,8 @@ function socialIcon(platform: string | undefined) {
   }
 }
 
+const normalise = (p: string) => p.replace(/\/+$/, '');
+
 export default function MobileNav({
   links,
   siteSettings,
@@ -84,37 +90,41 @@ export default function MobileNav({
   const phone       = siteSettings?.phone;
   const socialLinks = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
 
-  // Active-path highlight, read when the panel opens so it's correct even after
-  // a View Transitions navigation that doesn't remount this island.
+  // Active path + which groups are expanded. Both are computed when the panel
+  // opens: the path so the active row is right even after a View Transitions
+  // navigation (which doesn't remount this island), and the expanded set so the
+  // group containing the active page auto-opens while the rest stay collapsed.
   const [path, setPath] = useState('');
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   useEffect(() => {
-    if (open) setPath(window.location.pathname.replace(/\/+$/, ''));
-  }, [open]);
+    if (!open) return;
+    const p = normalise(window.location.pathname);
+    setPath(p);
+    const activeFor = (href: string) => {
+      const h = normalise(href);
+      return h === '' ? p === '' : p === h || p.startsWith(`${h}/`);
+    };
+    const next = new Set<string>();
+    for (const item of links) {
+      if (item.kind === 'dropdown' && item.items.some((s) => activeFor(s.href))) {
+        next.add(item.label);
+      }
+    }
+    setExpanded(next);
+  }, [open, links]);
+
   const isActive = (href: string) => {
-    const h = href.replace(/\/+$/, '');
+    const h = normalise(href);
     return h === '' ? path === '' : path === h || path.startsWith(`${h}/`);
   };
 
-  // Flatten the mixed flat/dropdown nav into a single ordered list of rows so
-  // the cascade delay increments smoothly across everything, and dropdown
-  // groups read as a labelled cluster of slightly smaller rows.
-  type Row =
-    | { type: 'link'; label: string; href: string; desc?: string; size: 'lg' | 'md' }
-    | { type: 'groupLabel'; label: string };
-  const rows = useMemo<Row[]>(() => {
-    const out: Row[] = [];
-    for (const item of links) {
-      if (item.kind === 'flat') {
-        out.push({ type: 'link', label: item.label, href: item.href, desc: DESCRIPTIONS[item.href], size: 'lg' });
-      } else {
-        out.push({ type: 'groupLabel', label: item.label });
-        for (const sub of item.items) {
-          out.push({ type: 'link', label: sub.label, href: sub.href, desc: DESCRIPTIONS[sub.href], size: 'md' });
-        }
-      }
-    }
-    return out;
-  }, [links]);
+  const toggleGroup = (label: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(label)) next.delete(label);
+      else next.add(label);
+      return next;
+    });
 
   const delay = (ms: number): CSSProperties => ({ '--mnav-delay': `${ms}ms` }) as CSSProperties;
 
@@ -193,66 +203,137 @@ export default function MobileNav({
               </p>
             )}
 
-            {/* Big editorial nav. Hairline dividers give the flat list structure. */}
+            {/* Big editorial nav. Flat links are rows; dropdown groups are
+                collapsible accordions. Hairline dividers structure the list. */}
             <nav
               aria-label="Primary mobile"
               className="mt-l flex flex-col divide-y divide-border-soft border-y border-border-soft"
             >
-              {rows.map((row, i) => {
-                if (row.type === 'groupLabel') {
+              {links.map((item, i) => {
+                const rowDelay = delay(140 + i * 45);
+
+                if (item.kind === 'flat') {
+                  const active = isActive(item.href);
+                  const desc = DESCRIPTIONS[item.href];
                   return (
-                    <p
-                      key={`g-${row.label}`}
-                      className="mnav-item pt-m pb-xs text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]"
-                      style={delay(140 + i * 45)}
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      onClick={close}
+                      aria-current={active ? 'page' : undefined}
+                      className="mnav-item group flex items-center justify-between gap-m py-3 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+                      style={rowDelay}
                     >
-                      {row.label}
-                    </p>
-                  );
-                }
-                const active = isActive(row.href);
-                return (
-                  <a
-                    key={row.href}
-                    href={row.href}
-                    onClick={close}
-                    aria-current={active ? 'page' : undefined}
-                    className="mnav-item group flex items-center justify-between gap-m py-3 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
-                    style={delay(140 + i * 45)}
-                  >
-                    <span className="flex flex-col gap-0.5">
+                      <span className="flex flex-col gap-0.5">
+                        <span
+                          className={
+                            'font-display text-2xl leading-tight tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                            (active ? 'text-link' : 'text-foreground')
+                          }
+                        >
+                          {item.label}
+                        </span>
+                        {desc && (
+                          <span className="font-body text-xs text-[var(--color-text-secondary)]">{desc}</span>
+                        )}
+                      </span>
                       <span
+                        aria-hidden="true"
                         className={
-                          'font-display leading-tight tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
-                          (row.size === 'lg' ? 'text-2xl ' : 'text-lg ') +
-                          (active ? 'text-link' : 'text-foreground')
+                          'shrink-0 text-link transition-all duration-200 ' +
+                          (active
+                            ? 'translate-x-0 opacity-100'
+                            : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100')
                         }
                       >
-                        {row.label}
+                        <ChevronRight size={20} />
                       </span>
-                      {row.desc && (
-                        <span className="font-body text-xs text-[var(--color-text-secondary)]">{row.desc}</span>
-                      )}
-                    </span>
-                    {/* Arrow: the non-colour hover/active cue, slides in from the left. */}
-                    <span
-                      aria-hidden="true"
-                      className={
-                        'shrink-0 text-link transition-all duration-200 ' +
-                        (active
-                          ? 'translate-x-0 opacity-100'
-                          : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100')
-                      }
+                    </a>
+                  );
+                }
+
+                // Dropdown group → collapsible accordion.
+                const groupOpen = expanded.has(item.label);
+                const groupActive = item.items.some((s) => isActive(s.href));
+                const panelId = `mnav-group-${i}`;
+                return (
+                  <div key={item.label} className="mnav-item" style={rowDelay}>
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(item.label)}
+                      aria-expanded={groupOpen}
+                      aria-controls={panelId}
+                      className="group flex w-full items-center justify-between gap-m py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
                     >
-                      <ChevronRight size={row.size === 'lg' ? 20 : 18} />
-                    </span>
-                  </a>
+                      <span
+                        className={
+                          'font-display text-2xl leading-tight tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                          (groupActive ? 'text-link' : 'text-foreground')
+                        }
+                      >
+                        {item.label}
+                      </span>
+                      <ChevronDown
+                        size={20}
+                        aria-hidden="true"
+                        className={
+                          'shrink-0 text-link transition-transform duration-200 ' +
+                          (groupOpen ? 'rotate-180' : '')
+                        }
+                      />
+                    </button>
+                    {/* Collapsible panel: grid-rows 0fr↔1fr animates height with
+                        no fixed max-height guess. `inert` when closed keeps the
+                        hidden sub-links out of the tab order + AT tree. */}
+                    <div
+                      id={panelId}
+                      className="grid transition-[grid-template-rows] duration-300 ease-out"
+                      style={{ gridTemplateRows: groupOpen ? '1fr' : '0fr' }}
+                    >
+                      <div className="overflow-hidden" inert={groupOpen ? undefined : true}>
+                        <div className="flex flex-col pb-s">
+                          {item.items.map((sub) => {
+                            const active = isActive(sub.href);
+                            return (
+                              <a
+                                key={sub.href}
+                                href={sub.href}
+                                onClick={close}
+                                aria-current={active ? 'page' : undefined}
+                                className="group flex items-center justify-between gap-m py-2 pl-s no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+                              >
+                                <span
+                                  className={
+                                    'font-display text-lg leading-tight transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                                    (active ? 'text-link' : 'text-foreground')
+                                  }
+                                >
+                                  {sub.label}
+                                </span>
+                                <span
+                                  aria-hidden="true"
+                                  className={
+                                    'shrink-0 text-link transition-all duration-200 ' +
+                                    (active
+                                      ? 'translate-x-0 opacity-100'
+                                      : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100')
+                                  }
+                                >
+                                  <ChevronRight size={16} />
+                                </span>
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </nav>
 
             {/* Primary conversion action. */}
-            <div className="mnav-item mt-l" style={delay(140 + rows.length * 45 + 40)}>
+            <div className="mnav-item mt-l" style={delay(140 + links.length * 45 + 40)}>
               <a
                 href={ctaHref}
                 onClick={close}
@@ -266,7 +347,7 @@ export default function MobileNav({
                 shorter than the viewport; scrolls naturally when it isn't. */}
             <div
               className="mnav-item mt-auto pt-l"
-              style={delay(140 + rows.length * 45 + 100)}
+              style={delay(140 + links.length * 45 + 100)}
             >
               <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
                 Get in touch
