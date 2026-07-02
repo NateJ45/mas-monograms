@@ -118,9 +118,12 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
 
       {/* Grouped filters. On mobile the whole block collapses behind one
           "Filter" disclosure so photos lead on first paint; on sm+ it's
-          always open. */}
+          always open. The panel is rendered `open` so it reserves layout
+          height — a closed disclosure collapses to zero height even when its
+          content is force-shown via CSS, which would overlap the grid. The
+          init script closes it on mobile so it collapses behind the summary. */}
       {hasFilters && (
-        <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel">
+        <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
           <summary
             class="flex sm:hidden items-center justify-center gap-xs cursor-pointer list-none text-xs uppercase tracking-eyebrow text-link px-m py-xs rounded-full border border-border w-max mx-auto mb-m select-none"
           >
@@ -262,6 +265,14 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
     const items = document.querySelectorAll<HTMLElement>('.gallery-item');
     const emptyMsg = document.getElementById('gallery-empty');
     if (!filters.length || !items.length) return;
+
+    // The panel is rendered `open` (so it reserves height on desktop, where the
+    // summary is hidden). On mobile, collapse it so photos lead on first paint;
+    // the summary then toggles it. Desktop keeps it open — CSS hides the summary.
+    const panel = document.getElementById('gallery-filters-panel');
+    if (panel && window.matchMedia('(max-width: 639px)').matches) {
+      panel.removeAttribute('open');
+    }
 
     filters.forEach((btn) => {
       btn.addEventListener('click', () => {
