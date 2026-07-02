@@ -614,6 +614,8 @@ export function getPopularCombinations(): Promise<any[]> {
       name,
       description,
       image ${IMG},
+      "font": font->{ name, "previewImage": previewImage ${IMG} },
+      "threadColor": threadColor->{ name, hexColor },
       tags,
       "relatedCategory": relatedCategory->{ name, slug },
       featured,
@@ -672,6 +674,30 @@ export function getFaqItemsForPricing(): Promise<any[]> {
     }`,
     {},
     [],
+  );
+}
+
+// ─── Legal / policy pages ─────────────────────────────────────────────────────
+
+export function getAllLegalPages(): Promise<any[]> {
+  return sanityFetch(
+    `*[_type == "legalPage"] | order(displayOrder asc){ _id, title, "slug": slug.current, displayOrder }`,
+    {},
+    [],
+  );
+}
+
+export function getLegalPageBySlug(slug: string): Promise<any> {
+  return sanityFetch(
+    `*[_type == "legalPage" && slug.current == $slug][0]{
+      title,
+      "slug": slug.current,
+      seoDescription,
+      lastUpdated,
+      body
+    }`,
+    { slug },
+    null,
   );
 }
 

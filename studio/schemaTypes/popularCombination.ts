@@ -26,14 +26,27 @@ export const popularCombination = defineType({
     }),
     defineField({
       name: 'image',
-      title: 'Photo',
+      title: 'Photo (optional)',
       type: 'image',
-      description: 'A photo of this combination. Square crop works best in the grid.',
+      description: 'A real photo of this combination. If set, it shows instead of the font/thread recipe card. Square crop works best in the grid.',
       options: { hotspot: true },
       fields: [
         defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
       ],
-      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'font',
+      title: 'Font',
+      type: 'reference',
+      to: [{ type: 'font' }],
+      description: 'The embroidery font in this combination. When there is no photo, its specimen shows on the card.',
+    }),
+    defineField({
+      name: 'threadColor',
+      title: 'Thread color',
+      type: 'reference',
+      to: [{ type: 'threadColor' }],
+      description: 'The thread color in this combination. Shown as a colour band + swatch on the card.',
     }),
     defineField({
       name: 'tags',

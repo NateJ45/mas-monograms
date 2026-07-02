@@ -263,31 +263,32 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
                   </div>
                 </div>
               ) : (
-                /* No-photo fallback: a typographic "recipe" card built from the
-                   combo's own Sanity fields. The combination name is set large
-                   in the Petemoss monogram font (decorative script, distinct
-                   from the Fraunces <h3> below) on a Paper ground with a brass
-                   hairline frame, echoing the hoop-ring signature used on real
-                   photo tiles. Related category + first tag read as small
-                   labels so the tile is clearly intentional, not blank. */
+                /* No-photo "recipe" card: the combination's REAL font specimen on
+                   a Paper ground inside the hoop-ring frame, with a band of the
+                   REAL thread colour along the bottom. Each card differs by its
+                   specimen + thread colour (that's the whole point). Falls back
+                   to the name in the monogram script if a font has no specimen. */
                 <div class="aspect-[4/3] p-1 bg-secondary">
-                  <div
-                    class="w-full h-full rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex flex-col items-center justify-center text-center px-m py-s"
-                  >
-                    {combo.relatedCategory?.name && (
-                      <p class="text-[0.6rem] uppercase tracking-eyebrow text-[var(--color-text-tertiary)] mb-xs">
-                        {combo.relatedCategory.name}
+                  <div class="relative w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex items-center justify-center p-m">
+                    {combo.font?.previewImage?.asset ? (
+                      <SanityImage
+                        source={combo.font.previewImage}
+                        width={360}
+                        height={270}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        class="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <p class="font-monogram text-primary leading-none text-[clamp(2.25rem,5vw,3.25rem)]">
+                        {combo.name}
                       </p>
                     )}
-                    <p
-                      class="font-monogram text-primary leading-none text-[clamp(2.25rem,5vw,3.25rem)]"
-                    >
-                      {combo.name}
-                    </p>
-                    {(combo.tags ?? []).length > 0 && (
-                      <p class="mt-s text-[0.6rem] uppercase tracking-eyebrow text-[var(--color-text-secondary)]">
-                        {(combo.tags as string[])[0]}
-                      </p>
+                    {combo.threadColor?.hexColor && (
+                      <div
+                        class="absolute inset-x-0 bottom-0 h-2.5"
+                        style={`background-color: ${combo.threadColor.hexColor};`}
+                        aria-hidden="true"
+                      ></div>
                     )}
                   </div>
                 </div>
@@ -295,6 +296,20 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
               <div class="p-m">
                 <h3 class="font-display text-h4 text-foreground mb-xs">{combo.name}</h3>
                 {combo.description && <p class="text-sm text-[var(--color-text-secondary)]">{combo.description}</p>}
+                {(combo.threadColor?.name || combo.font?.name) && (
+                  <p class="flex items-center gap-xs text-xs text-[var(--color-text-secondary)] mt-s">
+                    {combo.threadColor?.hexColor && (
+                      <span
+                        class="inline-block w-3.5 h-3.5 rounded-full border border-border shrink-0"
+                        style={`background-color: ${combo.threadColor.hexColor};`}
+                        aria-hidden="true"
+                      ></span>
+                    )}
+                    <span>
+                      {combo.threadColor?.name}{combo.threadColor?.name && combo.font?.name ? ' · ' : ''}{combo.font?.name}
+                    </span>
+                  </p>
+                )}
                 {(combo.tags ?? []).length > 0 && (
                   <div class="flex flex-wrap gap-xs mt-s">
                     {(combo.tags as string[]).map((tag: string) => (

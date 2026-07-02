@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PortableText from '@/components/PortableText';
+import { getSiteSettings, getAllLegalPages, getLegalPageBySlug } from '@/lib/queries';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const pages = await getAllLegalPages();
+  return (pages ?? [])
+    .filter((p: any) => p.slug)
+    .map((p: any) => ({ params: { slug: p.slug } }));
+};
+
+const { slug } = Astro.params as { slug: string };
+
+const [siteSettings, page] = await Promise.all([
+  getSiteSettings(),
+  getLegalPageBySlug(slug),
+]);
+
+const title = page?.title ? `${page.title} — MAS Monograms` : 'MAS Monograms';
+const description = page?.seoDescription ?? `${page?.title ?? 'Policy'} for MAS Monograms.`;
+const updated = page?.lastUpdated
+  ? new Date(page.lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+---
+
+<BaseLayout {title} {description} {siteSettings}>
+  <section class="bg-tertiary py-section-lg">
+    <div class="mx-auto max-w-3xl px-m text-center" data-reveal>
+      <h1 class="font-display text-h1 text-foreground leading-headline-tight">{page?.title}</h1>
+      {updated && (
+        <p class="text-sm text-[var(--color-text-secondary)] mt-s">Last updated {updated}</p>
+      )}
+    </div>
+  </section>
+
+  <section class="py-section-lg">
+    <div class="mx-auto max-w-3xl px-m" data-reveal>
+      <PortableText client:idle value={page?.body} />
+    </div>
+  </section>
+</BaseLayout>

@@ -33,9 +33,11 @@ interface Props {
     footerCredit?: string;
     footerCreditUrl?: string;
   } | null;
+  legalPages?: Array<{ title?: string; slug?: string }> | null;
 }
 
-const { siteSettings } = Astro.props as Props;
+const { siteSettings, legalPages } = Astro.props as Props;
+const legal = (legalPages ?? []).filter((l) => l?.slug && l?.title);
 
 const brandName      = siteSettings?.title ?? site.name;
 const email          = siteSettings?.email ?? '';
@@ -192,8 +194,15 @@ function socialIcon(platform: string | undefined) {
 
   {/* Bottom bar */}
   <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-xs text-xs text-[var(--color-text-secondary)] text-center">
+    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-s text-xs text-[var(--color-text-secondary)] text-center">
       <p>© {currentYear} {brandName}</p>
+      {legal.length > 0 && (
+        <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs">
+          {legal.map((lp) => (
+            <a href={`/legal/${lp.slug}`} class="hover:text-link transition-colors">{lp.title}</a>
+          ))}
+        </nav>
+      )}
       <div class="flex items-center gap-m">
         {siteCredit && (
           siteCreditUrl ? (

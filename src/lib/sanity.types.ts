@@ -86,6 +86,43 @@ export type StudioGuide = {
   }>;
 };
 
+export type LegalPage = {
+  _id: string;
+  _type: 'legalPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  seoDescription?: string;
+  lastUpdated?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: 'span';
+      _key: string;
+    }>;
+    style?: 'normal' | 'h2' | 'h3';
+    listItem?: 'bullet';
+    markDefs?: Array<{
+      href?: string;
+      _type: 'link';
+      _key: string;
+    }>;
+    level?: number;
+    _type: 'block';
+    _key: string;
+  }>;
+  displayOrder?: number;
+};
+
+export type Slug = {
+  _type: 'slug';
+  current?: string;
+  source?: string;
+};
+
 export type FaqItem = {
   _id: string;
   _type: 'faqItem';
@@ -182,6 +219,20 @@ export type SanityImageHotspot = {
   width?: number;
 };
 
+export type FontReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'font';
+};
+
+export type ThreadColorReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'threadColor';
+};
+
 export type ItemCategoryReference = {
   _ref: string;
   _type: 'reference';
@@ -205,6 +256,8 @@ export type PopularCombination = {
     alt?: string;
     _type: 'image';
   };
+  font?: FontReference;
+  threadColor?: ThreadColorReference;
   tags?: Array<string>;
   relatedCategory?: ItemCategoryReference;
   featured?: boolean;
@@ -224,13 +277,6 @@ export type PricingTier = {
   note?: string;
   highlighted?: boolean;
   displayOrder?: number;
-};
-
-export type FontReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'font';
 };
 
 export type GalleryItem = {
@@ -284,12 +330,6 @@ export type ThreadColor = {
     | 'white'
     | 'metallic';
   displayOrder?: number;
-};
-
-export type Slug = {
-  _type: 'slug';
-  current?: string;
-  source?: string;
 };
 
 export type Font = {
@@ -1269,19 +1309,21 @@ export type AllSanitySchemaTypes =
   | StudioPlaybook
   | StudioNotes
   | StudioGuide
+  | LegalPage
+  | Slug
   | FaqItem
   | Testimonial
   | SanityImageAssetReference
   | ClearanceItem
   | SanityImageCrop
   | SanityImageHotspot
+  | FontReference
+  | ThreadColorReference
   | ItemCategoryReference
   | PopularCombination
   | PricingTier
-  | FontReference
   | GalleryItem
   | ThreadColor
-  | Slug
   | Font
   | ItemCategory
   | NotFoundPage

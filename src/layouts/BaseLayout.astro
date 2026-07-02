@@ -13,7 +13,7 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getActiveAnnouncement } from '@/lib/queries';
+import { getActiveAnnouncement, getAllLegalPages } from '@/lib/queries';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
@@ -100,6 +100,8 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 // query. Returns null when no active announcement exists (graceful absence).
 // Evaluated at BUILD TIME — banner changes require a rebuild.
 const announcement = await getActiveAnnouncement().catch(() => null);
+// Legal/policy pages for the footer links (Sanity-managed collection).
+const legalPages = await getAllLegalPages().catch(() => []);
 const showAnnouncement = !!(announcement?.message);
 
 // Map announcement style -> semantic Tailwind token classes.
@@ -218,7 +220,7 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
       <slot />
     </main>
 
-    <Footer siteSettings={siteSettings} />
+    <Footer siteSettings={siteSettings} legalPages={legalPages} />
 
     {/*
       This island was previously `client:load` which forced the JS to

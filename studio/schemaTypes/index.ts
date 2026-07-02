@@ -30,6 +30,7 @@ import { popularCombination } from './popularCombination';
 import { clearanceItem } from './clearanceItem';
 import { testimonial } from './testimonial';
 import { faqItem } from './faqItem';
+import { legalPage } from './legalPage';
 
 // ── Start Here (studio helper documents — keep from starter) ──────────────────
 import { studioGuide } from './studioGuide';
@@ -62,6 +63,7 @@ export const schemaTypes = [
   clearanceItem,
   testimonial,
   faqItem,
+  legalPage,
 
   // ── Start Here helper docs ────────────────────────────────────────────────────
   studioGuide,
