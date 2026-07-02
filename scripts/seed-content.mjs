@@ -125,7 +125,8 @@ add({
     },
   ]),
   socialLinks: [], // real URLs pending from Mary Ann
-  footerCredit: "Site by Nate's Creations",
+  footerCredit: 'Site Designed by Nixon Creative Studio',
+  footerCreditUrl: 'https://www.nixoncreativestudio.com',
   seoTitle: 'MAS Monograms — Custom Embroidery in St. Matthews, SC',
   seoDescription:
     'Hand-embroidered monograms and personalized gifts by Mary Ann Stone. Custom embroidery on towels, totes, hats, shirts, baby items, and more.',
