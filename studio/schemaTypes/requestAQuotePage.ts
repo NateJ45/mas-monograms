@@ -101,12 +101,13 @@ export const requestAQuotePage = defineType({
       initialValue: "I'll send your quote to this address." }),
 
     defineField({ name: 'phoneLabel', title: 'Phone field label', type: 'string', group: 'contact',
-      initialValue: 'Phone number (optional)', validation: (R) => R.required() }),
+      description: 'Phone is now a required field — keep the label free of "(optional)".',
+      initialValue: 'Phone number', validation: (R) => R.required() }),
     defineField({ name: 'phonePlaceholder', title: 'Phone field placeholder', type: 'string', group: 'contact',
       initialValue: '(803) 555-1234' }),
     defineField({ name: 'phoneHelp', title: 'Phone help text', type: 'string', group: 'contact',
       description: 'Small text below the phone field.',
-      initialValue: 'Optional. Only used if I have a quick follow-up question.' }),
+      initialValue: 'Only used if I have a quick follow-up question.' }),
 
     // ── Order fields ──────────────────────────────────────────────────────────
     defineField({ name: 'itemTypeLabel', title: 'Item type field label', type: 'string', group: 'order',
@@ -117,6 +118,38 @@ export const requestAQuotePage = defineType({
     defineField({ name: 'itemTypeOtherLabel', title: '"Other" option label', type: 'string', group: 'order',
       description: 'Label for the "Other / not listed" option in the item type dropdown.',
       initialValue: 'Other / not listed', validation: (R) => R.required() }),
+
+    // ── New order-spec labels (added to match the old Squarespace form) ──────────
+    // The visible label for each new dropdown / radio / checkbox. The OPTION values
+    // themselves are fixed const arrays in src/pages/request-a-quote.astro (see the
+    // comment there) — only these labels are editable here.
+    defineField({ name: 'ownershipLabel', title: 'Item ownership field label', type: 'string', group: 'order',
+      description: 'Radio asking whether the customer already owns the item to be embroidered.',
+      initialValue: 'Do you own the item?', validation: (R) => R.required() }),
+    defineField({ name: 'ownershipHelp', title: 'Item ownership help text', type: 'string', group: 'order' }),
+
+    defineField({ name: 'itemDescriptionLabel', title: 'Item description field label', type: 'string', group: 'order',
+      initialValue: 'Item description (optional)', validation: (R) => R.required() }),
+    defineField({ name: 'itemDescriptionPlaceholder', title: 'Item description placeholder', type: 'string', group: 'order',
+      initialValue: 'Brand, color, fabric, size…' }),
+    defineField({ name: 'itemDescriptionHelp', title: 'Item description help text', type: 'string', group: 'order' }),
+
+    defineField({ name: 'monogramStyleLabel', title: 'Monogram style field label', type: 'string', group: 'order',
+      initialValue: 'Monogram style', validation: (R) => R.required() }),
+    defineField({ name: 'monogramStyleHelp', title: 'Monogram style help text', type: 'string', group: 'order' }),
+
+    defineField({ name: 'placementSelectLabel', title: 'Placement (dropdown) field label', type: 'string', group: 'order',
+      description: 'Dropdown asking where on the item the embroidery should go.',
+      initialValue: 'Placement on item', validation: (R) => R.required() }),
+    defineField({ name: 'placementSelectHelp', title: 'Placement (dropdown) help text', type: 'string', group: 'order' }),
+
+    defineField({ name: 'sizeLabel', title: 'Approximate size field label', type: 'string', group: 'order',
+      initialValue: 'Approximate size', validation: (R) => R.required() }),
+    defineField({ name: 'sizeHelp', title: 'Approximate size help text', type: 'string', group: 'order' }),
+
+    defineField({ name: 'threadCountLabel', title: 'Number of thread colors field label', type: 'string', group: 'order',
+      initialValue: 'Number of thread colors', validation: (R) => R.required() }),
+    defineField({ name: 'threadCountHelp', title: 'Number of thread colors help text', type: 'string', group: 'order' }),
 
     defineField({ name: 'quantityLabel', title: 'Quantity field label', type: 'string', group: 'order',
       initialValue: 'Quantity', validation: (R) => R.required() }),
@@ -148,6 +181,9 @@ export const requestAQuotePage = defineType({
     defineField({ name: 'fontPreferenceGuideLinkLabel', title: 'Font guide link label', type: 'string', group: 'design',
       description: 'Clickable label linking to the font guide page.',
       initialValue: 'Browse the font guide' }),
+    defineField({ name: 'fontPreferenceOtherLabel', title: 'Font "Other" option label', type: 'string', group: 'design',
+      description: 'Label for the "Other (describe below)" option in the font dropdown. The real font options come from the Embroidery Font documents.',
+      initialValue: 'Other (describe in notes)', validation: (R) => R.required() }),
 
     defineField({ name: 'colorPreferenceLabel', title: 'Thread color preference field label', type: 'string', group: 'design',
       initialValue: 'Thread color preference (optional)', validation: (R) => R.required() }),
@@ -170,7 +206,7 @@ export const requestAQuotePage = defineType({
 
     // ── Rush & special instructions ───────────────────────────────────────────
     defineField({ name: 'rushLabel', title: 'Rush order checkbox label', type: 'string', group: 'logistics',
-      initialValue: 'I need a rush order', validation: (R) => R.required() }),
+      initialValue: 'I need this rushed (a rush fee may apply)', validation: (R) => R.required() }),
     defineField({ name: 'rushHelp', title: 'Rush order help text', type: 'string', group: 'logistics',
       description: 'Explanation of the rush option.',
       initialValue: 'Rush orders are available for an additional fee. I\'ll confirm the timeline and cost in my quote.' }),

@@ -702,6 +702,19 @@ export type RequestAQuotePage = {
   itemTypeLabel?: string;
   itemTypeHelp?: string;
   itemTypeOtherLabel?: string;
+  ownershipLabel?: string;
+  ownershipHelp?: string;
+  itemDescriptionLabel?: string;
+  itemDescriptionPlaceholder?: string;
+  itemDescriptionHelp?: string;
+  monogramStyleLabel?: string;
+  monogramStyleHelp?: string;
+  placementSelectLabel?: string;
+  placementSelectHelp?: string;
+  sizeLabel?: string;
+  sizeHelp?: string;
+  threadCountLabel?: string;
+  threadCountHelp?: string;
   quantityLabel?: string;
   quantityPlaceholder?: string;
   quantityHelp?: string;
@@ -714,6 +727,7 @@ export type RequestAQuotePage = {
   fontPreferenceLabel?: string;
   fontPreferenceHelp?: string;
   fontPreferenceGuideLinkLabel?: string;
+  fontPreferenceOtherLabel?: string;
   colorPreferenceLabel?: string;
   colorPreferencePlaceholder?: string;
   colorPreferenceHelp?: string;

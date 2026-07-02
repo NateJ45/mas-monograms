@@ -2,12 +2,93 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
-import { getSiteSettings, getRequestAQuotePage } from '@/lib/queries';
+import {
+  getSiteSettings,
+  getRequestAQuotePage,
+  getAllItemCategories,
+  getAllFonts,
+} from '@/lib/queries';
 
-const [siteSettings, page] = await Promise.all([
+const [siteSettings, page, itemCategories, fonts] = await Promise.all([
   getSiteSettings(),
   getRequestAQuotePage(),
+  getAllItemCategories(),
+  getAllFonts(),
 ]);
+
+// ── Item-type dropdown options ──────────────────────────────────────────────
+// Real item categories from Sanity, followed by a low-friction "not sure"
+// escape so a required field never blocks a hesitant visitor. Each option
+// carries its slug (data-slug) so the ?item=<slug> deep-link can match by slug
+// — the visible option value is the display name ("Hats & Caps"), which the
+// slug ("hats-caps") can't be reconstructed into by humanizing alone.
+const itemTypeOptions: Array<{ name: string; slug: string }> = [
+  ...(itemCategories ?? [])
+    .map((c: { name?: string; slug?: { current?: string } }) => ({
+      name: c?.name ?? '',
+      slug: c?.slug?.current ?? '',
+    }))
+    .filter((o: { name: string }) => Boolean(o.name)),
+  { name: 'Not sure — recommend for me', slug: '' },
+];
+
+// ── Font dropdown options ───────────────────────────────────────────────────
+// Real embroidery fonts from Sanity (name only), plus "Other" and a "recommend"
+// escape. Kept as bare names so the ?font= deep-link param can match exactly.
+const fontNames: string[] = (fonts ?? [])
+  .map((f: { name?: string }) => f?.name)
+  .filter((n: string | undefined): n is string => Boolean(n));
+const FONT_OTHER = 'Other';
+const FONT_RECOMMEND = 'Recommend for me';
+const fontOptions: string[] = [...fontNames, FONT_OTHER, FONT_RECOMMEND];
+
+// ── Fixed domain option lists ───────────────────────────────────────────────
+// These are standard embroidery choices unlikely to change, so they live here
+// as clearly-commented const arrays rather than in Sanity. If Mary Ann ever
+// needs to edit them, promote each list to an array field on the
+// `requestAQuotePage` schema (mirroring `referralOptions`) and read it via
+// getRequestAQuotePage() — the render loop below won't need to change.
+const ownershipOptions: string[] = [
+  'I have the item',
+  'Please source it for me',
+  'Not sure yet',
+];
+const monogramStyleOptions: string[] = [
+  'Three-letter monogram',
+  'Name or word',
+  'Custom text',
+  'Appliqué',
+  'Custom embroidery',
+  'Recommend for me',
+];
+const placementOptions: string[] = [
+  'Center chest',
+  'Upper-left chest',
+  'Back',
+  'Cuff or sleeve',
+  'Corner',
+  'Hat brim',
+  'Full front',
+  'Other',
+  'Recommend for me',
+];
+const sizeOptions: string[] = [
+  'Small (under 2")',
+  'Standard (2–4")',
+  'Large (4–6")',
+  'Extra large (6"+)',
+  'Recommend for me',
+];
+const threadCountOptions: string[] = ['1', '2', '3 or more', 'Not sure'];
+// "How did you hear about us?" — optional, so no "recommend" escape needed.
+const howHeardOptions: string[] = [
+  'Google',
+  'Instagram',
+  'Facebook',
+  'Referral',
+  'Returning customer',
+  'Other',
+];
 
 const title       = page?.seoTitle       ?? 'Request a Quote — MAS Monograms';
 const description = page?.seoDescription ?? "Request a custom embroidery quote from MAS Monograms. Tell Mary Ann what you need and she'll get back to you within 1–2 business days.";
@@ -20,7 +101,27 @@ const L = {
   itemTypeLabel:         page?.itemTypeLabel             ?? 'What type of item?',
   itemTypePlaceholder:   page?.itemTypePlaceholder       ?? 'e.g. bath towels, a tote bag, onesies…',
   itemTypeHelp:          page?.itemTypeHelp              ?? null,
-  itemTypeError:         page?.itemTypeError             ?? 'Please describe the item type.',
+  itemTypeError:         page?.itemTypeError             ?? 'Please choose an item type.',
+  ownershipLabel:        page?.ownershipLabel            ?? 'Do you own the item?',
+  ownershipHelp:         page?.ownershipHelp             ?? null,
+  ownershipError:        page?.ownershipError            ?? 'Please let us know about the item.',
+  itemDescriptionLabel:  page?.itemDescriptionLabel      ?? 'Item description',
+  itemDescriptionPlaceholder: page?.itemDescriptionPlaceholder ?? 'Brand, color, fabric, size…',
+  itemDescriptionHelp:   page?.itemDescriptionHelp       ?? null,
+  monogramStyleLabel:    page?.monogramStyleLabel        ?? 'Monogram style',
+  monogramStyleHelp:     page?.monogramStyleHelp         ?? null,
+  monogramStyleError:    page?.monogramStyleError        ?? 'Please choose a monogram style.',
+  placementSelectLabel:  page?.placementSelectLabel      ?? 'Placement on item',
+  placementSelectHelp:   page?.placementSelectHelp       ?? null,
+  placementSelectError:  page?.placementSelectError      ?? 'Please choose a placement.',
+  sizeLabel:             page?.sizeLabel                 ?? 'Approximate size',
+  sizeHelp:              page?.sizeHelp                  ?? null,
+  sizeError:             page?.sizeError                 ?? 'Please choose an approximate size.',
+  threadCountLabel:      page?.threadCountLabel          ?? 'Number of thread colors',
+  threadCountHelp:       page?.threadCountHelp           ?? null,
+  threadCountError:      page?.threadCountError          ?? 'Please choose the number of thread colors.',
+  rushLabel:             page?.rushLabel                 ?? 'I need this rushed (a rush fee may apply)',
+  rushHelp:              page?.rushHelp                  ?? null,
   quantityLabel:         page?.quantityLabel             ?? 'Quantity',
   quantityPlaceholder:   page?.quantityPlaceholder       ?? 'e.g. 2',
   quantityHelp:          page?.quantityHelp              ?? null,
@@ -29,7 +130,6 @@ const L = {
   personalizationHelp:   page?.personalizationHelp       ?? null,
   personalizationError:  page?.personalizationError      ?? 'Please describe your personalization.',
   fontLabel:             page?.fontPreferenceLabel       ?? 'Font Preference (Optional)',
-  fontPlaceholder:       page?.fontPreferencePlaceholder ?? 'Font name, or describe the style',
   fontHelp:              page?.fontPreferenceHelp        ?? 'Not sure? Browse the Font Guide.',
   threadLabel:           page?.threadColorLabel          ?? 'Thread Color Preference (Optional)',
   threadPlaceholder:     page?.threadColorPlaceholder    ?? 'Color name or code, or "I trust your judgment"',
@@ -45,12 +145,11 @@ const L = {
   emailLabel:            page?.emailLabel                ?? 'Email Address',
   emailPlaceholder:      page?.emailPlaceholder         ?? 'you@example.com',
   emailError:            page?.emailError               ?? 'Please enter a valid email.',
-  phoneLabel:            page?.phoneLabel               ?? 'Phone Number (Optional)',
+  phoneLabel:            page?.phoneLabel               ?? 'Phone Number',
   phonePlaceholder:      page?.phonePlaceholder         ?? '(843) 555-0100',
-  referralLabel:         page?.referralLabel            ?? 'How did you find us?',
-  referralOptions:       (page?.referralOptions ?? [
-    'Facebook', 'Instagram', 'Word of mouth', 'Returning customer', 'Other'
-  ]) as string[],
+  phoneError:            page?.phoneError               ?? 'Please enter a phone number.',
+  referralLabel:         page?.referralLabel            ?? 'How did you hear about us?',
+  referralOptions:       (page?.referralOptions ?? howHeardOptions) as string[],
   attachmentsHelp:       page?.attachmentsHelp          ?? 'Upload up to 5 photos (JPG, PNG, WEBP). Max 5 MB each.',
   attachmentsError:      page?.attachmentsError         ?? 'Each file must be under 5 MB.',
   notesLabel:            page?.notesLabel               ?? 'Additional Notes',
@@ -145,17 +244,49 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
             {L.orderInfoHeading}
           </legend>
 
+          {/* Item type — real categories + a "not sure" escape */}
           <div class="form-field">
             <label for="itemType" class="form-label">
               {L.itemTypeLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
             </label>
-            <input
-              id="itemType" name="itemType" type="text"
-              placeholder={L.itemTypePlaceholder}
+            <select
+              id="itemType" name="itemType"
               required aria-required="true" aria-describedby="itemType-error" class="form-input"
-            />
+            >
+              <option value="">— Select one —</option>
+              {itemTypeOptions.map((opt: { name: string; slug: string }) => (
+                <option value={opt.name} data-slug={opt.slug}>{opt.name}</option>
+              ))}
+            </select>
             {L.itemTypeHelp && <p class="form-help">{L.itemTypeHelp}</p>}
             <p id="itemType-error" class="form-error hidden" data-error-for="itemType">{L.itemTypeError}</p>
+          </div>
+
+          {/* Do you own the item? */}
+          <div class="form-field">
+            <p class="form-label">
+              {L.ownershipLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+            </p>
+            <div class="flex flex-col gap-s mt-xs" role="radiogroup" aria-describedby="ownership-error">
+              {ownershipOptions.map((opt: string) => (
+                <label class="flex items-center gap-s text-sm cursor-pointer">
+                  <input type="radio" name="ownership" value={opt} class="accent-primary" data-required-radio />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+            {L.ownershipHelp && <p class="form-help">{L.ownershipHelp}</p>}
+            <p id="ownership-error" class="form-error hidden" data-error-for="ownership">{L.ownershipError}</p>
+          </div>
+
+          {/* Item description (optional free text) */}
+          <div class="form-field">
+            <label for="itemDescription" class="form-label">{L.itemDescriptionLabel}</label>
+            <input
+              id="itemDescription" name="itemDescription" type="text"
+              placeholder={L.itemDescriptionPlaceholder} class="form-input"
+            />
+            {L.itemDescriptionHelp && <p class="form-help">{L.itemDescriptionHelp}</p>}
           </div>
 
           <div class="form-field">
@@ -180,12 +311,87 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
             <p id="personalization-error" class="form-error hidden" data-error-for="personalization">{L.personalizationError}</p>
           </div>
 
+          {/* Monogram style */}
+          <div class="form-field">
+            <label for="monogramStyle" class="form-label">
+              {L.monogramStyleLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="monogramStyle" name="monogramStyle"
+              required aria-required="true" aria-describedby="monogramStyle-error" class="form-input"
+            >
+              <option value="">— Select one —</option>
+              {monogramStyleOptions.map((opt: string) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
+            {L.monogramStyleHelp && <p class="form-help">{L.monogramStyleHelp}</p>}
+            <p id="monogramStyle-error" class="form-error hidden" data-error-for="monogramStyle">{L.monogramStyleError}</p>
+          </div>
+
+          {/* Placement on item */}
+          <div class="form-field">
+            <label for="placement" class="form-label">
+              {L.placementSelectLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="placement" name="placement"
+              required aria-required="true" aria-describedby="placement-error" class="form-input"
+            >
+              <option value="">— Select one —</option>
+              {placementOptions.map((opt: string) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
+            {L.placementSelectHelp && <p class="form-help">{L.placementSelectHelp}</p>}
+            <p id="placement-error" class="form-error hidden" data-error-for="placement">{L.placementSelectError}</p>
+          </div>
+
+          {/* Approximate size */}
+          <div class="form-field">
+            <label for="size" class="form-label">
+              {L.sizeLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="size" name="size"
+              required aria-required="true" aria-describedby="size-error" class="form-input"
+            >
+              <option value="">— Select one —</option>
+              {sizeOptions.map((opt: string) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
+            {L.sizeHelp && <p class="form-help">{L.sizeHelp}</p>}
+            <p id="size-error" class="form-error hidden" data-error-for="size">{L.sizeError}</p>
+          </div>
+
+          {/* Number of thread colors */}
+          <div class="form-field">
+            <label for="threadCount" class="form-label">
+              {L.threadCountLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+            </label>
+            <select
+              id="threadCount" name="threadCount"
+              required aria-required="true" aria-describedby="threadCount-error" class="form-input w-48"
+            >
+              <option value="">— Select one —</option>
+              {threadCountOptions.map((opt: string) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
+            {L.threadCountHelp && <p class="form-help">{L.threadCountHelp}</p>}
+            <p id="threadCount-error" class="form-error hidden" data-error-for="threadCount">{L.threadCountError}</p>
+          </div>
+
+          {/* Font preference — real fonts + Other + Recommend */}
           <div class="form-field">
             <label for="fontPreference" class="form-label">{L.fontLabel}</label>
-            <input
-              id="fontPreference" name="fontPreference" type="text"
-              placeholder={L.fontPlaceholder} class="form-input"
-            />
+            <select id="fontPreference" name="fontPreference" class="form-input">
+              <option value="">— Select one —</option>
+              {fontOptions.map((opt: string) => (
+                <option value={opt}>{opt}</option>
+              ))}
+            </select>
             {L.fontHelp && (
               <p class="form-help">
                 {L.fontHelp}
@@ -212,6 +418,15 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
             <label for="neededBy" class="form-label">{L.neededByLabel}</label>
             <input id="neededBy" name="neededBy" type="date" class="form-input w-48" />
             {L.neededByHelp && <p class="form-help">{L.neededByHelp}</p>}
+          </div>
+
+          {/* Rush turnaround */}
+          <div class="form-field">
+            <label class="flex items-start gap-s text-sm cursor-pointer">
+              <input type="checkbox" name="rush" value="yes" class="accent-primary mt-0.5" />
+              <span>{L.rushLabel}</span>
+            </label>
+            {L.rushHelp && <p class="form-help">{L.rushHelp}</p>}
           </div>
 
           <div class="form-field">
@@ -260,12 +475,15 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
           </div>
 
           <div class="form-field">
-            <label for="phone" class="form-label">{L.phoneLabel}</label>
+            <label for="phone" class="form-label">
+              {L.phoneLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+            </label>
             <input
               id="phone" name="phone" type="tel"
               autocomplete="tel" placeholder={L.phonePlaceholder}
-              class="form-input w-56"
+              required aria-required="true" aria-describedby="phone-error" class="form-input w-56"
             />
+            <p id="phone-error" class="form-error hidden" data-error-for="phone">{L.phoneError}</p>
           </div>
 
           {L.referralOptions.length > 0 && (
@@ -364,8 +582,9 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
 <script>
   // ── Pre-fill from the home "Preview Your Combination" deep link ──
   // The ComboPreview CTA links here with ?item=&font=&thread=&initials=.
-  // Populate the matching free-text fields on load, only when a param is
-  // present, and never clobber anything the visitor has already typed.
+  // item/font now map to <select> options; thread stays free text; initials
+  // append to the personalization textarea. Only act when a param is present,
+  // and never clobber anything the visitor has already chosen or typed.
   (function prefillFromQuery() {
     const params = new URLSearchParams(window.location.search);
     if (![...params.keys()].length) return;
@@ -378,23 +597,56 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
 
-    const setValue = (id: string, value: string) => {
+    // Set a free-text field, but never overwrite existing user input.
+    const setTextValue = (id: string, value: string) => {
       const el = document.getElementById(id) as
         | HTMLInputElement
         | HTMLTextAreaElement
         | null;
-      if (!el || el.value.trim().length > 0) return; // don't overwrite user input
+      if (!el || el.value.trim().length > 0) return;
       el.value = value;
     };
 
+    // Select a <select> option case-insensitively. Optional fallback value is
+    // chosen when no option text matches (used for font → "Other").
+    const selectOption = (id: string, wanted: string, fallback?: string) => {
+      const el = document.getElementById(id) as HTMLSelectElement | null;
+      if (!el || el.value.trim().length > 0) return; // don't override a chosen value
+      const target = wanted.trim().toLowerCase();
+      const match = Array.from(el.options).find(
+        (o) => o.value && o.value.trim().toLowerCase() === target,
+      );
+      if (match) {
+        el.value = match.value;
+      } else if (fallback) {
+        const fb = Array.from(el.options).find((o) => o.value === fallback);
+        if (fb) el.value = fb.value;
+      }
+    };
+
     const item = params.get('item');
-    if (item) setValue('itemType', humanize(item));
+    // The deep link passes a category slug ("hats-caps"); options are labelled by
+    // display name ("Hats & Caps") but carry data-slug. Match the slug first,
+    // then fall back to the humanized / raw text for older links.
+    if (item) {
+      const el = document.getElementById('itemType') as HTMLSelectElement | null;
+      if (el && el.value.trim().length === 0) {
+        const slug = item.trim().toLowerCase();
+        const humanized = humanize(item).toLowerCase();
+        const match = Array.from(el.options).find((o) => {
+          const optSlug = (o.getAttribute('data-slug') ?? '').trim().toLowerCase();
+          const optText = o.value.trim().toLowerCase();
+          return (optSlug && optSlug === slug) || optText === humanized || optText === slug;
+        });
+        if (match) el.value = match.value;
+      }
+    }
 
     const font = params.get('font');
-    if (font) setValue('fontPreference', font);
+    if (font) selectOption('fontPreference', font, 'Other');
 
     const thread = params.get('thread');
-    if (thread) setValue('threadColor', thread);
+    if (thread) setTextValue('threadColor', thread);
 
     const initials = params.get('initials');
     if (initials) {
@@ -461,8 +713,19 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
     }
   }
 
-  ['itemType', 'personalization', 'name', 'email'].forEach((id) => {
-    document.getElementById(id)?.addEventListener('input', () => setFieldError(id, false));
+  // Clear a field's error as soon as the visitor edits it. Selects fire
+  // 'change'; text inputs/textarea fire 'input'. Attaching both is harmless.
+  [
+    'itemType', 'monogramStyle', 'placement', 'size', 'threadCount',
+    'personalization', 'name', 'email', 'phone',
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    el?.addEventListener('input', () => setFieldError(id, false));
+    el?.addEventListener('change', () => setFieldError(id, false));
+  });
+  // Ownership is a radio group — clear its error when any option is chosen.
+  document.querySelectorAll('input[name="ownership"]').forEach((el) => {
+    el.addEventListener('change', () => setFieldError('ownership', false));
   });
 
   form?.addEventListener('submit', async (e) => {
@@ -470,14 +733,24 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
 
     let valid = true;
     let firstInvalidId: string | null = null;
+    // For selects, a non-empty value is valid — "Recommend for me" / "Not sure"
+    // are legitimate submitted values, only the "— Select one —" placeholder
+    // (value "") is treated as empty.
+    const nonEmpty = (v: string) => v.trim().length > 0;
     const required: Array<{ id: string; check: (v: string) => boolean }> = [
-      { id: 'itemType',        check: (v) => v.trim().length > 0 },
-      { id: 'personalization', check: (v) => v.trim().length > 0 },
-      { id: 'name',            check: (v) => v.trim().length > 0 },
+      { id: 'itemType',        check: nonEmpty },
+      { id: 'monogramStyle',   check: nonEmpty },
+      { id: 'placement',       check: nonEmpty },
+      { id: 'size',            check: nonEmpty },
+      { id: 'threadCount',     check: nonEmpty },
+      { id: 'personalization', check: nonEmpty },
+      { id: 'name',            check: nonEmpty },
       { id: 'email',           check: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+      { id: 'phone',           check: nonEmpty },
     ];
     required.forEach(({ id, check }) => {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+      const el = document.getElementById(id) as
+        | HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
       const ok = el ? check(el.value) : false;
       setFieldError(id, !ok);
       if (!ok) {
@@ -485,6 +758,20 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
         if (!firstInvalidId) firstInvalidId = id;
       }
     });
+
+    // Ownership radio group — required, no single element carries the id.
+    const ownershipChecked = !!(form.querySelector(
+      'input[name="ownership"]:checked',
+    ) as HTMLInputElement | null);
+    const ownershipErrEl = document.querySelector(
+      '[data-error-for="ownership"]',
+    ) as HTMLElement | null;
+    ownershipErrEl?.classList.toggle('hidden', ownershipChecked);
+    if (!ownershipChecked) {
+      valid = false;
+      if (!firstInvalidId) firstInvalidId = 'ownership';
+    }
+
     const files = Array.from(attachmentsInput?.files ?? []);
     if (files.some((f) => f.size > MAX_FILE_BYTES)) {
       valid = false;
@@ -492,7 +779,13 @@ const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
     }
     if (!valid) {
       if (firstInvalidId) {
-        const target = document.getElementById(firstInvalidId) as HTMLElement | null;
+        // Ownership + attachments have no element with a matching id — fall back
+        // to the first radio / the file input respectively.
+        const target = (
+          firstInvalidId === 'ownership'
+            ? form.querySelector('input[name="ownership"]')
+            : document.getElementById(firstInvalidId)
+        ) as HTMLElement | null;
         target?.focus();
         target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
