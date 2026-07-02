@@ -15,8 +15,12 @@ Built and **deployed**; all content seeded into Sanity and rendering live.
   matrix in `docs/08-deployment-and-status.md`.
 
 ## Design system note
-The visual identity described below ("Thread Ledger") superseded the original cream/sage/blush
-system. Full rationale: `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
+The current visual identity is **Heirloom Coast** (rebranded 2026-07-01): Fraunces + Mulish +
+Petemoss type on a Linen/Ink/Indigo/Claret/Brass palette. It superseded the intermediate "Thread
+Ledger" system (which itself superseded the original cream/sage/blush). Full rationale for the
+current system: `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`. The
+earlier Thread Ledger spec (`docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`)
+is retained for history but no longer describes the live code.
 
 ## Stack
 - **Astro 6.3+** — `output: 'static'`, `@astrojs/cloudflare` adapter, Sharp image service
@@ -35,9 +39,9 @@ button labels, form labels, pricing, gallery captions, FAQ answers.
 Mary Ann must be able to edit everything without touching code.
 
 ### No dark mode
-The brand is warm parchment/ink/pine-teal/rust ("Thread Ledger"). There is no `.dark` CSS, no
+The brand is warm linen/ink/indigo/claret ("Heirloom Coast"). There is no `.dark` CSS, no
 theme toggle, and no theme-bootstrap script anywhere in the codebase — this was a considered
-decision (not just an unused old rule), see `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
+decision (not just an unused old rule), see `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
 Do NOT add a ThemeToggle component or reintroduce a `.dark` class.
 
 ### No Web3Forms
@@ -52,26 +56,35 @@ The buy button is a plain `<a href={...}>` that links to Stripe.
 are set via `wrangler secret put`. Never write them into `.env` or commit them.
 
 ## Typography
-- **Bricolage Grotesque Variable** — headings (weight 700, 600 for sub-headings). No serif anywhere
-  in the system — this is deliberate, see the design spec referenced below.
-- **Work Sans Variable** — body / UI text.
-- No script font. The logo's needle-and-thread cross is a hand-built inline SVG
-  (`src/components/Logo.astro`), not a webfont.
+The rule: **serif display + humanist-sans body + a script face scoped to monogram artifacts only.**
+- **Fraunces Variable** — display / headings. The rebrand deliberately introduced a serif; there is
+  no longer a "no serif" rule.
+- **Mulish Variable** — body / UI text (humanist sans).
+- **Petemoss** — the decorative monogram-artifact face. Script is deliberately allowed here, but ONLY
+  for on-screen monogram initials (e.g. the combo preview + recipe cards). Do NOT use it for prose,
+  headings, or UI chrome.
+- The logo's needle-and-thread cross is a hand-built inline SVG (`src/components/Logo.astro`), not a
+  webfont.
 - **Embroidery fonts are NOT web fonts** — each `font` document has a `previewImage` field.
 
-## Color palette
+## Color palette (Heirloom Coast)
 | Token | Hex | Use |
 |-------|-----|-----|
-| Ink | `#2b2420` | default text |
-| Parchment | `#f7f1e6` | page background |
-| Pine Teal | `#1f5c4f` | primary / links |
-| Muted | `#6b6258` | secondary text |
-| Rust — decorative | `#c1542c` | large text (18px+) and decorative strokes only |
-| Rust — CTA | `#b8492a` | CTA buttons ONLY (the decorative shade is too light for small white-on-rust text) |
-| Mustard | `#d9a441` | gallery photo "hoop ring" frames, highlights |
+| Linen | `#F4EEE3` | page background |
+| Paper | `#FBF8F1` | raised surfaces / cards |
+| Sage band | `#E4E2D3` | alternating section band |
+| Heirloom Ink | `#26312E` | default text |
+| Heritage Indigo | `#28486B` | primary / links |
+| Indigo Deep | `#1C3550` | link / primary hover |
+| Claret — CTA | `#8C3A2E` | CTA buttons |
+| Claret Deep | `#722C22` | CTA hover |
+| Brass — text | `#835A24` | small brass text (AA-safe) |
+| Brass — decorative | `#B98A3E` | gallery "hoop ring" frames / decorative strokes only |
+| Secondary text | `#5A5148` | secondary text |
+| Tertiary text | `#67614F` | tertiary / muted text |
 
 Full rationale, contrast math, and what NOT to use these for:
-`docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
+`docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
 
 ## Routes
 | Page | Route | Schema |
