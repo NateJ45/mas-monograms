@@ -144,8 +144,30 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     return new Response(null, { status: 303, headers: { Location: '/thank-you' } });
   }
 
+  // All values below originate from the public form, so every interpolation
+  // into email HTML must be escaped to prevent HTML/attribute injection into
+  // Mary Ann's (and the customer's) inbox. escapeHtml() handles the raw fields;
+  // multi-line fields escape FIRST, then swap newlines for <br/>.
+  const eName            = escapeHtml(name);
+  const eEmail           = escapeHtml(email);
+  const ePhone           = escapeHtml(phone);
+  const eReferral        = escapeHtml(referral);
+  const eItemType        = escapeHtml(itemType);
+  const eOwnership       = escapeHtml(ownership);
+  const eItemDescription = escapeHtml(itemDescription);
+  const eQuantity        = escapeHtml(quantity);
+  const eMonogramStyle   = escapeHtml(monogramStyle);
+  const ePlacement       = escapeHtml(placement);
+  const eSize            = escapeHtml(size);
+  const eThreadCount     = escapeHtml(threadCount);
+  const eFontPreference  = escapeHtml(fontPreference);
+  const eThreadColor     = escapeHtml(threadColor);
+  const eNeededBy        = escapeHtml(neededBy);
+  const ePersonalization = escapeHtml(personalization);
+  const eNotes           = escapeHtml(notes);
+
   const attachmentRows = attachments.length
-    ? `<p><strong>Attachments:</strong> ${attachments.map((f) => f.name).join(', ')}</p>`
+    ? `<p><strong>Attachments:</strong> ${attachments.map((f) => escapeHtml(f.name)).join(', ')}</p>`
     : '';
 
   const ownerHtml = `
@@ -155,31 +177,31 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
 <p><strong>Date:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</p>
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <h3>Contact</h3>
-<p><strong>Name:</strong> ${name}</p>
-<p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-<p><strong>Phone:</strong> ${phone}</p>
-${referral ? `<p><strong>How they heard about us:</strong> ${referral}</p>` : ''}
+<p><strong>Name:</strong> ${eName}</p>
+<p><strong>Email:</strong> <a href="mailto:${eEmail}">${eEmail}</a></p>
+<p><strong>Phone:</strong> ${ePhone}</p>
+${eReferral ? `<p><strong>How they heard about us:</strong> ${eReferral}</p>` : ''}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <h3>Item</h3>
-<p><strong>Item Type:</strong> ${itemType}</p>
-<p><strong>Owns the item?</strong> ${ownership}</p>
-${itemDescription ? `<p><strong>Item Description:</strong> ${itemDescription}</p>` : ''}
-${quantity ? `<p><strong>Quantity:</strong> ${quantity}</p>` : ''}
+<p><strong>Item Type:</strong> ${eItemType}</p>
+<p><strong>Owns the item?</strong> ${eOwnership}</p>
+${eItemDescription ? `<p><strong>Item Description:</strong> ${eItemDescription}</p>` : ''}
+${eQuantity ? `<p><strong>Quantity:</strong> ${eQuantity}</p>` : ''}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <h3>Monogram Spec</h3>
-<p><strong>Personalization:</strong><br/>${personalization.replace(/\n/g, '<br/>')}</p>
-<p><strong>Monogram Style:</strong> ${monogramStyle}</p>
-<p><strong>Placement:</strong> ${placement}</p>
-<p><strong>Approximate Size:</strong> ${size}</p>
-<p><strong>Number of Thread Colors:</strong> ${threadCount}</p>
-${fontPreference ? `<p><strong>Font Preference:</strong> ${fontPreference}</p>` : ''}
-${threadColor ? `<p><strong>Thread Color Preference:</strong> ${threadColor}</p>` : ''}
+<p><strong>Personalization:</strong><br/>${ePersonalization.replace(/\n/g, '<br/>')}</p>
+<p><strong>Monogram Style:</strong> ${eMonogramStyle}</p>
+<p><strong>Placement:</strong> ${ePlacement}</p>
+<p><strong>Approximate Size:</strong> ${eSize}</p>
+<p><strong>Number of Thread Colors:</strong> ${eThreadCount}</p>
+${eFontPreference ? `<p><strong>Font Preference:</strong> ${eFontPreference}</p>` : ''}
+${eThreadColor ? `<p><strong>Thread Color Preference:</strong> ${eThreadColor}</p>` : ''}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <h3>Logistics</h3>
-${neededBy ? `<p><strong>Needed By:</strong> ${neededBy}</p>` : ''}
+${eNeededBy ? `<p><strong>Needed By:</strong> ${eNeededBy}</p>` : ''}
 <p><strong>Rush?</strong> ${isRush ? 'Yes — rush requested' : 'No'}</p>
 <p><strong>Gift?</strong> ${isGift === 'yes' ? 'Yes' : 'No'}</p>
-${notes ? `<p><strong>Notes:</strong><br/>${notes.replace(/\n/g, '<br/>')}</p>` : ''}
+${eNotes ? `<p><strong>Notes:</strong><br/>${eNotes.replace(/\n/g, '<br/>')}</p>` : ''}
 ${attachmentRows}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <p style="color:#8a9e8c;font-size:12px;">Reply directly to this email to respond to the customer.</p>
@@ -189,21 +211,21 @@ ${attachmentRows}
   const customerHtml = `
 <!DOCTYPE html><html><body style="font-family: sans-serif; color: #2c2c28; max-width: 600px; margin: 0 auto; padding: 24px;">
 <h2 style="color:#4a5e4c;">We received your quote request!</h2>
-<p>Hi ${name},</p>
+<p>Hi ${eName},</p>
 <p>Thank you for reaching out to MAS Monograms! Mary Ann has received your request and will be in touch within 1–2 business days to discuss your order.</p>
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <h3 style="color:#4a5e4c;">What you submitted</h3>
-<p><strong>Item:</strong> ${itemType}${quantity ? ` (Qty: ${quantity})` : ''}</p>
-<p><strong>Do you own the item?</strong> ${ownership}</p>
-${itemDescription ? `<p><strong>Item description:</strong> ${itemDescription}</p>` : ''}
-<p><strong>Personalization:</strong> ${personalization}</p>
-<p><strong>Monogram style:</strong> ${monogramStyle}</p>
-<p><strong>Placement:</strong> ${placement}</p>
-<p><strong>Approximate size:</strong> ${size}</p>
-<p><strong>Number of thread colors:</strong> ${threadCount}</p>
-${fontPreference ? `<p><strong>Font preference:</strong> ${fontPreference}</p>` : ''}
-${threadColor ? `<p><strong>Thread color:</strong> ${threadColor}</p>` : ''}
-${neededBy ? `<p><strong>Needed by:</strong> ${neededBy}</p>` : ''}
+<p><strong>Item:</strong> ${eItemType}${eQuantity ? ` (Qty: ${eQuantity})` : ''}</p>
+<p><strong>Do you own the item?</strong> ${eOwnership}</p>
+${eItemDescription ? `<p><strong>Item description:</strong> ${eItemDescription}</p>` : ''}
+<p><strong>Personalization:</strong> ${ePersonalization}</p>
+<p><strong>Monogram style:</strong> ${eMonogramStyle}</p>
+<p><strong>Placement:</strong> ${ePlacement}</p>
+<p><strong>Approximate size:</strong> ${eSize}</p>
+<p><strong>Number of thread colors:</strong> ${eThreadCount}</p>
+${eFontPreference ? `<p><strong>Font preference:</strong> ${eFontPreference}</p>` : ''}
+${eThreadColor ? `<p><strong>Thread color:</strong> ${eThreadColor}</p>` : ''}
+${eNeededBy ? `<p><strong>Needed by:</strong> ${eNeededBy}</p>` : ''}
 ${isRush ? `<p><strong>Rush requested:</strong> Yes — a rush fee may apply.</p>` : ''}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <p>If you have any questions in the meantime, you can reply to this email or contact Mary Ann directly.</p>
@@ -256,4 +278,19 @@ function jsonError(error: string, status: number) {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+/**
+ * Escape a user-supplied string for safe interpolation into email HTML.
+ * Neutralizes the five HTML-significant characters so submitted values can't
+ * inject markup, break out of attributes (e.g. the mailto: href), or spoof
+ * content in Mary Ann's / the customer's inbox.
+ */
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
