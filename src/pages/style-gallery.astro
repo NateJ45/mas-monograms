@@ -209,18 +209,23 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
         <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m" id="gallery-grid">
           {(items as any[]).map((item) => (
             <div
-              class="gallery-item group break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary"
+              class="gallery-item group break-inside-avoid rounded-xl overflow-hidden bg-card border border-border"
               data-tags={JSON.stringify(cleanTags(item.tags))}
             >
+              {/* Brass hoop-ring frames the IMAGE only; the caption sits below on
+                  the card surface (Paper), not on brass — brass fails text
+                  contrast and is decorative-only per the design system. */}
               {item.image?.asset && (
-                <div class="relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
-                  <SanityImage
-                    source={item.image}
-                    width={400}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    class="w-full h-auto object-cover"
-                  />
-                  <div class="img-tint" aria-hidden="true"></div>
+                <div class="p-1 bg-secondary">
+                  <div class="relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
+                    <SanityImage
+                      source={item.image}
+                      width={400}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      class="w-full h-auto object-cover"
+                    />
+                    <div class="img-tint" aria-hidden="true"></div>
+                  </div>
                 </div>
               )}
               {(item.relatedCategory?.name || item.relatedFont?.name) && (

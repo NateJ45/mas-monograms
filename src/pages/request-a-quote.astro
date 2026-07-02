@@ -517,6 +517,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
                 id="attachments" name="attachments" type="file"
                 accept=".jpg,.jpeg,.png,.webp" multiple
                 class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                aria-label={L.attachmentsHeading}
                 aria-describedby="attachments-help"
               />
               <p class="text-sm text-[var(--color-text-secondary)]">

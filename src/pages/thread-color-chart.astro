@@ -74,6 +74,7 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
                     </div>
                   ) : color.hexColor ? (
                     <div
+                      role="img"
                       class="w-12 h-12 rounded-full border-2 border-border group-hover:scale-110 transition-transform"
                       style={`background-color: ${color.hexColor};`}
                       aria-label={color.name}
