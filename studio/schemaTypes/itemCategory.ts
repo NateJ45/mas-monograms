@@ -87,6 +87,14 @@ export const itemCategory = defineType({
       validation: (Rule) => Rule.required().min(2).max(5),
     }),
     defineField({
+      name: 'startingPrice',
+      title: 'Starting price (optional)',
+      type: 'string',
+      group: 'content',
+      description: 'Short "from" price shown on the shop and category cards. E.g. "from $16". Leave blank to hide.',
+      validation: (Rule) => Rule.max(30),
+    }),
+    defineField({
       name: 'ctaLabel',
       title: 'CTA button label',
       type: 'string',

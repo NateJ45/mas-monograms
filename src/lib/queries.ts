@@ -318,6 +318,7 @@ export function getAllItemCategories(): Promise<any[]> {
       heroImages[] ${IMG},
       cardImage ${IMG},
       trustItems,
+      startingPrice,
       ctaLabel,
       displayOrder,
       featured

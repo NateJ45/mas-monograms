@@ -71,9 +71,14 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
                 {cat.description && (
                   <p class="text-sm text-[var(--color-text-secondary)] line-clamp-2">{cat.description}</p>
                 )}
-                <span class="mt-m inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link">
-                  {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
-                </span>
+                <div class="mt-m flex items-center justify-between gap-m">
+                  <span class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link">
+                    {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
+                  </span>
+                  {cat.startingPrice && (
+                    <span class="text-sm font-semibold text-foreground whitespace-nowrap">{cat.startingPrice}</span>
+                  )}
+                </div>
               </div>
             </a>
           ))}

@@ -343,6 +343,7 @@ export type ItemCategory = {
     _type: 'image';
   };
   trustItems?: Array<string>;
+  startingPrice?: string;
   ctaLabel?: string;
   displayOrder?: number;
   featured?: boolean;

@@ -9,6 +9,7 @@ import Hero from '@/components/Hero.astro';
 import CategoryCard from '@/components/CategoryCard.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
+import CtaLink from '@/components/CtaLink.astro';
 import { getSiteSettings, getAllItemCategories, getItemCategoryBySlug, getAllGalleryItems } from '@/lib/queries';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -105,6 +106,14 @@ const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset)
               </div>
             )
           ))}
+        </div>
+        {/* Photo → quote bridge: turn "I like this" into an action, with the
+            item type already pre-filled on the quote form. */}
+        <div class="mt-l flex justify-center" data-reveal>
+          <CtaLink
+            cta={{ label: `Request something like this`, href: `/request-a-quote?item=${slug}` }}
+            variant="primary"
+          />
         </div>
       </div>
     </section>

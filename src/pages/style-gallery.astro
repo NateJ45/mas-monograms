@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
+import CtaLink from '@/components/CtaLink.astro';
 import { getSiteSettings, getStyleGalleryPage, getAllGalleryItems } from '@/lib/queries';
 
 const [siteSettings, page, items] = await Promise.all([
@@ -109,6 +110,14 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
       {page?.heroSubhead && (
         <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
       )}
+      {/* Photo → quote bridge: a visible path from browsing inspiration to
+          starting a real request, right under the intro. */}
+      <div class="mt-l flex justify-center">
+        <CtaLink
+          cta={{ label: 'Start your quote', href: '/request-a-quote' }}
+          variant="primary"
+        />
+      </div>
     </div>
   </section>
 
@@ -220,6 +229,16 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                   )}
                   {item.relatedFont?.name && (
                     <p class="text-xs text-[var(--color-text-tertiary)] italic">{item.relatedFont.name} font</p>
+                  )}
+                  {/* Per-photo quote bridge — only when we can deep-link the
+                      item type into the form. */}
+                  {item.relatedCategory?.slug?.current && (
+                    <a
+                      href={`/request-a-quote?item=${item.relatedCategory.slug.current}`}
+                      class="mt-xs inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:underline"
+                    >
+                      Request this <span aria-hidden="true">→</span>
+                    </a>
                   )}
                 </div>
               )}
