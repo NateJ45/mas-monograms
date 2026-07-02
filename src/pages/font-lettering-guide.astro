@@ -5,11 +5,14 @@ import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
 import { getSiteSettings, getFontGuidePage, getAllFonts } from '@/lib/queries';
 
-const [siteSettings, page, fonts] = await Promise.all([
+const [siteSettings, page, allFonts] = await Promise.all([
   getSiteSettings(),
   getFontGuidePage(),
   getAllFonts(),
 ]);
+
+// Only show fonts that have a real specimen photo — no "coming soon" placeholders.
+const fonts = (allFonts ?? []).filter((f: any) => f.previewImage?.asset);
 
 const title       = page?.seoTitle       ?? 'Font & Lettering Guide — MAS Monograms';
 const description = page?.seoDescription ?? 'Browse all embroidery fonts and lettering styles available at MAS Monograms. See preview photos of each font on actual embroidered fabric.';
@@ -72,26 +75,15 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-m" data-stagger-grid>
               {(styleFonts as any[]).map((font: any) => (
                 <div class="group rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-sm transition-shadow">
-                  {font.previewImage?.asset ? (
-                    <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
-                      <SanityImage
-                        source={font.previewImage}
-                        width={300}
-                        height={300}
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  ) : (
-                    <div class="aspect-square bg-tertiary flex flex-col items-center justify-center gap-xs text-center px-s rounded-[calc(var(--radius-xl)-0.25rem)]">
-                      <span class="font-monogram text-primary leading-none text-[clamp(1.75rem,7vw,2.75rem)]">
-                        {font.name}
-                      </span>
-                      <span class="text-[0.65rem] uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
-                        Specimen coming soon
-                      </span>
-                    </div>
-                  )}
+                  <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+                    <SanityImage
+                      source={font.previewImage}
+                      width={300}
+                      height={300}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
                   <div class="p-s">
                     <p class="font-semibold text-sm text-foreground">{font.name}</p>
                     {font.popular && (
