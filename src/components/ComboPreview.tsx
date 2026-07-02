@@ -20,6 +20,27 @@ interface Props {
   threadColors: ThreadOption[];
 }
 
+// Heirloom Ink — legibility fallback when the chosen thread is near-white.
+const HEIRLOOM_INK = '#26312E';
+// Threads brighter than this against the Paper ground get re-inked so they stay legible.
+const PALE_THREAD_LUMINANCE = 0.7;
+
+/** WCAG relative luminance (0 = black, 1 = white) for a #rrggbb hex. */
+function relativeLuminance(hex: string): number {
+  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return 0;
+  const int = parseInt(m[1], 16);
+  const channel = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return (
+    0.2126 * channel((int >> 16) & 0xff) +
+    0.7152 * channel((int >> 8) & 0xff) +
+    0.0722 * channel(int & 0xff)
+  );
+}
+
 function PickerRow<T>({
   label,
   options,
@@ -106,6 +127,12 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
 
   const displayInitials = initials.trim().length > 0 ? initials : 'ABC';
 
+  // The focal initials take the selected thread's color — unless the thread is
+  // near-white, which would vanish on the Paper ground, so ink those instead.
+  const threadHex = thread?.hex ?? HEIRLOOM_INK;
+  const threadIsPale = relativeLuminance(threadHex) > PALE_THREAD_LUMINANCE;
+  const initialsColor = threadIsPale ? HEIRLOOM_INK : threadHex;
+
   // Deep link carrying the picked combination into the quote form.
   const quoteHref =
     `/request-a-quote?item=${encodeURIComponent(category?.slug ?? '')}` +
@@ -190,48 +217,55 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
           NB: use max-w-[18rem], NOT max-w-xs — this project maps the `xs` scale
           key to --spacing-xs (~0.4rem), so `max-w-xs` would clamp these to ~6px. */}
       <div className="rounded-xl bg-background border border-border p-l text-center space-y-m">
-        {/* The real font specimen — the ACTUAL letterforms of the selected
-            embroidery font (not a webfont stand-in), shown on a Paper ground
-            inside the hoop-ring (brass p-1) frame. This is the honest preview:
-            it changes whenever the Font picker changes. */}
+        {/* Focal preview: the initials drawn large in the SELECTED thread color
+            (inked when the thread is near-white), on a Paper ground inside the
+            hoop-ring (brass p-1) frame. Picking a thread or typing initials
+            changes this immediately — the obvious, reactive part. Shown in the
+            display serif; it's a colour/letters impression, not a claim to the
+            exact embroidery font (the specimen below shows that). */}
+        <div className="mx-auto w-full max-w-[18rem] p-1 bg-secondary rounded-xl">
+          <div className="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-[#FBF8F1] aspect-[4/3] flex items-center justify-center px-m">
+            <span
+              className="font-display font-semibold leading-none tracking-wide break-all text-[clamp(3rem,12vw,5rem)]"
+              style={{
+                color: initialsColor,
+                textShadow: threadIsPale ? '0 0 1px rgba(0,0,0,0.2)' : undefined,
+              }}
+              aria-label={`Your initials ${displayInitials} in ${thread?.name}`}
+            >
+              {displayInitials}
+            </span>
+          </div>
+        </div>
+
+        {/* The real specimen — the ACTUAL letterform style of the selected font,
+            paired with the picked thread swatch. Both update with the pickers. */}
         {font && (
-          <div className="mx-auto w-full max-w-[18rem] p-1 bg-secondary rounded-xl">
-            <div className="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-[#FBF8F1] aspect-[4/3] p-m">
-              <img
-                src={font.previewUrl}
-                alt={font.alt}
-                className="w-full h-full object-contain"
-              />
+          <div className="mx-auto flex items-center justify-center gap-s max-w-[18rem]">
+            <div className="p-1 bg-secondary rounded-lg shrink-0">
+              <div className="overflow-hidden rounded-[calc(var(--radius-lg,0.5rem)-0.25rem)] bg-[#FBF8F1] w-20 h-16 flex items-center justify-center p-1">
+                <img src={font.previewUrl} alt={font.alt} className="w-full h-full object-contain" />
+              </div>
             </div>
+            <p className="text-xs text-left text-[var(--color-text-secondary)]">
+              <span className="uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Lettered in</span>
+              <br />
+              <span className="font-medium text-foreground">{font.name}</span>, in{' '}
+              <span className="inline-flex items-center gap-xs align-middle">
+                <span
+                  className="inline-block w-3 h-3 rounded-full border border-border"
+                  style={{ backgroundColor: thread?.hex }}
+                  aria-hidden="true"
+                />
+                {thread?.name}
+              </span>
+            </p>
           </div>
         )}
-        <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
-          The {font?.name} alphabet
-        </p>
 
-        {/* Your selections, spelled out — every row mirrors a picker so the card
-            always reflects the current Item / Thread / Initials choices. */}
-        <dl className="mx-auto w-full max-w-[18rem] text-sm">
-          <div className="flex items-center justify-between gap-m py-s border-b border-border">
-            <dt className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Item</dt>
-            <dd className="font-medium text-foreground">{category?.name}</dd>
-          </div>
-          <div className="flex items-center justify-between gap-m py-s border-b border-border">
-            <dt className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Thread</dt>
-            <dd className="flex items-center gap-xs font-medium text-foreground">
-              <span
-                className="inline-block w-4 h-4 rounded-full border border-border"
-                style={{ backgroundColor: thread?.hex }}
-                aria-hidden="true"
-              />
-              {thread?.name}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-m py-s">
-            <dt className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Initials</dt>
-            <dd className="font-display text-lg tracking-widest text-foreground">{displayInitials}</dd>
-          </div>
-        </dl>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          On <span className="font-medium text-foreground">{category?.name}</span>
+        </p>
 
         <a
           href={quoteHref}
