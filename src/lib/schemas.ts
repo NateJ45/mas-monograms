@@ -23,6 +23,8 @@ interface SiteSettings {
   phone?: string;
   address?: { street?: string; city?: string; state?: string; zip?: string } | null;
   serviceArea?: string | null;
+  geo?: { latitude?: number | null; longitude?: number | null } | null;
+  openingHours?: Array<{ days?: string[] | null; opens?: string | null; closes?: string | null }> | null;
   socialLinks?: SocialLink[] | null;
   businessType?: string;
   priceRange?: string;
@@ -81,6 +83,28 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
   // Service area — single string (e.g. "St. Matthews, SC and surrounding areas")
   if (s.serviceArea) {
     schema.areaServed = s.serviceArea;
+  }
+
+  // Geo coordinates — only emit when both numbers are present, so an empty
+  // (unfilled) geo object contributes nothing to the schema.
+  const lat = s.geo?.latitude;
+  const lng = s.geo?.longitude;
+  if (typeof lat === 'number' && typeof lng === 'number') {
+    schema.geo = { '@type': 'GeoCoordinates', latitude: lat, longitude: lng };
+  }
+
+  // Opening hours — one openingHoursSpecification per row that has days + both
+  // times. Rows missing any part are skipped; an empty array emits nothing.
+  const hours = (s.openingHours ?? [])
+    .filter((h) => Array.isArray(h?.days) && h.days.length > 0 && h.opens && h.closes)
+    .map((h) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: h.days,
+      opens: h.opens,
+      closes: h.closes,
+    }));
+  if (hours.length > 0) {
+    schema.openingHoursSpecification = hours;
   }
 
   if (s.phone) schema.telephone = s.phone;

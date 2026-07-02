@@ -2,7 +2,7 @@
 // Foundation, edit with care
 // Site-wide layout. Provides:
 //   - <html lang>, document head, OG/Twitter meta
-//   - Cormorant Garamond font preload (LCP element on hero)
+//   - Fraunces / Mulish / Petemoss fonts (loaded via @fontsource in globals.css)
 //   - Cloudflare Web Analytics beacon (conditional)
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
@@ -26,7 +26,7 @@ import '@/styles/starwind.css';
 interface Props {
   title: string;
   description: string;
-  /** Override the default OG image. If omitted, BaseLayout looks for a per-page OG at /og/&lt;slug&gt;.png, falling back to /og-default.png. */
+  /** Override the default OG image. If omitted, BaseLayout falls back through page seoImage → siteSettings seoImage → /og-default.png. */
   ogImage?: string;
   /** Raw Sanity image object for a per-page social share override (seoImage on the page singleton). Resolved through the Sanity image pipeline to a 1200x630 OG URL. Lower priority than ogImage, higher than the siteSettings default. */
   seoImage?: any;
@@ -56,15 +56,6 @@ const {
 
 const canonical = new URL(Astro.url.pathname, site.url).toString();
 
-// Per-page OG image: convention is /og/<route-slug>.png generated at build time.
-// `/` → /og/home.png, `/contact` → /og/contact.png, `/portfolio/foo` → /og/portfolio-foo.png.
-// Falls back to og-default.png if the slug-specific file isn't there.
-function ogPathForRoute(pathname: string): string {
-  const trimmed = pathname.replace(/^\/|\/$/g, '');
-  if (!trimmed) return '/og/home.png';
-  return `/og/${trimmed.replace(/\//g, '-')}.png`;
-}
-
 // Resolve a raw Sanity image object to a 1200x630 OG URL through the image
 // pipeline. Returns null when there's no asset (so the ?? chain falls through
 // to the next source) or if the URL builder throws on a malformed object.
@@ -75,10 +66,13 @@ function ogUrlFromImage(img: any): string | null {
 
 // OG image priority: explicit ogImage prop (a real photo passed by detail
 // pages) > per-page seoImage override (page singleton) > global seoImage
-// default (siteSettings) > the build-time /og/<route>.png convention.
+// default (siteSettings) > the shipped default card (public/og-default.png).
+// The final fallback is a file that always exists, so pages without a real
+// image degrade to a valid card instead of a per-route /og/<slug>.png that MAS
+// never generates (those 404'd).
 const perPageOg = ogUrlFromImage(seoImage);
 const globalOg = ogUrlFromImage(siteSettings?.seoImage);
-const resolvedOg = ogImage ?? perPageOg ?? globalOg ?? ogPathForRoute(Astro.url.pathname);
+const resolvedOg = ogImage ?? perPageOg ?? globalOg ?? site.assets.ogDefault;
 const absOg = resolvedOg.startsWith('http') ? resolvedOg : new URL(resolvedOg, site.url).toString();
 
 // Build the document title. If the editor-supplied seoTitle already contains
@@ -139,10 +133,11 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
     <meta name="theme-color" content="#F4EEE3" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    {/* Note: Cormorant Garamond is loaded via @fontsource @import in globals.css.
-        Vite hashes the woff2 filename at build time so a static preload here
-        would 404. If hero h1 LCP needs faster fonts, switch to font-display: optional
-        or generate the preload tag from the built CSS manifest. */}
+    {/* Note: fonts (Fraunces display, Mulish body, Petemoss monogram) are loaded
+        via @fontsource @import in globals.css. Vite hashes the woff2 filename at
+        build time so a static preload here would 404. If hero h1 LCP needs faster
+        fonts, switch to font-display: optional or generate the preload tag from
+        the built CSS manifest. */}
 
     {/* Open Graph */}
     <meta property="og:type" content={ogType} />

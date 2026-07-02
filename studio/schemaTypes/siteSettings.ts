@@ -73,6 +73,75 @@ export const siteSettings = defineType({
       group: 'identity',
       description: 'Short description of service area for footer and SEO. E.g. "St. Matthews and surrounding Calhoun County."',
     }),
+    defineField({
+      name: 'geo',
+      title: 'Map coordinates (optional)',
+      type: 'object',
+      group: 'business',
+      description:
+        'Latitude & longitude for the LocalBusiness map pin in Google. Optional — leave blank until you have exact coordinates (find them on Google Maps: right-click your location → the first line is "latitude, longitude").',
+      fields: [
+        defineField({ name: 'latitude', title: 'Latitude', type: 'number', description: 'E.g. 33.6640' }),
+        defineField({ name: 'longitude', title: 'Longitude', type: 'number', description: 'E.g. -80.7776' }),
+      ],
+      options: { collapsible: true, collapsed: true },
+    }),
+    defineField({
+      name: 'openingHours',
+      title: 'Opening hours (optional)',
+      type: 'array',
+      group: 'business',
+      description:
+        'Business hours for the Google listing. Add one row per set of days that share the same hours (e.g. Mon–Fri 9:00–17:00). Optional — leave empty to omit hours entirely.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'hoursSpec',
+          title: 'Hours',
+          fields: [
+            defineField({
+              name: 'days',
+              title: 'Days',
+              type: 'array',
+              of: [defineArrayMember({ type: 'string' })],
+              options: {
+                list: [
+                  { title: 'Monday', value: 'Monday' },
+                  { title: 'Tuesday', value: 'Tuesday' },
+                  { title: 'Wednesday', value: 'Wednesday' },
+                  { title: 'Thursday', value: 'Thursday' },
+                  { title: 'Friday', value: 'Friday' },
+                  { title: 'Saturday', value: 'Saturday' },
+                  { title: 'Sunday', value: 'Sunday' },
+                ],
+              },
+              validation: (R) => R.required().min(1),
+            }),
+            defineField({
+              name: 'opens',
+              title: 'Opens',
+              type: 'string',
+              description: '24-hour time, e.g. "09:00".',
+              validation: (R) => R.required().regex(/^\d{2}:\d{2}$/, { name: '24h time (HH:MM)' }),
+            }),
+            defineField({
+              name: 'closes',
+              title: 'Closes',
+              type: 'string',
+              description: '24-hour time, e.g. "17:00".',
+              validation: (R) => R.required().regex(/^\d{2}:\d{2}$/, { name: '24h time (HH:MM)' }),
+            }),
+          ],
+          preview: {
+            select: { days: 'days', opens: 'opens', closes: 'closes' },
+            prepare: ({ days, opens, closes }) => ({
+              title: Array.isArray(days) && days.length ? days.join(', ') : '(no days)',
+              subtitle: opens && closes ? `${opens}–${closes}` : '',
+            }),
+          },
+        }),
+      ],
+    }),
 
     // ── Navigation ────────────────────────────────────────────────────────────
     defineField({

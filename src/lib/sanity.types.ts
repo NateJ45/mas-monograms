@@ -1090,6 +1090,17 @@ export type SiteSettings = {
     zip?: string;
   };
   serviceArea?: string;
+  geo?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  openingHours?: Array<{
+    days?: Array<string>;
+    opens?: string;
+    closes?: string;
+    _type: 'hoursSpec';
+    _key: string;
+  }>;
   navItems?: Array<
     | {
         label?: string;

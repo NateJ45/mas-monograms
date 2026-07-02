@@ -3,6 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import FaqAccordion from '@/components/FaqAccordion';
 import CtaBanner from '@/components/CtaBanner.astro';
 import PortableText from '@/components/PortableText';
+import { faqPageSchema } from '@/lib/schemas';
 import { getSiteSettings, getPricingPage, getAllPricingTiers, getFaqItemsForPricing } from '@/lib/queries';
 
 const [siteSettings, page, tiers, faqs] = await Promise.all([
@@ -14,9 +15,12 @@ const [siteSettings, page, tiers, faqs] = await Promise.all([
 
 const title       = page?.seoTitle       ?? 'Pricing — MAS Monograms';
 const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per-piece rates based on quantity, with add-on options for backing, specialty thread, and rush orders.';
+
+// FAQPage rich-result schema — only emit when there are FAQs to describe.
+const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">

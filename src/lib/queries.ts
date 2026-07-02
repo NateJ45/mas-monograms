@@ -38,6 +38,8 @@ export function getSiteSettings(): Promise<any> {
         phone,
         address { street, city, state, zip },
         serviceArea,
+        geo { latitude, longitude },
+        openingHours[] { days, opens, closes },
         navItems[] {
           _type,
           label,

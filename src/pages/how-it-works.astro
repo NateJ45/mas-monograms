@@ -4,6 +4,7 @@ import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import FaqAccordion from '@/components/FaqAccordion';
 import CtaBanner from '@/components/CtaBanner.astro';
+import { faqPageSchema } from '@/lib/schemas';
 import { getSiteSettings, getHowItWorksPage, getFaqItemsForHowItWorks } from '@/lib/queries';
 
 const [siteSettings, page, faqs] = await Promise.all([
@@ -14,9 +15,12 @@ const [siteSettings, page, faqs] = await Promise.all([
 
 const title       = page?.seoTitle       ?? 'How It Works — MAS Monograms';
 const description = page?.seoDescription ?? 'See exactly how the MAS Monograms process works, from placing your request to receiving your finished embroidered items.';
+
+// FAQPage rich-result schema — only emit when there are FAQs to describe.
+const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">

@@ -10,6 +10,8 @@ import CategoryCard from '@/components/CategoryCard.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
 import CtaLink from '@/components/CtaLink.astro';
+import { breadcrumbSchema } from '@/lib/schemas';
+import { site } from '@/data/site';
 import { getSiteSettings, getAllItemCategories, getItemCategoryBySlug, getAllGalleryItems } from '@/lib/queries';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -53,9 +55,19 @@ const relatedGallery = allGallery.filter(
 ).slice(0, 9);
 
 const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset);
+
+// BreadcrumbList schema: Home > Shop by Item > <Category>. Helps Google render
+// a breadcrumb trail in the search result for each category page.
+const pageSchemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: site.url },
+    { name: 'Shop by Item', url: `${site.url}/shop-by-item` },
+    { name: category.name, url: `${site.url}/${slug}` },
+  ]),
+];
 ---
 
-<BaseLayout {title} {description} seoImage={category?.seoImage} {siteSettings}>
+<BaseLayout {title} {description} seoImage={category?.seoImage} {siteSettings} schemas={pageSchemas}>
 
   {/* Hero */}
   <Hero

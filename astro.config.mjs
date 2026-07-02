@@ -16,7 +16,9 @@ export default defineConfig({
   // The adapter's default would otherwise wire up the IMAGES binding which
   // is meant for SSR sites that want on-demand transforms (we don't).
   adapter: cloudflare({ imageService: 'compile' }),
-  integrations: [sitemap({ filter: (page) => !page.includes('/404') }), react()],
+  // /thank-you is noindex (post-submission confirmation), so keep it out of the
+  // sitemap too — otherwise we'd be advertising a page we tell crawlers to skip.
+  integrations: [sitemap({ filter: (page) => !page.includes('/404') && !page.includes('/thank-you') }), react()],
   vite: {
     plugins: [tailwindcss()],
   },
