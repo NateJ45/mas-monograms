@@ -77,6 +77,21 @@ const galleryHeroImages = (galleryItems ?? [])
 // Prefer authored hero images if an editor ever adds them; otherwise fall back
 // to the featured gallery work so the hero always shows real embroidery.
 const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryHeroImages;
+
+// Colour a combo's name in its thread hex — but ink it when the thread would
+// not read on the Paper card (e.g. Blush Pink), so contrast stays AA-safe.
+// Keeps the hue only when it clears ~3.5:1 against the Paper ground (#FBF8F1).
+function legibleThreadColor(hex?: string): string {
+  const HEIRLOOM_INK = '#26312E';
+  if (!hex) return HEIRLOOM_INK;
+  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
+  if (!m) return HEIRLOOM_INK;
+  const int = parseInt(m[1], 16);
+  const ch = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+  const L = 0.2126 * ch((int >> 16) & 0xff) + 0.7152 * ch((int >> 8) & 0xff) + 0.0722 * ch(int & 0xff);
+  const contrastOnPaper = 0.98 / (L + 0.05); // Paper ≈ #FBF8F1, L ≈ 0.93
+  return contrastOnPaper >= 3.5 ? hex : HEIRLOOM_INK;
+}
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage ?? siteSettings?.seoImage} {siteSettings}>
@@ -263,26 +278,20 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
                   </div>
                 </div>
               ) : (
-                /* No-photo "recipe" card: the combination's REAL font specimen on
-                   a Paper ground inside the hoop-ring frame, with a band of the
-                   REAL thread colour along the bottom. Each card differs by its
-                   specimen + thread colour (that's the whole point). Falls back
-                   to the name in the monogram script if a font has no specimen. */
+                /* No-photo "recipe" card: the combination NAME set in its REAL
+                   thread colour (inked when the thread is near-white so it stays
+                   legible on Paper), inside the hoop frame, with a band of the
+                   thread colour along the bottom. The colour + wording match the
+                   combo — no mismatched vendor specimen. The font is credited in
+                   the recipe line below. */
                 <div class="aspect-[4/3] p-1 bg-secondary">
-                  <div class="relative w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex items-center justify-center p-m">
-                    {combo.font?.previewImage?.asset ? (
-                      <SanityImage
-                        source={combo.font.previewImage}
-                        width={360}
-                        height={270}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        class="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <p class="font-monogram text-primary leading-none text-[clamp(2.25rem,5vw,3.25rem)]">
-                        {combo.name}
-                      </p>
-                    )}
+                  <div class="relative w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex items-center justify-center text-center px-l">
+                    <p
+                      class="font-display font-semibold leading-tight text-[clamp(1.5rem,3.5vw,2.25rem)]"
+                      style={`color: ${legibleThreadColor(combo.threadColor?.hexColor)};`}
+                    >
+                      {combo.name}
+                    </p>
                     {combo.threadColor?.hexColor && (
                       <div
                         class="absolute inset-x-0 bottom-0 h-2.5"
@@ -294,7 +303,9 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
                 </div>
               )}
               <div class="p-m">
-                <h3 class="font-display text-h4 text-foreground mb-xs">{combo.name}</h3>
+                {combo.image?.asset && (
+                  <h3 class="font-display text-h4 text-foreground mb-xs">{combo.name}</h3>
+                )}
                 {combo.description && <p class="text-sm text-[var(--color-text-secondary)]">{combo.description}</p>}
                 {(combo.threadColor?.name || combo.font?.name) && (
                   <p class="flex items-center gap-xs text-xs text-[var(--color-text-secondary)] mt-s">

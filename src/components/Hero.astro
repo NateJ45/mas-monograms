@@ -192,24 +192,74 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
         )}
       </div>
 
-      {/* Photo column: one real piece in the hoop-ring frame (brass p-1), held
-          to a bounded portrait aspect and displayed at ~half width, so the
-          studio's portrait phone photos are downscaled (sharp) rather than
-          stretched full-bleed (soft). First image only; eager LCP. */}
+      {/* Photo column: a cross-fading Ken Burns slideshow of real pieces in the
+          hoop-ring frame (brass p-1), bounded to a portrait aspect so the
+          studio's portrait phone photos stay sharp (downscaled, not stretched).
+          Falls back to a single static image when only one is available. The
+          first slide is the eager LCP; the rest lazy-load. */}
       <div class="p-1 bg-secondary rounded-xl" data-reveal>
-        <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] aspect-[4/5]">
-          <SanityImage
-            source={effectiveImages[0]}
-            width={900}
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            loading="eager"
-            fetchpriority="high"
-            quality={80}
-            class="w-full h-full object-cover"
-          />
+        <div class="relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] aspect-[4/5]">
+          {effectiveImages.length >= 2 ? (
+            <div class="hero-slideshow" data-hero-frame-slideshow>
+              {effectiveImages.slice(0, 6).map((img, i) => (
+                <SanityImage
+                  source={img}
+                  width={900}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'low'}
+                  quality={80}
+                  alt={i === 0 ? undefined : ''}
+                  class={`hero-slide${i === 0 ? ' is-active' : ''}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <SanityImage
+              source={effectiveImages[0]}
+              width={900}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              loading="eager"
+              fetchpriority="high"
+              quality={80}
+              class="w-full h-full object-cover"
+            />
+          )}
         </div>
       </div>
     </div>
+
+    {/* Cross-fade cycler for the framed slideshow (2+ images). Mirrors the
+        full-bleed HeroBackground pattern with its own timer/flag so the two
+        never collide. Reduced-motion users get a static first slide. */}
+    {effectiveImages.length >= 2 && (
+      <script is:inline>
+        (function () {
+          function initHeroFrameSlideshow() {
+            if (window.__heroFrameTimer) { clearInterval(window.__heroFrameTimer); window.__heroFrameTimer = null; }
+            var box = document.querySelector('[data-hero-frame-slideshow]');
+            if (!box) return;
+            var slides = box.querySelectorAll('.hero-slide');
+            if (slides.length < 2) return;
+            var reduce = false;
+            try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+            if (reduce) return;
+            var current = 0;
+            window.__heroFrameTimer = setInterval(function () {
+              if (document.hidden) return;
+              slides[current].classList.remove('is-active');
+              current = (current + 1) % slides.length;
+              slides[current].classList.add('is-active');
+            }, 4500);
+          }
+          initHeroFrameSlideshow();
+          if (!window.__heroFrameBound) {
+            window.__heroFrameBound = true;
+            document.addEventListener('astro:page-load', initHeroFrameSlideshow);
+          }
+        })();
+      </script>
+    )}
   </section>
 ) : hasImage ? (
   <section
