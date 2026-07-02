@@ -25,17 +25,18 @@ const { name, slug, cardImage } = Astro.props as Props;
 
 <a
   href={`/${slug}`}
-  class="group block rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-lg transition-shadow"
+  class="card-lift group block rounded-xl overflow-hidden p-1 bg-secondary"
 >
   {cardImage?.asset ? (
-    <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+    <div class="relative aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
       <SanityImage
         source={cardImage}
         width={400}
         height={400}
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        class="w-full h-full object-cover"
       />
+      <div class="img-tint" aria-hidden="true"></div>
     </div>
   ) : (
     /* No-photo fallback (e.g. "Bring Your Own Item"): an intentional tile with
