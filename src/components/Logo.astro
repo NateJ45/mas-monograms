@@ -20,7 +20,7 @@ interface Props {
 
 const { variant = 'ink', mark = false, class: className } = Astro.props as Props;
 
-// Heirloom Coast — mirrors tokens.css: --color-parchment (Linen) / --color-ink (Heirloom Ink)
+// Heirloom Coast — mirrors globals.css: --color-parchment (Linen) / --color-ink (Heirloom Ink)
 // / --color-rust-cta (Claret) / --color-pine-teal (Heritage Indigo).
 // Hardcoded because SVG presentation attributes (fill=, stroke=) can't consume CSS custom properties directly.
 const wordmarkColor = variant === 'parchment' ? '#F4EEE3' : '#26312E'; // Linen on dark / Heirloom Ink on light

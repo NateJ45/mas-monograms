@@ -23,7 +23,7 @@ export const site = {
   studio: _name,
   storageKeyPrefix: _slug,
 
-  // MAS Monograms brand palette — mirrors tokens.css and globals.css.
+  // MAS Monograms brand palette — mirrors globals.css.
   // Used by OG image generation scripts and JSON-LD schemas.
   brandColors: {
     primary:     "#4a5e4c",  // Sage Dark — links, nav, accent
