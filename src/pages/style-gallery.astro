@@ -209,17 +209,18 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
         <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m" id="gallery-grid">
           {(items as any[]).map((item) => (
             <div
-              class="gallery-item break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary"
+              class="gallery-item group break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary"
               data-tags={JSON.stringify(cleanTags(item.tags))}
             >
               {item.image?.asset && (
-                <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+                <div class="relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
                   <SanityImage
                     source={item.image}
                     width={400}
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     class="w-full h-auto object-cover"
                   />
+                  <div class="img-tint" aria-hidden="true"></div>
                 </div>
               )}
               {(item.relatedCategory?.name || item.relatedFont?.name) && (
@@ -271,6 +272,16 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
   /* Hide the default disclosure triangle on our filter summaries. */
   .gallery-filter-panel > summary::-webkit-details-marker,
   .more-tags > summary::-webkit-details-marker { display: none; }
+  /* Smooth the fade back IN when a tile stops being filtered out (the tile is a
+     plain div, so it has no default transition). The fade OUT is driven by
+     `.is-filtered-out` in globals.css. */
+  .gallery-item {
+    transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-item { transition: none; }
+  }
   /* Keep the filter panel open on sm+ regardless of the <details> open attr. */
   @media (min-width: 640px) {
     .gallery-filter-panel > #gallery-filters { display: block !important; }
@@ -308,13 +319,48 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
           b.classList.toggle('text-[var(--color-text-secondary)]', !active);
         });
 
-        // Filter items.
+        // Filter items with a fade instead of a hard pop. `display` can't be
+        // transitioned, so to HIDE we add `.is-filtered-out` (opacity + scale
+        // fade, 360ms in globals.css) first, then set `display:none` after the
+        // transition so the masonry `columns` layout reflows. To SHOW we clear
+        // `display` first, then drop `.is-filtered-out` on the next frame so the
+        // tile fades back in. Honour reduced-motion by skipping the delay.
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const HIDE_MS = 360;
         let visible = 0;
         items.forEach((item) => {
           const tags: string[] = JSON.parse(item.dataset.tags ?? '[]');
           const show = tag === 'all' || tags.includes(tag);
-          item.style.display = show ? '' : 'none';
-          if (show) visible++;
+
+          if (show) {
+            visible++;
+            item.style.display = '';
+            if (reduceMotion) {
+              item.classList.remove('is-filtered-out');
+            } else {
+              // Fade back in on the next frame so the display change lands first.
+              requestAnimationFrame(() => {
+                requestAnimationFrame(() => item.classList.remove('is-filtered-out'));
+              });
+            }
+          } else {
+            if (item.classList.contains('is-filtered-out') && item.style.display === 'none') {
+              return; // already hidden
+            }
+            if (reduceMotion) {
+              item.classList.add('is-filtered-out');
+              item.style.display = 'none';
+            } else {
+              item.classList.add('is-filtered-out');
+              window.setTimeout(() => {
+                // Only collapse if it's still filtered out (guards against a
+                // rapid re-select flipping it back to visible mid-transition).
+                if (item.classList.contains('is-filtered-out')) {
+                  item.style.display = 'none';
+                }
+              }, HIDE_MS);
+            }
+          }
         });
         if (emptyMsg) emptyMsg.classList.toggle('hidden', visible > 0);
       });

@@ -149,7 +149,7 @@ const mobileNavSettings = siteSettings
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={link.label ?? link.platform}
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-accent hover:text-link transition-colors"
+                  class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground hover:bg-muted hover:text-link transition-colors"
                 >
                   <Icon size={14} stroke={1.5} />
                 </a>
@@ -256,8 +256,41 @@ const mobileNavSettings = siteSettings
   .site-nav__group > summary::-webkit-details-marker,
   .site-nav__group > summary::marker { display: none; content: ""; }
   .site-nav__group[open] > summary .site-nav__chevron { transform: rotate(180deg); }
-  .site-nav__menu { display: none; }
-  .site-nav__group[open] > .site-nav__menu { display: block; }
+
+  /* Dropdown panel fades + slides in on the brand easing instead of hard-popping
+     from display:none. It stays in the DOM (so its layout is stable) but is
+     visibility:hidden + non-interactive while closed, so it never intercepts
+     pointer/tab focus until the group is [open]. */
+  .site-nav__menu {
+    /* Override the UA `details:not([open]) > :not(summary) { display:none }`
+       rule so the closed panel stays laid out and can transition. Use the
+       standalone `translate` property (not `transform`) for the slide — Tailwind
+       v4 composes `transform` from its own custom properties, which was zeroing
+       out a `transform: translateY(...)` set here. */
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 -0.4rem;
+    pointer-events: none;
+    transition:
+      opacity 440ms cubic-bezier(0.16, 1, 0.3, 1),
+      translate 440ms cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s linear 440ms;
+  }
+  .site-nav__group[open] > .site-nav__menu {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+    pointer-events: auto;
+    transition:
+      opacity 440ms cubic-bezier(0.16, 1, 0.3, 1),
+      translate 440ms cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s linear 0s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-nav__menu,
+    .site-nav__group[open] > .site-nav__menu { transition: none; translate: none; }
+  }
 </style>
 
 <script>

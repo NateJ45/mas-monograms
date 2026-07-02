@@ -135,7 +135,7 @@ export default function MobileNav({
           <button
             type="button"
             aria-label="Open menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground hover:bg-accent transition-colors"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
           >
             <Menu size={22} />
           </button>

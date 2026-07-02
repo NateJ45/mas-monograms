@@ -186,8 +186,8 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
           optionLabel={(opt) => opt.name}
           renderOption={(opt, isSelected) => (
             <span
-              className={`inline-flex items-center justify-center w-11 h-11 rounded-full border-2 ${
-                isSelected ? 'border-primary' : 'border-border'
+              className={`inline-flex items-center justify-center w-11 h-11 rounded-full border-2 transition-transform hover:scale-105 ${
+                isSelected ? 'border-primary' : 'border-border hover:border-primary/60'
               }`}
               style={{ backgroundColor: opt.hex }}
               title={opt.name}
