@@ -592,6 +592,12 @@ export type StyleGalleryPage = {
     _type: 'filterTag';
     _key: string;
   }>;
+  filterGroups?: Array<{
+    groupLabel?: string;
+    tags?: Array<string>;
+    _type: 'filterGroup';
+    _key: string;
+  }>;
   emptyStateMessage?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;

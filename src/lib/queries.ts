@@ -361,6 +361,7 @@ export function getStyleGalleryPage(): Promise<any> {
       heroSubhead,
       filterAllLabel,
       additionalFilterTags[] { label, tag },
+      filterGroups[] { groupLabel, tags },
       emptyStateMessage,
       ctaEyebrow,
       ctaHeadline,
