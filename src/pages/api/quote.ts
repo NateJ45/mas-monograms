@@ -55,13 +55,25 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     if (!tsBody.success) return jsonError('CAPTCHA verification failed', 400);
   }
 
-  // ── 2. Validate required text fields ──────────────────────────────────────
+  // ── 2. Validate required fields ────────────────────────────────────────────
+  // NOTE: the select fields carry a "Recommend for me" / "Not sure" option that
+  // is a VALID submitted value — we only reject the empty placeholder (""), so a
+  // simple non-empty check is exactly right here.
   const itemType        = (formData.get('itemType')        as string | null)?.trim() ?? '';
+  const ownership       = (formData.get('ownership')       as string | null)?.trim() ?? '';
   const personalization = (formData.get('personalization') as string | null)?.trim() ?? '';
+  const monogramStyle   = (formData.get('monogramStyle')   as string | null)?.trim() ?? '';
+  const placement       = (formData.get('placement')       as string | null)?.trim() ?? '';
+  const size            = (formData.get('size')            as string | null)?.trim() ?? '';
+  const threadCount     = (formData.get('threadCount')     as string | null)?.trim() ?? '';
   const name            = (formData.get('name')            as string | null)?.trim() ?? '';
   const email           = (formData.get('email')           as string | null)?.trim() ?? '';
+  const phone           = (formData.get('phone')           as string | null)?.trim() ?? '';
 
-  if (!itemType || !personalization || !name || !email) {
+  if (
+    !itemType || !ownership || !personalization || !monogramStyle ||
+    !placement || !size || !threadCount || !name || !email || !phone
+  ) {
     return jsonError('Required fields are missing', 400);
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -69,14 +81,16 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   }
 
   // ── 3. Collect optional fields ────────────────────────────────────────────
-  const quantity       = (formData.get('quantity')       as string | null)?.trim() ?? '';
-  const fontPreference = (formData.get('fontPreference') as string | null)?.trim() ?? '';
-  const threadColor    = (formData.get('threadColor')    as string | null)?.trim() ?? '';
-  const neededBy       = (formData.get('neededBy')       as string | null)?.trim() ?? '';
-  const isGift         = (formData.get('isGift')         as string | null)?.trim() ?? 'no';
-  const phone          = (formData.get('phone')          as string | null)?.trim() ?? '';
-  const referral       = (formData.get('referral')       as string | null)?.trim() ?? '';
-  const notes          = (formData.get('notes')          as string | null)?.trim() ?? '';
+  const itemDescription = (formData.get('itemDescription') as string | null)?.trim() ?? '';
+  const quantity        = (formData.get('quantity')        as string | null)?.trim() ?? '';
+  const fontPreference  = (formData.get('fontPreference')  as string | null)?.trim() ?? '';
+  const threadColor     = (formData.get('threadColor')     as string | null)?.trim() ?? '';
+  const neededBy        = (formData.get('neededBy')        as string | null)?.trim() ?? '';
+  const rush            = (formData.get('rush')            as string | null)?.trim() ?? '';
+  const isGift          = (formData.get('isGift')          as string | null)?.trim() ?? 'no';
+  const referral        = (formData.get('referral')        as string | null)?.trim() ?? '';
+  const notes           = (formData.get('notes')           as string | null)?.trim() ?? '';
+  const isRush          = rush === 'yes';
 
   // ── 4. Validate file attachments ──────────────────────────────────────────
   const rawFiles = formData.getAll('attachments') as File[];
@@ -92,9 +106,15 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   const submissionData = {
     id: submissionId,
     submittedAt: new Date().toISOString(),
-    name, email, phone, referral, itemType, quantity,
-    personalization, fontPreference, threadColor,
-    neededBy, isGift, notes,
+    // Contact
+    name, email, phone, referral,
+    // Item
+    itemType, ownership, itemDescription, quantity,
+    // Monogram spec
+    personalization, monogramStyle, placement, size,
+    threadCount, fontPreference, threadColor,
+    // Logistics
+    neededBy, rush: isRush, isGift, notes,
     attachmentNames: attachments.map((f) => f.name),
   };
 
@@ -134,19 +154,30 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
 <p><strong>Submission ID:</strong> ${submissionId}</p>
 <p><strong>Date:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</p>
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3>Customer</h3>
+<h3>Contact</h3>
 <p><strong>Name:</strong> ${name}</p>
 <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
-${referral ? `<p><strong>Referral:</strong> ${referral}</p>` : ''}
+<p><strong>Phone:</strong> ${phone}</p>
+${referral ? `<p><strong>How they heard about us:</strong> ${referral}</p>` : ''}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3>Order Details</h3>
+<h3>Item</h3>
 <p><strong>Item Type:</strong> ${itemType}</p>
+<p><strong>Owns the item?</strong> ${ownership}</p>
+${itemDescription ? `<p><strong>Item Description:</strong> ${itemDescription}</p>` : ''}
 ${quantity ? `<p><strong>Quantity:</strong> ${quantity}</p>` : ''}
+<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
+<h3>Monogram Spec</h3>
 <p><strong>Personalization:</strong><br/>${personalization.replace(/\n/g, '<br/>')}</p>
+<p><strong>Monogram Style:</strong> ${monogramStyle}</p>
+<p><strong>Placement:</strong> ${placement}</p>
+<p><strong>Approximate Size:</strong> ${size}</p>
+<p><strong>Number of Thread Colors:</strong> ${threadCount}</p>
 ${fontPreference ? `<p><strong>Font Preference:</strong> ${fontPreference}</p>` : ''}
-${threadColor ? `<p><strong>Thread Color:</strong> ${threadColor}</p>` : ''}
+${threadColor ? `<p><strong>Thread Color Preference:</strong> ${threadColor}</p>` : ''}
+<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
+<h3>Logistics</h3>
 ${neededBy ? `<p><strong>Needed By:</strong> ${neededBy}</p>` : ''}
+<p><strong>Rush?</strong> ${isRush ? 'Yes — rush requested' : 'No'}</p>
 <p><strong>Gift?</strong> ${isGift === 'yes' ? 'Yes' : 'No'}</p>
 ${notes ? `<p><strong>Notes:</strong><br/>${notes.replace(/\n/g, '<br/>')}</p>` : ''}
 ${attachmentRows}
@@ -163,10 +194,17 @@ ${attachmentRows}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <h3 style="color:#4a5e4c;">What you submitted</h3>
 <p><strong>Item:</strong> ${itemType}${quantity ? ` (Qty: ${quantity})` : ''}</p>
+<p><strong>Do you own the item?</strong> ${ownership}</p>
+${itemDescription ? `<p><strong>Item description:</strong> ${itemDescription}</p>` : ''}
 <p><strong>Personalization:</strong> ${personalization}</p>
+<p><strong>Monogram style:</strong> ${monogramStyle}</p>
+<p><strong>Placement:</strong> ${placement}</p>
+<p><strong>Approximate size:</strong> ${size}</p>
+<p><strong>Number of thread colors:</strong> ${threadCount}</p>
 ${fontPreference ? `<p><strong>Font preference:</strong> ${fontPreference}</p>` : ''}
 ${threadColor ? `<p><strong>Thread color:</strong> ${threadColor}</p>` : ''}
 ${neededBy ? `<p><strong>Needed by:</strong> ${neededBy}</p>` : ''}
+${isRush ? `<p><strong>Rush requested:</strong> Yes — a rush fee may apply.</p>` : ''}
 <hr style="border:1px solid #e8ede8;margin:16px 0;"/>
 <p>If you have any questions in the meantime, you can reply to this email or contact Mary Ann directly.</p>
 <p style="color:#8a9e8c;font-size:12px;">MAS Monograms — St. Matthews, SC</p>
