@@ -1,8 +1,8 @@
 ---
 // Foundation, edit with care.
 // The Heirloom Coast logo system (hybrid, chosen 2026-07-02 — see docs/logo-concepts/):
-//   default        the "Flourished Initial" lockup — oversized Petemoss script M in Claret
-//                  whose drawn thread-swash underlines a Fraunces "MAS MONOGRAMS".
+//   default        the "Flourished Initial" lockup — "Mas" set in the Petemoss script (Claret)
+//                  with a smooth drawn thread-swash, beside "MONOGRAMS" in Fraunces caps.
 //   <Logo mark />  the "Shopkeeper's Badge" mark — double indigo hoop-ring + Fraunces M.
 //                  Same art as public/favicon.svg and the social/stamp assets.
 // No runtime theme switching: pick the variant that matches the surface at the call site.
@@ -48,15 +48,20 @@ const frauncesM =
   </svg>
 ) : (
   <svg
-    viewBox="0 0 348 80"
+    viewBox="0 0 302 80"
     class={className}
     aria-hidden="true"
     focusable="false"
   >
-    {/* The script face is loaded globally via @fontsource in globals.css; until it
-        arrives the M falls back to the system cursive for one paint. */}
-    <text x="44" y="55" text-anchor="middle" font-family="'Petemoss', cursive" font-size="70" fill={claret}>M</text>
-    <text x="96" y="49" font-family="'Fraunces Variable', Fraunces, serif" font-weight="600" font-size="24" letter-spacing="1.2" fill={wordmarkColor}>MAS MONOGRAMS</text>
-    <path d="M 62 63 C 108 71, 158 57, 212 61 C 264 65, 308 58, 336 61" fill="none" stroke={claret} stroke-width="2.6" stroke-linecap="round" />
+    {/* One text run, two faces: "Mas" in the Petemoss script, "MONOGRAMS" in Fraunces caps.
+        The tspans auto-advance, so the serif word always butts up against the script no
+        matter how the webfont measures. The script face is loaded globally via @fontsource
+        in globals.css; until it arrives "Mas" falls back to system cursive for one paint. */}
+    <text y="52">
+      <tspan x="6" font-family="'Petemoss', cursive" font-size="62" fill={claret}>Mas</tspan>
+      <tspan dx="14" dy="-4" font-family="'Fraunces Variable', Fraunces, serif" font-weight="600" font-size="27" letter-spacing="1" fill={wordmarkColor}>MONOGRAMS</tspan>
+    </text>
+    {/* A single smooth cubic — the thread-swash under "Mas", tapering off beneath MONOGRAMS. */}
+    <path d="M 10 62 C 70 70, 150 70, 210 66" fill="none" stroke={claret} stroke-width="2.4" stroke-linecap="round" />
   </svg>
 )}
