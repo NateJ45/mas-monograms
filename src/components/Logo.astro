@@ -1,31 +1,37 @@
 ---
 // Foundation, edit with care.
-// The Heirloom Coast wordmark + needle-and-thread cross, as an inline SVG.
-// No runtime theme switching: pick the variant that matches the surface
-// this instance sits on at the call site, e.g.:
-//   <Logo variant="ink" />        on light surfaces (header, footer — both parchment/mustard)
+// The Heirloom Coast logo system (hybrid, chosen 2026-07-02 — see docs/logo-concepts/):
+//   default        the "Flourished Initial" lockup — oversized Petemoss script M in Claret
+//                  whose drawn thread-swash underlines a Fraunces "MAS MONOGRAMS".
+//   <Logo mark />  the "Shopkeeper's Badge" mark — double indigo hoop-ring + Fraunces M.
+//                  Same art as public/favicon.svg and the social/stamp assets.
+// No runtime theme switching: pick the variant that matches the surface at the call site.
+//   <Logo variant="ink" />        on light surfaces (header, footer — every current surface)
 //   <Logo variant="parchment" />  on a dark-ink surface, if one is ever introduced
-//   <Logo mark />                 compact hoop+needle mark only, no wordmark
 
 interface Props {
-  /** "ink" (default) for placement on light/parchment/mustard surfaces — this covers every
-   *  surface in the current design (header, footer, page background).
-   *  "parchment" for placement on a dark-ink surface, if one is ever introduced. */
+  /** "ink" (default) recolors the wordmark for light/linen surfaces;
+   *  "parchment" for a dark-ink surface, if one is ever introduced. */
   variant?: 'ink' | 'parchment';
-  /** Render only the compact hoop-ring + needle mark, no wordmark text.
-   *  Use for small/square contexts (e.g. a future app icon source). */
+  /** Render only the compact badge mark (hoop rings + M), no wordmark text.
+   *  Square; source of truth for favicon/social-avatar contexts. */
   mark?: boolean;
   class?: string;
 }
 
 const { variant = 'ink', mark = false, class: className } = Astro.props as Props;
 
-// Heirloom Coast — mirrors globals.css: --color-parchment (Linen) / --color-ink (Heirloom Ink)
-// / --color-rust-cta (Claret) / --color-pine-teal (Heritage Indigo).
-// Hardcoded because SVG presentation attributes (fill=, stroke=) can't consume CSS custom properties directly.
-const wordmarkColor = variant === 'parchment' ? '#F4EEE3' : '#26312E'; // Linen on dark / Heirloom Ink on light
-const threadColor = '#8C3A2E';  // Claret — needle-thread arc
-const ringColor = '#28486B';    // Heritage Indigo — hoop ring + "made just for you"
+// Heirloom Coast — mirrors globals.css: Linen / Heirloom Ink / Claret / Heritage Indigo.
+// Hardcoded because SVG presentation attributes can't consume CSS custom properties.
+const wordmarkColor = variant === 'parchment' ? '#F4EEE3' : '#26312E';
+const claret = '#8C3A2E';
+const indigo = '#28486B';
+
+// Fraunces 700 (opsz 60, WONK off) capital M, outlined to a path so the mark has no
+// font dependency (it doubles as the favicon). 44-unit cap height centered in 100x100;
+// scaled down via transform where used. Regenerate with scripts/generate-favicons.mjs.
+const frauncesM =
+  'M52.15 56.79L49.29 57.79L59.29 30.77Q59.85 29.16 60.61 28.58Q61.36 28.00 62.71 28.00L73.93 28.00Q74.75 28.00 75.16 28.35Q75.57 28.69 75.57 29.29Q75.57 29.82 75.28 30.14Q75.00 30.45 74.44 30.67L72.80 31.08Q71.89 31.33 71.54 31.87Q71.20 32.40 71.29 33.47L73.68 66.81Q73.74 67.88 74.06 68.29Q74.37 68.70 75.19 68.92L76.79 69.33Q77.33 69.52 77.59 69.83Q77.86 70.15 77.86 70.65Q77.86 71.21 77.45 71.61Q77.04 72.00 76.23 72.00L59.32 72.00Q58.44 72.00 58.01 71.65Q57.59 71.31 57.59 70.71Q57.59 70.21 57.86 69.86Q58.12 69.52 58.75 69.33L60.39 68.92Q61.36 68.64 61.68 68.18Q61.99 67.73 61.93 66.81L59.44 33.22L61.96 32.84L49.23 67.91Q48.70 69.45 48.11 69.86Q47.53 70.27 46.78 70.27Q46.24 70.27 45.77 70.11Q45.30 69.96 44.89 69.45Q44.48 68.95 44.04 67.82L30.69 33.81L33.14 32.90L30.56 65.24Q30.44 66.69 31.32 67.57Q32.20 68.45 33.58 68.98L34.93 69.49Q35.34 69.67 35.57 69.96Q35.81 70.24 35.81 70.68Q35.81 71.28 35.40 71.64Q34.99 72.00 34.14 72.00L23.80 72.00Q22.96 72.00 22.55 71.65Q22.14 71.31 22.14 70.71Q22.14 70.11 22.48 69.82Q22.83 69.52 23.36 69.27L24.43 68.92Q25.66 68.45 26.48 67.58Q27.29 66.72 27.45 65.21L29.87 35.17Q30.03 33.28 29.70 32.32Q29.37 31.36 28.36 31.08L26.76 30.70Q26.16 30.51 25.85 30.18Q25.53 29.85 25.53 29.29Q25.53 28.00 27.26 28.00L38.54 28.00Q39.74 28.00 40.51 28.52Q41.28 29.04 41.88 30.58Z';
 ---
 
 {mark ? (
@@ -35,26 +41,22 @@ const ringColor = '#28486B';    // Heritage Indigo — hoop ring + "made just fo
     aria-hidden="true"
     focusable="false"
   >
-    <circle cx="50" cy="50" r="44" fill="none" stroke={ringColor} stroke-width="1.5" stroke-dasharray="3 5" />
-    <line x1="50" y1="20" x2="50" y2="68" stroke={wordmarkColor} stroke-width="3.5" stroke-linecap="round" />
-    <ellipse cx="50" cy="24" rx="3.5" ry="6" fill="none" stroke={wordmarkColor} stroke-width="2.5" />
-    <path d="M30,40 Q50,28 70,40" fill="none" stroke={threadColor} stroke-width="3.5" stroke-linecap="round" />
+    <circle cx="50" cy="50" r="50" fill="#F4EEE3" />
+    <circle cx="50" cy="50" r="42.5" fill="none" stroke={indigo} stroke-width="6" />
+    <circle cx="50" cy="50" r="31.5" fill="none" stroke={indigo} stroke-width="4" />
+    <path d={frauncesM} fill={claret} transform="translate(50 50) scale(0.7) translate(-50 -50)" />
   </svg>
 ) : (
   <svg
-    viewBox="0 0 420 140"
+    viewBox="0 0 348 80"
     class={className}
     aria-hidden="true"
     focusable="false"
   >
-    <text x="0" y="52" font-family="'Fraunces Variable', serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MAS</text>
-    <text x="0" y="90" font-family="'Fraunces Variable', serif" font-weight="700" font-size="42" fill={wordmarkColor} letter-spacing="-0.5">MONOGRAMS</text>
-    <text x="2" y="114" font-family="'Mulish Variable', sans-serif" font-weight="600" font-size="13" letter-spacing="3" fill={ringColor}>MADE JUST FOR YOU</text>
-
-    <g transform="translate(330,0)">
-      <line x1="32" y1="6" x2="32" y2="100" stroke={wordmarkColor} stroke-width="4" stroke-linecap="round" />
-      <ellipse cx="32" cy="14" rx="5" ry="9" fill="none" stroke={wordmarkColor} stroke-width="3" />
-      <path d="M2,46 Q32,30 62,46" fill="none" stroke={threadColor} stroke-width="4.5" stroke-linecap="round" />
-    </g>
+    {/* The script face is loaded globally via @fontsource in globals.css; until it
+        arrives the M falls back to the system cursive for one paint. */}
+    <text x="44" y="55" text-anchor="middle" font-family="'Petemoss', cursive" font-size="70" fill={claret}>M</text>
+    <text x="96" y="49" font-family="'Fraunces Variable', Fraunces, serif" font-weight="600" font-size="24" letter-spacing="1.2" fill={wordmarkColor}>MAS MONOGRAMS</text>
+    <path d="M 62 63 C 108 71, 158 57, 212 61 C 264 65, 308 58, 336 61" fill="none" stroke={claret} stroke-width="2.6" stroke-linecap="round" />
   </svg>
 )}

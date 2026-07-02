@@ -1,0 +1,20 @@
+{
+  "name": "MAS Monograms",
+  "short_name": "MAS",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#F4EEE3",
+  "theme_color": "#F4EEE3",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

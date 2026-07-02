@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200">
+  <defs>
+    <path id="badgeArcTop" d="M 50 104 A 70 70 0 0 1 190 104"/>
+    <path id="badgeArcBottom" d="M 44 104 A 76 76 0 0 0 196 104"/>
+  </defs>
+  <rect x="110" y="9" width="20" height="7" rx="2.5" fill="#28486B"/>
+  <rect x="115" y="4" width="10" height="5" rx="2" fill="#28486B"/>
+  <circle cx="120" cy="104" r="88" fill="none" stroke="#28486B" stroke-width="3.5"/>
+  <circle cx="120" cy="104" r="58" fill="none" stroke="#28486B" stroke-width="1.5"/>
+  <text font-family="Fraunces, 'Fraunces Variable', serif" font-weight="600" font-size="13.5" letter-spacing="3" fill="#26312E"><textPath href="#badgeArcTop" startOffset="50%" text-anchor="middle">MAS MONOGRAMS</textPath></text>
+  <text font-family="Mulish, 'Mulish Variable', sans-serif" font-weight="600" font-size="9.5" letter-spacing="2.5" fill="#28486B"><textPath href="#badgeArcBottom" startOffset="50%" text-anchor="middle">ST. MATTHEWS, SC</textPath></text>
+  <circle cx="47" cy="104" r="2.2" fill="#28486B"/>
+  <circle cx="193" cy="104" r="2.2" fill="#28486B"/>
+  <text x="120" y="133" text-anchor="middle" font-family="Fraunces, 'Fraunces Variable', serif" font-weight="700" font-size="82" fill="#8C3A2E">M</text>
+</svg>

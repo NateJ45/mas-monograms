@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="#F4EEE3"/>
+  <circle cx="50" cy="50" r="42.5" fill="none" stroke="#28486B" stroke-width="6"/>
+  <circle cx="50" cy="50" r="31.5" fill="none" stroke="#28486B" stroke-width="4"/>
+  <text x="50" y="65" text-anchor="middle" font-family="Fraunces, 'Fraunces Variable', serif" font-weight="700" font-size="44" fill="#8C3A2E">M</text>
+</svg>
