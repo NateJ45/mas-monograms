@@ -696,13 +696,3 @@ export function getFeaturedGalleryItems(limit = 9): Promise<any[]> {
 export function getActiveAnnouncement(): Promise<null> {
   return Promise.resolve(null);
 }
-
-// ─── Re-export CoreProjectCard stub so Footer.astro import doesn't break ────
-// Footer.astro currently imports getAllProjects from here. MAS doesn't have
-// projects, so return empty array. Footer will be rewritten to not need this.
-
-export type CoreProjectCard = { title?: string; slug?: { current?: string } };
-
-export function getAllProjects(): Promise<CoreProjectCard[]> {
-  return Promise.resolve([]);
-}
