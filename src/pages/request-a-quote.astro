@@ -264,10 +264,17 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
           {/* Do you own the item? */}
           <div class="form-field">
-            <p class="form-label">
+            <p id="ownership-label" class="form-label">
               {L.ownershipLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
             </p>
-            <div class="flex flex-col gap-s mt-xs" role="radiogroup" aria-describedby="ownership-error">
+            <div
+              id="ownership"
+              class="flex flex-col gap-s mt-xs"
+              role="radiogroup"
+              aria-labelledby="ownership-label"
+              aria-required="true"
+              aria-describedby="ownership-error"
+            >
               {ownershipOptions.map((opt: string) => (
                 <label class="flex items-center gap-s text-sm cursor-pointer">
                   <input type="radio" name="ownership" value={opt} class="accent-primary" data-required-radio />
@@ -505,7 +512,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
             {L.attachmentsHeading}
           </legend>
           <div class="form-field">
-            <div id="drop-zone" class="relative border-2 border-dashed border-border rounded-xl p-l text-center cursor-pointer hover:border-primary/40 transition-colors">
+            <div id="drop-zone" class="relative border-2 border-dashed border-[#847a63] rounded-xl p-l text-center cursor-pointer hover:border-primary/40 transition-colors">
               <input
                 id="attachments" name="attachments" type="file"
                 accept=".jpg,.jpeg,.png,.webp" multiple
@@ -759,14 +766,13 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       }
     });
 
-    // Ownership radio group — required, no single element carries the id.
+    // Ownership radio group — required. The radiogroup <div> now carries
+    // id="ownership", so setFieldError toggles both the error message and
+    // aria-invalid on the group itself (mirroring single-input fields).
     const ownershipChecked = !!(form.querySelector(
       'input[name="ownership"]:checked',
     ) as HTMLInputElement | null);
-    const ownershipErrEl = document.querySelector(
-      '[data-error-for="ownership"]',
-    ) as HTMLElement | null;
-    ownershipErrEl?.classList.toggle('hidden', ownershipChecked);
+    setFieldError('ownership', !ownershipChecked);
     if (!ownershipChecked) {
       valid = false;
       if (!firstInvalidId) firstInvalidId = 'ownership';
@@ -833,8 +839,15 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     @apply block text-xs uppercase tracking-eyebrow font-semibold text-[var(--color-text-secondary)] mb-xs;
   }
   .form-input {
-    @apply block w-full rounded-md border border-border bg-background px-m py-s text-sm text-foreground
-           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors;
+    /* Interactive controls need a resting border that clears WCAG 1.4.11 (3:1)
+       against the Linen page bg, since the border is the only affordance. The
+       global --border token (#B7AD99, 1.92:1) is for decorative hairlines and
+       is intentionally left alone; here we override to #847a63 (3.68:1 on
+       #F4EEE3). Focus ring carries its own indicator: a full-Indigo ring
+       detached by a 2px offset (8.16:1), not a faint /30 tint. */
+    @apply block w-full rounded-md border border-[#847a63] bg-background px-m py-s text-sm text-foreground
+           focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2
+           focus:ring-offset-[var(--background)] focus:border-primary transition-colors;
   }
   textarea.form-input { resize: vertical; }
   .form-help  { @apply text-xs text-[var(--color-text-secondary)] mt-xs; }
