@@ -20,31 +20,6 @@ interface Props {
   threadColors: ThreadOption[];
 }
 
-// Heirloom Ink — legibility fallback when the chosen thread is near-white.
-const HEIRLOOM_INK = '#26312E';
-
-/**
- * WCAG relative luminance (0 = black, 1 = white) for a #rrggbb hex.
- * Used to detect pale threads (e.g. "Bright White") that would vanish
- * against the Paper ground; those fall back to Heirloom Ink.
- */
-function relativeLuminance(hex: string): number {
-  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
-  if (!m) return 0;
-  const int = parseInt(m[1], 16);
-  const channel = (c: number) => {
-    const s = c / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  };
-  const r = channel((int >> 16) & 0xff);
-  const g = channel((int >> 8) & 0xff);
-  const b = channel(int & 0xff);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-}
-
-// Threads brighter than this against Paper are re-inked so they stay legible.
-const PALE_THREAD_LUMINANCE = 0.7;
-
 function PickerRow<T>({
   label,
   options,
@@ -129,12 +104,6 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
   const font = fonts[fontIndex];
   const thread = threadColors[threadIndex];
 
-  // Recolor the drawn initials to the selected thread — but if the thread is
-  // near-white it would disappear on the Paper ground, so ink it instead.
-  const threadHex = thread?.hex ?? HEIRLOOM_INK;
-  const threadIsPale = relativeLuminance(threadHex) > PALE_THREAD_LUMINANCE;
-  const monogramColor = threadIsPale ? HEIRLOOM_INK : threadHex;
-
   const displayInitials = initials.trim().length > 0 ? initials : 'ABC';
 
   // Deep link carrying the picked combination into the quote form.
@@ -217,49 +186,52 @@ export default function ComboPreview({ categories, fonts, threadColors }: Props)
         </div>
       </div>
 
-      <div className="rounded-xl bg-background border border-border p-l flex flex-col items-center text-center gap-m">
-        {/* Live monogram — the aspirational preview. Initials drawn in the
-            Petemoss monogram utility, recolored inline to the thread hex (or
-            inked when the thread is near-white), on a Paper ground inside the
-            hoop-ring (brass p-1) frame. */}
-        <div className="p-1 bg-secondary rounded-xl w-full max-w-xs">
-          <div className="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-[#FBF8F1] aspect-[4/3] flex items-center justify-center px-m">
-            <span
-              className="font-monogram leading-none text-[clamp(3.5rem,14vw,6rem)] break-words"
-              style={{
-                color: monogramColor,
-                textShadow: threadIsPale ? '0 0 1px rgba(0,0,0,0.15)' : undefined,
-              }}
-              aria-label={`Monogram preview of the initials ${displayInitials}`}
-            >
-              {displayInitials}
-            </span>
-          </div>
-        </div>
-
-        {/* The real specimen photo — the truth beneath the drawn preview. */}
+      {/* Block flow + text-center + mx-auto to center the stacked children.
+          NB: use max-w-[18rem], NOT max-w-xs — this project maps the `xs` scale
+          key to --spacing-xs (~0.4rem), so `max-w-xs` would clamp these to ~6px. */}
+      <div className="rounded-xl bg-background border border-border p-l text-center space-y-m">
+        {/* The real font specimen — the ACTUAL letterforms of the selected
+            embroidery font (not a webfont stand-in), shown on a Paper ground
+            inside the hoop-ring (brass p-1) frame. This is the honest preview:
+            it changes whenever the Font picker changes. */}
         {font && (
-          <div className="flex flex-col items-center gap-xs">
-            <div className="p-1 bg-secondary rounded-lg">
-              <div className="overflow-hidden rounded-[calc(var(--radius-lg,0.5rem)-0.25rem)]">
-                <img
-                  src={font.previewUrl}
-                  alt={font.alt}
-                  width={112}
-                  height={112}
-                  className="w-28 h-28 object-cover"
-                />
-              </div>
+          <div className="mx-auto w-full max-w-[18rem] p-1 bg-secondary rounded-xl">
+            <div className="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-[#FBF8F1] aspect-[4/3] p-m">
+              <img
+                src={font.previewUrl}
+                alt={font.alt}
+                className="w-full h-full object-contain"
+              />
             </div>
-            <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
-              your font, stitched
-            </p>
           </div>
         )}
-
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          {category?.name} · {font?.name} · {thread?.name}
+        <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
+          The {font?.name} alphabet
         </p>
+
+        {/* Your selections, spelled out — every row mirrors a picker so the card
+            always reflects the current Item / Thread / Initials choices. */}
+        <dl className="mx-auto w-full max-w-[18rem] text-sm">
+          <div className="flex items-center justify-between gap-m py-s border-b border-border">
+            <dt className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Item</dt>
+            <dd className="font-medium text-foreground">{category?.name}</dd>
+          </div>
+          <div className="flex items-center justify-between gap-m py-s border-b border-border">
+            <dt className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Thread</dt>
+            <dd className="flex items-center gap-xs font-medium text-foreground">
+              <span
+                className="inline-block w-4 h-4 rounded-full border border-border"
+                style={{ backgroundColor: thread?.hex }}
+                aria-hidden="true"
+              />
+              {thread?.name}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-m py-s">
+            <dt className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">Initials</dt>
+            <dd className="font-display text-lg tracking-widest text-foreground">{displayInitials}</dd>
+          </div>
+        </dl>
 
         <a
           href={quoteHref}

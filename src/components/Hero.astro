@@ -1,17 +1,22 @@
 ---
 // Safe to edit by hand
-// Page hero. Two shapes:
-//   1) "image" hero (Home, item category pages) — full-bleed Sanity background
-//      image with a dark scrim (rendered by HeroBackground.astro), h1 + subhead
-//      + CTAs overlay.
-//   2) "text" hero (used when no backgroundImage/backgroundImages is passed) —
-//      clean editorial heading on Parchment with eyebrow + headline + subhead,
-//      via SectionHeading.
+// Page hero. Three shapes:
+//   1) "bleed" image hero (default; item category pages) — full-bleed Sanity
+//      background image with a dark scrim (HeroBackground.astro), h1 + subhead
+//      + CTAs overlaid.
+//   2) "split" image hero (layout="split"; Home) — a contained two-column band
+//      on Linen: text + CTAs on one side, ONE photo in a hoop-ring frame at a
+//      bounded portrait size on the other, so the image is never upscaled past
+//      its source resolution (the reason a full-bleed hero looked soft with the
+//      studio's portrait phone photos).
+//   3) "text" hero (no backgroundImage/backgroundImages passed) — clean
+//      editorial heading on Parchment with eyebrow + headline + subhead.
 //
-// The image hero is the LCP element on the homepage. SanityImage is set to
-// loading="eager" in that case. Don't add layout-shift animations to this section.
+// The image is the LCP element on the homepage, so it loads eager/high-priority
+// in both image shapes. Don't add layout-shift animations to this section.
 
 import HeroBackground from '@/components/HeroBackground.astro';
+import SanityImage from '@/components/SanityImage.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import { ChevronDown } from 'lucide-react';
@@ -49,8 +54,11 @@ interface Props {
   primaryCta?: CtaBlock | null;
   secondaryCta?: CtaBlock | null;
   headingId: string;
-  /** "tall" = fills the viewport below the header on first load (homepage), "short" = generous but not full screen (interior pages). */
+  /** "tall" = fills the viewport below the header on first load (homepage), "short" = generous but not full screen (interior pages). Ignored by layout="split". */
   size?: 'tall' | 'short';
+  /** "bleed" (default) = full-bleed image + dark scrim. "split" = contained
+   *  two-column band with the photo in a bounded hoop-frame (no upscaling). */
+  layout?: 'bleed' | 'split';
 }
 
 const {
@@ -64,6 +72,7 @@ const {
   secondaryCta,
   headingId,
   size = 'short',
+  layout = 'bleed',
 } = Astro.props as Props;
 
 // Subhead emphasis: parse markdown-style _word_ markers into <em> spans so
@@ -113,7 +122,7 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
     wire the scroll cue to glide past the hero. Runs synchronously so the
     height is set before first paint (no layout shift), then refreshes on
     load, resize, and View Transitions navigations. */}
-{size === 'tall' && (
+{size === 'tall' && layout === 'bleed' && (
   <script is:inline>
     (function () {
       function setHeaderH() {
@@ -150,7 +159,59 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
   </script>
 )}
 
-{hasImage ? (
+{hasImage && layout === 'split' ? (
+  <section class="bg-background" aria-labelledby={headingId}>
+    <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
+      {/* Text column. hero-entry-stagger fades each child up on load (see the
+          bleed branch below for the full note); reduced-motion users get the
+          final composition instantly. */}
+      <div class="hero-entry-stagger max-w-xl">
+        {eyebrow && (
+          <p class="text-xs uppercase tracking-eyebrow text-link">{eyebrow}</p>
+        )}
+        {eyebrow && (
+          <div class="mt-xs mb-m h-px w-12 bg-[#B98A3E]/60" aria-hidden="true"></div>
+        )}
+        <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-foreground">
+          {headline}{headlineItalicSuffix && <>{' '}<em class="italic">{headlineItalicSuffix}</em></>}
+        </h1>
+        {subhead && (
+          <p class="mt-m max-w-xl text-lg text-[var(--color-text-secondary)]">
+            {subheadParts.map((part) =>
+              part.type === 'em'
+                ? <em class="italic font-display text-foreground">{part.value}</em>
+                : part.value
+            )}
+          </p>
+        )}
+        {(primaryCta || secondaryCta) && (
+          <div class="mt-l flex flex-wrap gap-s">
+            {primaryCta && <CtaLink cta={primaryCta} variant="primary" />}
+            {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" />}
+          </div>
+        )}
+      </div>
+
+      {/* Photo column: one real piece in the hoop-ring frame (brass p-1), held
+          to a bounded portrait aspect and displayed at ~half width, so the
+          studio's portrait phone photos are downscaled (sharp) rather than
+          stretched full-bleed (soft). First image only; eager LCP. */}
+      <div class="p-1 bg-secondary rounded-xl" data-reveal>
+        <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] aspect-[4/5]">
+          <SanityImage
+            source={effectiveImages[0]}
+            width={900}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            loading="eager"
+            fetchpriority="high"
+            quality={80}
+            class="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+) : hasImage ? (
   <section
     class:list={[
       'relative overflow-hidden bg-accent-dark text-bg flex flex-col justify-end',

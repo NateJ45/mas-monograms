@@ -49,7 +49,9 @@ const comboFonts = (allFonts ?? [])
   .slice(0, 6)
   .map((f: any) => ({
     name: f.name,
-    previewUrl: urlFor(f.previewImage).width(240).auto('format').url(),
+    // 600px covers the enlarged specimen in the preview card; the 28px picker
+    // thumbnails just downscale from the same URL.
+    previewUrl: urlFor(f.previewImage).width(600).auto('format').url(),
     alt: f.previewImage.alt ?? f.name,
   }));
 // One color per family for visual variety, in a fixed, real, verified order
@@ -91,7 +93,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
     primaryCta={page?.heroPrimaryCtaLabel ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' } : null}
     secondaryCta={page?.heroSecondaryCtaLabel ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/how-it-works' } : null}
     headingId="hero-heading"
-    size="tall"
+    layout="split"
   />
 
   {/* ── Trust Bar ─────────────────────────────────────────────────────────── */}
