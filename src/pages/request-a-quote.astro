@@ -161,7 +161,7 @@ const L = {
   requiredFieldNote:     page?.requiredFieldNote        ?? 'Fields marked * are required.',
 };
 
-const turnstileSiteKey = import.meta.env.TURNSTILE_SITE_KEY ?? '';
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
