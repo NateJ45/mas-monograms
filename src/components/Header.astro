@@ -75,6 +75,9 @@ function normaliseSanityNav(
   if (!items?.length) return FALLBACK_NAV;
   return items
     .filter((item) => item.label)
+    // Drop a redundant top-level "Home" link — the logo already links home, and
+    // it was crowding the wordmark. (Sub-links inside groups are untouched.)
+    .filter((item) => !(item._type !== 'navGroup' && (item.href === '/' || item.label?.trim().toLowerCase() === 'home')))
     .map((item) => {
       if (item._type === 'navGroup' && Array.isArray(item.links) && item.links.length > 0) {
         return {
@@ -115,7 +118,7 @@ const mobileNavSettings = siteSettings
 
   {/* Eyebrow strip — desktop only */}
   <div class="hidden lg:block bg-muted border-b border-border-soft">
-    <div class="mx-auto flex max-w-content items-center justify-between px-l py-2">
+    <div class="mx-auto flex max-w-content items-center justify-between px-m py-2">
       <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">
         {siteSettings?.tagline ?? site.name}
       </p>
@@ -161,19 +164,21 @@ const mobileNavSettings = siteSettings
     </div>
   </div>
 
-  {/* Main nav row */}
-  <div class="relative mx-auto flex max-w-content items-center justify-center lg:justify-between px-l py-m border-b border-border">
-    <a
-      href="/"
-      class="inline-flex items-center hover:opacity-80 transition-opacity"
-      aria-label={`${brandName} home`}
-    >
-      <Logo variant="ink" class="h-12 w-auto" />
-    </a>
+  {/* Main nav row. The bottom border lives on the inner flex (content width),
+      not the full-bleed wrapper, so the rule aligns with the logo/CTA edges. */}
+  <div class="mx-auto max-w-content px-m">
+    <div class="relative flex items-center justify-center lg:justify-between py-m border-b border-border">
+      <a
+        href="/"
+        class="inline-flex items-center hover:opacity-80 transition-opacity"
+        aria-label={`${brandName} home`}
+      >
+        <Logo variant="ink" class="h-12 w-auto" />
+      </a>
 
-    {/* Desktop nav + CTA */}
-    <div class="hidden lg:flex items-center gap-l">
-      <nav class="site-nav flex items-center gap-l" aria-label="Primary">
+      {/* Desktop nav + CTA */}
+      <div class="hidden lg:flex items-center gap-l">
+        <nav class="site-nav flex items-center gap-m" aria-label="Primary">
         {NAV_ITEMS.map((item) =>
           item.kind === 'flat' ? (
             <a
@@ -236,18 +241,19 @@ const mobileNavSettings = siteSettings
             ? 'bg-[var(--color-rust-cta-hover,#722C22)]'
             : 'bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)]',
         ]}
-      >
-        {ctaLabel}
-      </a>
-    </div>
+        >
+          {ctaLabel}
+        </a>
+      </div>
 
-    <MobileNav
-      client:only="react"
-      links={NAV_ITEMS}
-      siteSettings={mobileNavSettings}
-      ctaLabel={ctaLabel}
-      ctaHref="/request-a-quote"
-    />
+      <MobileNav
+        client:only="react"
+        links={NAV_ITEMS}
+        siteSettings={mobileNavSettings}
+        ctaLabel={ctaLabel}
+        ctaHref="/request-a-quote"
+      />
+    </div>
   </div>
 </header>
 
