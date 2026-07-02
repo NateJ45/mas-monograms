@@ -61,7 +61,8 @@ const frauncesM =
       <tspan x="6" font-family="'Petemoss', cursive" font-size="62" fill={claret}>Mas</tspan>
       <tspan dx="14" dy="-4" font-family="'Fraunces Variable', Fraunces, serif" font-weight="600" font-size="27" letter-spacing="1" fill={wordmarkColor}>MONOGRAMS</tspan>
     </text>
-    {/* A single smooth cubic — the thread-swash under "Mas", tapering off beneath MONOGRAMS. */}
-    <path d="M 10 62 C 70 70, 150 70, 210 66" fill="none" stroke={claret} stroke-width="2.4" stroke-linecap="round" />
+    {/* A single smooth cubic — the thread-swash running the full width, from under
+        "Mas" out to the end of "MONOGRAMS". */}
+    <path d="M 8 62 C 90 71, 208 71, 296 63" fill="none" stroke={claret} stroke-width="2.4" stroke-linecap="round" />
   </svg>
 )}

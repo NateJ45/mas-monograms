@@ -14,18 +14,16 @@ import {
   getHomePage,
   getAllItemCategories,
   getPopularCombinations,
-  getTestimonials,
   getFeaturedGalleryItems,
   getAllFonts,
   getAllThreadColors,
 } from '@/lib/queries';
 
-const [siteSettings, page, categories, combos, testimonials, galleryItems, allFonts, allThreadColors] = await Promise.all([
+const [siteSettings, page, categories, combos, galleryItems, allFonts, allThreadColors] = await Promise.all([
   getSiteSettings(),
   getHomePage(),
   getAllItemCategories(),
   getPopularCombinations(),
-  getTestimonials(true),
   getFeaturedGalleryItems(9),
   getAllFonts(),
   getAllThreadColors(),
@@ -312,32 +310,8 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
     </section>
   )}
 
-  {/* ── Testimonials ──────────────────────────────────────────────────────── */}
-  {testimonials.length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l" data-reveal>
-          {page?.testimonialsEyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.testimonialsEyebrow}</p>
-          )}
-          <h2 class="font-display text-h2 text-foreground">{page?.testimonialsHeadline ?? 'What Customers Say'}</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
-          {testimonials.slice(0, 6).map((t: any) => (
-            <figure class="bg-background rounded-xl border border-border p-l flex flex-col gap-m">
-              <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
-                "{t.quote}"
-              </blockquote>
-              <figcaption class="text-sm text-[var(--color-text-secondary)]">
-                <span class="font-semibold text-foreground">{t.attribution}</span>
-                {t.itemOrdered && <span class="block text-xs mt-xs">{t.itemOrdered}</span>}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
+  {/* Testimonials section removed 2026-07-02 — Mary Ann has no real reviews to
+      publish yet, and we don't invent them. Re-add when genuine ones exist. */}
 
   {/* ── Gallery Preview ───────────────────────────────────────────────────── */}
   {galleryItems.length > 0 && (

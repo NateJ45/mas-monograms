@@ -94,14 +94,11 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
         <p class="text-center text-[var(--color-text-secondary)] py-l">Thread color chart coming soon.</p>
       )}
 
+      {/* One custom-color note only. `customColorNote` intentionally not rendered —
+          it duplicated `matchingNote`; keep the more detailed `matchingNote`. */}
       {page?.matchingNote && (
-        <div class="mt-l bg-tertiary rounded-xl p-l" data-reveal>
+        <div class="mt-l bg-tertiary rounded-xl p-l border border-[var(--color-secondary,#B98A3E)]/20" data-reveal>
           <p class="text-[var(--color-text-secondary)]">{page.matchingNote}</p>
-        </div>
-      )}
-      {page?.customColorNote && (
-        <div class="mt-m bg-tertiary rounded-xl p-l border border-[var(--color-secondary,#B98A3E)]/20" data-reveal>
-          <p class="text-[var(--color-text-secondary)]">{page.customColorNote}</p>
         </div>
       )}
     </div>
