@@ -100,24 +100,40 @@ const effectiveImages = heroImageList.length > 0
   : (backgroundImage?.asset ? [backgroundImage] : []);
 const hasImage = effectiveImages.length > 0;
 
-// Split hero collage: up to 6 photos spread across FOUR overlapping, slightly
-// tilted rectangular frames, each starting on a different image so several real
-// pieces are visible at once. Positions/aspects/tilts are hand-tuned for a
-// scattered "pinned photos" arrangement; a faint embroidery-hoop ring sits
-// behind them (rendered in the markup below).
-const triImages = effectiveImages.slice(0, 6);
-const triLen = Math.max(1, triImages.length);
-const triStep = Math.max(1, Math.floor(triImages.length / 4));
-// Positions are inline styles (not Tailwind classes) so the dynamic percentage
-// values always ship — Tailwind's scanner won't pick up class names built in JS.
+// Split hero collage: up to 8 photos across FOUR overlapping, slightly tilted
+// rectangular frames arranged as scattered "pinned photos", over a faint
+// embroidery hoop (rendered below). Photos are de-duplicated by asset, then
+// split into 4 disjoint, contiguous buckets — ONE PER FRAME — so no two
+// viewports ever show the same picture at the same time. Each frame cross-fades
+// only within its own bucket. Near-duplicate shots sit next to each other in
+// the gallery order, so contiguous buckets keep them within a single frame.
+const TRI_FRAMES = 4;
+const seenAsset = new Set<string>();
+const uniqueImages = effectiveImages.filter((img: any) => {
+  const ref = img?.asset?._ref || img?.asset?._id;
+  if (!ref || seenAsset.has(ref)) return false;
+  seenAsset.add(ref);
+  return true;
+});
+const triImages = uniqueImages.slice(0, 8);
+const triBase = Math.floor(triImages.length / TRI_FRAMES);
+const triRem = triImages.length % TRI_FRAMES;
+// Remainder is front-loaded so every bucket is non-empty whenever there are at
+// least TRI_FRAMES photos (the render is gated on triImages.length >= 4).
+const triBuckets: any[][] = Array.from({ length: TRI_FRAMES }, (_, f) => {
+  const start = f * triBase + Math.min(f, triRem);
+  const size = triBase + (f < triRem ? 1 : 0);
+  return triImages.slice(start, start + size);
+});
+// Positions are inline styles (Tailwind won't scan class names built in JS).
 // Tilt lives in the --rot custom property (not `transform`) so the idle-float
-// keyframes in globals.css can re-apply each frame's rotation while animating.
+// keyframes in globals.css re-apply each frame's rotation while animating;
 // --fdur / --fdelay stagger the float so the four frames never bob in unison.
 const triFrames = [
-  { style: 'top:0; left:0; width:56%; z-index:10; --rot:-2deg; --fdur:7s; --fdelay:-0.5s;',    aspect: 'aspect-[4/3]', offset: 0 },
-  { style: 'top:24%; right:0; width:46%; z-index:30; --rot:2.5deg; --fdur:8.5s; --fdelay:-3s;',  aspect: 'aspect-[3/4]', offset: triStep % triLen },
-  { style: 'bottom:0; left:14%; width:52%; z-index:20; --rot:-1.5deg; --fdur:9s; --fdelay:-5s;', aspect: 'aspect-[4/3]', offset: (triStep * 2) % triLen },
-  { style: 'top:37%; left:0; width:38%; z-index:25; --rot:3deg; --fdur:7.5s; --fdelay:-1.5s;',   aspect: 'aspect-[1/1]', offset: (triStep * 3) % triLen },
+  { style: 'top:0; left:0; width:56%; z-index:10; --rot:-2deg; --fdur:7s; --fdelay:-0.5s;',    aspect: 'aspect-[4/3]' },
+  { style: 'top:24%; right:0; width:46%; z-index:30; --rot:2.5deg; --fdur:8.5s; --fdelay:-3s;',  aspect: 'aspect-[3/4]' },
+  { style: 'bottom:0; left:14%; width:52%; z-index:20; --rot:-1.5deg; --fdur:9s; --fdelay:-5s;', aspect: 'aspect-[4/3]' },
+  { style: 'top:37%; left:0; width:38%; z-index:25; --rot:3deg; --fdur:7.5s; --fdelay:-1.5s;',   aspect: 'aspect-[1/1]' },
 ];
 
 // "tall" (homepage) fills the screen below the sticky header on first load.
@@ -213,12 +229,12 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
       </div>
 
       {/* Photo column: four overlapping, slightly tilted rectangular viewports,
-          each a fast Ken Burns cross-fade cycling its own gallery photos
-          (staggered offsets so several different pieces show at once), over a
-          faint embroidery-hoop ring. Falls back to a single framed image when
-          there are fewer than 3 photos. Only the largest frame's first photo is
-          the eager LCP. */}
-      {triImages.length >= 3 ? (
+          each a fast Ken Burns cross-fade cycling its OWN disjoint bucket of
+          gallery photos (so no two frames ever show the same picture), over a
+          faint embroidery hoop. Falls back to a single framed image when there
+          are fewer than 4 photos. Only the first frame's first photo is the
+          eager LCP. */}
+      {triImages.length >= 4 ? (
         <div class="relative w-full aspect-[5/6]" data-reveal>
           {/* Decorative embroidery hoop behind the collage — double brass ring
               with the tightening screw at the top, echoing the gallery's
@@ -233,16 +249,16 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
           {triFrames.map((fr, fi) => (
             <div class="hero-tri-frame absolute p-[7px] bg-secondary rounded-xl shadow-lg" style={fr.style}>
               <div class:list={['relative overflow-hidden rounded-[calc(var(--radius-xl)-7px)]', fr.aspect]} data-hero-tri>
-                {triImages.map((img, i) => (
+                {triBuckets[fi].map((img: any, i: number) => (
                   <SanityImage
                     source={img}
                     width={640}
                     sizes="(max-width: 1024px) 45vw, 30vw"
-                    loading={fi === 0 && i === fr.offset ? 'eager' : 'lazy'}
-                    fetchpriority={fi === 0 && i === fr.offset ? 'high' : 'low'}
+                    loading={fi === 0 && i === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={fi === 0 && i === 0 ? 'high' : 'low'}
                     quality={78}
-                    alt={fi === 0 && i === fr.offset ? undefined : ''}
-                    class={`hero-tri-slide${i === fr.offset ? ' is-active' : ''}`}
+                    alt={fi === 0 && i === 0 ? undefined : ''}
+                    class={`hero-tri-slide${i === 0 ? ' is-active' : ''}`}
                   />
                 ))}
               </div>
@@ -291,7 +307,7 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
     {/* Round-robin cross-fade cycler for the three viewports: every ~2s one
         frame advances to its next photo, so something changes often without all
         three flipping at once. Reduced-motion users get static first frames. */}
-    {triImages.length >= 3 && (
+    {triImages.length >= 4 && (
       <script is:inline>
         (function () {
           function initHeroTri() {

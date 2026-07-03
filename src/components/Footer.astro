@@ -198,18 +198,23 @@ function socialIcon(platform: string | undefined) {
     )}
   </div>
 
-  {/* Bottom bar */}
+  {/* Bottom bar. On sm+ this is a 3-column grid so the legal links sit at the
+      TRUE horizontal centre of the bar (a flex justify-between would centre them
+      only within the leftover space, pushing them off-centre when the left and
+      right items differ in width). Stacks centred on mobile. */}
   <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-m flex flex-col sm:flex-row items-center justify-center sm:justify-between gap-s text-xs text-[var(--color-text-secondary)] text-center">
-      <p>© {currentYear} {brandName}</p>
-      {legal.length > 0 && (
-        <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs">
+    <div class="mx-auto max-w-content px-m py-m flex flex-col items-center gap-s text-center text-xs text-[var(--color-text-secondary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m">
+      <p class="sm:justify-self-start">© {currentYear} {brandName}</p>
+      {legal.length > 0 ? (
+        <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center">
           {legal.map((lp) => (
             <a href={`/legal/${lp.slug}`} class="hover:text-link transition-colors">{lp.title}</a>
           ))}
         </nav>
+      ) : (
+        <span class="hidden sm:block" aria-hidden="true"></span>
       )}
-      <div class="flex items-center gap-m">
+      <div class="flex items-center gap-m sm:justify-self-end">
         {siteCredit && (
           siteCreditUrl ? (
             <a
