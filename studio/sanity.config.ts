@@ -15,32 +15,35 @@ import StudioLogo from './components/StudioLogo';
 import { CharacterCountInput } from './components/CharacterCountInput';
 import { documentBadges } from './components/documentBadges';
 
-// MAS Monograms studio theme — Sage Dark primary, Ink + Cream neutrals.
+// MAS Monograms studio theme — "Heirloom Coast" (matches the live site, 2026-07-03).
+// Linen/Paper surfaces, Heirloom Ink text, Heritage Indigo primary + navbar
+// (echoes the site header), Claret for the Publish/primary action button (the
+// site's CTA color), Brass for warnings. Values mirror src/styles/globals.css.
 const studioThemeProps = {
-  '--black':   '#2c2c28',  // Ink
-  '--white':   '#faf8f4',  // Cream
-  '--gray-base': '#4a5e4c', // Sage Dark
+  '--black':   '#26312E',  // Heirloom Ink — darkest text
+  '--white':   '#FBF8F1',  // Paper — lightest surface
+  '--gray-base': '#5A5148', // Secondary Taupe — warm neutral ramp (grays lean warm, not cold)
 
-  '--brand-primary':           '#4a5e4c',
-  '--brand-primary--inverted': '#ffffff',
-  '--focus-color':             '#4a5e4c',
+  '--brand-primary':           '#28486B',  // Heritage Indigo — links, selections, highlights
+  '--brand-primary--inverted': '#FBF8F1',
+  '--focus-color':             '#28486B',  // Indigo focus rings
 
-  '--input-bg':             '#f0ede8',
-  '--component-bg':         '#f0ede8',
-  '--component-text-color': '#2c2c28',
+  '--input-bg':             '#FBF8F1',
+  '--component-bg':         '#F4EEE3',      // Linen — card / panel backgrounds
+  '--component-text-color': '#26312E',
 
-  '--default-button-color':         '#4a5e4c',
-  '--default-button-primary-color': '#4a5e4c',
-  '--default-button-success-color': '#43a85e',
-  '--default-button-warning-color': '#d99a3f',
-  '--default-button-danger-color':  '#e34141',
+  '--default-button-color':         '#5A5148',  // neutral buttons — warm taupe
+  '--default-button-primary-color': '#8C3A2E',  // Claret — the Publish / primary action (matches site CTA)
+  '--default-button-success-color': '#3F7A4B',
+  '--default-button-warning-color': '#B98A3E',  // Brass (decorative)
+  '--default-button-danger-color':  '#B3261E',
 
-  '--state-success-color': '#43a85e',
-  '--state-warning-color': '#d99a3f',
-  '--state-danger-color':  '#e34141',
+  '--state-success-color': '#3F7A4B',
+  '--state-warning-color': '#835A24',      // Brass text (AA-safe)
+  '--state-danger-color':  '#B3261E',
 
-  '--main-navigation-color':           '#2c2c28',
-  '--main-navigation-color--inverted': '#faf8f4',
+  '--main-navigation-color':           '#28486B',  // Indigo navbar — echoes the live site header band
+  '--main-navigation-color--inverted': '#FBF8F1',
 };
 
 const studioTheme = buildLegacyTheme(studioThemeProps);

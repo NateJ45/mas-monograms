@@ -153,9 +153,16 @@ Schema.org type comes from `siteSettings.businessType` field.
 
 ## Project notes
 - `npm run typegen` must be run after any schema changes to regenerate `sanity.types.ts`
-- Studio runs at localhost:3333 (`cd studio && npm run dev`); deploy it with `cd studio && npx sanity deploy`
+- Studio runs at localhost:3333 (`cd studio && npm run dev`); deploy it with `cd studio && npx sanity deploy`.
+  The Studio theme is **Heirloom Coast** (`buildLegacyTheme` in `studio/sanity.config.ts` — Linen/Ink/
+  Indigo/Claret, matches the site). The "Start Here" handbook (StudioGuide/BusinessOverview/BrandKit/
+  StudioPlaybook components) is what Mary Ann sees first — keep it current with the live site.
 - Astro dev runs at localhost:4321 (`npm run dev`)
 - Deploy: push to `main` → Cloudflare Workers Builds auto-builds & deploys. The site reads Sanity at
   build time, so Sanity vars must be set as **build** variables in the Cloudflare dashboard, not
   runtime (see `docs/08`). Local `wrangler deploy` is not the normal path.
 - Content was bulk-seeded via `node scripts/seed-content.mjs` (re-runnable, deterministic ids)
+- The "Start Here" studio guides (studioGuide/studioNotes/studioPlaybook singletons) are seeded via
+  `node scripts/seed-studio-guides.mjs` (idempotent createOrReplace). Do NOT run `scripts/seed-core.mjs`
+  — it is the leftover interior-design "Studio Starter" seed and would inject junk `service`/`journalEntry`
+  docs.
