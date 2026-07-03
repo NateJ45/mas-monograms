@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
@@ -38,7 +39,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
     >
       <div class:list={[!page?.heroImage?.asset && 'max-w-2xl mx-auto']}>
         {page?.heroEyebrow && (
-          <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+          <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
         )}
         <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
           {page?.heroHeadline ?? 'About MAS Monograms'}

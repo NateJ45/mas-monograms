@@ -1,0 +1,33 @@
+---
+// Safe to edit by hand
+// The one-script-kicker-per-page treatment (Direction C, 2026-07-03): a page
+// hero's eyebrow set in Petemoss at kicker size instead of tracked caps.
+// Rules (also in CLAUDE.md): exactly ONE per page — the opening hero only,
+// never section eyebrows — and never below the 2.75rem clamp floor (the thin
+// script stops being legible). Color is ground-dependent:
+//   - light grounds (Linen/Sage heroes) → Claret (~6.3:1 on Sage)
+//   - dark grounds (indigo drench, photo scrims) → Gold (--color-gold-script,
+//     which sits at ~1.6:1 on Linen and must NEVER appear on light grounds)
+// The -2deg tilt echoes the hero snapshots' pinned-photo tilt; text-balance
+// keeps two-line wraps (mobile) from stranding a one-word orphan.
+
+interface Props {
+  /** Kicker text (usually the page's Sanity heroEyebrow). Renders nothing when empty. */
+  text?: string | null;
+  /** True on dark surfaces (indigo drench, photo scrim) → gold instead of claret. */
+  onDark?: boolean;
+  class?: string;
+}
+
+const { text, onDark = false, class: extraClass = '' } = Astro.props as Props;
+---
+
+{text && (
+  <p
+    class:list={[
+      'font-monogram text-[clamp(2.75rem,2vw+2rem,3.25rem)] leading-[1.1] text-balance -rotate-2 inline-block',
+      onDark ? 'text-[var(--color-gold-script)]' : 'text-[var(--color-rust-decorative,#8C3A2E)]',
+      extraClass,
+    ]}
+  >{text}</p>
+)}

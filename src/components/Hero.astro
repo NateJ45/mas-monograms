@@ -19,6 +19,7 @@ import HeroBackground from '@/components/HeroBackground.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
+import ScriptKicker from '@/components/ScriptKicker.astro';
 import { ChevronDown } from 'lucide-react';
 
 interface CtaBlock {
@@ -208,12 +209,8 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
           final composition instantly. */}
       <div class="hero-entry-stagger max-w-xl">
         {/* Direction C script kicker: the ONE Petemoss moment this page gets
-            (rule: one script kicker per page, 44px+ so the thin script stays
-            legible — gold on indigo is 4.84:1, which is AA at this size).
-            Replaces the tracked-caps eyebrow + hairline pair. */}
-        {eyebrow && (
-          <p class="font-monogram text-[clamp(2.75rem,2vw+2rem,3.25rem)] leading-[1.1] text-balance text-[var(--color-gold-script)] -rotate-2 origin-bottom-left inline-block mb-s">{eyebrow}</p>
-        )}
+            (gold on indigo — see ScriptKicker.astro for the full rules). */}
+        <ScriptKicker text={eyebrow} onDark class="mb-s" />
         <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
           {headline}{headlineItalicSuffix && <>{' '}<em class="italic">{headlineItalicSuffix}</em></>}
         </h1>
@@ -362,20 +359,15 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
       {/*
         hero-entry-stagger triggers the global page-load fade-up animation
         defined in globals.css. Each direct child of this wrapper fades up
-        with a small per-child delay (eyebrow → hairline → h1 → subhead →
-        CTAs). Reduced-motion users get the final composition instantly.
+        with a small per-child delay (kicker → h1 → subhead → CTAs).
+        Reduced-motion users get the final composition instantly.
 
-        Cream hairline beneath the eyebrow mirrors the SectionHeading
-        inverse-tone treatment so heroes carry the same editorial signature
-        as every interior section heading.
+        The eyebrow is the page's ONE script kicker (gold — the scrim under it
+        is dark, so the on-dark rule applies; see ScriptKicker.astro). The old
+        cream hairline went with the tracked-caps treatment.
       */}
       <div class="hero-entry-stagger max-w-3xl">
-        {eyebrow && (
-          <p class="text-xs uppercase tracking-eyebrow text-bg/85">{eyebrow}</p>
-        )}
-        {eyebrow && (
-          <div class="mt-xs mb-m h-px w-12 bg-bg/40" aria-hidden="true"></div>
-        )}
+        <ScriptKicker text={eyebrow} onDark class="mb-s" />
         <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
           {headline}{headlineItalicSuffix && <>{' '}<em class="italic">{headlineItalicSuffix}</em></>}
         </h1>

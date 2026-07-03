@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
 import { getSiteSettings, getShopIndexPage, getAllItemCategories } from '@/lib/queries';
@@ -23,7 +24,7 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
   <section class="bg-tertiary py-section-md">
     <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
-        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
       )}
       <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-s">
         {page?.heroHeadline ?? 'Shop by Item'}

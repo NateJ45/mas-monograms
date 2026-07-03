@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import FaqAccordion from '@/components/FaqAccordion';
@@ -26,7 +27,7 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
-        <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
+        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
       )}
       <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
         {page?.heroHeadline ?? 'How It Works'}

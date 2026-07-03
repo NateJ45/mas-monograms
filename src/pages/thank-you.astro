@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import { getSiteSettings, getThankYouPage } from '@/lib/queries';
@@ -21,7 +22,7 @@ const description = page?.seoDescription ?? 'Your quote request has been receive
         {/* Text */}
         <div>
           {page?.eyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.eyebrow}</p>
+            <ScriptKicker text={page.eyebrow} class="mb-xs" />
           )}
           <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
             {page?.headline ?? 'Thank You!'}
