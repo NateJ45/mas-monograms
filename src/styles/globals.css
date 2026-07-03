@@ -6,7 +6,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/fraunces";
+/* Fraunces opsz builds (not the default wght-only): the optical-size axis is
+   what gives display sizes their high-contrast, elegant cut — the whole
+   Direction C type voice depends on it (font-optical-sizing: auto picks the
+   display grade at heading sizes). The italic file is the REAL italic cut;
+   before 2026-07-03 the em'd headline suffix was browser-synthesized oblique. */
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/fraunces/opsz-italic.css";
 @import "@fontsource-variable/mulish";
 @import "@fontsource/petemoss";
 
@@ -36,6 +42,27 @@
   --color-text-secondary: #5a5148; /* Secondary Taupe — secondary text, 6.72:1 on Linen */
   --color-text-tertiary:  #67614f; /* Tertiary — caption text, 5.35:1 on Linen */
   --color-brass-text:     #835a24; /* Brass Text — text-safe brass (pricing figures, meta), 5.27:1 on Linen */
+
+  /* Direction C ("The Sampler", 2026-07-03) — gold script accent. ONLY for the
+     large Petemoss kicker and decorative strokes ON INDIGO/DARK surfaces
+     (4.84:1 on Heritage Indigo — passes AA for the 44px+ kicker with room to
+     spare, and small text riding it stays borderline-legal but avoid that).
+     Never use on Linen/Paper (≈1.6:1). */
+  --color-gold-script: #d9b15f;
+
+  /* Form validation (Heirloom Coast reds). --color-error-text was previously
+     hardcoded as #b91c1c throughout request-a-quote; the VALUE is kept (5.35:1
+     on Linen — the shadcn --destructive oklch red is only ~4.0:1 and fails AA
+     for small text, which is why the form never used it). Surface/border are
+     linen-tinted washes for the submit-failure alert. */
+  --color-error-text:    #b91c1c; /* error copy + required asterisks, 5.35:1 on Linen */
+  --color-error-surface: #f9e8e6; /* alert wash */
+  --color-error-border:  #e0b4ac; /* alert hairline */
+
+  /* Interactive-field border — darker than the decorative --border hairline
+     because a form field's border is its only affordance (3.68:1 on Linen,
+     ≥3:1 non-text minimum). Previously hardcoded as #847a63 in the form. */
+  --color-border-interactive: #847a63;
 
   /* Fonts — "Heirloom Coast": Fraunces headings, Mulish body, Petemoss monogram.
      --font-heading is mapped to --font-display in the @theme inline block below. */
@@ -147,8 +174,9 @@
   letter-spacing: var(--tracking-eyebrow);
 }
 
-/* Italic utility — for body copy emphasis only; the new display font
-   has no italic cut, so this is no longer used for heading accent words. */
+/* Italic utility — Fraunces' REAL italic cut is loaded as of the Direction C
+   type pass (2026-07-03, opsz-italic import above), so italic accent words in
+   headings render the true cursive-flavored italic, not synthetic oblique. */
 @utility font-italic-accent {
   font-style: italic;
 }
@@ -243,13 +271,24 @@
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 700; /* Fraunces reads well bold at display sizes */
+    /* Direction C (2026-07-03): display weight dropped from forced-700 to 440.
+       Every premium reference ran its display serif at 300-400 — hierarchy
+       comes from size and the opsz axis, not boldness. font-optical-sizing is
+       on by default but stated here because the imported opsz build is what
+       makes 440 read as "display" rather than "thin". */
+    font-weight: 440;
+    font-optical-sizing: auto;
     /* Use --foreground (Heirloom Ink) directly. --color-accent is now also Ink
        (accent-trap defused), but headings reference --foreground so they stay
        stable regardless of any future accent remap. */
     color: var(--foreground);
     line-height: 1.1;
     letter-spacing: -0.01em;
+  }
+  /* Small headings need more stem weight than display sizes to hold their own
+     against Mulish body text (the opsz axis thins them at small sizes). */
+  h4, h5, h6 {
+    font-weight: 560;
   }
 }
 
@@ -275,18 +314,12 @@
 
 /* ---------- Polish layer ---------------------------------- */
 
-[data-reveal] {
-  opacity: 0;
-  translate: 0 0.75rem;
-  transition-property: opacity, translate, transform, box-shadow, border-color;
-  transition-duration: 600ms, 600ms, 440ms, 440ms, 440ms;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, translate;
-}
-[data-reveal].is-visible {
-  opacity: 1;
-  translate: 0 0;
-}
+/* Scroll-reveal styles removed (Direction C motion pass, 2026-07-03): no
+   premium reference site animates content in on scroll, and the uniform
+   fade-up-on-every-section was the site's single clearest "template" tell.
+   [data-reveal] attributes remain in markup (the BaseLayout observer still
+   toggles .is-visible for the step-connector draw below) but carry no
+   entrance animation any more — content is simply visible. */
 
 .nav-underline {
   position: relative;
@@ -353,10 +386,6 @@
   transition-duration: 1500ms;
 }
 
-[data-stagger-grid] > .card-lift-slow {
-  transition-duration: 600ms, 600ms, 1500ms, 1500ms, 1500ms;
-}
-
 .surface-warm {
   background-image: radial-gradient(
     ellipse 70% 60% at 50% 0%,
@@ -393,8 +422,7 @@
 
 /* Gallery filter visibility — fade + scale out (360ms), then the filter script
    sets `display:none` after this transition so the masonry `columns` layout
-   reflows. The `[data-stagger-grid] > .is-filtered-out` variant below reuses the
-   same look for the reveal grids. */
+   reflows. */
 .is-filtered-out {
   opacity: 0;
   transform: scale(0.96);
@@ -454,7 +482,10 @@
   .hero-slide { transition: none; animation: none; transform: none; }
 }
 
-/* Split-hero three-viewport collage — faster cross-fade, shared Ken Burns zoom */
+/* Split-hero collage slides — cross-fade only. The per-frame Ken Burns zoom
+   was retired in the Direction C motion pass: the cross-fade is the hero's
+   one motion moment, and zoom-during-fade on four frames at once read as
+   restlessness, not craft. */
 .hero-tri-slide {
   position: absolute;
   inset: 0;
@@ -463,34 +494,20 @@
   object-fit: cover;
   opacity: 0;
   transition: opacity 0.6s ease;
-  transform-origin: center;
-  animation: hero-kb 12s ease-in-out infinite alternate;
-  will-change: opacity, transform;
+  will-change: opacity;
 }
 .hero-tri-slide.is-active { opacity: 1; }
-.hero-tri-slide:nth-child(3n + 2) { transform-origin: top left; animation-duration: 13s; }
-.hero-tri-slide:nth-child(3n + 3) { transform-origin: bottom right; animation-duration: 14s; }
 @media (prefers-reduced-motion: reduce) {
-  .hero-tri-slide { transition: none; animation: none; transform: none; }
+  .hero-tri-slide { transition: none; }
 }
 
-/* Split-hero collage frames: a very gentle idle float so the scattered photos
-   feel alive before the visitor scrolls. Each frame's tilt is carried in --rot
-   (set inline) and re-applied inside the keyframes so the rotation is preserved
-   while it drifts; --fdur/--fdelay (also inline) stagger the four frames.
-   Transform-only (composited, no layout shift). Reduced-motion → static tilt. */
+/* Split-hero collage frames: static tilt only. The idle-float bob was retired
+   in the Direction C motion pass (2026-07-03) — with the cross-fade already
+   cycling the photos, float + fade + (previously) Ken Burns was three
+   concurrent motions in one viewport; the pinned-snapshot tilt reads calmer
+   and more deliberate standing still. --rot is set inline per frame. */
 .hero-tri-frame {
   transform: rotate(var(--rot, 0deg));
-  animation: hero-float var(--fdur, 8s) ease-in-out infinite;
-  animation-delay: var(--fdelay, 0s);
-  will-change: transform;
-}
-@keyframes hero-float {
-  0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
-  50%      { transform: rotate(var(--rot, 0deg)) translateY(-7px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-tri-frame { animation: none; transform: rotate(var(--rot, 0deg)); }
 }
 
 /* Image zoom + tint hover */
@@ -520,31 +537,9 @@
 .group:hover .img-zoom .img-tint.img-tint-light,
 .img-zoom:hover .img-tint.img-tint-light { background: rgba(var(--tint-rgb), 0.08); }
 
-/* Grid stagger entrance */
-[data-stagger-grid] > * {
-  opacity: 0;
-  translate: 0 14px;
-  transition-property: opacity, translate, transform, box-shadow, border-color;
-  transition-duration: 600ms, 600ms, 440ms, 440ms, 440ms;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-}
-[data-stagger-grid].is-staggered > * {
-  opacity: 1;
-  translate: 0;
-}
-[data-stagger-grid].is-staggered > *:nth-child(1)   { transition-delay:   0ms,   0ms, 0ms, 0ms, 0ms; }
-[data-stagger-grid].is-staggered > *:nth-child(2)   { transition-delay: 100ms, 100ms, 0ms, 0ms, 0ms; }
-[data-stagger-grid].is-staggered > *:nth-child(3)   { transition-delay: 200ms, 200ms, 0ms, 0ms, 0ms; }
-[data-stagger-grid].is-staggered > *:nth-child(4)   { transition-delay: 300ms, 300ms, 0ms, 0ms, 0ms; }
-[data-stagger-grid].is-staggered > *:nth-child(n+5) { transition-delay: 400ms, 400ms, 0ms, 0ms, 0ms; }
-
-[data-stagger-grid] > .is-filtered-out {
-  opacity: 0 !important;
-  transform: scale(0.96) !important;
-  transition-property: opacity, transform !important;
-  transition-duration: 360ms !important;
-  transition-delay: 0s !important;
-}
+/* Grid stagger entrance removed with the scroll reveals (Direction C motion
+   pass) — grids render in place. The gallery filter fade (.is-filtered-out,
+   above) is interaction feedback, not an entrance, so it stays. */
 
 /* Image curtain reveal */
 .img-curtain {
@@ -656,16 +651,6 @@ body::before {
     scroll-behavior: auto !important;
   }
   html { scroll-behavior: auto !important; }
-  [data-reveal] {
-    opacity: 1 !important;
-    transform: none !important;
-    translate: none !important;
-  }
-  [data-stagger-grid] > * {
-    opacity: 1 !important;
-    transform: none !important;
-    translate: none !important;
-  }
   .img-curtain { display: none !important; }
   .step-connector::after { transform: scaleY(1) !important; transition: none !important; }
 }

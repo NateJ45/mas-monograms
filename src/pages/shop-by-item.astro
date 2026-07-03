@@ -21,7 +21,7 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
       under the headline; the longer gridIntro (if present) still leads the
       grid below, so we don't duplicate the intro copy up here. */}
   <section class="bg-tertiary py-section-md">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
@@ -38,12 +38,12 @@ const description = page?.seoDescription ?? 'Browse all the items Mary Ann can e
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {page?.gridIntro && (
-        <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto" data-reveal>
+        <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto">
           {page.gridIntro}
         </p>
       )}
       {categories.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
           {categories.map((cat: any) => (
             <a
               href={`/${cat.slug?.current ?? ''}`}

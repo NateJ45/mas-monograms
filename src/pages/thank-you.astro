@@ -19,7 +19,7 @@ const description = page?.seoDescription ?? 'Your quote request has been receive
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
 
         {/* Text */}
-        <div data-reveal>
+        <div>
           {page?.eyebrow && (
             <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.eyebrow}</p>
           )}
@@ -78,7 +78,7 @@ const description = page?.seoDescription ?? 'Your quote request has been receive
 
         {/* Image */}
         {page?.image?.asset && (
-          <div class="rounded-2xl overflow-hidden shadow-xl" data-reveal>
+          <div class="rounded-2xl overflow-hidden shadow-xl">
             <SanityImage
               source={page.image}
               width={700}

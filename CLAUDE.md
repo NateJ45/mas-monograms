@@ -56,13 +56,18 @@ The buy button is a plain `<a href={...}>` that links to Stripe.
 are set via `wrangler secret put`. Never write them into `.env` or commit them.
 
 ## Typography
-The rule: **serif display + humanist-sans body + a script face scoped to monogram artifacts only.**
-- **Fraunces Variable** — display / headings. The rebrand deliberately introduced a serif; there is
-  no longer a "no serif" rule.
+The rule: **serif display (light, optical-sized) + humanist-sans body + a script face for monogram
+artifacts and ONE kicker per page.**
+- **Fraunces Variable** — display / headings, via the **opsz builds** (`@fontsource-variable/fraunces/opsz.css`
+  + `opsz-italic.css` — the real italic cut is loaded; never synthesize oblique). Weight is **440**
+  for display sizes and **560** for h4–h6 (set globally in `globals.css`) — do NOT force 700; the
+  Direction C decision (2026-07-03) is that hierarchy comes from size + optical axis, not boldness.
 - **Mulish Variable** — body / UI text (humanist sans).
-- **Petemoss** — the decorative monogram-artifact face. Script is deliberately allowed here, but ONLY
-  for on-screen monogram initials (the combo preview, recipe cards, and the logo's script M). Do NOT
-  use it for prose, headings, or UI chrome.
+- **Petemoss** — the script face. Allowed in exactly two places: (1) on-screen monogram initials
+  (the combo preview, recipe cards, and the logo's script M), and (2) **one script kicker per page,
+  at ≥2.75rem** (Direction C, 2026-07-03 — e.g. the home hero's eyebrow, gold `--color-gold-script`
+  on indigo only). Never for prose, buttons, nav, or below 2.75rem — the thin script stops being
+  legible.
 - **Logo system (hybrid, chosen 2026-07-02 — see `docs/logo-concepts/`):** the lockup
   (`src/components/Logo.astro`) is the "Flourished Initial" — an oversized Petemoss script M in
   Claret with a drawn thread-swash under a Fraunces "MAS MONOGRAMS". The compact mark
@@ -81,12 +86,18 @@ The rule: **serif display + humanist-sans body + a script face scoped to monogra
 | Heirloom Ink | `#26312E` | default text |
 | Heritage Indigo | `#28486B` | primary / links |
 | Indigo Deep | `#1C3550` | link / primary hover |
-| Claret — CTA | `#8C3A2E` | CTA buttons |
+| Claret — CTA | `#8C3A2E` | CTA buttons on LIGHT surfaces; running-stitch borders |
 | Claret Deep | `#722C22` | CTA hover |
 | Brass — text | `#835A24` | small brass text (AA-safe) |
-| Brass — decorative | `#B98A3E` | gallery "hoop ring" frames / decorative strokes only |
+| Brass — decorative | `#B98A3E` | decorative strokes only (never text on light) |
+| Gold — script | `#D9B15F` | Petemoss kicker + hairlines ON INDIGO/DARK ONLY (≈1.6:1 on Linen) |
 | Secondary text | `#5A5148` | secondary text |
 | Tertiary text | `#67614F` | tertiary / muted text |
+
+Direction C surface rules (2026-07-03): Heritage Indigo is also a **drench surface** (home hero band,
+bottom CTA band) with Linen/Paper type on it. On any dark surface the primary button is **paper bg +
+ink text** (`CtaLink` handles this via `onDark`) — never claret-on-indigo. The old near-black
+`#1A1512` slab is retired from bands (still used as the photo-scrim base in `HeroBackground`).
 
 Full rationale, contrast math, and what NOT to use these for:
 `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.

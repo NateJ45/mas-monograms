@@ -13,7 +13,7 @@ const description = 'The page you\'re looking for doesn\'t exist. Let\'s get you
 
 <BaseLayout {title} {description} {siteSettings} noindex>
   <section class="min-h-[80vh] flex items-center py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       <p class="text-xs uppercase tracking-eyebrow text-link mb-s">404</p>
       <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
         {page?.headline ?? 'Page Not Found'}
@@ -24,13 +24,13 @@ const description = 'The page you\'re looking for doesn\'t exist. Let\'s get you
       <div class="flex flex-wrap gap-m justify-center">
         <a
           href={page?.primaryCtaHref ?? '/request-a-quote'}
-          class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+          class="inline-flex items-center justify-center min-h-[44px] px-l py-s rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors press-tactile"
         >
           {page?.primaryCtaLabel ?? 'Request a Quote'}
         </a>
         <a
           href={page?.secondaryCtaHref ?? '/shop-by-item'}
-          class="inline-flex items-center px-l py-m rounded-md border border-border text-foreground hover:bg-tertiary text-sm uppercase tracking-eyebrow font-semibold transition-colors"
+          class="inline-flex items-center justify-center min-h-[44px] px-l py-s rounded-sm border border-primary text-link hover:bg-accent hover:text-accent-foreground text-xs uppercase tracking-[0.18em] font-semibold transition-colors"
         >
           {page?.secondaryCtaLabel ?? 'Shop by Item'}
         </a>

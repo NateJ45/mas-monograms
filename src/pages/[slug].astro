@@ -100,16 +100,16 @@ const pageSchemas = [
   {relatedGallery.length > 0 && (
     <section class="py-section-lg">
       <div class="mx-auto max-w-content px-m">
-        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+        <h2 class="font-display text-h2 text-foreground text-center mb-l">
           {category.name} Gallery
         </h2>
         {/* Aligned grid (not a ragged masonry): uniform square tiles, up to 4
             across, so the gallery reads as tidy rows rather than uneven columns. */}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m" data-stagger-grid>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m">
           {relatedGallery.map((item: any) => (
             item.image?.asset && (
-              <div class="group rounded-xl overflow-hidden p-1 bg-secondary">
-                <div class="relative aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
+              <div class="group">
+                <div class="relative aspect-square overflow-hidden rounded-xl img-zoom">
                   <SanityImage
                     source={item.image}
                     width={500}
@@ -125,7 +125,7 @@ const pageSchemas = [
         </div>
         {/* Photo → quote bridge: turn "I like this" into an action, with the
             item type already pre-filled on the quote form. */}
-        <div class="mt-l flex justify-center" data-reveal>
+        <div class="mt-l flex justify-center">
           <CtaLink
             cta={{ label: `Request something like this`, href: `/request-a-quote?item=${slug}` }}
             variant="primary"
@@ -139,10 +139,10 @@ const pageSchemas = [
   {otherCategories.length > 0 && (
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
-        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+        <h2 class="font-display text-h2 text-foreground text-center mb-l">
           Explore Other Items
         </h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-m max-w-3xl mx-auto" data-stagger-grid>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-m max-w-3xl mx-auto">
           {otherCategories.map((cat: any) => (
             <CategoryCard name={cat.name} slug={cat.slug?.current ?? ''} cardImage={cat.cardImage} />
           ))}

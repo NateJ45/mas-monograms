@@ -107,12 +107,16 @@ const baseClasses =
     ? 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
     : 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
-// Primary variant always uses Rust CTA (the one button-background color
-// per CLAUDE.md's palette table) regardless of onDark — rust reads clearly
-// on both parchment and the hero's dark scrim.
+// Primary on LIGHT surfaces is Claret (the one button-background color per
+// CLAUDE.md's palette table). Primary on DARK surfaces (indigo drench bands,
+// photo scrims) flips to paper-with-ink — Direction C rule: claret sitting
+// on indigo vibrates (both are dark), and a light button on a dark ground is
+// the on-dark pattern across the premium reference set.
 const variantClasses = (() => {
   if (variant === 'primary') {
-    return 'bg-[var(--color-rust-cta,#8C3A2E)] text-white hover:bg-[var(--color-rust-cta-hover,#722C22)]';
+    return onDark
+      ? 'bg-card text-foreground hover:bg-white'
+      : 'bg-[var(--color-rust-cta,#8C3A2E)] text-white hover:bg-[var(--color-rust-cta-hover,#722C22)]';
   }
   // secondary
   return onDark

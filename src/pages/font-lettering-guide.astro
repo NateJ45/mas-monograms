@@ -30,7 +30,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
@@ -46,7 +46,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
   {/* Intro */}
   {page?.intro && (
     <section class="py-section-md">
-      <div class="mx-auto max-w-3xl px-m" data-reveal>
+      <div class="mx-auto max-w-3xl px-m">
         <PortableText client:idle value={page.intro} />
       </div>
     </section>
@@ -56,26 +56,30 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {page?.fontGridEyebrow && (
-        <p class="text-xs uppercase tracking-eyebrow text-link text-center mb-s" data-reveal>
+        <p class="text-xs uppercase tracking-eyebrow text-link text-center mb-s">
           {page.fontGridEyebrow}
         </p>
       )}
       {page?.fontGridHeadline && (
-        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+        <h2 class="font-display text-h2 text-foreground text-center mb-l">
           {page.fontGridHeadline}
         </h2>
       )}
 
       {fonts.length > 0 ? (
         Object.entries(styleGroups).map(([style, styleFonts]) => (
-          <div class="mb-section-lg" data-reveal>
+          <div class="mb-section-lg">
             <h3 class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-m border-b border-border-soft pb-s">
               {style}
             </h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-m" data-stagger-grid>
+            {/* Centered flex-wrap, not a left-anchored 5-col grid: most style
+                groups hold only 1-3 specimens, and partial grid rows read as
+                accidental holes. Centering the fixed-width specimen cards makes
+                a sparse group look composed instead of unfinished. */}
+            <div class="flex flex-wrap justify-center gap-m">
               {(styleFonts as any[]).map((font: any) => (
-                <div class="group rounded-xl overflow-hidden p-1 bg-secondary hover:shadow-sm transition-shadow">
-                  <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+                <div class="group w-[230px] max-w-full rounded-xl overflow-hidden bg-card border border-border-soft hover:shadow-sm transition-shadow">
+                  <div class="aspect-square overflow-hidden">
                     <SanityImage
                       source={font.previewImage}
                       width={300}
@@ -103,7 +107,7 @@ const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
       )}
 
       {page?.customFontNote && (
-        <div class="mt-l bg-tertiary rounded-xl p-l text-center" data-reveal>
+        <div class="mt-l bg-tertiary rounded-xl p-l text-center">
           <p class="text-[var(--color-text-secondary)]">{page.customFontNote}</p>
         </div>
       )}

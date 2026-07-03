@@ -24,7 +24,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
@@ -41,12 +41,12 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
   <section class="py-section-md">
     <div class="mx-auto max-w-3xl px-m">
       {page?.intro && (
-        <div data-reveal>
+        <div>
           <PortableText client:idle value={page.intro} />
         </div>
       )}
       {(page?.paymentNote || page?.pickupNote) && (
-        <div class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-m" data-reveal>
+        <div class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-m">
           {page?.paymentNote && (
             <div class="bg-tertiary rounded-xl p-m border border-border-soft">
               <p class="text-sm text-[var(--color-text-secondary)]">{page.paymentNote}</p>
@@ -66,14 +66,14 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {items.length === 0 ? (
-        <div class="text-center py-l" data-reveal>
+        <div class="text-center py-l">
           <p class="text-[var(--color-text-secondary)]">
             {page?.emptyStateMessage ?? 'No clearance items available at this time. Check back soon!'}
           </p>
           <div class="mt-l flex flex-col sm:flex-row items-center justify-center gap-m">
             <a
               href={page?.emptyStateCtaHref ?? '/request-a-quote'}
-              class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+              class="inline-flex items-center justify-center min-h-[44px] px-l py-s rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors press-tactile"
             >
               {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
             </a>
@@ -88,7 +88,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
           </div>
         </div>
       ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
           {[...inStockItems, ...soldOutItems].map((item: any) => {
             const isSold = item.sold;
             const primaryImage = item.images?.[0];
@@ -101,8 +101,8 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
               >
                 {/* Image */}
                 {primaryImage?.asset ? (
-                  <div class="aspect-[4/3] p-1 bg-secondary">
-                    <div class="w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] relative">
+                  <div class="aspect-[4/3]">
+                    <div class="w-full h-full overflow-hidden relative">
                       <SanityImage
                         source={primaryImage}
                         width={600}
@@ -165,7 +165,7 @@ const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
                       href={item.stripePaymentLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class="block w-full mt-s py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-eyebrow font-semibold text-center transition-colors press-tactile"
+                      class="block w-full mt-s min-h-[44px] py-s rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-[0.18em] font-semibold text-center transition-colors press-tactile"
                     >
                       {buyLabel}
                     </a>

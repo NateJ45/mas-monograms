@@ -337,7 +337,7 @@ export default function MobileNav({
               <a
                 href={ctaHref}
                 onClick={close}
-                className="block w-full px-m py-m text-center rounded-md bg-[var(--color-rust-cta,#8C3A2E)] text-white text-xs uppercase tracking-eyebrow font-semibold hover:bg-[var(--color-rust-cta-hover,#722C22)] transition-colors"
+                className="block w-full min-h-[44px] px-m py-s text-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] text-white text-xs uppercase tracking-[0.18em] font-semibold hover:bg-[var(--color-rust-cta-hover,#722C22)] transition-colors"
               >
                 {ctaLabel}
               </a>

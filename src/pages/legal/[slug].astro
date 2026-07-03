@@ -27,7 +27,7 @@ const updated = page?.lastUpdated
 
 <BaseLayout {title} {description} {siteSettings}>
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-3xl px-m text-center" data-reveal>
+    <div class="mx-auto max-w-3xl px-m text-center">
       <h1 class="font-display text-h1 text-foreground leading-headline-tight">{page?.title}</h1>
       {updated && (
         <p class="text-sm text-[var(--color-text-secondary)] mt-s">Last updated {updated}</p>
@@ -36,7 +36,7 @@ const updated = page?.lastUpdated
   </section>
 
   <section class="py-section-lg">
-    <div class="mx-auto max-w-3xl px-m" data-reveal>
+    <div class="mx-auto max-w-3xl px-m">
       <PortableText client:idle value={page?.body} />
     </div>
   </section>

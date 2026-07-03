@@ -24,7 +24,7 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
@@ -42,16 +42,18 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
     <section class="py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.tiersHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-s" data-reveal>
+          <h2 class="font-display text-h2 text-foreground text-center mb-s">
             {page.tiersHeadline}
           </h2>
         )}
         {page?.tiersSubhead && (
-          <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto" data-reveal>
+          <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto">
             {page.tiersSubhead}
           </p>
         )}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-m" data-stagger-grid>
+        {/* 2×2 → 4-up (not 3-col): there are four tiers, and a 3-col grid
+            stranded the fourth card alone on its own row. */}
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-m">
           {tiers.map((tier: any) => (
             <div
               class:list={[
@@ -83,11 +85,11 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.addonsHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+          <h2 class="font-display text-h2 text-foreground text-center mb-l">
             {page.addonsHeadline}
           </h2>
         )}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-m" data-stagger-grid>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-m">
           {(page.addons as any[]).map((addon: any) => (
             <div class="bg-background rounded-xl border border-border p-l">
               <p class="font-semibold text-foreground mb-xs">{addon.label}</p>
@@ -103,7 +105,7 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
   {/* Rush Orders */}
   {(page?.rushHeadline || page?.rushBody) && (
     <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m max-w-3xl" data-reveal>
+      <div class="mx-auto max-w-content px-m max-w-3xl">
         {page?.rushHeadline && (
           <h2 class="font-display text-h2 text-foreground mb-m">{page.rushHeadline}</h2>
         )}
@@ -119,11 +121,11 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.faqHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+          <h2 class="font-display text-h2 text-foreground text-center mb-l">
             {page.faqHeadline}
           </h2>
         )}
-        <div data-reveal>
+        <div>
           <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
         </div>
       </div>

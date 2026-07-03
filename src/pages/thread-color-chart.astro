@@ -27,7 +27,7 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
@@ -43,7 +43,7 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
   {/* Intro */}
   {page?.intro && (
     <section class="py-section-md">
-      <div class="mx-auto max-w-3xl px-m" data-reveal>
+      <div class="mx-auto max-w-3xl px-m">
         <PortableText client:idle value={page.intro} />
       </div>
     </section>
@@ -54,11 +54,11 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
     <div class="mx-auto max-w-content px-m">
       {colors.length > 0 ? (
         Object.entries(familyGroups).map(([family, familyColors]) => (
-          <div class="mb-section-lg" data-reveal>
+          <div class="mb-section-lg">
             <h2 class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-m border-b border-border-soft pb-s">
               {family}
             </h2>
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-s" data-stagger-grid>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-s">
               {(familyColors as any[]).map((color: any) => (
                 <div class="group flex flex-col items-center gap-xs text-center" title={`${color.name}${color.dmcNumber ? ` (DMC ${color.dmcNumber})` : ''}`}>
                   {/* Color swatch — photo if available, hex fill as fallback */}
@@ -98,7 +98,7 @@ const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
       {/* One custom-color note only. `customColorNote` intentionally not rendered —
           it duplicated `matchingNote`; keep the more detailed `matchingNote`. */}
       {page?.matchingNote && (
-        <div class="mt-l bg-tertiary rounded-xl p-l border border-[var(--color-secondary,#B98A3E)]/20" data-reveal>
+        <div class="mt-l bg-tertiary rounded-xl p-l border border-[var(--color-secondary,#B98A3E)]/20">
           <p class="text-[var(--color-text-secondary)]">{page.matchingNote}</p>
         </div>
       )}

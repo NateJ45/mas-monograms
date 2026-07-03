@@ -19,10 +19,15 @@ const {
 } = Astro.props;
 ---
 
-<section class="bg-accent-dark text-bg py-section-lg">
-  <div class="mx-auto max-w-content px-m text-center" data-reveal>
+{/* Direction C drench band: Heritage Indigo, not the old near-black
+    (#1a1512) slab — the near-black was the largest tonal jump on the site
+    and had no counterpart in the reference set. On indigo, the button flips
+    to paper-with-ink (claret-on-indigo vibrates; light-button-on-drench is
+    the pattern every premium reference uses on dark surfaces). */}
+<section class="bg-primary text-bg py-section-lg">
+  <div class="mx-auto max-w-content px-m text-center">
     {eyebrow && (
-      <p class="text-xs uppercase tracking-eyebrow text-bg/70 mb-s">{eyebrow}</p>
+      <p class="text-xs uppercase tracking-eyebrow text-bg/80 mb-s">{eyebrow}</p>
     )}
     <h2 class="font-display text-h2 text-bg mb-m leading-headline-tight">
       {headline}
@@ -32,7 +37,7 @@ const {
     )}
     <a
       href={ctaHref}
-      class="inline-flex items-center px-l py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
+      class="inline-flex items-center justify-center min-h-[44px] px-l py-s rounded-sm bg-card text-foreground hover:bg-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors press-tactile"
     >
       {ctaLabel}
     </a>

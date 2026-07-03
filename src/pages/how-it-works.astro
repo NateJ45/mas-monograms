@@ -24,7 +24,7 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
 
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center" data-reveal>
+    <div class="mx-auto max-w-content px-m text-center">
       {page?.heroEyebrow && (
         <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
       )}
@@ -41,14 +41,14 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {page?.stepsHeadline && (
-        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+        <h2 class="font-display text-h2 text-foreground text-center mb-l">
           {page.stepsHeadline}
         </h2>
       )}
       {(page?.steps ?? []).length > 0 && (
         <ol class="space-y-section-md">
           {(page.steps as any[]).map((step: any, i: number) => (
-            <li class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-l items-start" data-reveal>
+            <li class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-l items-start">
               <div class="flex items-center gap-m md:flex-col md:items-center md:gap-s">
                 <span class="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white font-display text-h4 flex items-center justify-center">
                   {step.number ?? i + 1}
@@ -87,14 +87,14 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.faqHeadline && (
-          <h2 class="font-display text-h2 text-foreground mb-s text-center" data-reveal>
+          <h2 class="font-display text-h2 text-foreground mb-s text-center">
             {page.faqHeadline}
           </h2>
         )}
         {page?.faqSubhead && (
-          <p class="text-[var(--color-text-secondary)] text-center mb-l" data-reveal>{page.faqSubhead}</p>
+          <p class="text-[var(--color-text-secondary)] text-center mb-l">{page.faqSubhead}</p>
         )}
-        <div data-reveal>
+        <div>
           <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
         </div>
       </div>

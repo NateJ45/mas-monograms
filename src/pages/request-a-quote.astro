@@ -169,7 +169,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
-      <div data-reveal>
+      <div>
         {page?.heroEyebrow && (
           <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
         )}
@@ -196,7 +196,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
         )}
       </div>
       {page?.heroImage?.asset && (
-        <div class="rounded-2xl overflow-hidden shadow-xl" data-reveal>
+        <div class="rounded-2xl overflow-hidden shadow-xl">
           <SanityImage
             source={page.heroImage}
             width={700}
@@ -218,7 +218,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
         <p class="font-semibold">We got it!</p>
         <p class="text-sm">Redirecting you to the confirmation page…</p>
       </div>
-      <div id="form-error" class="hidden mb-l p-l bg-red-50 border border-red-200 rounded-xl text-red-800" role="alert" aria-live="polite">
+      <div id="form-error" class="hidden mb-l p-l bg-error-surface border border-error-border rounded-xl text-error-text" role="alert" aria-live="polite">
         <p class="font-semibold">Something went wrong.</p>
         <p id="form-error-msg" class="text-sm mt-xs">Please try again or email Mary Ann directly.</p>
       </div>
@@ -247,7 +247,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           {/* Item type — real categories + a "not sure" escape */}
           <div class="form-field">
             <label for="itemType" class="form-label">
-              {L.itemTypeLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.itemTypeLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <select
               id="itemType" name="itemType"
@@ -265,7 +265,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           {/* Do you own the item? */}
           <div class="form-field">
             <p id="ownership-label" class="form-label">
-              {L.ownershipLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.ownershipLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </p>
             <div
               id="ownership"
@@ -307,7 +307,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
           <div class="form-field">
             <label for="personalization" class="form-label">
-              {L.personalizationLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.personalizationLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <textarea
               id="personalization" name="personalization" rows="3"
@@ -321,7 +321,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           {/* Monogram style */}
           <div class="form-field">
             <label for="monogramStyle" class="form-label">
-              {L.monogramStyleLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.monogramStyleLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <select
               id="monogramStyle" name="monogramStyle"
@@ -339,7 +339,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           {/* Placement on item */}
           <div class="form-field">
             <label for="placement" class="form-label">
-              {L.placementSelectLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.placementSelectLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <select
               id="placement" name="placement"
@@ -357,7 +357,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           {/* Approximate size */}
           <div class="form-field">
             <label for="size" class="form-label">
-              {L.sizeLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.sizeLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <select
               id="size" name="size"
@@ -375,7 +375,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           {/* Number of thread colors */}
           <div class="form-field">
             <label for="threadCount" class="form-label">
-              {L.threadCountLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.threadCountLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <select
               id="threadCount" name="threadCount"
@@ -459,7 +459,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
           <div class="form-field">
             <label for="name" class="form-label">
-              {L.nameLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.nameLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <input
               id="name" name="name" type="text"
@@ -471,7 +471,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
           <div class="form-field">
             <label for="email" class="form-label">
-              {L.emailLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.emailLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <input
               id="email" name="email" type="email"
@@ -483,7 +483,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
           <div class="form-field">
             <label for="phone" class="form-label">
-              {L.phoneLabel} <span class="text-[#b91c1c]" aria-hidden="true">*</span>
+              {L.phoneLabel} <span class="text-error-text" aria-hidden="true">*</span>
             </label>
             <input
               id="phone" name="phone" type="tel"
@@ -512,7 +512,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
             {L.attachmentsHeading}
           </legend>
           <div class="form-field">
-            <div id="drop-zone" class="relative border-2 border-dashed border-[#847a63] rounded-xl p-l text-center cursor-pointer hover:border-primary/40 transition-colors">
+            <div id="drop-zone" class="relative border-2 border-dashed border-border-interactive rounded-xl p-l text-center cursor-pointer hover:border-primary/40 transition-colors">
               <input
                 id="attachments" name="attachments" type="file"
                 accept=".jpg,.jpeg,.png,.webp" multiple
@@ -569,7 +569,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
             type="submit"
             data-label={L.submitLabel}
             data-submitting={L.submittingLabel}
-            class="w-full sm:w-auto px-l py-m rounded-md bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile disabled:opacity-60 disabled:cursor-not-allowed"
+            class="inline-flex items-center justify-center w-full sm:w-auto min-h-[44px] px-l py-s rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors press-tactile disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span id="submit-label">{L.submitLabel}</span>
           </button>
@@ -692,7 +692,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       const sizeSpan = document.createElement('span');
       nameSpan.textContent = file.name;
       sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ' — TOO LARGE' : ''}`;
-      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-[#b91c1c]' : 'text-[var(--color-text-secondary)]'}`;
+      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-error-text' : 'text-[var(--color-text-secondary)]'}`;
       li.appendChild(nameSpan);
       li.appendChild(sizeSpan);
       fileList.appendChild(li);
@@ -714,7 +714,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     const field = document.getElementById(fieldId) as HTMLElement | null;
     const errEl = document.querySelector(`[data-error-for="${fieldId}"]`) as HTMLElement | null;
     errEl?.classList.toggle('hidden', !visible);
-    field?.classList.toggle('border-[#b91c1c]', visible);
+    field?.classList.toggle('border-error-text', visible);
     if (field) {
       if (visible) field.setAttribute('aria-invalid', 'true');
       else field.removeAttribute('aria-invalid');
@@ -843,15 +843,15 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     /* Interactive controls need a resting border that clears WCAG 1.4.11 (3:1)
        against the Linen page bg, since the border is the only affordance. The
        global --border token (#B7AD99, 1.92:1) is for decorative hairlines and
-       is intentionally left alone; here we override to #847a63 (3.68:1 on
-       #F4EEE3). Focus ring carries its own indicator: a full-Indigo ring
+       is intentionally left alone; here we use --color-border-interactive
+       (3.68:1 on Linen). Focus ring carries its own indicator: a full-Indigo ring
        detached by a 2px offset (8.16:1), not a faint /30 tint. */
-    @apply block w-full rounded-md border border-[#847a63] bg-background px-m py-s text-sm text-foreground
+    @apply block w-full rounded-md border border-border-interactive bg-background px-m py-s text-sm text-foreground
            focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2
            focus:ring-offset-[var(--background)] focus:border-primary transition-colors;
   }
   textarea.form-input { resize: vertical; }
   .form-help  { @apply text-xs text-[var(--color-text-secondary)] mt-xs; }
-  .form-error { @apply text-xs text-[#b91c1c] mt-xs; }
+  .form-error { @apply text-xs text-error-text mt-xs; }
   .form-field { @apply flex flex-col; }
 </style>

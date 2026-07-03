@@ -47,7 +47,7 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
      connector thread is dropped here (it only made sense in the tall list). */
   <article class="flex flex-col items-center text-center gap-s h-full">
     <div class="flex items-center gap-s">
-      <span class="font-display text-[clamp(2.5rem,6vw,3.5rem)] leading-none text-link/85 select-none">
+      <span class="font-display text-h2 leading-none text-link/85 select-none">
         {padNum(step.stepNumber)}
       </span>
       <ProcessStepIllustration stepNumber={step.stepNumber} />
@@ -66,7 +66,7 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
     {/* Soft-sage line illustration above the step numeral. Renders nothing for
         steps outside 1-4 so the numeral-only treatment still works. */}
     <ProcessStepIllustration stepNumber={step.stepNumber} />
-    <div class="font-display text-[clamp(3rem,8vw,5.5rem)] leading-none text-link/85 select-none">
+    <div class="font-display text-h1 leading-none text-link/85 select-none">
       {padNum(step.stepNumber)}
     </div>
     {!isLast && <div class="step-connector" aria-hidden="true"></div>}

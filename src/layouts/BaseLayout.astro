@@ -297,51 +297,10 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // ---- Scroll reveals ---------------------------------------------
-        // Mark elements visible the moment they cross the viewport edge so
-        // the fade-up reads as the user scrolls toward them, not after.
-        const reveals = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-visible)');
-        if (reveals.length > 0) {
-          if (reduceMotion || !('IntersectionObserver' in window)) {
-            // No motion / no observer support: just show everything immediately.
-            reveals.forEach((el) => el.classList.add('is-visible'));
-          } else {
-            const observer = new IntersectionObserver(
-              (entries) => {
-                for (const entry of entries) {
-                  if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
-                  }
-                }
-              },
-              { rootMargin: '0px 0px -10% 0px', threshold: 0.05 },
-            );
-            reveals.forEach((el) => observer.observe(el));
-          }
-        }
-
-        // ---- Grid stagger entrance ------------------------------------------
-        // Adds .is-staggered to each [data-stagger-grid] container as it enters
-        // the viewport. The CSS transition-delay on nth-child handles sequencing.
-        const staggerGrids = document.querySelectorAll<HTMLElement>('[data-stagger-grid]:not(.is-staggered)');
-        if (staggerGrids.length > 0) {
-          if (reduceMotion || !('IntersectionObserver' in window)) {
-            staggerGrids.forEach((el) => el.classList.add('is-staggered'));
-          } else {
-            const staggerObserver = new IntersectionObserver(
-              (entries) => {
-                for (const entry of entries) {
-                  if (entry.isIntersecting) {
-                    entry.target.classList.add('is-staggered');
-                    staggerObserver.unobserve(entry.target);
-                  }
-                }
-              },
-              { rootMargin: '0px 0px -60px 0px', threshold: 0.05 },
-            );
-            staggerGrids.forEach((el) => staggerObserver.observe(el));
-          }
-        }
+        // Scroll-reveal + grid-stagger observers removed in the Direction C
+        // motion pass (2026-07-03) along with their CSS — content no longer
+        // animates in on scroll. The two observers below (image curtain,
+        // step connector) are the surviving scroll-linked effects.
 
         // ---- Image curtain reveal -------------------------------------------
         // Adds .is-revealed to each .img-curtain when it enters the viewport.

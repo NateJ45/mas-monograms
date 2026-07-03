@@ -126,14 +126,14 @@ const triBuckets: any[][] = Array.from({ length: TRI_FRAMES }, (_, f) => {
   return triImages.slice(start, start + size);
 });
 // Positions are inline styles (Tailwind won't scan class names built in JS).
-// Tilt lives in the --rot custom property (not `transform`) so the idle-float
-// keyframes in globals.css re-apply each frame's rotation while animating;
-// --fdur / --fdelay stagger the float so the four frames never bob in unison.
+// Tilt lives in the --rot custom property, applied by .hero-tri-frame in
+// globals.css. (The idle-float animation and its --fdur/--fdelay staggering
+// were retired in the Direction C motion pass — the tilt is static now.)
 const triFrames = [
-  { style: 'top:0; left:0; width:56%; z-index:10; --rot:-2deg; --fdur:7s; --fdelay:-0.5s;',    aspect: 'aspect-[4/3]' },
-  { style: 'top:24%; right:0; width:46%; z-index:30; --rot:2.5deg; --fdur:8.5s; --fdelay:-3s;',  aspect: 'aspect-[3/4]' },
-  { style: 'bottom:0; left:14%; width:52%; z-index:20; --rot:-1.5deg; --fdur:9s; --fdelay:-5s;', aspect: 'aspect-[4/3]' },
-  { style: 'top:37%; left:0; width:38%; z-index:25; --rot:3deg; --fdur:7.5s; --fdelay:-1.5s;',   aspect: 'aspect-[1/1]' },
+  { style: 'top:0; left:0; width:56%; z-index:10; --rot:-2deg;',    aspect: 'aspect-[4/3]' },
+  { style: 'top:24%; right:0; width:46%; z-index:30; --rot:2.5deg;',  aspect: 'aspect-[3/4]' },
+  { style: 'bottom:0; left:14%; width:52%; z-index:20; --rot:-1.5deg;', aspect: 'aspect-[4/3]' },
+  { style: 'top:37%; left:0; width:38%; z-index:25; --rot:3deg;',   aspect: 'aspect-[1/1]' },
 ];
 
 // "tall" (homepage) fills the screen below the sticky header on first load.
@@ -195,35 +195,41 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
   </script>
 )}
 
+{/* Direction C drench: the split hero commits to Heritage Indigo as a full
+    surface — linen/paper type on top, gold accents, paper-matted photos.
+    Contrast on indigo: Linen text 7.6:1, Linen/85 ≈ 6.4:1, gold eyebrow
+    4.84:1 (AA at this size; the gold is reserved for the eyebrow/kicker
+    and hairlines — never body copy). */}
 {hasImage && layout === 'split' ? (
-  <section class="bg-background" aria-labelledby={headingId}>
+  <section class="bg-primary" aria-labelledby={headingId}>
     <div class="mx-auto max-w-content px-m py-section-lg grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
       {/* Text column. hero-entry-stagger fades each child up on load (see the
           bleed branch below for the full note); reduced-motion users get the
           final composition instantly. */}
       <div class="hero-entry-stagger max-w-xl">
+        {/* Direction C script kicker: the ONE Petemoss moment this page gets
+            (rule: one script kicker per page, 44px+ so the thin script stays
+            legible — gold on indigo is 4.84:1, which is AA at this size).
+            Replaces the tracked-caps eyebrow + hairline pair. */}
         {eyebrow && (
-          <p class="text-xs uppercase tracking-eyebrow text-link">{eyebrow}</p>
+          <p class="font-monogram text-[clamp(2.75rem,2vw+2rem,3.25rem)] leading-[1.1] text-balance text-[var(--color-gold-script)] -rotate-2 origin-bottom-left inline-block mb-s">{eyebrow}</p>
         )}
-        {eyebrow && (
-          <div class="mt-xs mb-m h-px w-12 bg-[#B98A3E]/60" aria-hidden="true"></div>
-        )}
-        <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-foreground">
+        <h1 id={headingId} class="font-display text-h1 leading-headline-tight tracking-[-0.02em] text-bg">
           {headline}{headlineItalicSuffix && <>{' '}<em class="italic">{headlineItalicSuffix}</em></>}
         </h1>
         {subhead && (
-          <p class="mt-m max-w-xl text-lg text-[var(--color-text-secondary)]">
+          <p class="mt-m max-w-xl text-lg text-bg/85">
             {subheadParts.map((part) =>
               part.type === 'em'
-                ? <em class="italic font-display text-foreground">{part.value}</em>
+                ? <em class="italic font-display text-bg">{part.value}</em>
                 : part.value
             )}
           </p>
         )}
         {(primaryCta || secondaryCta) && (
           <div class="mt-l flex flex-wrap gap-s">
-            {primaryCta && <CtaLink cta={primaryCta} variant="primary" />}
-            {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" />}
+            {primaryCta && <CtaLink cta={primaryCta} variant="primary" onDark />}
+            {secondaryCta && <CtaLink cta={secondaryCta} variant="secondary" onDark />}
           </div>
         )}
       </div>
@@ -235,19 +241,12 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
           are fewer than 4 photos. Only the first frame's first photo is the
           eager LCP. */}
       {triImages.length >= 4 ? (
-        <div class="relative w-full aspect-[5/6]" data-reveal>
-          {/* Decorative embroidery hoop behind the collage — double brass ring
-              with the tightening screw at the top, echoing the gallery's
-              hoop-frame motif and filling the negative space. It sits a little
-              high so the screw peeks above the photos. Purely decorative. */}
-          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[58%]" style="width:108%; aspect-ratio:1 / 1;" aria-hidden="true">
-            <div class="absolute inset-0 rounded-full border-[4px] border-[#B98A3E]/30"></div>
-            <div class="absolute inset-[3.5%] rounded-full border-2 border-[#B98A3E]/20"></div>
-            {/* tightening screw / bracket at the top of the hoop */}
-            <div class="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 h-[4.5%] w-[9%] rounded-[4px] bg-[#F4EEE3] border-[3px] border-[#B98A3E]/40"></div>
-          </div>
+        <div class="relative w-full aspect-[5/6]">
+          {/* The brass hoop ring that used to sit behind the collage is gone
+              (Direction C): it existed to fill Linen negative space, and on
+              the indigo drench it read as mud behind the paper mats. */}
           {triFrames.map((fr, fi) => (
-            <div class="hero-tri-frame absolute p-[7px] bg-secondary rounded-xl shadow-lg" style={fr.style}>
+            <div class="hero-tri-frame absolute p-[7px] bg-card rounded-xl shadow-lg" style={fr.style}>
               <div class:list={['relative overflow-hidden rounded-[calc(var(--radius-xl)-7px)]', fr.aspect]} data-hero-tri>
                 {triBuckets[fi].map((img: any, i: number) => (
                   <SanityImage
@@ -262,9 +261,10 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
                   />
                 ))}
               </div>
-              {/* Running-stitch line on the brass mat — cream dashes read as
-                  topstitching around each piece. Decorative. */}
-              <div class="pointer-events-none absolute inset-[3px] rounded-[calc(var(--radius-xl)-3px)] border-[1.5px] border-dashed border-[#FBF8F1]/70" aria-hidden="true"></div>
+              {/* Running-stitch line on the paper mat — claret dashes read as
+                  topstitching around each piece (Direction C: the stitch motif
+                  is the one decorative system, always in claret). Decorative. */}
+              <div class="pointer-events-none absolute inset-[3px] rounded-[calc(var(--radius-xl)-3px)] border-[1.5px] border-dashed border-[#8C3A2E]/55" aria-hidden="true"></div>
             </div>
           ))}
           {/* Handmade seal — a small brass "stamp" pressed onto the bottom-left
@@ -288,7 +288,7 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
           </div>
         </div>
       ) : (
-        <div class="p-1 bg-secondary rounded-xl" data-reveal>
+        <div class="p-1 bg-card rounded-xl">
           <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] aspect-[4/5]">
             <SanityImage
               source={effectiveImages[0]}

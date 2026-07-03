@@ -23,12 +23,16 @@ interface Props {
 const { name, slug, cardImage } = Astro.props as Props;
 ---
 
+{/* Direction C imagery pass (2026-07-03): the brass frame + brass caption bar
+    are retired — every premium reference lets product photos sit frameless
+    with a quiet label BELOW the image. The photo is the card; the only hover
+    chrome is the existing img-zoom + tint. */}
 <a
   href={`/${slug}`}
-  class="card-lift group block rounded-xl overflow-hidden p-1 bg-secondary"
+  class="group block"
 >
   {cardImage?.asset ? (
-    <div class="relative aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
+    <div class="relative aspect-square overflow-hidden rounded-xl img-zoom">
       <SanityImage
         source={cardImage}
         width={400}
@@ -44,7 +48,7 @@ const { name, slug, cardImage } = Astro.props as Props;
        not a blank rectangle. The hoop ring is drawn in Brass (decorative use)
        and the needle/thread in Heritage Indigo. The category name repeats below
        the tile, so no text is needed inside the motif. */
-    <div class="aspect-square rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex items-center justify-center">
+    <div class="aspect-square rounded-xl bg-card border border-border-soft flex items-center justify-center">
       <svg
         viewBox="0 0 100 100"
         class="w-1/2 h-1/2 opacity-90 transition-transform duration-500 group-hover:scale-105"
@@ -70,8 +74,8 @@ const { name, slug, cardImage } = Astro.props as Props;
       </svg>
     </div>
   )}
-  <div class="p-s text-center">
-    <p class="font-semibold text-sm text-foreground group-hover:text-link transition-colors">
+  <div class="pt-s text-center">
+    <p class="font-display [font-weight:560] text-base text-foreground group-hover:text-link transition-colors">
       {name}
     </p>
   </div>

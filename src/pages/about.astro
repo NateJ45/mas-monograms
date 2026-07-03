@@ -13,7 +13,7 @@ const [siteSettings, page, recentWork] = await Promise.all([
 
 // The About page has no portrait (deliberately absent), so it can read as an
 // imagery void. Fill it with real work that already exists — up to three
-// featured gallery photos in the brass hoop-ring frame treatment.
+// featured gallery photos, frameless (Direction C imagery grammar).
 const recentWorkPhotos = (recentWork ?? []).filter((item: any) => item?.image?.asset).slice(0, 3);
 const recentWorkHeadline = page?.recentWorkHeadline ?? 'Recent work from the studio';
 
@@ -23,10 +23,20 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
 
-  {/* Hero */}
+  {/* Hero. The two-column grid only exists when Sanity has a heroImage —
+      without one, reserving the right half stranded the headline against a
+      screen-wide void (the "accidental empty space" problem). Centered text
+      is the composed no-photo fallback, matching the other interior heroes. */}
   <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
-      <div data-reveal>
+    <div
+      class:list={[
+        'mx-auto max-w-content px-m',
+        page?.heroImage?.asset
+          ? 'grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center'
+          : 'text-center',
+      ]}
+    >
+      <div class:list={[!page?.heroImage?.asset && 'max-w-2xl mx-auto']}>
         {page?.heroEyebrow && (
           <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.heroEyebrow}</p>
         )}
@@ -34,11 +44,11 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
           {page?.heroHeadline ?? 'About MAS Monograms'}
         </h1>
         {page?.heroSubhead && (
-          <p class="text-[var(--color-text-secondary)] max-w-xl">{page.heroSubhead}</p>
+          <p class:list={['text-[var(--color-text-secondary)] max-w-xl', !page?.heroImage?.asset && 'mx-auto']}>{page.heroSubhead}</p>
         )}
       </div>
       {page?.heroImage?.asset && (
-        <div class="rounded-2xl overflow-hidden shadow-xl" data-reveal>
+        <div class="rounded-2xl overflow-hidden shadow-xl">
           <SanityImage
             source={page.heroImage}
             width={700}
@@ -68,7 +78,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
         ]}
       >
         {page?.makerPhoto?.asset && (
-          <div class="relative" data-reveal>
+          <div class="relative">
             <div class="rounded-2xl overflow-hidden">
               <SanityImage
                 source={page.makerPhoto}
@@ -79,7 +89,7 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
             </div>
           </div>
         )}
-        <div class:list={[!page?.makerPhoto?.asset && 'max-w-3xl mx-auto']} data-reveal>
+        <div class:list={[!page?.makerPhoto?.asset && 'max-w-3xl mx-auto']}>
           {page?.storyHeadline && (
             <h2 class="font-display text-h2 text-foreground mb-m leading-headline-tight">
               {page.storyHeadline}
@@ -103,19 +113,19 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
     </section>
   )}
 
-  {/* Recent work strip — real featured gallery photos in the brass hoop-ring
-      frame treatment. Fills the imagery gap on this otherwise text-heavy page
-      using assets that already exist (no new photography). */}
+  {/* Recent work strip — real featured gallery photos, frameless. Fills the
+      imagery gap on this otherwise text-heavy page using assets that already
+      exist (no new photography). */}
   {recentWorkPhotos.length > 0 && (
     <section class="py-section-lg">
       <div class="mx-auto max-w-content px-m">
-        <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+        <h2 class="font-display text-h2 text-foreground text-center mb-l">
           {recentWorkHeadline}
         </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-m max-w-4xl mx-auto" data-stagger-grid>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-m max-w-4xl mx-auto">
           {recentWorkPhotos.map((item: any) => (
-            <div class="rounded-xl overflow-hidden p-1 bg-secondary">
-              <div class="aspect-square overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]">
+            <div>
+              <div class="aspect-square overflow-hidden rounded-xl">
                 <SanityImage
                   source={item.image}
                   width={500}
@@ -136,11 +146,11 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
         {page?.valuesHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-l" data-reveal>
+          <h2 class="font-display text-h2 text-foreground text-center mb-l">
             {page.valuesHeadline}
           </h2>
         )}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
           {(page.values as any[]).map((v: any) => (
             <div class="bg-background rounded-xl border border-border p-l">
               <h3 class="font-display text-h4 text-foreground mb-s">{v.label}</h3>

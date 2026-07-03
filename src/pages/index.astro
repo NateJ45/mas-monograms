@@ -54,17 +54,19 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
     layout="split"
   />
 
-  {/* ── Trust Bar ─────────────────────────────────────────────────────────── */}
+  {/* ── Trust Bar ─────────────────────────────────────────────────────────
+      Sage, not indigo: the hero above is now the indigo drench (Direction C),
+      so the strip flips to the light band or the two surfaces would merge. */}
   {(page?.trustItems ?? []).length > 0 && (
-    <section class="bg-primary py-m">
+    <section class="bg-bg-soft py-m">
       <div class="mx-auto max-w-content px-m">
         {page?.trustHeadline && (
-          <p class="text-xs uppercase tracking-eyebrow text-white/70 text-center mb-s">{page.trustHeadline}</p>
+          <p class="text-xs uppercase tracking-eyebrow text-[var(--color-brass-text)] text-center mb-s">{page.trustHeadline}</p>
         )}
         <ul class="flex flex-wrap justify-center gap-l list-none">
           {(page.trustItems as string[]).map((item: string) => (
-            <li class="text-sm text-white/90 flex items-center gap-xs">
-              <span class="text-white/50" aria-hidden="true">✦</span>
+            <li class="text-sm text-[var(--color-text-secondary)] flex items-center gap-xs">
+              <span class="text-[#B98A3E]" aria-hidden="true">✦</span>
               {item}
             </li>
           ))}
@@ -81,7 +83,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
   {categories.length > 0 && (
     <section class="py-section-lg">
       <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l" data-reveal>
+        <div class="text-center mb-l">
           {page?.categoriesEyebrow && (
             <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.categoriesEyebrow}</p>
           )}
@@ -90,7 +92,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
             <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.categoriesSubhead}</p>
           )}
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m" data-stagger-grid>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m">
           {categories.slice(0, 8).map((cat: any) => (
             <CategoryCard name={cat.name} slug={cat.slug?.current ?? ''} cardImage={cat.cardImage} />
           ))}
@@ -109,7 +111,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
         {page?.aboutPhoto?.asset && (
-          <div class="relative rounded-2xl overflow-hidden shadow-xl order-last lg:order-first" data-reveal>
+          <div class="relative rounded-2xl overflow-hidden shadow-xl order-last lg:order-first">
             <SanityImage
               source={page.aboutPhoto}
               width={700}
@@ -118,7 +120,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
             />
           </div>
         )}
-        <div data-reveal>
+        <div>
           {page?.aboutEyebrow && (
             <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.aboutEyebrow}</p>
           )}
@@ -147,7 +149,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
   {(page?.processSteps ?? []).length > 0 && (
     <section class="py-section-lg">
       <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l" data-reveal>
+        <div class="text-center mb-l">
           {page?.processEyebrow && (
             <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.processEyebrow}</p>
           )}
@@ -156,7 +158,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
             <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.processSubhead}</p>
           )}
         </div>
-        <ol class="grid grid-cols-2 lg:grid-cols-4 gap-l mt-l list-none" data-stagger-grid>
+        <ol class="grid grid-cols-2 lg:grid-cols-4 gap-l mt-l list-none">
           {(page.processSteps as any[]).map((step: any, i: number) => (
             <li class="h-full">
               <ProcessStep
@@ -197,7 +199,7 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
   {galleryItems.length > 0 && (
     <section class="bg-tertiary py-section-lg">
       <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l" data-reveal>
+        <div class="text-center mb-l">
           {page?.galleryEyebrow && (
             <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.galleryEyebrow}</p>
           )}
@@ -209,8 +211,8 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
         <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m">
           {galleryItems.map((item: any) => (
             item.image?.asset && (
-              <div class="group break-inside-avoid rounded-xl overflow-hidden p-1 bg-secondary">
-                <div class="relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
+              <div class="group break-inside-avoid">
+                <div class="relative overflow-hidden rounded-xl img-zoom">
                   <SanityImage
                     source={item.image}
                     width={400}

@@ -39,3 +39,4 @@ studio/dist/
 
 # Brainstorming visual companion
 .superpowers/
+.playwright-mcp/
