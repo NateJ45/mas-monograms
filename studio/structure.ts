@@ -158,17 +158,17 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
       S.divider(),
 
       // Site Settings — global identity, SEO defaults, social links, contact info
-      singletonWithPreview(S, 'siteSettings', 'Site Settings', CogIcon),
+      singletonWithPreview(S, 'siteSettings', 'Business info & contact', CogIcon),
 
       S.divider(),
 
       // Pages — every page singleton lives here.
       S.listItem()
-        .title('Pages')
+        .title('Website pages (edit the words)')
         .icon(DocumentTextIcon)
         .child(
           S.list()
-            .title('Pages')
+            .title('Website pages')
             .items([
               singletonWithPreview(S, 'homePage', 'Home', HomeIcon),
               singletonWithPreview(S, 'howItWorksPage', 'How It Works', ControlsIcon),
@@ -193,43 +193,31 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
 
       S.divider(),
 
-      // Content — all reusable collections Mary Ann edits regularly.
+      // Photos & products — the collections Mary Ann adds to most often, ordered
+      // by how frequently she touches them (photos first, admin last).
       S.listItem()
-        .title('Content')
+        .title('Photos & products')
         .icon(ThListIcon)
         .child(
           S.list()
-            .title('Content')
+            .title('Photos & products')
             .items([
-              // Item categories define the /[slug] pages and the Shop by Item grid
-              S.documentTypeListItem('itemCategory').title('Item Categories').icon(PackageIcon),
+              // The two most common "add something" tasks, up top.
+              S.documentTypeListItem('galleryItem').title('Style gallery — photos of your work').icon(ImagesIcon),
+              S.documentTypeListItem('clearanceItem').title('Clearance — ready-to-ship items').icon(TagIcon),
 
               S.divider(),
 
-              // Embroidery fonts — each has a name, preview image, and style tags
-              S.documentTypeListItem('font').title('Embroidery Fonts').icon(TextIcon),
-              // Thread colors — name, hex, DMC number, image swatch
-              S.documentTypeListItem('threadColor').title('Thread Colors').icon(ColorWheelIcon),
+              // The shop pages (Hats, Totes, …) and their prices.
+              S.documentTypeListItem('itemCategory').title('Shop categories (Hats, Totes…)').icon(PackageIcon),
+              S.documentTypeListItem('pricingTier').title('Prices').icon(BillIcon),
 
               S.divider(),
 
-              // Style gallery images
-              S.documentTypeListItem('galleryItem').title('Style Gallery').icon(ImagesIcon),
-
-              S.divider(),
-
-              // Pricing — tiers (price per piece per quantity bracket)
-              S.documentTypeListItem('pricingTier').title('Pricing Tiers').icon(BillIcon),
-
-              S.divider(),
-
-              // Clearance items — each links to its own Stripe Payment Link
-              S.documentTypeListItem('clearanceItem').title('Clearance Items').icon(TagIcon),
-
-              S.divider(),
-
-              // SEO helper: per-category FAQ items
-              S.documentTypeListItem('faqItem').title('FAQ Items').icon(HelpCircleIcon),
+              // Reference lists that change less often.
+              S.documentTypeListItem('font').title('Embroidery fonts').icon(TextIcon),
+              S.documentTypeListItem('threadColor').title('Thread colors').icon(ColorWheelIcon),
+              S.documentTypeListItem('faqItem').title('FAQ — questions & answers').icon(HelpCircleIcon),
             ]),
         ),
 

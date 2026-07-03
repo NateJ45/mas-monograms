@@ -73,16 +73,16 @@ docs.push({
 
 When you click Publish, your change is live on the real website within a few seconds. There is no separate "upload" step.
 
-New here? Start with Site Settings (your name, contact info, hours), then look through the Pages. This guide explains where everything lives and walks you through the tasks you will do most often.`,
+New here? Start with Business info & contact (your name, contact info, hours), then look through the Pages. This guide explains where everything lives and walks you through the tasks you will do most often.`,
   studioMap: [
     mapRow('Start Here', 'The four guides you are reading now: how the site works, your business at a glance, your brand kit (colors and fonts), and ways to grow your studio.'),
-    mapRow('Site Settings', 'Your business name, email, phone, address, service area, opening hours, social links, and Google Business link. This feeds the footer of every page and your Google listing. Update it first.'),
-    mapRow('Pages', 'One document per page of the site — Home, How It Works, Pricing, About, Request a Quote, Shop by Item, Style Gallery, Font & Lettering Guide, Thread Color Chart, Clearance, Thank You, and the 404 page. Open any page to edit its words and images. Most pages have a "Preview" tab so you can see your change.'),
-    mapRow('Content', 'The reusable pieces you add to most often: Item Categories (the shop pages like Hats and Totes), Embroidery Fonts, Thread Colors, Style Gallery photos, Pricing Tiers, Popular Combinations, Clearance Items, and FAQ Items.'),
+    mapRow('Business info & contact', 'Your business name, email, phone, address, service area, opening hours, social links, and Google Business link. This feeds the footer of every page and your Google listing. Update it first.'),
+    mapRow('Website pages', 'One document per page of the site — Home, How It Works, Pricing, About, Request a Quote, Shop by Item, Style Gallery, Font & Lettering Guide, Thread Color Chart, Clearance, Thank You, and the 404 page. Open any page to edit its words and images. Most pages have a "Preview" tab so you can see your change.'),
+    mapRow('Photos & products', 'The collections you add to most often — ordered with your two most common tasks up top: Style gallery photos and Clearance items, then Shop categories (Hats, Totes…), Prices, Embroidery fonts, Thread colors, and FAQ.'),
   ],
   howTos: [
     howTo('Add a photo to the Style Gallery (most common task)', [
-      'In the left menu, open Content, then Style Gallery.',
+      'In the left menu, open Photos & products, then Style gallery.',
       'Click "Create new" (top of the list).',
       'Upload your photo. Square photos look best in the gallery grid.',
       'Write the Alt text — one plain sentence describing the photo, e.g. "Navy three-letter monogram on a white waffle towel." This is required, and it helps you show up in Google image searches.',
@@ -92,7 +92,7 @@ New here? Start with Site Settings (your name, contact info, hours), then look t
       'Click Publish. The photo is on the Style Gallery page within seconds.',
     ]),
     howTo('Change the photos on a shop page (Hats, Totes, etc.)', [
-      'Open Content, then Item Categories.',
+      'Open Photos & products, then Shop categories.',
       'Click the category you want to update (for example "Hats & Caps").',
       '"Hero images" are the big photos at the top of that page — you can have one to three; two or more become a slow slideshow.',
       '"Grid card image" is the small thumbnail shown on the Shop by Item page.',
@@ -100,24 +100,24 @@ New here? Start with Site Settings (your name, contact info, hours), then look t
       'Click Publish.',
     ]),
     howTo('Add a brand-new shop category (a new page like /aprons)', [
-      'Open Content, then Item Categories, then "Create new".',
+      'Open Photos & products, then Shop categories, then "Create new".',
       'Type the Category name (e.g. "Aprons"). The Slug — the web address — fills in automatically.',
       'Write the Description (the intro paragraph at the top of the page).',
       'Add one to three Hero images and one Grid card image (each needs Alt text).',
       'Add 2–5 short Trust strip lines (e.g. "Starting at $18", "Hand-finished to order").',
       'Set a Starting price if you want a "from $__" shown on the card.',
       'Click Publish. A new page appears at mas-monograms.com/aprons and a card shows on Shop by Item.',
-      'To add it to the top menu too: open Site Settings, then Navigation, and add a link.',
+      'To add it to the top menu too: open Business info & contact, then Navigation, and add a link.',
     ]),
     howTo('Adjust the questions on the quote form', [
-      'To reword a question, its helper text, or the submit button: open Pages, then Request a Quote Page. Every label and help line is a field here — change the words and Publish.',
+      'To reword a question, its helper text, or the submit button: open Website pages, then Request a Quote. Every label and help line is a field here — change the words and Publish.',
       'To change the "How did you hear about me?" choices: same page, find "Referral source options" and add or remove lines.',
-      'To change which ITEM TYPES appear in the first dropdown: those come from your Item Categories (Content → Item Categories). Add or rename a category and it appears in the form automatically.',
-      'To change which FONTS appear: those come from your Embroidery Fonts (Content → Embroidery Fonts).',
+      'To change which ITEM TYPES appear in the first dropdown: those come from your shop categories (Photos & products → Shop categories). Add or rename a category and it appears in the form automatically.',
+      'To change which FONTS appear: those come from your Embroidery Fonts (Photos & products → Embroidery fonts).',
       'The fixed choice lists — monogram style, placement, size, and number of thread colors — are built into the site for consistency and are NOT edited here. To change those, email Nate; it is a quick change for him.',
     ]),
     howTo('Add an embroidery font to the Font Guide', [
-      'Open Content, then Embroidery Fonts, then "Create new".',
+      'Open Photos & products, then Embroidery fonts, then "Create new".',
       'Type the Font name (e.g. "Magnolia Script"). The Slug fills in automatically.',
       'Upload a Preview image — a clear photo or scan of that font actually stitched on fabric. That photo IS the font; the website never loads font files.',
       'Write the Alt text and pick the Style (Script, Block, Monogram, etc.).',
@@ -125,31 +125,31 @@ New here? Start with Site Settings (your name, contact info, hours), then look t
       'Click Publish.',
     ]),
     howTo('Add a thread color to the chart', [
-      'Open Content, then Thread Colors, then "Create new".',
+      'Open Photos & products, then Thread colors, then "Create new".',
       'Add the color name, the swatch image, and the DMC/thread number if you have it.',
       'Click Publish.',
     ]),
     howTo('Put an item on Clearance (ready to ship, buy now)', [
       'First, in your Stripe account, create a Payment Link for the item and copy it. (The Buy button links straight to Stripe — you never handle card numbers on the website.)',
-      'Open Content, then Clearance Items, then "Create new".',
+      'Open Photos & products, then Clearance, then "Create new".',
       'Add the name, description, and photos.',
       'Enter the original price and the sale price.',
       'Paste the Stripe Payment Link into the link field.',
       'Click Publish. It appears on the Clearance page with a Buy button.',
     ]),
     howTo('Update your contact info, hours, or social links', [
-      'Open Site Settings (near the top of the left menu).',
+      'Open Business info & contact (near the top of the left menu).',
       'Edit your email, phone, address, service area, opening hours, or social links.',
       'If you have a Google Business Profile, paste its link into the "Google Business Profile URL" field.',
       'Click Publish. This updates the footer on every page and the data Google reads about your business.',
     ]),
     howTo('Change your prices', [
-      'Open Content, then Pricing Tiers.',
+      'Open Photos & products, then Prices.',
       'Each row is a quantity bracket with a price per piece. Click one to edit the number.',
       'Click Publish. The Pricing page updates right away.',
     ]),
     howTo('Add or change the About page photo of you', [
-      'Open Pages, then About.',
+      'Open Website pages, then About.',
       'Find "Hero image" and upload a photo (add Alt text).',
       'Click Publish. When a photo is present, the top of the About page automatically becomes a two-column layout with your photo beside your intro.',
     ]),
@@ -256,7 +256,7 @@ docs.push({
           ],
         }),
         section('Link it back to your site', 'caution', {
-          body: `Once your profile is live, copy its web address and paste it into Site Settings → Google Business Profile URL in this Studio. That connects your website and your Google listing so they reinforce each other.`,
+          body: `Once your profile is live, copy its web address and paste it into Business info & contact → Google Business Profile URL in this Studio. That connects your website and your Google listing so they reinforce each other.`,
         }),
       ],
     ),
@@ -370,7 +370,7 @@ Something simple works: "I'm so glad you love it! If you have a minute, a quick 
         }),
         section('Keep your info current', 'default', {
           bullets: [
-            'Update your hours around holidays in Site Settings',
+            'Update your hours around holidays in Business info & contact',
             'Add a Clearance item whenever you have ready-made stock to move',
             'Swap in a nicer About photo when you get one',
           ],
@@ -379,7 +379,7 @@ Something simple works: "I'm so glad you love it! If you have a minute, a quick 
           body: `The site promises a reply within one business day — and that speed is a real selling point. The faster you reply, the more quote requests turn into paid orders. Even a quick "Got it, I'll send your quote by tomorrow" keeps people from shopping around.`,
         }),
         section('Let customers write your FAQ', 'default', {
-          body: `If the same question keeps coming through the quote form or your messages, add it to the FAQ (Content → FAQ Items). Then the next person's answer is already waiting on the site, and you answer it less often.`,
+          body: `If the same question keeps coming through the quote form or your messages, add it to the FAQ (Photos & products → FAQ). Then the next person's answer is already waiting on the site, and you answer it less often.`,
         }),
       ],
     ),

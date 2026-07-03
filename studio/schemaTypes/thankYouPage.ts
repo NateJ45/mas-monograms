@@ -12,15 +12,16 @@ export const thankYouPage = defineType({
   icon: CheckmarkCircleIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo',     title: 'SEO' },
+    { name: 'seo',     title: 'Google & sharing' },
     { name: 'content', title: 'Content', default: true },
   ],
+  fieldsets: [{ name: 'seo', title: 'Google & sharing — you rarely need to touch this', options: { collapsible: true, collapsed: true } }],
   fields: [
-    defineField({ name: 'seoTitle', title: 'SEO title', type: 'string', group: 'seo',
+    defineField({ name: 'seoTitle', title: 'Google & browser-tab title', type: 'string', group: 'seo', fieldset: 'seo',
       initialValue: 'Quote request received — MAS Monograms',
       validation: (R) => R.max(60).warning('Over 60 chars may be cut off.') }),
 
-    defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', group: 'content',
+    defineField({ name: 'eyebrow', title: 'Small label above the heading', type: 'string', group: 'content',
       description: 'E.g. "Your request is in!" or "Got it!".',
       initialValue: 'Request received!',
       validation: (R) => R.required().max(80) }),
@@ -62,7 +63,7 @@ export const thankYouPage = defineType({
     defineField({ name: 'image', title: 'Photo (optional)', type: 'image', group: 'content',
       description: 'A warm, on-brand photo to go alongside the confirmation message.',
       options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
+      fields: [defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() })] }),
 
     defineField({ name: 'ctaLabel', title: 'Continue browsing CTA label', type: 'string', group: 'content',
       description: 'Link back to the homepage or style gallery.',
@@ -70,10 +71,10 @@ export const thankYouPage = defineType({
     defineField({ name: 'ctaHref', title: 'Continue browsing CTA destination', type: 'string', group: 'content',
       initialValue: '/style-gallery', validation: (R) => R.required() }),
 
-    defineField({ name: 'secondaryCtaLabel', title: 'Secondary CTA label (optional)', type: 'string', group: 'content',
+    defineField({ name: 'secondaryCtaLabel', title: 'Second button text (optional)', type: 'string', group: 'content',
       description: 'A second onward path shown beside the main button. E.g. "See how it works". Leave blank to hide it.',
       initialValue: 'Browse the style gallery' }),
-    defineField({ name: 'secondaryCtaHref', title: 'Secondary CTA destination (optional)', type: 'string', group: 'content',
+    defineField({ name: 'secondaryCtaHref', title: 'Second button link (optional)', type: 'string', group: 'content',
       description: 'Where the secondary link goes. E.g. /style-gallery.',
       initialValue: '/style-gallery' }),
   ],

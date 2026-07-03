@@ -20,7 +20,7 @@ export const legalPage = defineType({
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Web address',
       type: 'slug',
       description: 'The URL path segment, e.g. "privacy" → /legal/privacy.',
       options: { source: 'title', maxLength: 60 },
@@ -28,7 +28,7 @@ export const legalPage = defineType({
     }),
     defineField({
       name: 'seoDescription',
-      title: 'SEO description',
+      title: 'Google search description',
       type: 'text',
       rows: 2,
       validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
@@ -50,7 +50,7 @@ export const legalPage = defineType({
           styles: [
             { title: 'Paragraph', value: 'normal' },
             { title: 'Heading', value: 'h2' },
-            { title: 'Subheading', value: 'h3' },
+            { title: 'Short line under the heading', value: 'h3' },
           ],
           lists: [{ title: 'Bullet', value: 'bullet' }],
           marks: {

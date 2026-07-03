@@ -12,8 +12,9 @@ export const itemCategory = defineType({
   icon: PackageIcon,
   groups: [
     { name: 'content', title: 'Content', default: true },
-    { name: 'seo', title: 'SEO' },
+    { name: 'seo', title: 'Google & sharing' },
   ],
+  fieldsets: [{ name: 'seo', title: 'Google & sharing — you rarely need to touch this', options: { collapsible: true, collapsed: true } }],
   fields: [
     defineField({
       name: 'name',
@@ -25,7 +26,7 @@ export const itemCategory = defineType({
     }),
     defineField({
       name: 'slug',
-      title: 'Slug (URL)',
+      title: 'Web address',
       type: 'slug',
       description: 'The URL for this page. E.g. "shirts" → mas-monograms.com/shirts.',
       options: { source: 'name', maxLength: 50 },
@@ -34,7 +35,7 @@ export const itemCategory = defineType({
     }),
     defineField({
       name: 'eyebrow',
-      title: 'Eyebrow label (optional)',
+      title: 'Small label above the heading (optional)',
       type: 'string',
       description: 'Small label above the heading. E.g. "Most popular" or "Great for gifts".',
       group: 'content',
@@ -50,7 +51,7 @@ export const itemCategory = defineType({
     }),
     defineField({
       name: 'heroImages',
-      title: 'Hero images',
+      title: 'Top-of-page photos',
       type: 'array',
       group: 'content',
       description: 'One to three photos for the hero. Two or more creates a slow cross-fade slideshow.',
@@ -59,7 +60,7 @@ export const itemCategory = defineType({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+            defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() }),
           ],
         }),
       ],
@@ -73,7 +74,7 @@ export const itemCategory = defineType({
       description: 'Thumbnail shown in the Shop by Item category grid. Square crop works best.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+        defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() }),
       ],
       validation: (Rule) => Rule.required(),
     }),
@@ -124,29 +125,29 @@ export const itemCategory = defineType({
     // SEO
     defineField({
       name: 'seoTitle',
-      title: 'SEO title',
+      title: 'Google & browser-tab title',
       type: 'string',
-      group: 'seo',
+      group: 'seo', fieldset: 'seo',
       description: 'Browser tab and Google title. Aim for 50–60 characters.',
       validation: (Rule) => Rule.max(60).warning('Over 60 characters may be cut off in search results.'),
     }),
     defineField({
       name: 'seoDescription',
-      title: 'SEO description',
+      title: 'Google search description',
       type: 'text',
       rows: 3,
-      group: 'seo',
+      group: 'seo', fieldset: 'seo',
       description: 'Shown under the title in Google. Aim for 150–160 characters.',
       validation: (Rule) => Rule.max(160).warning('Over 160 characters may be cut off in search results.'),
     }),
     defineField({
       name: 'seoImage',
-      title: 'Social share image',
+      title: 'Photo shown when the page is shared',
       type: 'image',
-      group: 'seo',
+      group: 'seo', fieldset: 'seo',
       description: 'Image shown when this page is shared. ~1200 × 630 px. Overrides the site default.',
       options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
+      fields: [defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' })],
     }),
   ],
   preview: {

@@ -20,7 +20,7 @@ export const font = defineType({
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Web address',
       type: 'slug',
       options: { source: 'name', maxLength: 50 },
       validation: (Rule) => Rule.required(),
@@ -34,7 +34,7 @@ export const font = defineType({
       fields: [
         defineField({
           name: 'alt',
-          title: 'Alt text',
+          title: 'Photo description (helps screen readers & Google)',
           type: 'string',
           description: 'E.g. "Magnolia Script font sample — embroidered on white fabric".',
           validation: (R) => R.required(),

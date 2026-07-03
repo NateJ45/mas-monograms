@@ -19,7 +19,7 @@ export const threadColor = defineType({
     }),
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Web address',
       type: 'slug',
       options: { source: 'name', maxLength: 50 },
       validation: (Rule) => Rule.required(),
@@ -48,7 +48,7 @@ export const threadColor = defineType({
       description: 'A photo of the actual thread or an embroidered swatch. More accurate than the hex color for customer reference.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
+        defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' }),
       ],
     }),
     defineField({

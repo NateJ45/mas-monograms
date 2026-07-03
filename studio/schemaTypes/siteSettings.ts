@@ -18,6 +18,7 @@ export const siteSettings = defineType({
     { name: 'seo',        title: 'SEO defaults' },
     { name: 'business',   title: 'Business details' },
   ],
+  fieldsets: [{ name: 'seo', title: 'Google & sharing — you rarely need to touch this', options: { collapsible: true, collapsed: true } }],
   fields: [
     // ── Identity ──────────────────────────────────────────────────────────────
     defineField({
@@ -202,7 +203,7 @@ export const siteSettings = defineType({
     }),
     defineField({
       name: 'quoteCtaLabel',
-      title: '"Request a Quote" button label',
+      title: 'Text on the "Request a Quote" button',
       type: 'string',
       group: 'navigation',
       description: 'The blush CTA button in the nav bar. E.g. "Request a Quote".',
@@ -320,7 +321,7 @@ export const siteSettings = defineType({
       name: 'seoTitle',
       title: 'Default SEO title',
       type: 'string',
-      group: 'seo',
+      group: 'seo', fieldset: 'seo',
       description: 'Used on pages that don\'t have their own SEO title. E.g. "MAS Monograms — Custom Embroidery in St. Matthews, SC".',
       validation: (Rule) => Rule.required().max(70),
     }),
@@ -329,18 +330,18 @@ export const siteSettings = defineType({
       title: 'Default SEO description',
       type: 'text',
       rows: 3,
-      group: 'seo',
+      group: 'seo', fieldset: 'seo',
       description: 'Used on pages that don\'t have their own SEO description. Aim for 150–160 characters.',
       validation: (Rule) => Rule.required().max(160),
     }),
     defineField({
       name: 'seoImage',
-      title: 'Default social share image',
+      title: 'Photo shown when the site is shared',
       type: 'image',
-      group: 'seo',
+      group: 'seo', fieldset: 'seo',
       description: 'Image shown when the site is shared on social media. ~1200 × 630 px.',
       options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
+      fields: [defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' })],
     }),
 
     // ── Business details (JSON-LD) ─────────────────────────────────────────────

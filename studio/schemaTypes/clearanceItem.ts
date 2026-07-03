@@ -36,7 +36,7 @@ export const clearanceItem = defineType({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() }),
+            defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() }),
           ],
         }),
       ],

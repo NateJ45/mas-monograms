@@ -16,7 +16,7 @@ export const requestAQuotePage = defineType({
   icon: EnvelopeIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo',       title: 'SEO' },
+    { name: 'seo',       title: 'Google & sharing' },
     { name: 'hero',      title: 'Hero & intro', default: true },
     { name: 'contact',   title: 'Contact fields' },
     { name: 'order',     title: 'Order fields' },
@@ -26,22 +26,23 @@ export const requestAQuotePage = defineType({
     { name: 'referral',  title: 'Referral source' },
     { name: 'submit',    title: 'Submit & confirmation' },
   ],
+  fieldsets: [{ name: 'seo', title: 'Google & sharing — you rarely need to touch this', options: { collapsible: true, collapsed: true } }],
   fields: [
     // ── SEO ──────────────────────────────────────────────────────────────────
-    defineField({ name: 'seoTitle', title: 'SEO title', type: 'string', group: 'seo',
+    defineField({ name: 'seoTitle', title: 'Google & browser-tab title', type: 'string', group: 'seo', fieldset: 'seo',
       validation: (R) => R.max(60).warning('Over 60 chars may be cut off.') }),
-    defineField({ name: 'seoDescription', title: 'SEO description', type: 'text', rows: 3, group: 'seo',
+    defineField({ name: 'seoDescription', title: 'Google search description', type: 'text', rows: 3, group: 'seo', fieldset: 'seo',
       validation: (R) => R.max(160).warning('Over 160 chars may be cut off.') }),
-    defineField({ name: 'seoImage', title: 'Social share image', type: 'image', group: 'seo',
+    defineField({ name: 'seoImage', title: 'Photo shown when the page is shared', type: 'image', group: 'seo', fieldset: 'seo',
       options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })] }),
+      fields: [defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' })] }),
 
     // ── Hero ─────────────────────────────────────────────────────────────────
-    defineField({ name: 'heroEyebrow', title: 'Eyebrow', type: 'string', group: 'hero',
+    defineField({ name: 'heroEyebrow', title: 'Small label above the heading', type: 'string', group: 'hero',
       validation: (R) => R.required().max(80) }),
     defineField({ name: 'heroHeadline', title: 'Headline', type: 'string', group: 'hero',
       validation: (R) => R.required().max(100) }),
-    defineField({ name: 'heroSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'hero' }),
+    defineField({ name: 'heroSubhead', title: 'Short line under the heading (optional)', type: 'text', rows: 2, group: 'hero' }),
     defineField({
       name: 'heroBody',
       title: 'Hero body (optional)',

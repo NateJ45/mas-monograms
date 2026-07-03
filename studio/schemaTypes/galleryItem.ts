@@ -19,7 +19,7 @@ export const galleryItem = defineType({
       fields: [
         defineField({
           name: 'alt',
-          title: 'Alt text',
+          title: 'Photo description (helps screen readers & Google)',
           type: 'string',
           description: 'E.g. "Three-letter monogram on white linen napkins — block font in navy".',
           validation: (R) => R.required(),
