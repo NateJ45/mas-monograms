@@ -3,62 +3,23 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
 import StatsRow from '@/components/StatsRow.astro';
 import ProcessStep from '@/components/ProcessStep.astro';
-import ComboPreviewSection from '@/components/ComboPreviewSection.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
 import CategoryCard from '@/components/CategoryCard.astro';
-import { urlFor } from '@/lib/sanity';
 import {
   getSiteSettings,
   getHomePage,
   getAllItemCategories,
-  getPopularCombinations,
   getFeaturedGalleryItems,
-  getAllFonts,
-  getAllThreadColors,
 } from '@/lib/queries';
 
-const [siteSettings, page, categories, combos, galleryItems, allFonts, allThreadColors] = await Promise.all([
+const [siteSettings, page, categories, galleryItems] = await Promise.all([
   getSiteSettings(),
   getHomePage(),
   getAllItemCategories(),
-  getPopularCombinations(),
   getFeaturedGalleryItems(9),
-  getAllFonts(),
-  getAllThreadColors(),
 ]);
-
-// ComboPreview data: real categories/fonts/colors, curated to a small,
-// visually varied set. Fonts filtered to ones with an actual specimen photo
-// (10 of 18 have none — see docs/superpowers/specs/2026-07-01-combo-preview-design.md).
-// "Bring Your Own Item" is excluded — you can't preview a font/thread
-// pairing on an item that hasn't been specified, unlike every other
-// category here.
-const comboCategories = (categories ?? [])
-  .filter((c: any) => c.slug?.current !== 'bring-your-own-item')
-  .slice(0, 8)
-  .map((c: any) => ({
-    name: c.name,
-    slug: c.slug?.current ?? '',
-  }));
-const comboFonts = (allFonts ?? [])
-  .filter((f: any) => f.previewImage?.asset)
-  .slice(0, 6)
-  .map((f: any) => ({
-    name: f.name,
-    // 600px covers the enlarged specimen in the preview card; the 28px picker
-    // thumbnails just downscale from the same URL.
-    previewUrl: urlFor(f.previewImage).width(600).auto('format').url(),
-    alt: f.previewImage.alt ?? f.name,
-  }));
-// One color per family for visual variety, in a fixed, real, verified order
-// (all 8 names confirmed present in the live threadColor catalog from Plan 2).
-const COMBO_THREAD_NAMES = ['Navy', 'Forest Green', 'True Red', 'Purple', 'Bright Gold', 'Charcoal', 'Bright White', 'Bronze'];
-const comboThreadColors = COMBO_THREAD_NAMES
-  .map((name) => (allThreadColors ?? []).find((c: any) => c.name === name))
-  .filter((c: any) => !!c)
-  .map((c: any) => ({ name: c.name, hex: c.hexColor }));
 
 const title       = page?.seoTitle       ?? siteSettings?.seoTitle ?? 'MAS Monograms — Custom Embroidery in St. Matthews, SC';
 const description = page?.seoDescription ?? siteSettings?.seoDescription ?? 'Hand-embroidered monograms and personalized gifts by Mary Ann Stone. Quality custom embroidery on towels, bags, shirts, baby items, and more.';
@@ -77,21 +38,6 @@ const galleryHeroImages = (galleryItems ?? [])
 // Prefer authored hero images if an editor ever adds them; otherwise fall back
 // to the featured gallery work so the hero always shows real embroidery.
 const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryHeroImages;
-
-// Colour a combo's name in its thread hex — but ink it when the thread would
-// not read on the Paper card (e.g. Blush Pink), so contrast stays AA-safe.
-// Keeps the hue only when it clears ~3.5:1 against the Paper ground (#FBF8F1).
-function legibleThreadColor(hex?: string): string {
-  const HEIRLOOM_INK = '#26312E';
-  if (!hex) return HEIRLOOM_INK;
-  const m = hex.trim().match(/^#?([0-9a-f]{6})$/i);
-  if (!m) return HEIRLOOM_INK;
-  const int = parseInt(m[1], 16);
-  const ch = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
-  const L = 0.2126 * ch((int >> 16) & 0xff) + 0.7152 * ch((int >> 8) & 0xff) + 0.0722 * ch(int & 0xff);
-  const contrastOnPaper = 0.98 / (L + 0.05); // Paper ≈ #FBF8F1, L ≈ 0.93
-  return contrastOnPaper >= 3.5 ? hex : HEIRLOOM_INK;
-}
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage ?? siteSettings?.seoImage} {siteSettings}>
@@ -157,15 +103,6 @@ function legibleThreadColor(hex?: string): string {
       </div>
     </section>
   )}
-
-  <ComboPreviewSection
-    categories={comboCategories}
-    fonts={comboFonts}
-    threadColors={comboThreadColors}
-    eyebrow={page?.comboPreviewEyebrow}
-    headline={page?.comboPreviewHeadline}
-    subhead={page?.comboPreviewSubhead}
-  />
 
   {/* ── About / Maker ─────────────────────────────────────────────────────── */}
   {(page?.aboutHeadline || page?.aboutBody) && (
@@ -248,93 +185,10 @@ function legibleThreadColor(hex?: string): string {
     </section>
   )}
 
-  {/* ── Popular Combinations ──────────────────────────────────────────────── */}
-  {combos.length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l" data-reveal>
-          {page?.combosEyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.combosEyebrow}</p>
-          )}
-          <h2 class="font-display text-h2 text-foreground">{page?.combosHeadline ?? 'Popular Combinations'}</h2>
-          {page?.combosSubhead && (
-            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.combosSubhead}</p>
-          )}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
-          {combos.slice(0, 6).map((combo: any) => (
-            <div class="card-lift group bg-background rounded-xl overflow-hidden">
-              {combo.image?.asset ? (
-                <div class="aspect-[4/3] p-1 bg-secondary">
-                  <div class="relative w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] img-zoom">
-                    <SanityImage
-                      source={combo.image}
-                      width={600}
-                      height={450}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      class="w-full h-full object-cover"
-                    />
-                    <div class="img-tint" aria-hidden="true"></div>
-                  </div>
-                </div>
-              ) : (
-                /* No-photo "recipe" card: the combination NAME set in its REAL
-                   thread colour (inked when the thread is near-white so it stays
-                   legible on Paper), inside the hoop frame, with a band of the
-                   thread colour along the bottom. The colour + wording match the
-                   combo — no mismatched vendor specimen. The font is credited in
-                   the recipe line below. */
-                <div class="aspect-[4/3] p-1 bg-secondary">
-                  <div class="relative w-full h-full overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] bg-card flex items-center justify-center text-center px-l">
-                    <p
-                      class="font-display font-semibold leading-tight text-[clamp(1.5rem,3.5vw,2.25rem)]"
-                      style={`color: ${legibleThreadColor(combo.threadColor?.hexColor)};`}
-                    >
-                      {combo.name}
-                    </p>
-                    {combo.threadColor?.hexColor && (
-                      <div
-                        class="absolute inset-x-0 bottom-0 h-2.5"
-                        style={`background-color: ${combo.threadColor.hexColor};`}
-                        aria-hidden="true"
-                      ></div>
-                    )}
-                  </div>
-                </div>
-              )}
-              <div class="p-m">
-                {combo.image?.asset && (
-                  <h3 class="font-display text-h4 text-foreground mb-xs">{combo.name}</h3>
-                )}
-                {combo.description && <p class="text-sm text-[var(--color-text-secondary)]">{combo.description}</p>}
-                {(combo.threadColor?.name || combo.font?.name) && (
-                  <p class="flex items-center gap-xs text-xs text-[var(--color-text-secondary)] mt-s">
-                    {combo.threadColor?.hexColor && (
-                      <span
-                        class="inline-block w-3.5 h-3.5 rounded-full border border-border shrink-0"
-                        style={`background-color: ${combo.threadColor.hexColor};`}
-                        aria-hidden="true"
-                      ></span>
-                    )}
-                    <span>
-                      {combo.threadColor?.name}{combo.threadColor?.name && combo.font?.name ? ' · ' : ''}{combo.font?.name}
-                    </span>
-                  </p>
-                )}
-                {(combo.tags ?? []).length > 0 && (
-                  <div class="flex flex-wrap gap-xs mt-s">
-                    {(combo.tags as string[]).map((tag: string) => (
-                      <span class="text-xs px-s py-0.5 rounded-full bg-tertiary text-[var(--color-text-secondary)]">{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
+  {/* Popular Combinations + interactive "Preview Your Combination" removed
+      2026-07-03 at Nate's request — neither landed (embroidery fonts can't be
+      rendered live and the specimen/colour treatments never matched). The Font
+      Guide + Thread Color Chart pages cover browsing fonts/colours for real. */}
 
   {/* Testimonials section removed 2026-07-02 — Mary Ann has no real reviews to
       publish yet, and we don't invent them. Re-add when genuine ones exist. */}
