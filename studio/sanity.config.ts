@@ -9,7 +9,6 @@ import { visionTool } from '@sanity/vision';
 import { media } from 'sanity-plugin-media';
 import { unsplashImageAsset } from 'sanity-plugin-asset-source-unsplash';
 import { Iframe } from 'sanity-plugin-iframe-pane';
-import { assist } from '@sanity/assist';
 import { schemaTypes } from './schemaTypes';
 import { deskStructure } from './structure';
 import StudioLogo from './components/StudioLogo';
@@ -126,12 +125,6 @@ export default defineConfig({
     }),
     unsplashImageAsset(),
     media(),
-    // AI Assist — adds a "Generate" (✨) action to fields, including one-click
-    // alt-text suggestions on image "Photo description" fields. Requires AI
-    // Assist to be enabled once for this project at sanity.io/manage
-    // (Settings → API → AI Assist / Studio AI). Until then the button appears
-    // but generation is inactive; nothing else is affected.
-    assist(),
     ...(process.env.NODE_ENV !== 'production' ? [visionTool()] : []),
   ],
 
