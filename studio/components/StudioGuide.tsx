@@ -13,12 +13,14 @@ interface Tip { heading?: string; tone?: 'default' | 'primary' | 'caution' | 'po
 interface GuideDoc {
   guideTitle?: string;
   guideIntro?: string;
+  videoUrl?: string;
+  videoLabel?: string;
   studioMap?: MapRow[];
   howTos?: HowTo[];
   tips?: Tip[];
 }
 
-const QUERY = `*[_type=="studioGuide"][0]{guideTitle, guideIntro, studioMap, howTos, tips}`;
+const QUERY = `*[_type=="studioGuide"][0]{guideTitle, guideIntro, videoUrl, videoLabel, studioMap, howTos, tips}`;
 
 /** Split a text field on blank lines into paragraphs. */
 function paragraphs(text?: string): string[] {
@@ -61,6 +63,21 @@ export default function StudioGuide() {
               {paragraphs(doc.guideIntro).map((p, i) => (
                 <Box key={i} marginTop={i === 0 ? 0 : 2}><Text muted size={1}>{p}</Text></Box>
               ))}
+            </Box>
+          )}
+          {/* Optional walkthrough video — a prominent button when a link is set. */}
+          {doc.videoUrl && (
+            <Box marginTop={4}>
+              <Card radius={2} shadow={1} tone="primary">
+                <a
+                  href={doc.videoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ display: 'block', padding: '0.85rem 1.15rem', textDecoration: 'none', color: 'inherit' }}
+                >
+                  <Text size={1} weight="semibold">▶  {doc.videoLabel ?? 'Watch the 2-minute walkthrough'}</Text>
+                </a>
+              </Card>
             </Box>
           )}
         </Box>

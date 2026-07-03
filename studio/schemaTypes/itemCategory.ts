@@ -85,6 +85,8 @@ export const itemCategory = defineType({
       group: 'content',
       description: 'Short reassuring lines shown in the trust strip below the hero. E.g. "Starting at $12 per piece" or "Minimum 12 pieces".',
       of: [defineArrayMember({ type: 'string' })],
+      // Sensible starter lines for a new category — keep, tweak, or replace.
+      initialValue: ['Hand-stitched to order', 'Local pickup or shipping'],
       validation: (Rule) => Rule.required().min(2).max(5),
     }),
     defineField({

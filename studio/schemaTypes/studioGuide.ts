@@ -25,6 +25,19 @@ export const studioGuide = defineType({
       description: 'The friendly intro under the title.',
     }),
     defineField({
+      name: 'videoUrl',
+      title: 'Walkthrough video link (optional)',
+      type: 'url',
+      description: 'Paste a Loom or YouTube link to a short "how to use this" video. When set, a "Watch the video" button appears at the top of the guide for Mary Ann.',
+      validation: (R) => R.uri({ scheme: ['http', 'https'] }),
+    }),
+    defineField({
+      name: 'videoLabel',
+      title: 'Video button text (optional)',
+      type: 'string',
+      description: 'Text on the video button. Defaults to "Watch the 2-minute walkthrough".',
+    }),
+    defineField({
       name: 'studioMap',
       title: 'The map: where everything lives',
       type: 'array',
