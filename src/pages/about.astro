@@ -3,12 +3,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
-import { getSiteSettings, getAboutPage, getTestimonials, getFeaturedGalleryItems } from '@/lib/queries';
+import { getSiteSettings, getAboutPage, getFeaturedGalleryItems } from '@/lib/queries';
 
-const [siteSettings, page, testimonials, recentWork] = await Promise.all([
+const [siteSettings, page, recentWork] = await Promise.all([
   getSiteSettings(),
   getAboutPage(),
-  getTestimonials(true),
   getFeaturedGalleryItems(3),
 ]);
 
@@ -153,26 +152,9 @@ const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behi
     </section>
   )}
 
-  {/* Testimonials */}
-  {testimonials.length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-l" data-stagger-grid>
-          {testimonials.slice(0, 3).map((t: any) => (
-            <figure class="bg-tertiary rounded-xl border border-border-soft p-l flex flex-col gap-m">
-              <blockquote class="font-display italic text-h4 text-foreground/90 leading-snug flex-1">
-                "{t.quote}"
-              </blockquote>
-              <figcaption class="text-sm text-[var(--color-text-secondary)]">
-                <span class="font-semibold text-foreground">{t.attribution}</span>
-                {t.itemOrdered && <span class="block text-xs mt-xs">{t.itemOrdered}</span>}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
+  {/* Testimonials section removed 2026-07-03 — same placeholder quotes we pulled
+      from the homepage. Mary Ann has no real reviews to publish yet, and we don't
+      invent them. Re-add when genuine ones exist. */}
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

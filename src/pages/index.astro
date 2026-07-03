@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Hero from '@/components/Hero.astro';
-import StatsRow from '@/components/StatsRow.astro';
 import ProcessStep from '@/components/ProcessStep.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
@@ -74,8 +73,9 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
     </section>
   )}
 
-  {/* ── Stats Strip ───────────────────────────────────────────────────────── */}
-  <StatsRow stats={page?.statsItems ?? []} />
+  {/* Stats strip removed 2026-07-03 at Nate's request — the trust bar above
+      already carries the reassurance line; the stat counters read as filler
+      for a one-woman studio. */}
 
   {/* ── Category Grid ─────────────────────────────────────────────────────── */}
   {categories.length > 0 && (
