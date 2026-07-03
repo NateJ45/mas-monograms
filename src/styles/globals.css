@@ -474,6 +474,25 @@
   .hero-tri-slide { transition: none; animation: none; transform: none; }
 }
 
+/* Split-hero collage frames: a very gentle idle float so the scattered photos
+   feel alive before the visitor scrolls. Each frame's tilt is carried in --rot
+   (set inline) and re-applied inside the keyframes so the rotation is preserved
+   while it drifts; --fdur/--fdelay (also inline) stagger the four frames.
+   Transform-only (composited, no layout shift). Reduced-motion → static tilt. */
+.hero-tri-frame {
+  transform: rotate(var(--rot, 0deg));
+  animation: hero-float var(--fdur, 8s) ease-in-out infinite;
+  animation-delay: var(--fdelay, 0s);
+  will-change: transform;
+}
+@keyframes hero-float {
+  0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+  50%      { transform: rotate(var(--rot, 0deg)) translateY(-7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-tri-frame { animation: none; transform: rotate(var(--rot, 0deg)); }
+}
+
 /* Image zoom + tint hover */
 @media (prefers-reduced-motion: no-preference) {
   .img-zoom img,
