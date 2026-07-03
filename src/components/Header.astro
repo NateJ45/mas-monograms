@@ -38,9 +38,11 @@ interface Props {
       links?: Array<{ label?: string; href?: string }>;
     }> | null;
   } | null;
+  /** When false, the Clearance nav link is hidden (nothing on clearance). */
+  hasClearance?: boolean;
 }
 
-const { siteSettings } = Astro.props as Props;
+const { siteSettings, hasClearance = true } = Astro.props as Props;
 
 const brandName   = siteSettings?.title ?? site.name;
 const email       = siteSettings?.email ?? '';
@@ -92,7 +94,9 @@ function normaliseSanityNav(
     });
 }
 
-const NAV_ITEMS = normaliseSanityNav(siteSettings?.navItems);
+const NAV_ITEMS = normaliseSanityNav(siteSettings?.navItems).filter(
+  (it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance'),
+);
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {

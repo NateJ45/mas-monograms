@@ -34,9 +34,11 @@ interface Props {
     footerCreditUrl?: string;
   } | null;
   legalPages?: Array<{ title?: string; slug?: string }> | null;
+  /** When false, Clearance links are hidden (nothing on clearance). */
+  hasClearance?: boolean;
 }
 
-const { siteSettings, legalPages } = Astro.props as Props;
+const { siteSettings, legalPages, hasClearance = true } = Astro.props as Props;
 const legal = (legalPages ?? []).filter((l) => l?.slug && l?.title);
 
 const brandName      = siteSettings?.title ?? site.name;
@@ -76,7 +78,9 @@ function socialIcon(platform: string | undefined) {
             {col.title}
           </p>
           <ul class="text-sm space-y-2 list-none p-0">
-            {(col.links ?? []).map((link) => (
+            {(col.links ?? [])
+              .filter((link) => hasClearance || link.href !== '/clearance')
+              .map((link) => (
               <li>
                 <a href={link.href ?? '#'} class="text-foreground/85 hover:text-link transition-colors">
                   {link.label}
@@ -110,7 +114,9 @@ function socialIcon(platform: string | undefined) {
           <ul class="text-sm space-y-2 list-none p-0">
             <li><a href="/font-lettering-guide"  class="text-foreground/85 hover:text-link transition-colors">Font &amp; Lettering Guide</a></li>
             <li><a href="/thread-color-chart"    class="text-foreground/85 hover:text-link transition-colors">Thread Color Chart</a></li>
-            <li><a href="/clearance"             class="text-foreground/85 hover:text-link transition-colors">Clearance</a></li>
+            {hasClearance && (
+              <li><a href="/clearance"           class="text-foreground/85 hover:text-link transition-colors">Clearance</a></li>
+            )}
           </ul>
         </nav>
 

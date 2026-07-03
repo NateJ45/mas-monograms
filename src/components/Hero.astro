@@ -100,6 +100,20 @@ const effectiveImages = heroImageList.length > 0
   : (backgroundImage?.asset ? [backgroundImage] : []);
 const hasImage = effectiveImages.length > 0;
 
+// Split hero "three viewports": up to 6 photos spread across 3 overlapping
+// rectangular frames, each starting on a different image so several real
+// pieces are visible at once. Positions/aspects hand-tuned to overlap nicely.
+const triImages = effectiveImages.slice(0, 6);
+const triLen = Math.max(1, triImages.length);
+const triStep = Math.max(1, Math.floor(triImages.length / 3));
+// Positions are inline styles (not Tailwind classes) so the dynamic percentage
+// values always ship — Tailwind's scanner won't pick up class names built in JS.
+const triFrames = [
+  { style: 'top:0; left:0; width:58%; z-index:10;',      aspect: 'aspect-[4/3]', offset: 0 },
+  { style: 'top:26%; right:0; width:47%; z-index:30;',   aspect: 'aspect-[3/4]', offset: triStep % triLen },
+  { style: 'bottom:0; left:15%; width:54%; z-index:20;', aspect: 'aspect-[4/3]', offset: (triStep * 2) % triLen },
+];
+
 // "tall" (homepage) fills the screen below the sticky header on first load.
 // The exact fill height comes from the .hero-fill class plus the measured
 // --header-h variable (see the inline script and scoped <style> below).
@@ -192,29 +206,35 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
         )}
       </div>
 
-      {/* Photo column: a cross-fading Ken Burns slideshow of real pieces in the
-          hoop-ring frame (brass p-1), bounded to a portrait aspect so the
-          studio's portrait phone photos stay sharp (downscaled, not stretched).
-          Falls back to a single static image when only one is available. The
-          first slide is the eager LCP; the rest lazy-load. */}
-      <div class="p-1 bg-secondary rounded-xl" data-reveal>
-        <div class="relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] aspect-[4/5]">
-          {effectiveImages.length >= 2 ? (
-            <div class="hero-slideshow" data-hero-frame-slideshow>
-              {effectiveImages.slice(0, 6).map((img, i) => (
-                <SanityImage
-                  source={img}
-                  width={900}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchpriority={i === 0 ? 'high' : 'low'}
-                  quality={80}
-                  alt={i === 0 ? undefined : ''}
-                  class={`hero-slide${i === 0 ? ' is-active' : ''}`}
-                />
-              ))}
+      {/* Photo column: three overlapping rectangular viewports, each a fast
+          Ken Burns cross-fade cycling its own gallery photos (staggered offsets
+          so several different pieces show at once). Falls back to a single
+          framed image when there are fewer than 3 photos. Only the largest
+          frame's first photo is the eager LCP. */}
+      {triImages.length >= 3 ? (
+        <div class="relative w-full aspect-[5/6]" data-reveal>
+          {triFrames.map((fr, fi) => (
+            <div class="absolute p-1 bg-secondary rounded-xl shadow-lg" style={fr.style}>
+              <div class:list={['relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]', fr.aspect]} data-hero-tri>
+                {triImages.map((img, i) => (
+                  <SanityImage
+                    source={img}
+                    width={640}
+                    sizes="(max-width: 1024px) 45vw, 30vw"
+                    loading={fi === 0 && i === fr.offset ? 'eager' : 'lazy'}
+                    fetchpriority={fi === 0 && i === fr.offset ? 'high' : 'low'}
+                    quality={78}
+                    alt={fi === 0 && i === fr.offset ? undefined : ''}
+                    class={`hero-tri-slide${i === fr.offset ? ' is-active' : ''}`}
+                  />
+                ))}
+              </div>
             </div>
-          ) : (
+          ))}
+        </div>
+      ) : (
+        <div class="p-1 bg-secondary rounded-xl" data-reveal>
+          <div class="overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)] aspect-[4/5]">
             <SanityImage
               source={effectiveImages[0]}
               width={900}
@@ -224,38 +244,45 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
               quality={80}
               class="w-full h-full object-cover"
             />
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
 
-    {/* Cross-fade cycler for the framed slideshow (2+ images). Mirrors the
-        full-bleed HeroBackground pattern with its own timer/flag so the two
-        never collide. Reduced-motion users get a static first slide. */}
-    {effectiveImages.length >= 2 && (
+    {/* Round-robin cross-fade cycler for the three viewports: every ~2s one
+        frame advances to its next photo, so something changes often without all
+        three flipping at once. Reduced-motion users get static first frames. */}
+    {triImages.length >= 3 && (
       <script is:inline>
         (function () {
-          function initHeroFrameSlideshow() {
-            if (window.__heroFrameTimer) { clearInterval(window.__heroFrameTimer); window.__heroFrameTimer = null; }
-            var box = document.querySelector('[data-hero-frame-slideshow]');
-            if (!box) return;
-            var slides = box.querySelectorAll('.hero-slide');
-            if (slides.length < 2) return;
+          function initHeroTri() {
+            if (window.__heroTriTimer) { clearInterval(window.__heroTriTimer); window.__heroTriTimer = null; }
+            var frames = Array.prototype.slice.call(document.querySelectorAll('[data-hero-tri]'));
+            if (!frames.length) return;
             var reduce = false;
             try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
             if (reduce) return;
-            var current = 0;
-            window.__heroFrameTimer = setInterval(function () {
+            var states = frames.map(function (f) {
+              var slides = f.querySelectorAll('.hero-tri-slide');
+              var cur = 0;
+              for (var i = 0; i < slides.length; i++) { if (slides[i].classList.contains('is-active')) { cur = i; break; } }
+              return { slides: slides, cur: cur };
+            });
+            var turn = 0;
+            window.__heroTriTimer = setInterval(function () {
               if (document.hidden) return;
-              slides[current].classList.remove('is-active');
-              current = (current + 1) % slides.length;
-              slides[current].classList.add('is-active');
-            }, 4500);
+              var s = states[turn % states.length];
+              turn++;
+              if (s.slides.length < 2) return;
+              s.slides[s.cur].classList.remove('is-active');
+              s.cur = (s.cur + 1) % s.slides.length;
+              s.slides[s.cur].classList.add('is-active');
+            }, 2000);
           }
-          initHeroFrameSlideshow();
-          if (!window.__heroFrameBound) {
-            window.__heroFrameBound = true;
-            document.addEventListener('astro:page-load', initHeroFrameSlideshow);
+          initHeroTri();
+          if (!window.__heroTriBound) {
+            window.__heroTriBound = true;
+            document.addEventListener('astro:page-load', initHeroTri);
           }
         })();
       </script>

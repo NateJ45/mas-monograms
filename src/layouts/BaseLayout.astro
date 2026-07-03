@@ -13,7 +13,7 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getActiveAnnouncement, getAllLegalPages } from '@/lib/queries';
+import { getActiveAnnouncement, getAllLegalPages, getAllClearanceItems } from '@/lib/queries';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
@@ -102,6 +102,9 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 const announcement = await getActiveAnnouncement().catch(() => null);
 // Legal/policy pages for the footer links (Sanity-managed collection).
 const legalPages = await getAllLegalPages().catch(() => []);
+// Hide the Clearance nav/footer link entirely when there's nothing on clearance.
+const clearanceItems = await getAllClearanceItems().catch(() => []);
+const hasClearance = (clearanceItems?.length ?? 0) > 0;
 const showAnnouncement = !!(announcement?.message);
 
 // Map announcement style -> semantic Tailwind token classes.
@@ -214,13 +217,13 @@ const announcementStyle = ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? 
       </div>
     )}
 
-    <Header siteSettings={siteSettings} />
+    <Header siteSettings={siteSettings} hasClearance={hasClearance} />
 
     <main id="main" class="flex-1">
       <slot />
     </main>
 
-    <Footer siteSettings={siteSettings} legalPages={legalPages} />
+    <Footer siteSettings={siteSettings} legalPages={legalPages} hasClearance={hasClearance} />
 
     {/*
       This island was previously `client:load` which forced the JS to
