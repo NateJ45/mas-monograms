@@ -1,10 +1,14 @@
 ---
 // MAS Monograms site footer.
-// Structure:
-//   1. 4px sage accent stripe
-//   2. 4-column link grid (editor-managed via siteSettings.footerColumns, or fallback)
-//   3. Centered logo + tagline
-//   4. Bottom bar: copyright · site credit
+// Layout (Direction C — "The Sampler"):
+//   1. Slim indigo brand stripe (seamless under the indigo CTA band above)
+//   2. Two-part main block — a brand column (logo + tagline + contact + social)
+//      on the left, the navigation link columns on the right
+//   3. A running-stitch (dashed brass) divider — the one decorative footer flourish
+//   4. Bottom bar: copyright · legal links · site credit
+// Link columns are editor-managed via siteSettings.footerColumns (with a
+// sensible fallback). Contact + social live in the brand column, so they show
+// whether or not custom columns are set.
 
 import { site } from '@/data/site';
 import {
@@ -13,7 +17,7 @@ import {
   IconBrandPinterest,
   IconLink,
 } from '@tabler/icons-react';
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import Logo from './Logo.astro';
 import { telHref } from '@/lib/phone';
 
@@ -41,20 +45,44 @@ interface Props {
 const { siteSettings, legalPages, hasClearance = true } = Astro.props as Props;
 const legal = (legalPages ?? []).filter((l) => l?.slug && l?.title);
 
-const brandName      = siteSettings?.title ?? site.name;
-const email          = siteSettings?.email ?? '';
-const phone          = siteSettings?.phone ?? '';
-const address        = siteSettings?.address;
-const socialLinks    = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
-const siteCredit     = siteSettings?.footerCredit;
-const siteCreditUrl  = siteSettings?.footerCreditUrl;
-const currentYear    = new Date().getFullYear();
+const brandName     = siteSettings?.title ?? site.name;
+const email         = siteSettings?.email ?? '';
+const phone         = siteSettings?.phone ?? '';
+const address       = siteSettings?.address;
+const location      = [address?.city, address?.state].filter(Boolean).join(', ');
+const socialLinks   = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
+const siteCredit    = siteSettings?.footerCredit;
+const siteCreditUrl = siteSettings?.footerCreditUrl;
+const currentYear   = new Date().getFullYear();
 
-// Resolve editor-managed footer columns; fall back to MAS defaults.
+// Navigation columns: editor-managed if present, otherwise a sensible default.
+// Contact + social are NOT columns here — they live in the brand block.
 const sanityColumns = (siteSettings?.footerColumns ?? []).filter(
   (c) => c.title && Array.isArray(c.links) && c.links.length > 0,
 );
-const useCustomColumns = sanityColumns.length > 0;
+const FALLBACK_COLUMNS: FooterColumn[] = [
+  { title: 'Explore', links: [
+    { label: 'How It Works', href: '/how-it-works' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Shop by Item', href: '/shop-by-item' },
+    { label: 'Style Gallery', href: '/style-gallery' },
+    { label: 'About', href: '/about' },
+  ] },
+  { title: 'Resources', links: [
+    { label: 'Font & Lettering Guide', href: '/font-lettering-guide' },
+    { label: 'Thread Color Chart', href: '/thread-color-chart' },
+    ...(hasClearance ? [{ label: 'Clearance', href: '/clearance' }] : []),
+  ] },
+  { title: 'Get Started', links: [
+    { label: 'Request a Quote', href: '/request-a-quote' },
+    { label: 'How the process works', href: '/how-it-works' },
+  ] },
+];
+const columns = (sanityColumns.length > 0 ? sanityColumns : FALLBACK_COLUMNS)
+  .map((c) => ({
+    title: c.title ?? '',
+    links: (c.links ?? []).filter((l) => hasClearance || l.href !== '/clearance'),
+  }));
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
@@ -69,142 +97,96 @@ function socialIcon(platform: string | undefined) {
 <footer class="bg-muted text-foreground">
   <div class="h-1 bg-primary" aria-hidden="true"></div>
 
-  <div class="mx-auto max-w-content px-m pt-l pb-m grid gap-l grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 text-center sm:text-left">
+  <div class="mx-auto max-w-content px-m pt-section-md pb-l">
+    <div class="grid grid-cols-1 gap-l gap-y-section-md lg:grid-cols-12">
 
-    {useCustomColumns ? (
-      sanityColumns.map((col, i) => (
-        <nav aria-labelledby={`footer-col-${i}`}>
-          <p id={`footer-col-${i}`} class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
-            {col.title}
-          </p>
-          <ul class="text-sm space-y-2 list-none p-0">
-            {(col.links ?? [])
-              .filter((link) => hasClearance || link.href !== '/clearance')
-              .map((link) => (
-              <li>
-                <a href={link.href ?? '#'} class="text-foreground/85 hover:text-link transition-colors">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      ))
-    ) : (
-      <>
-        {/* EXPLORE */}
-        <nav aria-labelledby="footer-explore">
-          <p id="footer-explore" class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
-            Explore
-          </p>
-          <ul class="text-sm space-y-2 list-none p-0">
-            <li><a href="/how-it-works"  class="text-foreground/85 hover:text-link transition-colors">How It Works</a></li>
-            <li><a href="/pricing"        class="text-foreground/85 hover:text-link transition-colors">Pricing</a></li>
-            <li><a href="/shop-by-item"   class="text-foreground/85 hover:text-link transition-colors">Shop by Item</a></li>
-            <li><a href="/style-gallery"  class="text-foreground/85 hover:text-link transition-colors">Style Gallery</a></li>
-            <li><a href="/about"          class="text-foreground/85 hover:text-link transition-colors">About</a></li>
-          </ul>
-        </nav>
+      {/* ── Brand column ─────────────────────────────────────────────────── */}
+      <div class="lg:col-span-4 lg:pr-l text-center sm:text-left">
+        <a href="/" aria-label={`${brandName} home`} class="inline-block hover:opacity-80 transition-opacity">
+          <Logo variant="ink" class="h-14 w-auto" />
+        </a>
 
-        {/* RESOURCES */}
-        <nav aria-labelledby="footer-resources">
-          <p id="footer-resources" class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
-            Resources
+        {siteSettings?.tagline && (
+          <p class="mt-m max-w-[26rem] mx-auto sm:mx-0 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            {siteSettings.tagline}
           </p>
-          <ul class="text-sm space-y-2 list-none p-0">
-            <li><a href="/font-lettering-guide"  class="text-foreground/85 hover:text-link transition-colors">Font &amp; Lettering Guide</a></li>
-            <li><a href="/thread-color-chart"    class="text-foreground/85 hover:text-link transition-colors">Thread Color Chart</a></li>
-            {hasClearance && (
-              <li><a href="/clearance"           class="text-foreground/85 hover:text-link transition-colors">Clearance</a></li>
-            )}
-          </ul>
-        </nav>
+        )}
 
-        {/* CONNECT */}
-        <nav aria-labelledby="footer-connect">
-          <p id="footer-connect" class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
-            Connect
-          </p>
-          <ul class="text-sm space-y-2 list-none p-0">
-            <li>
-              <a href="/request-a-quote" class="text-foreground/85 hover:text-link transition-colors font-semibold">
-                Request a Quote
-              </a>
-            </li>
-            {email && (
-              <li>
-                <a href={`mailto:${email}`} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
-                  <Mail size={13} aria-hidden="true" />
-                  {email}
-                </a>
-              </li>
-            )}
-            {phone && (
-              <li>
-                <a href={telHref(phone)} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
-                  <Phone size={13} aria-hidden="true" />
-                  {phone}
-                </a>
-              </li>
-            )}
-            {address?.city && (
-              <li class="text-[var(--color-text-secondary)] text-sm">
-                {[address.city, address.state].filter(Boolean).join(', ')}
-              </li>
-            )}
-          </ul>
-        </nav>
-
-        {/* GET IN TOUCH — social icons */}
-        <div>
-          <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">
-            Follow Along
-          </p>
-          {socialLinks.length > 0 ? (
-            <ul class="flex justify-center sm:justify-start flex-wrap gap-s list-none p-0">
-              {socialLinks.map((link) => {
-                const Icon = socialIcon(link.platform);
-                const ariaLabel = link.label ?? link.platform ?? 'Social link';
-                return (
-                  <li>
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={ariaLabel}
-                      class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors"
-                    >
-                      <Icon size={20} stroke={1.5} />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p class="text-sm text-[var(--color-text-secondary)]">Find us on social media.</p>
+        <div class="mt-m flex flex-col items-center sm:items-start gap-xs text-sm">
+          {location && (
+            <p class="inline-flex items-center gap-xs text-[var(--color-text-secondary)]">
+              <MapPin size={14} aria-hidden="true" />
+              {location}
+            </p>
+          )}
+          {email && (
+            <a href={`mailto:${email}`} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
+              <Mail size={14} aria-hidden="true" />
+              {email}
+            </a>
+          )}
+          {phone && (
+            <a href={telHref(phone)} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
+              <Phone size={14} aria-hidden="true" />
+              {phone}
+            </a>
           )}
         </div>
-      </>
-    )}
+
+        {socialLinks.length > 0 && (
+          <ul class="mt-m flex justify-center sm:justify-start flex-wrap gap-s list-none p-0">
+            {socialLinks.map((link) => {
+              const Icon = socialIcon(link.platform);
+              const ariaLabel = link.label ?? link.platform ?? 'Social link';
+              return (
+                <li>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={ariaLabel}
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors"
+                  >
+                    <Icon size={18} stroke={1.5} />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+
+      {/* ── Navigation columns ───────────────────────────────────────────── */}
+      <nav
+        aria-label="Footer"
+        class="lg:col-span-8 grid grid-cols-2 gap-l sm:grid-cols-4 text-center sm:text-left"
+      >
+        {columns.map((col) => (
+          <div>
+            <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s font-semibold">
+              {col.title}
+            </p>
+            <ul class="text-sm space-y-2 list-none p-0">
+              {col.links.map((link) => (
+                <li>
+                  <a href={link.href ?? '#'} class="text-foreground/85 hover:text-link transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </div>
   </div>
 
-  {/* Logo + tagline */}
-  <div class="mx-auto max-w-content px-m pb-l flex flex-col items-center gap-s text-center">
-    <a href="/" aria-label={`${brandName} home`} class="inline-block hover:opacity-80 transition-opacity">
-      <Logo variant="ink" class="h-20 w-auto" />
-    </a>
-    {siteSettings?.tagline && (
-      <p class="text-sm text-[var(--color-text-secondary)] italic max-w-[28rem]">{siteSettings.tagline}</p>
-    )}
-  </div>
-
-  {/* Bottom bar. On sm+ this is a 3-column grid so the legal links sit at the
-      TRUE horizontal centre of the bar (a flex justify-between would centre them
-      only within the leftover space, pushing them off-centre when the left and
-      right items differ in width). Stacks centred on mobile. */}
-  <div class="border-t border-border">
-    <div class="mx-auto max-w-content px-m py-m flex flex-col items-center gap-s text-center text-xs text-[var(--color-text-secondary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m">
-      <p class="sm:justify-self-start">© {currentYear} {brandName}</p>
+  {/* ── Bottom bar. The dashed top border is a running-stitch line — the one
+      decorative footer flourish, in decorative brass. On sm+ it's a 3-column
+      grid so the legal links sit at the true horizontal centre. ── */}
+  <div class="border-t border-dashed border-[#B98A3E]/45">
+    <div class="mx-auto max-w-content px-m py-m flex flex-col items-center gap-s text-center text-xs text-[var(--color-text-tertiary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m">
+      <p class="sm:justify-self-start">© {currentYear} {brandName} · {location || 'St. Matthews, SC'}</p>
       {legal.length > 0 ? (
         <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center">
           {legal.map((lp) => (
