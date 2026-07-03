@@ -27,10 +27,6 @@ export const notFoundPage = defineType({
     defineField({ name: 'body', title: 'Body copy', type: 'text', rows: 3, group: 'content',
       initialValue: "It happens! Maybe a link got stale or the URL has a small typo. Here's where to head next.",
       validation: (R) => R.required() }),
-    defineField({ name: 'heroImage', title: 'Photo (optional)', type: 'image', group: 'content',
-      description: 'An on-brand photo that grounds the page in the studio identity.',
-      options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     defineField({ name: 'primaryCtaLabel', title: 'Primary CTA label', type: 'string', group: 'ctas',
       initialValue: 'Back to home', validation: (R) => R.required() }),

@@ -29,9 +29,6 @@ export const shopIndexPage = defineType({
     defineField({ name: 'heroHeadline', title: 'Headline', type: 'string', group: 'page',
       validation: (R) => R.required().max(100) }),
     defineField({ name: 'heroSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'page' }),
-    defineField({ name: 'heroImage', title: 'Hero image (optional)', type: 'image', group: 'page',
-      options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     defineField({ name: 'gridIntro', title: 'Grid intro text (optional)', type: 'text', rows: 2, group: 'page',
       description: 'Short paragraph above the category grid.' }),

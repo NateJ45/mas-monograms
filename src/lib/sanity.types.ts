@@ -363,14 +363,6 @@ export type NotFoundPage = {
   seoDescription?: string;
   headline?: string;
   body?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   secondaryCtaLabel?: string;
@@ -569,14 +561,6 @@ export type StyleGalleryPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   filterAllLabel?: string;
   additionalFilterTags?: Array<{
     label?: string;
@@ -617,14 +601,6 @@ export type ShopIndexPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   gridIntro?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
@@ -671,15 +647,11 @@ export type RequestAQuotePage = {
     _key: string;
   }>;
   heroTrustItems?: Array<string>;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   turnaroundCallout?: string;
+  orderInfoHeading?: string;
+  personalInfoHeading?: string;
+  attachmentsHeading?: string;
+  additionalHeading?: string;
   nameLabel?: string;
   namePlaceholder?: string;
   emailLabel?: string;
@@ -830,14 +802,6 @@ export type PricingPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   tiersHeadline?: string;
   tiersSubhead?: string;
   addonsHeadline?: string;
@@ -890,14 +854,6 @@ export type HowItWorksPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
-  heroImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   stepsHeadline?: string;
   stepsSubhead?: string;
   steps?: Array<{

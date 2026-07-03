@@ -58,9 +58,6 @@ export const requestAQuotePage = defineType({
       group: 'hero',
       description: 'Short reassurance bullets shown beside the hero with a checkmark. E.g. "Free quotes", "1–2 day reply", "Local, hand-finished work".',
     }),
-    defineField({ name: 'heroImage', title: 'Hero image (optional)', type: 'image', group: 'hero',
-      options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     defineField({
       name: 'turnaroundCallout',
@@ -69,6 +66,17 @@ export const requestAQuotePage = defineType({
       group: 'hero',
       description: 'Bold note near the top of the form. E.g. "Standard turnaround: 7–10 business days."',
     }),
+
+    // ── Form section headings (the four fieldset titles down the form) ──────────
+    // The page reads these; each falls back to the default shown here if left blank.
+    defineField({ name: 'orderInfoHeading', title: 'Section heading — order info', type: 'string', group: 'order',
+      description: 'Title above the first group of questions.', initialValue: 'About Your Order' }),
+    defineField({ name: 'personalInfoHeading', title: 'Section heading — your info', type: 'string', group: 'contact',
+      description: 'Title above the contact questions.', initialValue: 'Your Information' }),
+    defineField({ name: 'attachmentsHeading', title: 'Section heading — photos', type: 'string', group: 'files',
+      description: 'Title above the photo upload.', initialValue: 'Photos (Optional)' }),
+    defineField({ name: 'additionalHeading', title: 'Section heading — anything else', type: 'string', group: 'logistics',
+      description: 'Title above the special-instructions section.', initialValue: 'Anything Else?' }),
 
     // ── Contact fields ────────────────────────────────────────────────────────
     defineField({ name: 'nameLabel', title: 'Name field label', type: 'string', group: 'contact',

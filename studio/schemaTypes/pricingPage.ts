@@ -33,9 +33,6 @@ export const pricingPage = defineType({
     defineField({ name: 'heroEyebrow', title: 'Eyebrow', type: 'string', group: 'hero', validation: (R) => R.required().max(80) }),
     defineField({ name: 'heroHeadline', title: 'Headline', type: 'string', group: 'hero', validation: (R) => R.required().max(100) }),
     defineField({ name: 'heroSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'hero' }),
-    defineField({ name: 'heroImage', title: 'Hero image (optional)', type: 'image', group: 'hero',
-      options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     // Pricing tiers section
     defineField({ name: 'tiersHeadline', title: 'Tiers section headline', type: 'string', group: 'tiers', validation: (R) => R.required().max(100) }),
