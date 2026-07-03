@@ -78,7 +78,6 @@ export function urlForDoc(schemaType: string, doc: any): string | null {
     case 'threadColor':        return `${SITE_URL}/thread-color-chart`;
     case 'pricingTier':        return `${SITE_URL}/pricing`;
     case 'clearanceItem':      return `${SITE_URL}/clearance`;
-    case 'popularCombination': return `${SITE_URL}/`;
     // siteSettings has no page
     default: return null;
   }

@@ -39,8 +39,6 @@ export const aboutPage = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     // Story section
-    defineField({ name: 'storyEyebrow', title: 'Story eyebrow', type: 'string', group: 'story',
-      validation: (R) => R.required().max(60) }),
     defineField({ name: 'storyHeadline', title: 'Story headline', type: 'string', group: 'story',
       validation: (R) => R.required().max(100) }),
     defineField({
@@ -87,7 +85,6 @@ export const aboutPage = defineType({
       validation: (R) => R.max(80) }),
 
     // Values section
-    defineField({ name: 'valuesEyebrow', title: 'Values eyebrow', type: 'string', group: 'values' }),
     defineField({ name: 'valuesHeadline', title: 'Values headline', type: 'string', group: 'values' }),
     defineField({
       name: 'values',

@@ -176,12 +176,6 @@ add({
   ]),
   processCtaLabel: 'See how it works',
   processCtaHref: '/how-it-works',
-  combosEyebrow: 'Customer favorites',
-  combosHeadline: 'Most popular combinations',
-  combosSubhead:
-    "My most-loved font and thread pairings, a great starting point if you're not sure what to choose.",
-  combosCtaLabel: 'See all font styles',
-  combosCtaHref: '/font-lettering-guide',
   galleryEyebrow: 'Style Gallery',
   galleryHeadline: 'Not sure where to start?',
   gallerySubhead:
@@ -622,19 +616,6 @@ add({ _id: 'tier-applique', _type: 'pricingTier', label: 'Custom Appliqué', min
   note: 'Layered fabric designs. Includes a one-time $30 setup charge plus stitching by stitch count.', highlighted: false, displayOrder: 3 });
 add({ _id: 'tier-custom', _type: 'pricingTier', label: 'Custom Embroidery', minQuantity: 1, pricePerPiece: 16,
   note: 'Your own artwork, digitized and stitched, plus a one-time $30 digitizing fee. Detailed pieces run $60–$75.', highlighted: false, displayOrder: 4 });
-
-// ═══════════════════════════════════════════════════════════════════════════
-// POPULAR COMBINATIONS (3) — image omitted. relatedCategory wired to real refs.
-// ═══════════════════════════════════════════════════════════════════════════
-add({ _id: 'combo-classic', _type: 'popularCombination', name: 'Navy on White',
-  description: 'Block font · three-letter monogram · perfect for towels and linens.',
-  tags: ['Classic', 'Towels & Linens'], relatedCategory: ref('category-towels-linens'), featured: true, displayOrder: 1 });
-add({ _id: 'combo-gift', _type: 'popularCombination', name: 'Blush Script',
-  description: 'Fishtail font · first name · ideal for totes and baby items.',
-  tags: ['Gift-Ready', 'Baby & Kids'], relatedCategory: ref('category-baby-kids'), featured: true, displayOrder: 2 });
-add({ _id: 'combo-bold', _type: 'popularCombination', name: 'Forest on Cream',
-  description: 'Premium bordered sash · three-letter monogram · great for sweatshirts.',
-  tags: ['Bold', 'Jackets & Sweatshirts'], relatedCategory: ref('category-jackets-sweatshirts'), featured: true, displayOrder: 3 });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FAQ ITEMS (6) — from the How It Works page. answer is Portable Text.

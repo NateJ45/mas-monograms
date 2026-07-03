@@ -88,15 +88,10 @@ export function getHomePage(): Promise<any> {
       heroPrimaryCtaHref,
       heroSecondaryCtaLabel,
       heroSecondaryCtaHref,
-      trustEyebrow,
-      trustHeadline,
       trustItems,
       categoriesEyebrow,
       categoriesHeadline,
       categoriesSubhead,
-      comboPreviewEyebrow,
-      comboPreviewHeadline,
-      comboPreviewSubhead,
       aboutEyebrow,
       aboutHeadline,
       aboutBody ${PT_BODY},
@@ -109,9 +104,6 @@ export function getHomePage(): Promise<any> {
       processSteps[] { number, label, body },
       processCtaLabel,
       processCtaHref,
-      combosEyebrow,
-      combosHeadline,
-      combosSubhead,
       galleryEyebrow,
       galleryHeadline,
       gallerySubhead,
@@ -595,27 +587,6 @@ export function getAllPricingTiers(): Promise<any[]> {
       pricePerPiece,
       note,
       highlighted,
-      displayOrder
-    }`,
-    {},
-    [],
-  );
-}
-
-// ─── Popular Combinations ────────────────────────────────────────────────────
-
-export function getPopularCombinations(): Promise<any[]> {
-  return sanityFetch(
-    `*[_type == "popularCombination"] | order(displayOrder asc){
-      _id,
-      name,
-      description,
-      image ${IMG},
-      "font": font->{ name, "previewImage": previewImage ${IMG} },
-      "threadColor": threadColor->{ name, hexColor },
-      tags,
-      "relatedCategory": relatedCategory->{ name, slug },
-      featured,
       displayOrder
     }`,
     {},

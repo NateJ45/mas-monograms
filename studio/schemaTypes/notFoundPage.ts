@@ -21,7 +21,6 @@ export const notFoundPage = defineType({
       initialValue: "That page wandered off. Head back to the homepage or request a quote.",
       validation: (R) => R.max(160).warning('Over 160 chars may be cut off.') }),
 
-    defineField({ name: 'eyebrow', title: 'Eyebrow', type: 'string', group: 'content', initialValue: '404' }),
     defineField({ name: 'headline', title: 'Headline', type: 'string', group: 'content',
       initialValue: "That page wandered off.",
       validation: (R) => R.required().max(100) }),
@@ -41,10 +40,6 @@ export const notFoundPage = defineType({
       initialValue: 'Request a quote', validation: (R) => R.required() }),
     defineField({ name: 'secondaryCtaHref', title: 'Secondary CTA destination', type: 'string', group: 'ctas',
       initialValue: '/request-a-quote', validation: (R) => R.required() }),
-    defineField({ name: 'tertiaryCtaLabel', title: 'Tertiary CTA label', type: 'string', group: 'ctas',
-      initialValue: 'Browse what I embroider' }),
-    defineField({ name: 'tertiaryCtaHref', title: 'Tertiary CTA destination', type: 'string', group: 'ctas',
-      initialValue: '/shop-by-item' }),
   ],
   preview: { prepare: () => ({ title: '404 Page' }) },
 });

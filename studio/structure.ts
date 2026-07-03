@@ -56,7 +56,6 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'font',
   'threadColor',
   'pricingTier',
-  'popularCombination',
   'clearanceItem',
   'faqItem',
   // Start Here helper documents explicitly placed in the Start Here section
@@ -221,8 +220,6 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
 
               // Pricing — tiers (price per piece per quantity bracket)
               S.documentTypeListItem('pricingTier').title('Pricing Tiers').icon(BillIcon),
-              // Popular monogram combinations featured on the homepage
-              S.documentTypeListItem('popularCombination').title('Popular Combinations').icon(SparklesIcon),
 
               S.divider(),
 

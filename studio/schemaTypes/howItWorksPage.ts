@@ -34,7 +34,6 @@ export const howItWorksPage = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     // Steps intro
-    defineField({ name: 'stepsEyebrow', title: 'Steps section eyebrow', type: 'string', group: 'steps', validation: (R) => R.required().max(60) }),
     defineField({ name: 'stepsHeadline', title: 'Steps section headline', type: 'string', group: 'steps', validation: (R) => R.required().max(100) }),
     defineField({ name: 'stepsSubhead', title: 'Steps section subhead (optional)', type: 'text', rows: 2, group: 'steps' }),
 
@@ -79,7 +78,6 @@ export const howItWorksPage = defineType({
     }),
 
     // FAQ section
-    defineField({ name: 'faqEyebrow', title: 'FAQ section eyebrow', type: 'string', group: 'faq', validation: (R) => R.required().max(60) }),
     defineField({ name: 'faqHeadline', title: 'FAQ section headline', type: 'string', group: 'faq', validation: (R) => R.required().max(100) }),
     defineField({ name: 'faqSubhead', title: 'FAQ intro note (optional)', type: 'text', rows: 2, group: 'faq',
       description: 'One line under the heading. E.g. "More questions? Send me an email."' }),

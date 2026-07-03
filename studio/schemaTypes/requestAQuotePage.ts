@@ -63,22 +63,6 @@ export const requestAQuotePage = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     defineField({
-      name: 'formIntroHeadline',
-      title: 'Form section headline',
-      type: 'string',
-      group: 'hero',
-      description: 'Heading directly above the form. E.g. "Tell me about your order".',
-      validation: (R) => R.required().max(80),
-    }),
-    defineField({
-      name: 'formIntroBody',
-      title: 'Form intro paragraph',
-      type: 'text',
-      rows: 3,
-      group: 'hero',
-      description: 'Short paragraph above the form. Set expectations about turnaround, minimums, etc.',
-    }),
-    defineField({
       name: 'turnaroundCallout',
       title: 'Turnaround callout (optional)',
       type: 'string',

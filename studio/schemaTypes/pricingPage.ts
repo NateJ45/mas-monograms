@@ -38,17 +38,11 @@ export const pricingPage = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string', validation: (R) => R.required() })] }),
 
     // Pricing tiers section
-    defineField({ name: 'tiersEyebrow', title: 'Tiers section eyebrow', type: 'string', group: 'tiers', validation: (R) => R.required().max(60) }),
     defineField({ name: 'tiersHeadline', title: 'Tiers section headline', type: 'string', group: 'tiers', validation: (R) => R.required().max(100) }),
     defineField({ name: 'tiersSubhead', title: 'Intro paragraph', type: 'text', rows: 3, group: 'tiers',
       description: 'Explain the pricing model before the table. E.g. "Price per piece drops with quantity..."' }),
-    defineField({ name: 'tiersNote', title: 'Note below the table', type: 'string', group: 'tiers',
-      description: 'Small-print line below the pricing table. E.g. "Prices do not include the cost of garments."' }),
-    defineField({ name: 'tiersMinimumNote', title: 'Minimum order note', type: 'string', group: 'tiers',
-      description: 'E.g. "Minimum order: 12 pieces."' }),
 
     // Add-ons
-    defineField({ name: 'addonsEyebrow', title: 'Add-ons section eyebrow', type: 'string', group: 'addons' }),
     defineField({ name: 'addonsHeadline', title: 'Add-ons section headline', type: 'string', group: 'addons' }),
     defineField({
       name: 'addons',
@@ -92,7 +86,6 @@ export const pricingPage = defineType({
     }),
 
     // FAQ
-    defineField({ name: 'faqEyebrow', title: 'FAQ eyebrow', type: 'string', group: 'faq', validation: (R) => R.required().max(60) }),
     defineField({ name: 'faqHeadline', title: 'FAQ headline', type: 'string', group: 'faq', validation: (R) => R.required().max(100) }),
 
     // CTA

@@ -204,51 +204,6 @@ export type SanityImageHotspot = {
   width?: number;
 };
 
-export type FontReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'font';
-};
-
-export type ThreadColorReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'threadColor';
-};
-
-export type ItemCategoryReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'itemCategory';
-};
-
-export type PopularCombination = {
-  _id: string;
-  _type: 'popularCombination';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  description?: string;
-  image?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  font?: FontReference;
-  threadColor?: ThreadColorReference;
-  tags?: Array<string>;
-  relatedCategory?: ItemCategoryReference;
-  featured?: boolean;
-  displayOrder?: number;
-};
-
 export type PricingTier = {
   _id: string;
   _type: 'pricingTier';
@@ -262,6 +217,20 @@ export type PricingTier = {
   note?: string;
   highlighted?: boolean;
   displayOrder?: number;
+};
+
+export type ItemCategoryReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'itemCategory';
+};
+
+export type FontReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'font';
 };
 
 export type GalleryItem = {
@@ -392,7 +361,6 @@ export type NotFoundPage = {
   _rev: string;
   seoTitle?: string;
   seoDescription?: string;
-  eyebrow?: string;
   headline?: string;
   body?: string;
   heroImage?: {
@@ -407,8 +375,6 @@ export type NotFoundPage = {
   primaryCtaHref?: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
-  tertiaryCtaLabel?: string;
-  tertiaryCtaHref?: string;
 };
 
 export type ThankYouPage = {
@@ -713,8 +679,6 @@ export type RequestAQuotePage = {
     alt?: string;
     _type: 'image';
   };
-  formIntroHeadline?: string;
-  formIntroBody?: string;
   turnaroundCallout?: string;
   nameLabel?: string;
   namePlaceholder?: string;
@@ -802,7 +766,6 @@ export type AboutPage = {
     alt?: string;
     _type: 'image';
   };
-  storyEyebrow?: string;
   storyHeadline?: string;
   storyContent?: Array<{
     children?: Array<{
@@ -834,7 +797,6 @@ export type AboutPage = {
   makerAttribution?: string;
   studioNote?: string;
   recentWorkHeadline?: string;
-  valuesEyebrow?: string;
   valuesHeadline?: string;
   values?: Array<{
     label?: string;
@@ -876,12 +838,8 @@ export type PricingPage = {
     alt?: string;
     _type: 'image';
   };
-  tiersEyebrow?: string;
   tiersHeadline?: string;
   tiersSubhead?: string;
-  tiersNote?: string;
-  tiersMinimumNote?: string;
-  addonsEyebrow?: string;
   addonsHeadline?: string;
   addons?: Array<{
     label?: string;
@@ -905,7 +863,6 @@ export type PricingPage = {
     _type: 'block';
     _key: string;
   }>;
-  faqEyebrow?: string;
   faqHeadline?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
@@ -941,7 +898,6 @@ export type HowItWorksPage = {
     alt?: string;
     _type: 'image';
   };
-  stepsEyebrow?: string;
   stepsHeadline?: string;
   stepsSubhead?: string;
   steps?: Array<{
@@ -972,7 +928,6 @@ export type HowItWorksPage = {
     _type: 'step';
     _key: string;
   }>;
-  faqEyebrow?: string;
   faqHeadline?: string;
   faqSubhead?: string;
   ctaEyebrow?: string;
@@ -1019,11 +974,6 @@ export type HomePage = {
   categoriesEyebrow?: string;
   categoriesHeadline?: string;
   categoriesSubhead?: string;
-  categoriesCtaLabel?: string;
-  categoriesCtaHref?: string;
-  comboPreviewEyebrow?: string;
-  comboPreviewHeadline?: string;
-  comboPreviewSubhead?: string;
   aboutEyebrow?: string;
   aboutHeadline?: string;
   aboutBody?: Array<{
@@ -1062,11 +1012,6 @@ export type HomePage = {
   }>;
   processCtaLabel?: string;
   processCtaHref?: string;
-  combosEyebrow?: string;
-  combosHeadline?: string;
-  combosSubhead?: string;
-  combosCtaLabel?: string;
-  combosCtaHref?: string;
   galleryEyebrow?: string;
   galleryHeadline?: string;
   gallerySubhead?: string;
@@ -1077,14 +1022,6 @@ export type HomePage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-  ctaBackgroundImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
 };
 
 export type SiteSettings = {
@@ -1290,11 +1227,9 @@ export type AllSanitySchemaTypes =
   | ClearanceItem
   | SanityImageCrop
   | SanityImageHotspot
-  | FontReference
-  | ThreadColorReference
-  | ItemCategoryReference
-  | PopularCombination
   | PricingTier
+  | ItemCategoryReference
+  | FontReference
   | GalleryItem
   | ThreadColor
   | Font

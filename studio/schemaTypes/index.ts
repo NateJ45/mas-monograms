@@ -28,7 +28,6 @@ import { font } from './font';
 import { threadColor } from './threadColor';
 import { galleryItem } from './galleryItem';
 import { pricingTier } from './pricingTier';
-import { popularCombination } from './popularCombination';
 import { clearanceItem } from './clearanceItem';
 import { faqItem } from './faqItem';
 import { legalPage } from './legalPage';
@@ -60,7 +59,6 @@ export const schemaTypes = [
   threadColor,
   galleryItem,
   pricingTier,
-  popularCombination,
   clearanceItem,
   faqItem,
   legalPage,

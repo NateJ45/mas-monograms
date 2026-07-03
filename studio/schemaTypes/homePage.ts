@@ -17,7 +17,6 @@ export const homePage = defineType({
     { name: 'categories',  title: 'Shop categories' },
     { name: 'about',       title: 'About / Maker blurb' },
     { name: 'process',     title: 'Process preview' },
-    { name: 'combos',      title: 'Popular combinations' },
     { name: 'gallery',     title: 'Gallery preview' },
     { name: 'cta',         title: 'Final CTA banner' },
   ],
@@ -86,14 +85,6 @@ export const homePage = defineType({
       description: 'Section heading. E.g. "What would you like embroidered?"',
       validation: (R) => R.required().max(80) }),
     defineField({ name: 'categoriesSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'categories' }),
-    defineField({ name: 'categoriesCtaLabel', title: '"See all items" CTA label', type: 'string', group: 'categories',
-      initialValue: 'View all items', validation: (R) => R.required().max(50) }),
-    defineField({ name: 'categoriesCtaHref', title: '"See all items" CTA destination', type: 'string', group: 'categories',
-      initialValue: '/shop-by-item', validation: (R) => R.required() }),
-    defineField({ name: 'comboPreviewEyebrow', title: 'Combo preview eyebrow (optional)', type: 'string', group: 'categories',
-      description: 'Small label above the "build your own combination" picker. Leave blank to use a sensible default.' }),
-    defineField({ name: 'comboPreviewHeadline', title: 'Combo preview headline (optional)', type: 'string', group: 'categories' }),
-    defineField({ name: 'comboPreviewSubhead', title: 'Combo preview subhead (optional)', type: 'text', rows: 2, group: 'categories' }),
 
     // ── About / Maker blurb ───────────────────────────────────────────────────
     defineField({ name: 'aboutEyebrow', title: 'Eyebrow', type: 'string', group: 'about',
@@ -160,17 +151,6 @@ export const homePage = defineType({
     defineField({ name: 'processCtaHref', title: 'CTA destination', type: 'string', group: 'process',
       initialValue: '/how-it-works', validation: (R) => R.required() }),
 
-    // ── Popular combinations ──────────────────────────────────────────────────
-    defineField({ name: 'combosEyebrow', title: 'Eyebrow', type: 'string', group: 'combos',
-      validation: (R) => R.required().max(60) }),
-    defineField({ name: 'combosHeadline', title: 'Headline', type: 'string', group: 'combos',
-      validation: (R) => R.required().max(80) }),
-    defineField({ name: 'combosSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'combos' }),
-    defineField({ name: 'combosCtaLabel', title: 'CTA label', type: 'string', group: 'combos',
-      initialValue: 'Request a quote', validation: (R) => R.required().max(50) }),
-    defineField({ name: 'combosCtaHref', title: 'CTA destination', type: 'string', group: 'combos',
-      initialValue: '/request-a-quote', validation: (R) => R.required() }),
-
     // ── Gallery preview ───────────────────────────────────────────────────────
     defineField({ name: 'galleryEyebrow', title: 'Eyebrow', type: 'string', group: 'gallery',
       validation: (R) => R.required().max(60) }),
@@ -192,10 +172,6 @@ export const homePage = defineType({
       initialValue: 'Request a Quote', validation: (R) => R.required().max(50) }),
     defineField({ name: 'ctaHref', title: 'Button destination', type: 'string', group: 'cta',
       initialValue: '/request-a-quote', validation: (R) => R.required() }),
-    defineField({ name: 'ctaBackgroundImage', title: 'Background image (optional)', type: 'image', group: 'cta',
-      description: 'Full-bleed photo behind the CTA. The site adds a dark overlay for readability.',
-      options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })] }),
   ],
   preview: { prepare: () => ({ title: 'Home Page' }) },
 });
