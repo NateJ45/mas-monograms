@@ -64,10 +64,11 @@ artifacts and ONE kicker per page.**
   Direction C decision (2026-07-03) is that hierarchy comes from size + optical axis, not boldness.
 - **Mulish Variable** — body / UI text (humanist sans).
 - **Petemoss** — the script face. Allowed in exactly two places: (1) on-screen monogram initials
-  (the combo preview, recipe cards, and the logo's script M), and (2) **one script kicker per page,
-  at ≥2.75rem** (Direction C, 2026-07-03 — e.g. the home hero's eyebrow, gold `--color-gold-script`
-  on indigo only). Never for prose, buttons, nav, or below 2.75rem — the thin script stops being
-  legible.
+  (the combo preview, recipe cards, and the logo's script M), and (2) **one script kicker per page**
+  — the opening hero's eyebrow only, always via `src/components/ScriptKicker.astro` (Claret on light
+  grounds, gold `--color-gold-script` on dark grounds only; ≥2.75rem clamp floor). Section eyebrows
+  stay tracked caps. Never Petemoss for prose, buttons, nav, or below 2.75rem — the thin script
+  stops being legible.
 - **Logo system (hybrid, chosen 2026-07-02 — see `docs/logo-concepts/`):** the lockup
   (`src/components/Logo.astro`) is the "Flourished Initial" — an oversized Petemoss script M in
   Claret with a drawn thread-swash under a Fraunces "MAS MONOGRAMS". The compact mark
