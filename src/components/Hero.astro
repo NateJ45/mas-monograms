@@ -100,18 +100,21 @@ const effectiveImages = heroImageList.length > 0
   : (backgroundImage?.asset ? [backgroundImage] : []);
 const hasImage = effectiveImages.length > 0;
 
-// Split hero "three viewports": up to 6 photos spread across 3 overlapping
-// rectangular frames, each starting on a different image so several real
-// pieces are visible at once. Positions/aspects hand-tuned to overlap nicely.
+// Split hero collage: up to 6 photos spread across FOUR overlapping, slightly
+// tilted rectangular frames, each starting on a different image so several real
+// pieces are visible at once. Positions/aspects/tilts are hand-tuned for a
+// scattered "pinned photos" arrangement; a faint embroidery-hoop ring sits
+// behind them (rendered in the markup below).
 const triImages = effectiveImages.slice(0, 6);
 const triLen = Math.max(1, triImages.length);
-const triStep = Math.max(1, Math.floor(triImages.length / 3));
+const triStep = Math.max(1, Math.floor(triImages.length / 4));
 // Positions are inline styles (not Tailwind classes) so the dynamic percentage
 // values always ship — Tailwind's scanner won't pick up class names built in JS.
 const triFrames = [
-  { style: 'top:0; left:0; width:58%; z-index:10;',      aspect: 'aspect-[4/3]', offset: 0 },
-  { style: 'top:26%; right:0; width:47%; z-index:30;',   aspect: 'aspect-[3/4]', offset: triStep % triLen },
-  { style: 'bottom:0; left:15%; width:54%; z-index:20;', aspect: 'aspect-[4/3]', offset: (triStep * 2) % triLen },
+  { style: 'top:0; left:0; width:56%; z-index:10; transform:rotate(-2deg);',        aspect: 'aspect-[4/3]', offset: 0 },
+  { style: 'top:24%; right:0; width:46%; z-index:30; transform:rotate(2.5deg);',    aspect: 'aspect-[3/4]', offset: triStep % triLen },
+  { style: 'bottom:0; left:14%; width:52%; z-index:20; transform:rotate(-1.5deg);', aspect: 'aspect-[4/3]', offset: (triStep * 2) % triLen },
+  { style: 'top:37%; left:0; width:38%; z-index:25; transform:rotate(3deg);',       aspect: 'aspect-[1/1]', offset: (triStep * 3) % triLen },
 ];
 
 // "tall" (homepage) fills the screen below the sticky header on first load.
@@ -206,13 +209,20 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
         )}
       </div>
 
-      {/* Photo column: three overlapping rectangular viewports, each a fast
-          Ken Burns cross-fade cycling its own gallery photos (staggered offsets
-          so several different pieces show at once). Falls back to a single
-          framed image when there are fewer than 3 photos. Only the largest
-          frame's first photo is the eager LCP. */}
+      {/* Photo column: four overlapping, slightly tilted rectangular viewports,
+          each a fast Ken Burns cross-fade cycling its own gallery photos
+          (staggered offsets so several different pieces show at once), over a
+          faint embroidery-hoop ring. Falls back to a single framed image when
+          there are fewer than 3 photos. Only the largest frame's first photo is
+          the eager LCP. */}
       {triImages.length >= 3 ? (
         <div class="relative w-full aspect-[5/6]" data-reveal>
+          {/* Decorative embroidery-hoop ring behind the collage — echoes the
+              gallery's hoop-frame motif and fills the negative space between the
+              scattered frames. Purely decorative. */}
+          <div class="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+            <div class="rounded-full border-[3px] border-[#B98A3E]/25" style="width:104%; aspect-ratio:1 / 1;"></div>
+          </div>
           {triFrames.map((fr, fi) => (
             <div class="absolute p-1 bg-secondary rounded-xl shadow-lg" style={fr.style}>
               <div class:list={['relative overflow-hidden rounded-[calc(var(--radius-xl)-0.25rem)]', fr.aspect]} data-hero-tri>
