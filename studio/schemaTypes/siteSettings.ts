@@ -298,7 +298,7 @@ export const siteSettings = defineType({
       title: 'Google Business Profile URL',
       type: 'url',
       group: 'social',
-      description: 'Link to the Google Business listing. Used in the testimonials section.',
+      description: 'Link to the Google Business listing. Used in the LocalBusiness structured data.',
     }),
     defineField({
       name: 'footerCredit',

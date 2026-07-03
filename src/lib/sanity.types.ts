@@ -155,21 +155,6 @@ export type FaqItem = {
   showOnPricing?: boolean;
 };
 
-export type Testimonial = {
-  _id: string;
-  _type: 'testimonial';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  quote?: string;
-  attribution?: string;
-  itemOrdered?: string;
-  date?: string;
-  source?: 'Facebook' | 'Google' | 'Instagram' | 'Direct' | 'Other';
-  reviewUrl?: string;
-  featured?: boolean;
-};
-
 export type SanityImageAssetReference = {
   _ref: string;
   _type: 'reference';
@@ -1031,13 +1016,6 @@ export type HomePage = {
   heroSecondaryCtaLabel?: string;
   heroSecondaryCtaHref?: string;
   trustItems?: Array<string>;
-  statsItems?: Array<{
-    number?: number;
-    suffix?: string;
-    label?: string;
-    _type: 'statItem';
-    _key: string;
-  }>;
   categoriesEyebrow?: string;
   categoriesHeadline?: string;
   categoriesSubhead?: string;
@@ -1089,10 +1067,6 @@ export type HomePage = {
   combosSubhead?: string;
   combosCtaLabel?: string;
   combosCtaHref?: string;
-  testimonialsEyebrow?: string;
-  testimonialsHeadline?: string;
-  testimonialsSubhead?: string;
-  testimonialsReviewsNote?: string;
   galleryEyebrow?: string;
   galleryHeadline?: string;
   gallerySubhead?: string;
@@ -1312,7 +1286,6 @@ export type AllSanitySchemaTypes =
   | LegalPage
   | Slug
   | FaqItem
-  | Testimonial
   | SanityImageAssetReference
   | ClearanceItem
   | SanityImageCrop

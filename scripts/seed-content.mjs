@@ -181,8 +181,6 @@ add({
     "My most-loved font and thread pairings, a great starting point if you're not sure what to choose.",
   combosCtaLabel: 'See all font styles',
   combosCtaHref: '/font-lettering-guide',
-  testimonialsEyebrow: 'Reviews',
-  testimonialsHeadline: 'What customers are saying',
   galleryEyebrow: 'Style Gallery',
   galleryHeadline: 'Not sure where to start?',
   gallerySubhead:
@@ -606,28 +604,10 @@ threads.forEach(([name, hex, family], i) => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// TESTIMONIALS (3) — quotes verbatim from the homepage. Names are placeholders
-// (the live site used "[Customer Name]"); swap for real names when available.
-// ═══════════════════════════════════════════════════════════════════════════
-add({
-  _id: 'testimonial-1', _type: 'testimonial',
-  quote: "The monogram on my daughter's towel set came out absolutely perfect. Everyone at the baby shower asked where I got it.",
-  attribution: 'Happy Customer', itemOrdered: 'Monogrammed towel set',
-  date: '2026-01-15', source: 'Facebook', featured: true,
-});
-add({
-  _id: 'testimonial-2', _type: 'testimonial',
-  quote: 'I brought in my own sweatshirt and she stitched exactly what I had in my head. The quote process was so easy, I had a price within hours.',
-  attribution: 'Returning Customer', itemOrdered: 'Custom sweatshirt (brought own item)',
-  date: '2026-02-10', source: 'Facebook', featured: true,
-});
-add({
-  _id: 'testimonial-3', _type: 'testimonial',
-  quote: 'Ordered Christmas gifts for the whole family. She communicated every step of the way. Will absolutely be back.',
-  attribution: 'Holiday Shopper', itemOrdered: 'Christmas gifts',
-  date: '2025-12-20', source: 'Facebook', featured: true,
-});
+// Testimonials removed 2026-07-03 — Mary Ann has no real reviews yet and we
+// don't seed invented ones. Re-add a testimonial doc type + real quotes when
+// genuine reviews exist. (Also removed: homePage.testimonials* fields and the
+// homePage.statsItems strip — see git history for the schema at that point.)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PRICING TIERS (4) — MAS prices by complexity, not quantity. minQuantity is

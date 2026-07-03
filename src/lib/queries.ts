@@ -91,7 +91,6 @@ export function getHomePage(): Promise<any> {
       trustEyebrow,
       trustHeadline,
       trustItems,
-      statsItems[]{ number, suffix, label },
       categoriesEyebrow,
       categoriesHeadline,
       categoriesSubhead,
@@ -113,8 +112,6 @@ export function getHomePage(): Promise<any> {
       combosEyebrow,
       combosHeadline,
       combosSubhead,
-      testimonialsEyebrow,
-      testimonialsHeadline,
       galleryEyebrow,
       galleryHeadline,
       gallerySubhead,
@@ -620,27 +617,6 @@ export function getPopularCombinations(): Promise<any[]> {
       "relatedCategory": relatedCategory->{ name, slug },
       featured,
       displayOrder
-    }`,
-    {},
-    [],
-  );
-}
-
-// ─── Testimonials ────────────────────────────────────────────────────────────
-
-export function getTestimonials(featuredOnly = false): Promise<any[]> {
-  const filter = featuredOnly
-    ? `*[_type == "testimonial" && featured == true]`
-    : `*[_type == "testimonial"]`;
-  return sanityFetch(
-    `${filter} | order(_createdAt desc){
-      _id,
-      quote,
-      attribution,
-      itemOrdered,
-      source,
-      reviewUrl,
-      featured
     }`,
     {},
     [],

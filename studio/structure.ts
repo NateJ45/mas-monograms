@@ -14,7 +14,6 @@ import {
   InfoOutlineIcon,
   EnvelopeIcon,
   DocumentTextIcon,
-  StarIcon,
   ThListIcon,
   TagIcon,
   PresentationIcon,
@@ -52,7 +51,6 @@ const SINGLETON_TYPES = [
 const HIDDEN_FROM_DEFAULT = new Set<string>([
   ...SINGLETON_TYPES,
   // Content collections explicitly placed in the Content section
-  'testimonial',
   'galleryItem',
   'itemCategory',
   'font',
@@ -216,8 +214,6 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
 
               S.divider(),
 
-              // Testimonials shown on the homepage and about page
-              S.documentTypeListItem('testimonial').title('Testimonials').icon(StarIcon),
               // Style gallery images
               S.documentTypeListItem('galleryItem').title('Style Gallery').icon(ImagesIcon),
 

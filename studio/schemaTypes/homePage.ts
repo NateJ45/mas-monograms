@@ -18,7 +18,6 @@ export const homePage = defineType({
     { name: 'about',       title: 'About / Maker blurb' },
     { name: 'process',     title: 'Process preview' },
     { name: 'combos',      title: 'Popular combinations' },
-    { name: 'testimonials',title: 'Testimonials' },
     { name: 'gallery',     title: 'Gallery preview' },
     { name: 'cta',         title: 'Final CTA banner' },
   ],
@@ -77,27 +76,6 @@ export const homePage = defineType({
       description: 'Short reassuring lines in the strip below the hero. E.g. "No minimums on custom orders" or "Satisfaction guaranteed".',
       of: [defineArrayMember({ type: 'string' })],
       validation: (Rule) => Rule.required().min(2).max(6),
-    }),
-    defineField({
-      name: 'statsItems',
-      title: 'Stats strip items',
-      type: 'array',
-      group: 'trust',
-      description: 'Short numeric credibility stats shown as an animated strip below the trust bar. Only use real, verifiable facts — no invented numbers.',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'statItem',
-          fields: [
-            defineField({ name: 'number', title: 'Number', type: 'number', validation: (R) => R.required() }),
-            defineField({ name: 'suffix', title: 'Suffix (optional)', type: 'string', description: 'E.g. "+", "%", "day".' }),
-            defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required().max(40) }),
-          ],
-          preview: { select: { number: 'number', suffix: 'suffix', label: 'label' },
-            prepare: ({ number, suffix, label }: any) => ({ title: `${number}${suffix ?? ''} — ${label}` }) },
-        }),
-      ],
-      validation: (Rule) => Rule.max(4),
     }),
 
     // ── Shop categories section ───────────────────────────────────────────────
@@ -192,15 +170,6 @@ export const homePage = defineType({
       initialValue: 'Request a quote', validation: (R) => R.required().max(50) }),
     defineField({ name: 'combosCtaHref', title: 'CTA destination', type: 'string', group: 'combos',
       initialValue: '/request-a-quote', validation: (R) => R.required() }),
-
-    // ── Testimonials ──────────────────────────────────────────────────────────
-    defineField({ name: 'testimonialsEyebrow', title: 'Eyebrow', type: 'string', group: 'testimonials',
-      validation: (R) => R.required().max(60) }),
-    defineField({ name: 'testimonialsHeadline', title: 'Headline', type: 'string', group: 'testimonials',
-      validation: (R) => R.required().max(80) }),
-    defineField({ name: 'testimonialsSubhead', title: 'Subhead (optional)', type: 'text', rows: 2, group: 'testimonials' }),
-    defineField({ name: 'testimonialsReviewsNote', title: 'Attribution line (optional)', type: 'string', group: 'testimonials',
-      description: 'E.g. "Reviews from Facebook and Google."' }),
 
     // ── Gallery preview ───────────────────────────────────────────────────────
     defineField({ name: 'galleryEyebrow', title: 'Eyebrow', type: 'string', group: 'gallery',
