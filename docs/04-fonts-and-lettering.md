@@ -1,7 +1,9 @@
 # 04: Fonts & Lettering
 
-> **Status: original spec.** All 18 fonts are seeded as `font` docs; 3 monogram styles have preview
-> images, the other 15 still need previews uploaded (see `docs/08`). Preserved as the catalog source.
+> **Status: the font catalog (still accurate).** All 18 fonts are seeded as `font` docs. The `font`
+> schema classifies each with a `styleTag` (classic / script / block / modern / monogram); the Font
+> Guide page and the quote form's font dropdown both read from these same documents, so they never
+> drift. Preview-image status is tracked in `docs/08`.
 
 The full lettering catalog, and the single most fiddly piece of content to model. Read the key fact
 first, then the catalog.
@@ -65,7 +67,7 @@ upload. Same task carries over.
 | Font | Character |
 |---|---|
 | **Golden Valley** | Flowing connected script |
-| **Fishtail** | Tall decorative serif caps (used in one of the homepage popular combos) |
+| **Fishtail** | Tall decorative serif caps |
 | **Curlz** | Playful, curly, casual |
 | **Classic** | Clean serif, full a–z plus numbers and symbols |
 | **CA Liberty** | Tall condensed appliqué-style lettering |
@@ -91,9 +93,11 @@ just say recommend for me, we love that"). It is the anxiety-reducer that makes 
 
 Reminder from the Squarespace build: in a hosted form builder you often cannot edit dropdown options
 in code. That constraint is gone here. The dropdowns are generated from the `font` documents in
-Sanity at build time, so adding a font is: add the document, the option appears. Model a boolean like
-`isMonogramStyle` (or a `kind` field with values `lineFont` / `monogramStyle` / `appliqueFont`) so
-the build can split them into the right dropdown and the right section of the guide page.
+Sanity at build time, so adding a font is: add the document, the option appears. The shipped `font`
+schema uses a `styleTag` field (classic / script / block / modern / monogram) to group the specimens on
+the guide page; the quote form's font dropdown lists all `font` documents plus an "Other" and a
+"Recommend for me" escape. (The monogram *style* vs. name *font* distinction described above is a
+content convention, not two separate types.)
 
 ---
 

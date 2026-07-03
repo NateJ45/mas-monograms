@@ -5,22 +5,28 @@ Mary Ann Stone's custom embroidery studio site in St. Matthews, SC.
 Built by Nate's Creations (nathanjnixon86@gmail.com).
 Migrated from Squarespace 7.1 → Astro 6 + Sanity 7/5 + Cloudflare Workers.
 
-## Status (current — 2026-06-30)
-Built and **deployed**; all content seeded into Sanity and rendering live.
+## Status (current — 2026-07-03)
+Built and **deployed**; all content seeded into Sanity and rendering live. Design system is Heirloom
+Coast wearing the "Direction C — The Sampler" treatment (see below); the Studio has been reworked for
+Mary Ann (Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first desk).
 - Live site: https://mas-monograms.nathanjnixon86.workers.dev (custom domain `mas-monograms.com` pending)
 - Studio (Mary Ann's editor): https://mas-monograms.sanity.studio
 - Repo `NateJ45/mas-monograms` (private) → auto-deploys via **Cloudflare Workers Builds** on push to `main`
-- Remaining before launch: images (all empty except 3 fonts), placeholder content (email, socials,
-  testimonial names, thread inventory), quote-form secrets + R2 bucket. Full checklist + env-var
-  matrix in `docs/08-deployment-and-status.md`.
+- Real contact info + photography are in; the `popularCombination`/`testimonial` types and the stats
+  strip were removed. Remaining before launch: confirm socials, replace the starter thread inventory,
+  a few image gaps (About portrait, OG images), quote-form secrets + R2 bucket. Full checklist +
+  env-var matrix in `docs/08-deployment-and-status.md`.
 
 ## Design system note
 The current visual identity is **Heirloom Coast** (rebranded 2026-07-01): Fraunces + Mulish +
-Petemoss type on a Linen/Ink/Indigo/Claret/Brass palette. It superseded the intermediate "Thread
-Ledger" system (which itself superseded the original cream/sage/blush). Full rationale for the
-current system: `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`. The
-earlier Thread Ledger spec (`docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`)
-is retained for history but no longer describes the live code.
+Petemoss type on a Linen/Ink/Indigo/Claret/Brass palette, wearing the **"Direction C — The Sampler"**
+treatment applied 2026-07-03 (indigo-drench hero + bottom CTA band, a gold Petemoss script kicker,
+light optical-sized Fraunces, frameless photography, and scroll-in animation removed). It superseded
+the intermediate "Thread Ledger" system (which itself superseded the original cream/sage/blush).
+Full current design system in `docs/02-design-system.md`; rationale in
+`docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`. The earlier Thread Ledger
+spec (`docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`) is retained for history
+but no longer describes the live code.
 
 ## Stack
 - **Astro 6.3+** — `output: 'static'`, `@astrojs/cloudflare` adapter, Sharp image service

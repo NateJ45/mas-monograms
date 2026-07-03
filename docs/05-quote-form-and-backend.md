@@ -6,8 +6,10 @@
 
 This is the conversion engine. On Squarespace it was a native Form Block that emailed Mary Ann. That
 black box is gone, so the form is now real code: an HTML form in Astro that posts to a Cloudflare
-Pages Function, which validates the data, emails Mary Ann (and the customer), then redirects to the
-thank-you page. Get this right before anything else, because a silent failure here means lost leads.
+Worker endpoint (`src/pages/api/quote.ts`), which validates the data, emails Mary Ann (and the
+customer), then redirects to the thank-you page. Get this right before anything else, because a silent
+failure here means lost leads. (The form's field labels, help text, section headings, and referral
+options are all editable on the `requestAQuotePage` singleton in Sanity — see `docs/06`.)
 
 ---
 

@@ -1,95 +1,135 @@
 # 02: Design System
 
-> **Status: current as of 2026-06-30.** This is "Thread Ledger," the design system that replaced
-> the original cream/sage/blush system. Implemented in `src/styles/tokens.css` + `globals.css`.
-> Full design rationale (why it changed, what it avoids, contrast math):
-> `docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`.
+> **Status: current as of 2026-07-03.** The live system is **"Heirloom Coast"** (rebranded 2026-07-01)
+> wearing the **"Direction C — The Sampler"** treatment (applied 2026-07-03). Tokens live in
+> `src/styles/globals.css` (Tailwind v4 `@theme` block — there is no `tokens.css`). Full rationale and
+> contrast math: `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
+>
+> Two earlier systems are dead and should never be referenced as current: the original cream/sage/blush
+> system, and "Thread Ledger" (Parchment/Pine-Teal/Rust, Bricolage Grotesque + Work Sans). If you see
+> those names anywhere, they're history.
 
-The feel: an embroidery floss number card brought to life as a website. Parchment paper, ink text,
-pine teal as the primary accent, rust as the one CTA color, mustard gold for gallery photo frames.
+The feel: a hand-stitched heirloom shop on the South Carolina coast. Warm linen paper, deep ink text,
+a heritage indigo that also drenches whole bands, claret reserved for the one action that matters, and
+a gold script flourish that nods at the monogram craft. "Expensive through restraint" — space and
+editing do the work, not effects.
 
 ---
 
-## Color palette
+## Color palette (Heirloom Coast)
 
 | Token | Hex | Use |
 |---|---|---|
-| Ink | `#2b2420` | Primary text, headings, the logo needle |
-| Parchment | `#f7f1e6` | Default page background, form input fields |
-| White | `#ffffff` | Cards, raised surfaces |
-| Muted | `#6b6258` | Secondary text, captions, eyebrows |
-| Pine Teal | `#1f5c4f` | Primary accent, links, focus ring |
-| Pine Teal Dark | `#163f37` | Hover state on pine-teal elements |
-| Rust — decorative | `#c1542c` | Large text (18px+/bold 14px+) and decorative thread-line strokes ONLY |
-| Rust — CTA | `#b8492a` | The one CTA button-background color |
-| Mustard Gold | `#d9a441` | Gallery photo "hoop ring" frames, highlights |
+| Linen | `#F4EEE3` | Default page background |
+| Paper | `#FBF8F1` | Cards, raised surfaces, and the button that sits on a dark band |
+| Sage Band | `#E4E2D3` | Alternating section band |
+| Heirloom Ink | `#26312E` | Default text and headings |
+| Heritage Indigo | `#28486B` | Primary / links / focus ring — **and a drench surface** (home hero band + bottom CTA band) |
+| Indigo Deep | `#1C3550` | Link / primary hover |
+| Claret — CTA | `#8C3A2E` | CTA button background on light surfaces; the running-stitch borders on hero photo mats |
+| Claret Deep | `#722C22` | CTA hover |
+| Brass — text | `#835A24` | Small brass-toned text (pricing figures, meta) — AA-safe on Linen |
+| Brass — decorative | `#B98A3E` | Decorative strokes / hairlines ONLY — never text on a light surface |
+| Gold — script | `#D9B15F` | The Petemoss script kicker + hairlines, **on indigo/dark backgrounds only** (≈1.6:1 on Linen) |
+| Secondary Taupe | `#5A5148` | Secondary text |
+| Tertiary | `#67614F` | Captions / muted text |
 
-The CTA color is split into two shades on purpose: the decorative rust clears AA for large text but
-NOT as a background under small white button labels, so buttons use the separately-darkened CTA
-shade. Don't collapse them into one hex value — see the design spec for the contrast math.
+**Two decisions worth protecting:**
+- Claret is split so it only ever backs a button on a *light* ground. On the indigo drench, buttons flip
+  to **Paper background + Ink text** (`CtaLink` handles this via its `onDark` prop) — claret-on-indigo
+  vibrates and fails contrast.
+- Gold is a *dark-surface-only* accent. It disappears on Linen. Use it for the script kicker and hairlines
+  when they sit on indigo, never on the light page.
+
+No dark mode anywhere. There is no `.dark` CSS, no theme toggle, and no theme-bootstrap script — a
+considered decision, not an oversight.
 
 ---
 
 ## Typography
 
-Two families, both self-hosted via `@fontsource-variable` (no Google Fonts runtime dependency).
+Three families, self-hosted via `@fontsource` (no Google Fonts runtime dependency). The rule:
+**serif display (light, optical-sized) + humanist-sans body + a script face for monogram artifacts and
+one kicker per page.**
 
-| Role | Family | Weights | Notes |
-|---|---|---|---|
-| Headings | **Bricolage Grotesque Variable** | 700 (600 for sub-headings) | Characterful sans, no serif anywhere in the system. |
-| Body / UI | **Work Sans Variable** | 400, 500, 600 | Everything that is not a heading. |
+| Role | Family | Notes |
+|---|---|---|
+| Display / headings | **Fraunces Variable** | Loaded via the **opsz builds** (`opsz.css` + `opsz-italic.css` — the real italic cut, never synthetic oblique). Weight **440** at display sizes, **560** for h4–h6. Do NOT force 700 — hierarchy comes from size + the optical axis, not boldness. |
+| Body / UI | **Mulish Variable** | Everything that isn't a heading — body copy, labels, buttons. |
+| Script accent | **Petemoss** | Two uses only: (1) on-screen monogram artifacts (combo preview, the logo's script M) and (2) **one "script kicker" per page** at ≥2.75rem, via `src/components/ScriptKicker.astro`. Never for prose, buttons, nav, or small text. |
 
-No script font. The logo's needle-and-thread cross is a hand-built inline SVG
-(`src/components/Logo.astro`), not a webfont — there is nothing to load for it.
+**Script kicker** (`ScriptKicker.astro`) is the opening-hero eyebrow rendered in Petemoss: **Claret on
+light grounds, Gold on dark grounds**, tilted −2°, one per page. Section-level eyebrows stay tracked
+caps — only the top-of-page kicker is script.
+
+**Embroidery fonts are a different thing entirely** — each `font` document carries a `previewImage`
+(a photo of the lettering stitched on fabric). Those are content, not web fonts. See `docs/04`.
 
 ---
 
 ## Logo
 
-`src/components/Logo.astro` — a needle-and-thread cross in the same horizontal lockup the brand has
-always used (wordmark left, cross standing right, small-caps line beneath). Accepts a `variant` prop
-(`"ink"` for light/parchment/mustard surfaces — this covers every surface in the current design,
-header and footer alike — `"parchment"` for a dark-ink surface, if one is ever introduced) and a
-`mark` prop (render only the compact hoop-ring + needle, no wordmark). No runtime theme switching —
-each placement picks its variant at build time based on the surface it sits on.
+Hybrid system (chosen 2026-07-02 — see `docs/logo-concepts/`). Built in `src/components/Logo.astro`.
+- **Lockup ("Flourished Initial")** — an oversized Petemoss script *M* in Claret with a drawn
+  thread-swash beneath a Fraunces "MAS MONOGRAMS". Used in the header and footer.
+- **Compact mark ("Shopkeeper's Badge")** — a double indigo hoop-ring around an outlined Fraunces-700 *M*
+  in Claret. Used for `<Logo mark />`, `public/favicon.svg`, and social/stamp placements. The favicon
+  set is generated by `scripts/generate-favicons.mjs` (the *M* is an outlined path — favicons can't load
+  webfonts).
 
-A brush-textured pass (closer to a hand-painted cross) is a known follow-up, not yet built — see the
-design spec's "Open follow-ups" section.
+The old needle-and-thread cross (from the Thread Ledger era) is retired.
+
+---
+
+## Direction C treatment (what "The Sampler" added, 2026-07-03)
+
+- **Indigo drench.** The home hero is a full Heritage Indigo surface with linen/paper type; the
+  bottom-of-page CTA band is the same indigo. The old near-black `#1A1512` slab is retired from bands
+  (still the base of the photo scrim in `HeroBackground`).
+- **Gold script kicker** replaces the tracked-caps eyebrow on the opening hero (see Typography).
+- **Frameless photography.** The brass photo frames and solid brass caption bars are retired everywhere
+  (galleries, category cards). Photos sit frameless with a quiet label; the paper-mat + claret
+  running-stitch treatment survives only on the hero's pinned "snapshot" collage.
+- **Motion is subtractive.** Scroll-triggered reveals and grid-stagger animations were removed (no
+  premium reference site animates content in on scroll — it was the site's clearest "template" tell). The
+  hero collage no longer floats or Ken-Burns-zooms; the cross-fade is its one motion moment. What
+  survives: hover responses, the gallery filter fade, the hero entry stagger, and view-transition
+  cross-fades. `prefers-reduced-motion` is honored throughout.
 
 ---
 
 ## Component styling notes
 
-**Buttons.** Two variants.
-- *Primary / CTA:* rust-CTA background (`#b8492a`), white text, hover to `#9c3c20`. This is the
-  "Request a Quote" button. Use it sparingly so it stays meaningful.
-- *Secondary:* pine-teal outline or pine-teal text on transparent/parchment.
-- Both: ~4px border radius, Work Sans 600, comfortable padding, a clear pine-teal focus ring for
-  keyboard users.
+**Buttons — one recipe.** `min-h-[44px] px-l py-s rounded-sm`, 12px uppercase Mulish at `0.18em`
+tracking. On light: Claret bg + white text (hover Claret Deep). On dark (indigo band, photo scrim):
+Paper bg + Ink text. Secondary: indigo outline + link text on light, white outline on dark. The primary
+"Request a Quote" button is the one place Claret appears — keep it sparing. See `CtaLink.astro`.
 
-**Form inputs.** Parchment field background, a subtle border, pine-teal focus ring on `:focus`.
+**Form inputs.** Paper/linen field background, an interactive-weight border (`--color-border-interactive`,
+darker than the decorative hairline because the border is the field's only affordance), full-Indigo focus
+ring at a 2px offset. Validation uses the token error set (`--color-error-text/surface/border`), not
+Tailwind reds.
 
-**Cards.** White surface on the parchment page, soft shadow, generous internal padding.
+**Cards & bands.** Paper cards on the Linen page; Sage bands alternate full-width sections. Base radius is
+a tight `0.25rem`. Essentially one committed shadow (`.card-lift` hover); Tailwind's semantic shadows
+elsewhere.
 
-**Section bands.** Alternate parchment and mustard-tinted (`#f0e6d2`) backgrounds to separate
-full-width sections without hard lines.
-
-**Spacing and radius.** Keep a single spacing scale and a single radius value as tokens (see
-`tokens.css`) rather than ad hoc pixel values.
+**Spacing, radius, motion.** One fluid spacing scale (`--spacing-xs…l`, `--spacing-section-md/lg`), one
+radius base, one house easing (`cubic-bezier(0.16, 1, 0.3, 1)` at 440ms). Pull everything from the
+`@theme` tokens in `globals.css`; never hardcode.
 
 ---
 
 ## Accessibility quick checks
 
-- Ink on parchment and white passes contrast at AAA (~14:1).
-- Pine teal on parchment passes at AAA (~7.2:1) — safe for links and body-size accent text.
-- Decorative rust (`#c1542c`) on parchment clears AA only for large text (18px+, or 14px+ bold) —
-  never use it for small body text, and never as a button background under white text.
-- The CTA rust (`#b8492a`) is specifically darkened so white button labels clear AA (~5.2:1) — use
-  it, not the decorative shade, for every button/chip background.
-- Mustard gold is decorative only (gallery frames, highlights) — check contrast before ever pairing
-  it with text.
-- Every interactive element needs a visible focus state (the pine-teal ring), not just a hover
-  state.
-- No dark mode anywhere in the codebase — this was a considered decision, not an oversight. See the
-  design spec for why.
+- Ink on Linen ≈ 11.65:1; Ink on Paper is comfortably AAA.
+- Heritage Indigo on Linen ≈ 8.16:1 — safe for links and accent text.
+- Linen/Paper text on the Indigo drench ≈ 7.6:1; the `/85` and `/90` opacity variants stay AA.
+- Gold script on Indigo ≈ 4.84:1 — AA at the 44px+ kicker size; **never** on a light ground, and never
+  for small text.
+- Claret CTA under white labels ≈ 7.61:1; the Paper-on-indigo button pairs Ink text on Paper (AAA).
+- Brass **text** (`#835A24`) is AA on Linen; Brass **decorative** (`#B98A3E`) is ~2.7:1 — strokes only,
+  never text.
+- Every interactive element has a visible Indigo focus ring, not just a hover state.
+- CI requires a **perfect Lighthouse accessibility score on all routes** — treat it as a gate.
+- No dark mode — a considered decision. See the redesign spec for the reasoning.

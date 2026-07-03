@@ -3,7 +3,7 @@
 The "as-built" companion to docs 01–07 (which are the pre-build spec). This is the source of truth
 for how the site runs today and what's left before a public launch.
 
-Last updated: 2026-06-30.
+Last updated: 2026-07-03.
 
 ---
 
@@ -82,41 +82,44 @@ without these build vars — check the CI build log and the build-variable setti
 
 ---
 
+## Design & studio (2026-07-03)
+
+- **Design system:** "Heirloom Coast" (rebranded 2026-07-01) with the "Direction C — The Sampler"
+  treatment applied 2026-07-03 (indigo drench hero + CTA band, gold Petemoss script kicker, light
+  optical Fraunces, frameless photography, scroll-animation removed). Full detail in `docs/02`.
+- **Studio:** rebranded to the Heirloom Coast theme and reworked for Mary Ann — a "Start Here" handbook
+  (studioGuide / studioNotes / studioPlaybook singletons, seeded by `scripts/seed-studio-guides.mjs`),
+  plain-language field labels, collapsed SEO fields, and a task-first desk ("Photos & products",
+  "Business info & contact", "Website pages"). Forms default to the "All fields" tab.
+- **Content cleanup:** the `popularCombination` and `testimonial` types and the homepage stats strip
+  were removed along with their orphaned fields; residual field values were unset and missing array
+  `_key`s backfilled (`scripts/fix-orphan-data.mjs`).
+
 ## Content status
 
-All text content is **seeded and live** (82 documents) via `scripts/seed-content.mjs`, sourced
-verbatim from docs 01–06. Covered: all 13 page singletons, 8 item categories, 18 fonts, 27 thread
-colors, 6 FAQs, 4 pricing tiers, 3 testimonials, 3 popular combinations.
+All text content is **seeded and live** via `scripts/seed-content.mjs`, sourced verbatim from
+docs 01–06. Covered: all 13 page singletons, 8 item categories, 18 fonts, thread-color chart, FAQs,
+and 4 complexity-based pricing tiers (rendered "from $X"). Real contact info is set
+(`owner@example.com`, `(000) 000-0000`). Real photography has been imported — the hero snapshot
+collage, style gallery, and category images are populated.
 
-Schema fixes made during seeding (see commit history): five body fields were retyped `text` →
-Portable Text (homePage.aboutBody, pricingPage.rushBody, threadChartPage.intro, clearancePage.intro,
-thankYouPage.body); CTA field names normalized across 9 page schemas; `PercentageIcon` → `TagIcon`;
-`notFoundPage` query aliased `"subhead": body`; pricing tiers now render by complexity ("from $X")
-rather than per-quantity.
+### Placeholders / follow-ups before launch
 
-### Placeholders to replace before launch
-
-- `siteSettings.email` = `hello@mas-monograms.com` (placeholder)
-- `socialLinks` = empty (real Facebook / Instagram URLs pending)
-- 3 testimonials use placeholder names ("Happy Customer" etc.) — quotes are real
-- 27 `threadColor` docs are a **common starter set** with approximate hex — replace with real inventory
-- 10 line-font `styleTag` values are best guesses — review against the real samples
-
-### Images
-
-Every image field is empty **except** 3 monogram fonts (Master Circle, Vine/Heirloom, Pillow, from
-`assets/`). Still needed: hero backgrounds, Mary Ann's portrait, 8 category card/hero images, gallery
-photos, popular-combination photos, OG/social images, and per-font previews for the 10 line fonts
-(`assets/font-10-popular.jpg`, needs cropping) and 5 appliqué fonts (`assets/fonts-from-pdf.pdf`,
-needs export). The Studio flags every missing required image as a validation warning — a built-in
-upload TODO list.
+- `socialLinks` — confirm the real Facebook / Instagram URLs are set.
+- `threadColor` docs are a **common starter set** with approximate hex — replace with real inventory.
+- Line-font `styleTag` values were best guesses — review against the real samples.
+- Testimonials: the on-site testimonials feature is **off** (no real reviews yet). Collect genuine
+  Google/Facebook reviews, then re-enable and add them (see the studio "Grow your studio" guide).
+- Remaining image gaps to fill in the Studio: the About-page portrait (`aboutPage.heroImage` — adding
+  one flips that hero to a two-column layout automatically), OG/social share images, and previews for
+  any fonts still missing one. The Studio flags every missing required image as a validation warning.
 
 ---
 
 ## Pre-launch checklist
 
-- [ ] Upload images in the Studio (heroes, portrait, category cards, gallery, OG images)
-- [ ] Replace placeholders (email, socials, testimonial names, thread inventory)
+- [ ] Fill the remaining image gaps in the Studio (About portrait, OG/social images, any missing font previews)
+- [ ] Confirm social URLs and replace the starter thread-color inventory (contact info + photos already done)
 - [ ] Create R2 bucket: `wrangler r2 bucket create mas-monograms-quotes`
 - [ ] Set quote-form runtime secrets (`RESEND_API_KEY`, `QUOTE_OWNER_EMAIL`, `TURNSTILE_SECRET_KEY`)
 - [ ] Set Turnstile build var (`PUBLIC_TURNSTILE_SITE_KEY`) + create the Turnstile widget

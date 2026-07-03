@@ -1,198 +1,71 @@
 # 06: Sanity Content Model
 
-> **Status: superseded by the live schema.** This describes the originally-planned model. The actual
-> shipped schema is in `studio/schemaTypes/` and differs in places (field names, some `text`→Portable
-> Text fields, complexity-based `pricingTier`, no Seasonal type). Treat `studio/schemaTypes/` +
-> `src/lib/queries.ts` as the source of truth; current state in `docs/08`.
+> **Status: overview only. The source of truth is the code**, not this file. The live schema lives in
+> `studio/schemaTypes/` and the queries that consume it in `src/lib/queries.ts`. This doc is a plain-
+> language map of what exists so you don't have to open twenty files to get the shape — but when the two
+> disagree, the code wins. (The original build-time spec, with a different planned model, is preserved in
+> the git history.)
 
-Every content type the site needs, in plain language. The files in `sanity/schemas/` implement the
-first few as full working examples (`itemCategory`, `font`, `threadColor`, `testimonial`,
-`siteSettings`); use those as the pattern and build the rest from this spec.
-
-Two principles guiding the model:
-1. **Structure over freeform** where content repeats (steps, FAQ items, feature cards), so Mary Ann
-   fills in fields instead of formatting a blob, and the front end renders consistently.
-2. **Singletons** for one-of-a-kind pages (homepage, about), **documents** for collections
-   (categories, fonts), so the studio stays tidy.
+Two principles the model follows:
+1. **Structure over freeform** where content repeats (steps, FAQ items, pricing tiers), so Mary Ann fills
+   fields instead of formatting a blob and the front end renders consistently.
+2. **Singletons** for one-of-a-kind pages, **collections** for repeatable content, so the Studio stays
+   tidy. Singletons are enforced (not duplicable/deletable) in `studio/sanity.config.ts`.
 
 ---
 
-## Reusable object types (not documents, embedded in others)
+## Singletons
 
-- **seo**: `metaTitle` (string), `metaDescription` (text), `ogImage` (image). Add to every page type.
-- **ctaBanner**: `heading` (string), `body` (text), `buttonLabel` (string), `buttonHref` (string).
-  Used at the bottom of most pages.
-- **link**: `label` (string), `href` (string). For nav-ish lists.
-- **galleryImage**: `image` (image, with alt), `caption` (string), `priceIndicator` (string, e.g.
-  "from $16"). Used in category galleries.
-- **step**: `number` (string), `label` (string), `heading` (string), `body` (text), `points` (array
-  of strings). For the process strip and the How It Works steps.
-- **faqItem**: `question` (string), `answer` (text).
-- **stat**: `value` (string), `label` (string). For the stats strips.
-- **featureCard**: `icon` (string, emoji ok), `title` (string), `body` (text). For the About "why
-  come back" grid and similar.
+**`siteSettings`** — global identity used in the header/footer and JSON-LD: title, tagline, email, phone,
+address, service area, opening hours, nav items, footer columns, social links, Google Business URL, SEO
+defaults, `businessType` (drives the LocalBusiness schema.org type), price range, and turnaround times.
 
----
+**Page singletons** — one per page, each holding all the words + images for that page:
+`homePage`, `howItWorksPage`, `pricingPage`, `aboutPage`, `requestAQuotePage`, `shopIndexPage`,
+`styleGalleryPage`, `fontGuidePage`, `threadChartPage`, `clearancePage`, `thankYouPage`, `notFoundPage`.
 
-## Document types (collections)
-
-### itemCategory
-The 8 shop pages, plus Seasonal (as a flagged variant). The workhorse type.
-- `title` (string): e.g. "Tote Bags & Pouches"
-- `slug` (slug, from title): must match the live URL (e.g. `tote-bags`)
-- `emoji` (string): for the card grids
-- `priceAnchor` (string): "from $16" or "free assessment"
-- `cardDescription` (text): the one-liner used in the homepage / shop grids
-- `heroHeading` (string), `heroBody` (text)
-- `heroImage` (image, with alt)
-- `gallery` (array of `galleryImage`)
-- `whatToExpectLeft` (portable text), `whatToExpectRight` (portable text): the two-column section
-- `pricingRangeLow` (string), `pricingRangeHigh` (string), `pricingNote` (text)
-- `popularCombinations` (array of references to `popularCombination`, optional)
-- `testimonials` (array of references to `testimonial`, optional): contextual reviews on the page
-- `isSpecial` (boolean): true for Bring Your Own Item, which swaps the price anchor for "free
-  assessment" and changes the CTA framing
-- `seasonal` (boolean) and `activeFrom` / `activeUntil` (datetime, optional): for the Seasonal page
-- `order` (number): sort order in grids
-- `seo` (seo)
-
-### font
-Drives the Font & Lettering Guide and the quote form dropdowns. See `docs/04`.
-- `name` (string)
-- `kind` (string, list: `lineFont` | `monogramStyle` | `appliqueFont`): splits the guide sections
-  and the two form dropdowns
-- `previewImage` (image, with alt): required, because these are not web fonts
-- `availableSizes` (array of strings): e.g. ["0.5\"", "1\"", "1.5\"", ...], mainly for line fonts
-- `description` (text, optional)
-- `order` (number)
-
-### threadColor
-Drives the Thread Color Chart and the thread dropdown.
-- `name` (string)
-- `hex` (string): approximate, for an on-screen swatch
-- `swatchImage` (image, optional): for more accurate display than hex
-- `family` (string, list: e.g. Neutrals, Blues, Greens, Reds/Pinks, Yellows/Golds, etc.): for
-  grouping
-- `order` (number)
-
-### testimonial
-- `quote` (text)
-- `authorName` (string)
-- `authorLocation` (string, optional)
-- `rating` (number, default 5)
-- `featured` (boolean): show on the homepage
-- `relatedCategory` (reference to `itemCategory`, optional): for contextual placement on item pages
-
-### galleryItem
-Drives the Style Gallery.
-- `image` (image, with alt)
-- `caption` (string)
-- `itemType` (reference to `itemCategory`, optional): for filtering
-- `fontUsed` (reference to `font`, optional)
-- `threadUsed` (reference to `threadColor`, optional)
-- `order` (number)
-
-### pricingTier
-The four tiers from `docs/03`.
-- `name` (string): Basic Monogram, Premium Monogram, Custom Appliqué, Custom Embroidery
-- `startingPrice` (string): "from $16"
-- `description` (text)
-- `setupFee` (string, optional): "$30 one-time digitization fee"
-- `notes` (text, optional)
-- `order` (number)
-
-### popularCombination
-The "most popular combinations" cards.
-- `label` (string): Classic / Gift-Ready / Bold
-- `comboName` (string): "Navy on White"
-- `detail` (string): "Block font · 3-letter monogram · Perfect for towels & linens"
-- `priceFrom` (string): "from $16"
-- `image` (image, optional)
-- `font` (reference to `font`, optional), `threadColor` (reference to `threadColor`, optional)
-- `order` (number)
-
-### clearanceItem
-The only commerce type. See `docs/03`.
-- `name` (string)
-- `image` (image, with alt)
-- `price` (string): display price
-- `stripePaymentLink` (url): the Stripe-hosted checkout link Mary Ann creates
-- `inStock` (boolean): hide when sold out
-- `order` (number)
+Common shape across pages: an SEO group (collapsed in the Studio), a hero (eyebrow/headline/subhead), the
+page's own sections, and a bottom CTA banner. `requestAQuotePage` is the outlier — it stores every form
+label, help line, placeholder, section heading, and the referral-source options.
 
 ---
 
-## Singleton types (one document each)
+## Collections
 
-### siteSettings
-Global stuff used in the header, footer, and meta. (Full example in
-`sanity/schemas/singletons/siteSettings.ts`.)
-- `siteTitle` (string), `tagline` (text)
-- `contactEmail` (string): also the quote-notification recipient
-- `location` (string): "St. Matthews, SC"
-- `hours` (string): "Mon to Fri · Replies within 1 business day"
-- `socialFacebook`, `socialInstagram`, `socialPinterest` (url): real URLs pending
-- `footerBlurb` (text)
-- `defaultSeo` (seo)
+| Type | Drives | Notes |
+|---|---|---|
+| `itemCategory` | the `/[slug]` shop pages + the Shop-by-Item grid | name, slug, description, hero images, card image, trust-strip lines, starting price, order, featured |
+| `font` | the Font & Lettering Guide + the quote form's font dropdown | name, `previewImage` (a photo of the stitched lettering — NOT a web font), `styleTag`, `bestFor`, `popular` |
+| `threadColor` | the Thread Color Chart | name, hex (approximate), DMC number, swatch image, color family |
+| `galleryItem` | the Style Gallery (and featured items on Home/About) | image, related category, related font, tags, featured, order |
+| `pricingTier` | the Pricing page + "Business at a glance" | quantity/complexity label, price per piece, note, highlighted, order |
+| `clearanceItem` | the Clearance page | name, description, images, original + sale price, `stripePaymentLink`, quantity, sold, order |
+| `faqItem` | the How It Works + Pricing FAQs | question, answer (Portable Text), category, `showOnHowItWorks` / `showOnPricing` flags |
+| `legalPage` | `/legal/[slug]` (Privacy, Terms, Accessibility) | title, slug, body (Portable Text), last-updated |
 
-### homepage
-- `hero` (object: eyebrow, heading, body, primaryCta `link`, secondaryCta `link`, trustItems array of
-  strings)
-- `processSteps` (array of `step`)
-- `categoryGridLabel` (string): the grid auto-pulls `itemCategory` docs
-- `galleryTeaser` (object: label, heading, body, cta `link`)
-- `popularCombinationsIntro` (object: label, heading, body): cards pull `popularCombination` docs
-- `reviewsIntro` (object: label, heading): pulls featured `testimonial` docs
-- `makerBlurb` (object: label, heading, body, image, cta `link`)
-- `finalCta` (ctaBanner + trustItems)
-- `seo` (seo)
-
-### howItWorksPage
-- `hero` (object: eyebrow, heading, body)
-- `stepsLabel` (string), `stepsHeading` (string)
-- `steps` (array of `step`)
-- `stats` (array of `stat`)
-- `faqLabel` (string), `faqHeading` (string), `faq` (array of `faqItem`)
-- `cta` (ctaBanner)
-- `seo` (seo)
-
-### pricingPage
-- `hero` (object: eyebrow, heading, body)
-- `intro` (portable text)
-- `tiersHeading` (string): cards pull `pricingTier` docs
-- `whatAffectsPrice` (array of `featureCard` or strings)
-- `reassurance` (object: heading, body): the "no surprises / price before payment" block
-- `cta` (ctaBanner)
-- `seo` (seo)
-
-### aboutPage
-- `hero` (object: eyebrow, heading, body)
-- `maker` (object: label, heading, kicker, body portable text, pullQuote, photo, skillTags array)
-- `stats` (array of `stat`)
-- `whyHeading` (string), `whyIntro` (text), `whyCards` (array of `featureCard`)
-- `contactHeading` (string), `contactIntro` (text)
-- `forOrders` (object: title, body, points array, cta `link`)
-- `forEverythingElse` (object: title, body, points array)
-- `contactFormNote` (text): the "placing an order? use the quote form" nudge
-- `infoBlocks` (array: heading + lines): location, response times, follow along
-- `seo` (seo)
-
-### styleGalleryPage / fontGuidePage / threadChartPage
-Thin singletons, since the real content comes from the collections.
-- `heading` (string), `intro` (portable text), `seo` (seo)
-- (Thread chart adds a `caveat` string for the "colors are approximate" note.)
-
-### thankYouPage
-- `heading` (string), `body` (portable text), `nextLinks` (array of `link`), `seo` (seo)
-
-### notFoundPage
-- `heading` (string), `body` (text), `links` (array of `link`)
+**Types that were removed** (do not reintroduce without real content): `testimonial`, `popularCombination`,
+and the old `stats` strip. There is also no `service` or `journal*` type — those were leftovers from the
+starter template and are gone.
 
 ---
 
-## A note on who edits what
+## Studio-only helper singletons ("Start Here" handbook)
 
-Mary Ann (and Nathan) edit all of the above in the Sanity studio without touching code. The thing
-that requires code is *changing the shape of a type* (adding/removing a field), because existing
-documents and the front end both depend on the current shape. Treat schema changes as deliberate, and
-keep field names stable once content exists.
+Not rendered on the public site — they drive the onboarding handbook Mary Ann sees in the Studio:
+- `studioGuide` — "How your website works" (site map + step-by-step how-tos + tip cards + optional video link).
+- `studioNotes` — the editable business notes behind "Your business at a glance".
+- `studioPlaybook` — "Grow your studio" (Google Business, reviews, social, local marketing, keeping the site fresh).
+
+Seeded by `scripts/seed-studio-guides.mjs` (idempotent). See `docs/08` and the studio components in
+`studio/components/`.
+
+---
+
+## Who edits what
+
+Mary Ann edits all of the above in the Studio without touching code. The thing that requires a developer is
+**changing the shape of a type** (adding/removing/renaming a field), because existing documents and the
+front-end queries both depend on the current shape. Two rules learned the hard way:
+- After any schema change, run `npm run typegen` to regenerate `src/lib/sanity.types.ts`.
+- Removing a field from a schema does **not** delete its data — the Studio will flag the leftover value as
+  an "unknown field." Unset the value from affected documents too (see `scripts/fix-orphan-data.mjs`).
