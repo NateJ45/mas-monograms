@@ -2,7 +2,8 @@
 
 ## What this is
 Mary Ann Stone's custom embroidery studio site in St. Matthews, SC.
-Built by Nate's Creations (nathanjnixon86@gmail.com).
+Built by Nixon Creative Studio (nathanjnixon86@gmail.com · nixoncreativestudio.com) —
+this matches the live footer credit in `siteSettings.footerCredit`.
 Migrated from Squarespace 7.1 → Astro 6 + Sanity 7/5 + Cloudflare Workers.
 
 ## Status (current — 2026-07-03)
