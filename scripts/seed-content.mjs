@@ -52,7 +52,8 @@ add({
   _id: 'siteSettings', _type: 'siteSettings',
   title: 'MAS Monograms',
   tagline: 'Hand-stitched monograms and embroidery, made locally in St. Matthews, SC.',
-  email: 'hello@mas-monograms.com', // PLACEHOLDER — set to Mary Ann's real inbox
+  email: 'owner@example.com',
+  phone: '(000) 000-0000',
   address: { street: '', city: 'St. Matthews', state: 'SC', zip: '' },
   serviceArea: 'St. Matthews and the surrounding Calhoun County area, with shipping available nationwide.',
   navItems: keyed([

@@ -22,7 +22,7 @@ const client = createClient({
 });
 
 const settings = await client.fetch(`*[_type=="siteSettings"][0]{ email, title }`);
-const EMAIL = settings?.email || 'hello@mas-monograms.com';
+const EMAIL = settings?.email || 'owner@example.com';
 const NAME = settings?.title || 'MAS Monograms';
 const UPDATED = '2026-07-02';
 
