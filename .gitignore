@@ -25,6 +25,11 @@ tmp/
 studio/schema.json
 studio/dist/
 
+# Sanity asset-id cache written by scripts/lib/sanity-lib.mjs (added 2026-08-27).
+# It lets a re-run of a seed script skip already-uploaded images. The ids are
+# machine-local bookkeeping, not content, so committing it would only conflict.
+scripts/.asset-map.json
+
 # Lighthouse CI report artifacts
 .lighthouseci/
 

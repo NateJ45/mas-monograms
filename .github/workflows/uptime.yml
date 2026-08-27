@@ -1,0 +1,57 @@
+name: Uptime check
+
+# Added 2026-08-27 (PORTS.md card 7, pattern from presacademy).
+#
+# A lightweight safety net: hourly, confirm the live site's key pages return 200.
+# A failed run notifies through GitHub. This is a net, not monitoring — GitHub's
+# scheduler is best-effort and can be delayed under load. For real monitoring point
+# a dedicated service at the homepage; UptimeRobot's free tier is enough.
+#
+# THE SCHEDULE IS ON, deliberately: NateJ45/mas-monograms is a PUBLIC repo
+# (verified 2026-08-27), and Actions minutes are free on public repositories, so
+# presacademy's reason for commenting the schedule out does not apply here.
+#
+# It is gated on the SITE_URL repo VARIABLE (a variable, not a secret — the origin
+# is public). With the variable unset the job logs a warning and exits 0, so it can
+# never false-alarm. Set it to whichever origin is authoritative:
+#   https://mas-monograms.nathanjnixon86.workers.dev   (today; all four routes
+#                                                       curl-verified 200 on
+#                                                       2026-08-27)
+#   https://mas-monograms.com                          (after the custom-domain
+#                                                       cutover — repoint the
+#                                                       variable, not this file)
+# See docs/PENDING.md.
+on:
+  schedule:
+    - cron: '17 * * * *' # hourly, offset off the top of the hour
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check key pages return 200
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        # The four routes deliberately exercise different data paths rather than
+        # four variations of the homepage:
+        #   /                  homePage singleton + hero imagery
+        #   /pricing           pricingPage singleton, the most-edited document
+        #   /shop-by-item      collection index over the itemCategory documents
+        #   /thread-color-chart  the long data-driven list page
+        run: |
+          if [ -z "$SITE_URL" ]; then
+            echo "::warning::SITE_URL variable not set; skipping uptime check."
+            exit 0
+          fi
+          base="${SITE_URL%/}"
+          fail=0
+          for path in "/" "/pricing" "/shop-by-item" "/thread-color-chart"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 25 "${base}${path}")
+            echo "${code}  ${base}${path}"
+            if [ "$code" != "200" ]; then fail=1; fi
+          done
+          if [ "$fail" = "1" ]; then
+            echo "::error::One or more key pages did not return HTTP 200."
+            exit 1
+          fi

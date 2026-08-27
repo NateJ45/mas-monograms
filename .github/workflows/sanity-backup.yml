@@ -1,0 +1,86 @@
+name: Sanity dataset backup
+
+# Added 2026-08-27 (PORTS.md card 6, pattern from presacademy).
+#
+# Nightly export of the production Sanity dataset (documents + assets) so a bad
+# mutation, a bad seed re-run, or an accidental "Remove field" in Studio is always
+# recoverable. Mary Ann is the only editor and there is no second copy of this
+# content anywhere; that is the whole argument for the job.
+#
+# THE SCHEDULE IS ON, deliberately. presacademy disabled its identical schedule
+# because a daily gate job billed a minute a day just to log "skipping".
+# NateJ45/mas-monograms is a PUBLIC repo (verified 2026-08-27 via
+# `gh repo view --json visibility`), and GitHub Actions minutes are free on public
+# repositories, so that billing argument does not apply here. Leave it running.
+#
+# It is safe to have committed before the secret exists: the `gate` job checks for
+# SANITY_AUTH_TOKEN and the `export` job only runs when it is set. Until then each
+# nightly run logs a warning and stops. Setting the secret is what turns it on —
+# no file edit needed. See docs/PENDING.md.
+on:
+  schedule:
+    - cron: '0 7 * * *' # daily 07:00 UTC (03:00 ET) — well clear of editing hours
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      # No checkout here on purpose: this job only reads a secret's presence, and
+      # keeping it checkout-free is what keeps the daily no-op cheap.
+      - id: check
+        env:
+          TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SANITY_AUTH_TOKEN not set; skipping backup. See docs/PENDING.md."
+          fi
+
+  export:
+    needs: gate
+    if: needs.gate.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The sanity CLI is a dependency of the nested studio workspace, not the
+      # root, so install and run it there. A bare `npx sanity` at the root would
+      # download the whole CLI on every run.
+      - name: Install studio dependencies
+        run: npm ci --prefix studio
+
+      - name: Export production dataset
+        working-directory: studio
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          # This project's PUBLIC Sanity id (not a secret — it ships in the
+          # client bundle and in every Studio URL).
+          SANITY_STUDIO_PROJECT_ID: xp3elugr
+          SANITY_STUDIO_DATASET: production
+        run: |
+          STAMP=$(date -u +%Y-%m-%d)
+          npx sanity dataset export production "../sanity-backup-$STAMP.tar.gz"
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sanity-backup
+          path: sanity-backup-*.tar.gz
+          # GitHub keeps artifacts 90 days. For longer or off-site retention,
+          # push the tarball to R2 here (this account already has an R2 bucket
+          # bound for quote backups).
+          retention-days: 90
+
+# RESTORE (run locally, from studio/, with SANITY_AUTH_TOKEN set):
+#   npx sanity dataset import ../sanity-backup-YYYY-MM-DD.tar.gz production --replace
+# `--replace` overwrites documents that share an _id and leaves the rest alone.
+# Import into a scratch dataset first if you are unsure what changed.

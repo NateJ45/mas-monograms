@@ -36,6 +36,21 @@ content in Sanity:
 The Studio is deployed separately: `cd studio && npx sanity deploy` (host `mas-monograms`, appId
 pinned in `studio/sanity.cli.ts`).
 
+### GitHub Actions alongside the Cloudflare build (added 2026-08-27)
+
+Cloudflare Workers Builds is what deploys. GitHub Actions is what tells you the
+push was safe, and what keeps a copy of the content:
+
+| Workflow | When | What it does |
+|---|---|---|
+| `ci.yml` | push to `main`, every PR | install (root + studio), typegen, **fail on stale `src/lib/sanity.types.ts`**, lint, Astro build, Studio build, `npm test` |
+| `lighthouse.yml` | push to `main`, every PR | Lighthouse over the built `dist/client`; accessibility hard-gated at 1.0 |
+| `sanity-backup.yml` | nightly 07:00 UTC + manual | `sanity dataset export production`, uploaded as a 90-day artifact. **Skips until the `SANITY_AUTH_TOKEN` repo secret exists.** Restore command is in the workflow footer |
+| `uptime.yml` | hourly + manual | curls `/`, `/pricing`, `/shop-by-item`, `/thread-color-chart` for 200. **Skips until the `SITE_URL` repo variable is set** — repoint that variable at the custom domain after cutover; the workflow never changes |
+
+Both schedules are left **on**: the repo is public, so Actions minutes are free.
+The two unset gates are tracked in `docs/PENDING.md`.
+
 ---
 
 ## Environment variables — the part that bites

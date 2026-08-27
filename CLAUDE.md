@@ -158,6 +158,16 @@ const data = await sanityClient.fetch<SomePageType>(
 Auto-injected in `<BaseLayout>` on every page using `siteSettings` data.
 Schema.org type comes from `siteSettings.businessType` field.
 
+## Read these early
+- **`docs/PENDING.md`** — the authoritative registry of open patches and
+  waiting-on-a-human items. Edit it in the same commit that opens or closes one.
+- **`docs/TESTING.md`** — which check covers what, and how to run each.
+- **`ncs-astro-sanity-starter/PORTS.md`** — the library of record for the shared
+  build/QA plumbing this repo now carries. Files whose first lines say
+  `PORTABLE: canonical copy ...` are owned there, not here: change them in the
+  starter and pull forward. `npm run sync-check` (with `NCS_STARTER_DIR` set, or
+  the starter checked out as a sibling directory) proves there is no drift.
+
 ## Project notes
 - `npm run typegen` must be run after any schema changes to regenerate `sanity.types.ts`
 - Studio runs at localhost:3333 (`cd studio && npm run dev`); deploy it with `cd studio && npx sanity deploy`.
@@ -173,3 +183,66 @@ Schema.org type comes from `siteSettings.businessType` field.
   `node scripts/seed-studio-guides.mjs` (idempotent createOrReplace). Do NOT run `scripts/seed-core.mjs`
   — it is the leftover interior-design "Studio Starter" seed and would inject junk `service`/`journalEntry`
   docs.
+- New scripts (2026-08-27, from the starter): `npm run parity` (render-parity
+  harness), `npm run sync-check` (library-drift check), `npm run free-dist`
+  (also wired as the `prebuild` hook). `scripts/with-workerd.mjs` is installed
+  but unwired on purpose — see the gotcha below.
+- Workflows: `ci.yml` (install + typegen + stale-types guard + lint + both
+  builds + tests), `lighthouse.yml` (accessibility hard-gated at 1.0),
+  `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
+  on a secret/variable that is not set yet — see `docs/PENDING.md`.
+- Any new seed or patch script should import `scripts/lib/sanity-lib.mjs` rather
+  than build its own client: it brings a **dry-run-by-default** gate (`--apply`
+  to actually write), Portable Text builders, and an idempotent asset uploader.
+
+## Gotchas (each one cost real time somewhere in this family)
+
+1. **The committed `src/lib/sanity.types.ts` goes stale silently.** `npm run
+   build` does not chain typegen, so the file is committed by hand after every
+   schema change — and on 2026-08-27 it was already two `studioGuide` fields
+   behind, on a green build. presacademy shipped types describing a schema that
+   no longer existed the same way. CI now regenerates and fails on any diff. Two
+   consecutive local typegen runs are byte-identical, so a diff always means a
+   stale commit, never generator noise. Fix: `npm run typegen`, commit.
+2. **`EPERM, Permission denied: ...\dist\client` is not a permissions problem.**
+   It means a `wrangler dev` / `astro preview` is still holding `dist`, and Astro
+   empties `dist` at the start of every build. The `prebuild` hook
+   (`scripts/free-dist.mjs`) now clears it automatically on Windows, killing only
+   node/workerd processes whose command line mentions **both** this project's
+   directory **and** a dev server. Doing it by hand: killing `workerd.exe` alone
+   is not enough (the parent wrangler/node process keeps the handle and can
+   respawn it), and never blanket-kill `node.exe` — the editor/agent session is
+   itself node.
+3. **`scripts/with-workerd.mjs` must stay unwired here.** It works around a
+   Windows workerd crash that only happens on Astro 7 / `@astrojs/cloudflare` 14,
+   where prerendering routes through `@cloudflare/vite-plugin`. This repo is
+   Astro 6.3 / adapter 13.5.5 and never hits it. Wire it
+   (`"build": "node scripts/with-workerd.mjs astro build"`) on the day of that
+   upgrade, not before. Related, from the same family: adapter and wrangler
+   versions are a matched pair — 13.6.0 regressed the image optimizer, and
+   adapter 14 emits a `legacy_env` field that wrangler 4.126+ rejects outright.
+4. **Palette ratios in CSS comments are not a gate.** Two of this file's own
+   documented ratios were wrong (gold-on-indigo was 4.67 not 4.84; error text on
+   Linen 5.60 not 5.35 — that was text-tertiary's number). `src/lib/
+   theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
+   the pairs under `npm test`. **Any token that becomes a focus ring or the
+   visible edge of a control must be added there** with `AA_NON_TEXT`, or the one
+   bug class Lighthouse cannot see stays invisible.
+5. **Parity baselines come from a plain `npm run build`, nothing else.** A build
+   run under a test runner or with different env (fake tracker ids, empty Sanity
+   credentials) produces a diff that is not a regression. Re-capture only when a
+   markup change is intended, and say so in the commit message.
+6. **`sanity-backup.yml` and `uptime.yml` are silently inert** until
+   `SANITY_AUTH_TOKEN` (secret) and `SITE_URL` (repo **variable**, not a secret)
+   exist. They warn-and-skip by design so they can be committed before launch —
+   which also means "the workflow is green" does not mean "the backup ran". Check
+   `gh secret list` / `gh variable list` before believing in either.
+7. **A quoted token in `.env` yields a 401 that reads like a permissions
+   problem.** `scripts/lib/loadEnv.mjs` takes quoted values literally, quotes
+   included. Write tokens bare. And Sanity refuses to delete a document that other
+   documents still reference, so cleanup scripts must unlink before deleting.
+8. **Studio files never port blindly between these repos.** This project is on
+   Sanity **5**; WCP and presacademy are on **6**. A file copied across that
+   boundary compiles and then dies at browser runtime — which is also where
+   schema errors surface, since they pass the build. Port the pattern, write the
+   file against this repo's actual major, and open the Studio to verify.

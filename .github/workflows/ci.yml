@@ -1,0 +1,79 @@
+name: CI
+
+# Restored 2026-08-27. This repo had ONLY lighthouse.yml, so a push that broke
+# typegen, the type-check, lint or the unit tests still went green as long as the
+# Lighthouse run happened to build — and lighthouse.yml never installs the studio
+# workspace, never runs typegen, and never runs `npm test`. That is a gate with a
+# hole in it the shape of most of the codebase. Modelled on
+# ncs-astro-sanity-starter/.github/workflows/ci.yml (PORTS.md cards 5 and 15).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      # The Studio is a nested workspace (studio/package.json) with its own lock
+      # file. Typegen and the Studio build both live there, so CI needs it
+      # installed — this is exactly the step lighthouse.yml lacks.
+      - name: Install studio dependencies
+        run: npm ci --prefix studio
+
+      - name: Generate Sanity types
+        # `npm run typegen` == `npm --prefix studio run typegen` ==
+        # `sanity schema extract && sanity typegen generate`. Both read local
+        # schema files, so no Sanity credentials are needed here; the CLI falls
+        # back to the placeholder project id in studio/sanity.cli.ts.
+        run: npm run typegen
+
+      - name: Fail if committed Sanity types are stale
+        # Added 2026-08-27 (PORTS.md card 5, pattern from presacademy).
+        # `npm run build` does NOT chain typegen, so src/lib/sanity.types.ts is
+        # committed by hand after every schema change — and on 2026-08-27 it was
+        # already two fields behind studioGuide (videoUrl, videoLabel), on a
+        # green build. presacademy shipped the same class of bug on 2026-06-14
+        # with types describing a schema that no longer existed. Catch it here.
+        #
+        # Safe to gate on: two consecutive local typegen runs were verified
+        # byte-identical (26,435 bytes) on 2026-08-27, so a diff here always
+        # means a stale commit, never generator noise. Line endings are the one
+        # local-only difference and git normalizes those.
+        run: |
+          if ! git diff --quiet -- src/lib/sanity.types.ts; then
+            echo "::error::src/lib/sanity.types.ts is out of date. Run 'npm run typegen' and commit the result."
+            git --no-pager diff -- src/lib/sanity.types.ts
+            exit 1
+          fi
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build Astro
+        # Reads Sanity at build time but degrades to placeholder content when the
+        # project id is absent (src/lib/sanity.ts), which is what makes a
+        # credential-less CI build meaningful rather than a smoke screen.
+        run: npm run build
+
+      - name: Build Sanity Studio
+        run: npm --prefix studio run build
+
+      - name: Run tests
+        run: npm test

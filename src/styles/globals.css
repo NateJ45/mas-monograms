@@ -45,17 +45,21 @@
 
   /* Direction C ("The Sampler", 2026-07-03) — gold script accent. ONLY for the
      large Petemoss kicker and decorative strokes ON INDIGO/DARK surfaces
-     (4.84:1 on Heritage Indigo — passes AA for the 44px+ kicker with room to
+     (4.67:1 on Heritage Indigo — passes AA for the 44px+ kicker with room to
      spare, and small text riding it stays borderline-legal but avoid that).
-     Never use on Linen/Paper (≈1.6:1). */
+     Never use on Linen/Paper (1.75:1).
+     Ratios re-measured 2026-08-27 when theme-tokens.test.ts started asserting
+     them; the old 4.84 / ≈1.6 figures were slightly off. */
   --color-gold-script: #d9b15f;
 
   /* Form validation (Heirloom Coast reds). --color-error-text was previously
-     hardcoded as #b91c1c throughout request-a-quote; the VALUE is kept (5.35:1
+     hardcoded as #b91c1c throughout request-a-quote; the VALUE is kept (5.60:1
      on Linen — the shadcn --destructive oklch red is only ~4.0:1 and fails AA
      for small text, which is why the form never used it). Surface/border are
-     linen-tinted washes for the submit-failure alert. */
-  --color-error-text:    #b91c1c; /* error copy + required asterisks, 5.35:1 on Linen */
+     linen-tinted washes for the submit-failure alert.
+     Ratio re-measured 2026-08-27 (was written as 5.35, which is text-tertiary's
+     number); theme-tokens.test.ts now holds both to AA. */
+  --color-error-text:    #b91c1c; /* error copy + required asterisks, 5.60:1 on Linen */
   --color-error-surface: #f9e8e6; /* alert wash */
   --color-error-border:  #e0b4ac; /* alert hairline */
 

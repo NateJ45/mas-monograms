@@ -65,6 +65,8 @@ export type StudioGuide = {
   _rev: string;
   guideTitle?: string;
   guideIntro?: string;
+  videoUrl?: string;
+  videoLabel?: string;
   studioMap?: Array<{
     area?: string;
     description?: string;

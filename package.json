@@ -7,6 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/free-dist.mjs",
     "build": "astro build",
     "build:full": "npm run typegen && astro build",
     "preview": "wrangler dev",
@@ -22,6 +23,9 @@
     "studio:deploy": "npm --prefix studio run deploy",
     "studio:import": "node scripts/import-content.mjs",
     "seed": "node scripts/seed-core.mjs",
+    "free-dist": "node scripts/free-dist.mjs",
+    "parity": "node scripts/page-parity.mjs",
+    "sync-check": "node scripts/sync-check.mjs",
     "lighthouse": "npm run build && npx lhci autorun",
     "test": "node --experimental-strip-types --test src/lib/*.test.ts scripts/lib/*.test.mjs",
     "check": "npm run typegen && npm run build && npm --prefix studio run build && npm test",
