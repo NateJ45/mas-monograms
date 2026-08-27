@@ -9,7 +9,7 @@ of this file is that nobody writes a fourth check that duplicates the second.
 |---|---|---|---|
 | Unit tests | `npm test` | Node's built-in runner (`node --test`, type-stripped) | Pure functions in `src/lib/*.test.ts` and `scripts/lib/*.test.mjs`: slugify, reservedSlugs, scriptAccent, sectionVisibility, utils, reading-time, phone, image-import helpers, and **theme-tokens** (below) |
 | Everything green | `npm run check` | local | typegen, Astro build, Studio build, unit tests — the one command to run before pushing |
-| Lint | `npm run lint` | eslint | `src/**/*.{ts,tsx,astro}` + `scripts/**/*.mjs`. Two pre-existing unused-var **warnings**; zero errors is the bar |
+| Lint | `npm run lint` | eslint | `eslint src scripts` — eslint does its own globbing (the `files` patterns in `eslint.config.js` pick up ts/tsx/astro/mjs), so coverage is identical on Windows and Linux CI. Two pre-existing unused-var **warnings**; zero errors is the bar |
 | CI | push to `main` / any PR (`.github/workflows/ci.yml`) | GitHub Actions | install (root + studio), typegen, the **stale-types guard**, lint, credential-less Astro build, Studio build, unit tests |
 | Lighthouse CI | `npm run lighthouse` (`.github/workflows/lighthouse.yml`) | Headless Chrome over `dist/client` | The 12 routes in `lighthouserc.json`. **Accessibility is a hard gate at minScore 1** |
 | Render parity | `npm run parity capture` / `compare` | reads `dist/client` | 23 built pages, byte-compared against committed baselines (below) |

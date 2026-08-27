@@ -54,14 +54,6 @@ This file tracks the things that have no other home.
   expects them the failure will be confusing. Decide: fix the config to point at
   `../src/**/*.{ts,astro}`, or write down that this project only wants schema
   types.
-- **`npm run lint` covers less on Linux CI than it does locally.** The script
-  passes `src/**/*.{ts,tsx,astro}` as a shell argument. On Windows, cmd does not
-  expand it and eslint's own globstar walks the whole tree; on CI's `sh`, `**`
-  degrades to one level, so only 54 files are linted and everything under, say,
-  `src/components/sections/` is skipped. Nothing errors, which is why it has gone
-  unnoticed. Fix by letting eslint do the globbing (`eslint src scripts`, with
-  the extensions settled in `eslint.config.js`) and then clearing whatever the
-  wider sweep finds — that second half is why this is queued, not done.
 - **`scripts/lib/sanity-lib.mjs` is installed but unused.** Ported 2026-08-27 so
   the *next* seed or patch script gets a dry-run gate for free instead of
   re-inventing one. The existing `scripts/*.mjs` still carry their own inline
@@ -88,6 +80,13 @@ This file tracks the things that have no other home.
 
 ## Recently closed
 
+- 2026-08-27 — **Lint now covers the same files on CI as locally.** The `lint`
+  script passed `src/**/*.{ts,tsx,astro}` as a shell argument; on Linux CI's
+  `sh` the `**` degraded to one level and only ~54 files were linted. The
+  scripts are now `eslint src scripts`, letting eslint's own globbing (driven
+  by the `files` patterns in `eslint.config.js`) walk the tree on every OS.
+  Verified 129 files linted = 129 matching files on disk; the wider sweep
+  surfaced nothing new (still 0 errors, the same 2 unused-var warnings).
 - 2026-08-27 — **Build CI restored.** `.github/workflows/ci.yml` did not exist;
   `lighthouse.yml` was the only workflow, and it never installed the studio
   workspace, never ran typegen, and never ran `npm test`. CI now runs install
