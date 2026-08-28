@@ -276,15 +276,7 @@ export type ThreadColor = {
     _type: 'image';
   };
   colorFamily?:
-    | 'blue'
-    | 'green'
-    | 'red'
-    | 'orange'
-    | 'purple'
-    | 'brown'
-    | 'gray'
-    | 'white'
-    | 'metallic';
+    'blue' | 'green' | 'red' | 'orange' | 'purple' | 'brown' | 'gray' | 'white' | 'metallic';
   displayOrder?: number;
 };
 

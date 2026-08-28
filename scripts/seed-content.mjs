@@ -1,10 +1,10 @@
 // MAS Monograms — content seed.
 // Builds an NDJSON file of every singleton + collection document, populated
 // with the verbatim Squarespace copy transcribed in docs/01–06, mapped onto
-// the ACTUAL studio/schemaTypes field names. Then run:
+// the ACTUAL src/sanity/schemaTypes field names. Then run:
 //
 //   node scripts/seed-content.mjs            # writes tmp/content.ndjson
-//   cd studio && npx sanity dataset import ../tmp/content.ndjson production --replace
+//   npx sanity dataset import tmp/content.ndjson production --replace   (from the repo root)
 //
 // Deterministic _ids → safe to re-run (--replace overwrites in place).
 //

@@ -16,14 +16,21 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+# Cloudflare Workers runtime secrets read by `wrangler dev` (SANITY_TOKEN).
+# Added 2026-08-28 with the live-preview stack; .dev.vars.example is committed.
+.dev.vars
 
 # wrangler local cache (Cloudflare adapter)
 .wrangler/
 
 # generated artifacts
 tmp/
-studio/schema.json
-studio/dist/
+# `sanity schema extract --force` writes this at the repo root now that the
+# studio is folded into this package (was studio/schema.json before 2026-08-28).
+schema.json
+# A standalone `npx sanity build .studio-dist` bundle, if anyone ever needs one.
+# The real Studio is built by `astro build` into dist/, ignored above.
+.studio-dist/
 
 # Sanity asset-id cache written by scripts/lib/sanity-lib.mjs (added 2026-08-27).
 # It lets a re-run of a seed script skip already-uploaded images. The ids are

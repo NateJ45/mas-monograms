@@ -9,8 +9,8 @@
 //
 // Usage: call `definePageSingleton(name, title, defaults?, extra?)` and register
 // the result in:
-//   1. studio/schemaTypes/index.ts  (schemaTypes array)
-//   2. studio/structure.ts          (SINGLETON_TYPES set + a Pages list item)
+//   1. src/sanity/schemaTypes/index.ts  (schemaTypes array)
+//   2. src/sanity/structure.ts          (SINGLETON_TYPES set + a Pages list item)
 //
 // Example:
 //

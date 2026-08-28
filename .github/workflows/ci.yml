@@ -31,17 +31,15 @@ jobs:
       - name: Install root dependencies
         run: npm ci
 
-      # The Studio is a nested workspace (studio/package.json) with its own lock
-      # file. Typegen and the Studio build both live there, so CI needs it
-      # installed — this is exactly the step lighthouse.yml lacks.
-      - name: Install studio dependencies
-        run: npm ci --prefix studio
+      # The separate "Install studio dependencies" step is gone as of 2026-08-28:
+      # the nested studio/ package was folded into the root one, so the `npm ci`
+      # above installs the Studio too (PORTS.md card 10).
 
       - name: Generate Sanity types
-        # `npm run typegen` == `npm --prefix studio run typegen` ==
-        # `sanity schema extract && sanity typegen generate`. Both read local
+        # `npm run typegen` == `sanity schema extract --force && sanity typegen
+        # generate`, run from the repo root now. Both read local
         # schema files, so no Sanity credentials are needed here; the CLI falls
-        # back to the placeholder project id in studio/sanity.cli.ts.
+        # back to the placeholder project id in sanity.cli.ts.
         run: npm run typegen
 
       - name: Fail if committed Sanity types are stale
@@ -69,11 +67,10 @@ jobs:
       - name: Build Astro
         # Reads Sanity at build time but degrades to placeholder content when the
         # project id is absent (src/lib/sanity.ts), which is what makes a
-        # credential-less CI build meaningful rather than a smoke screen.
+        # credential-less CI build meaningful rather than a smoke screen. Since
+        # 2026-08-28 this ALSO builds the embedded Studio at /studio, so the
+        # separate "Build Sanity Studio" step is gone.
         run: npm run build
-
-      - name: Build Sanity Studio
-        run: npm --prefix studio run build
 
       - name: Run tests
         run: npm test

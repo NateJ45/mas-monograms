@@ -1,0 +1,26 @@
+# Cloudflare Workers RUNTIME secrets for local `wrangler dev`.
+# Copy to .dev.vars (gitignored) and fill in. These are read per request by the
+# SSR routes through `cloudflare:workers`, NOT at build time - build-time Sanity
+# vars live in .env.
+#
+# In production these are set with `npx wrangler secret put <NAME>` (or in the
+# Cloudflare dashboard under the Worker's Variables & Secrets).
+
+# The token the live draft preview reads Sanity with. A VIEWER (read) token is
+# enough; nothing in the preview path writes. Create at sanity.io/manage ->
+# project xp3elugr -> API -> Tokens.
+#
+# Two names are accepted and whichever is set wins:
+#   SANITY_TOKEN           - the name the rest of the site family uses
+#   SANITY_API_READ_TOKEN  - the name this project already uses for its Worker
+# If SANITY_API_READ_TOKEN is already a Worker secret in production, the preview
+# comes up with no new secret to set.
+#
+# WRITE THE VALUE BARE. A quoted token yields a 401 that reads like a permissions
+# problem (see the gotchas in CLAUDE.md).
+SANITY_TOKEN=
+
+# ── Quote form Worker (already required by POST /api/quote) ────────────────────
+# RESEND_API_KEY=
+# QUOTE_OWNER_EMAIL=
+# TURNSTILE_SECRET_KEY=

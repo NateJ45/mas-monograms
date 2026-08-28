@@ -485,10 +485,13 @@ function rewriteSiteTs(config) {
   });
 }
 
-// ---- Rewrite: studio/sanity.config.ts -----------------------------------
+// ---- Rewrite: sanity.config.ts (repo root) ------------------------------
+// Path updated 2026-08-28: the nested studio/ package was folded into the root
+// one, so the Studio config moved from studio/sanity.config.ts to the repo root.
+// The theme it rewrites is still buildLegacyTheme's studioThemeProps block.
 
 function rewriteSanityConfig(config) {
-  rewriteFile(resolve(root, 'studio/sanity.config.ts'), function(text, filePath) {
+  rewriteFile(resolve(root, 'sanity.config.ts'), function(text, filePath) {
     // Extract the studioThemeProps object block using brace-walking
     const blockStart = text.indexOf('const studioThemeProps');
     if (blockStart === -1) {

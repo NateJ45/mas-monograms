@@ -6,7 +6,7 @@
 //
 // Per-page curated lists (HOME_SECTION_TYPES, ABOUT_SECTION_TYPES, etc.) each
 // equal the general SECTION_TYPES plus the rich types that belong on that page.
-// Register only via richSectionSchemas in studio/schemaTypes/index.ts.
+// Register only via richSectionSchemas in src/sanity/schemaTypes/index.ts.
 //
 // SectionRenderer (src/components/SectionRenderer.astro) maps every _type here
 // to a component in src/components/sections/.

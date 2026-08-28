@@ -1,0 +1,277 @@
+---
+/* ============================================================================
+   Preview route - draft-aware pages for the Studio Presentation tool
+   (ported from ncs-astro-sanity-starter 2026-08-28, PORTS.md cards 10 and 17)
+   ============================================================================
+   One SSR route renders ANY page singleton in draft mode for the Presentation
+   Tool: it reads the perspective cookie, fetches the doc draft-aware (stega on),
+   and renders it.
+
+   WHAT SHAPE THIS SITE'S PREVIEW TAKES, AND WHY
+
+   The starter has two page shapes: BUILDER pages, whose whole body is a
+   `pageBuilder` array and which therefore preview at full fidelity through the
+   same SectionRenderer the live page uses; and BESPOKE pages, whose middles are
+   drawn in code and which preview as their EDITABLE SURFACE.
+
+   MAS Monograms has only the second kind. All twelve page singletons are bespoke
+   fixed-field documents and there is no SectionRenderer in this codebase at all,
+   so every page previews as its editable surface: the hero, the repeatable lists
+   the page is built from, and the closing call to action, with a note on the page
+   saying so. Converting a page to a builder array would upgrade its preview for
+   free (PORTS.md card 12) and is deliberately not attempted here.
+
+   That surface is honest rather than decorative. It renders the REAL Hero
+   component, so hero edits look like the site, and it renders every repeatable
+   array as its own labeled block carrying the `data-sanity` attribute that gives
+   Mary Ann in-canvas add / duplicate / remove / reorder (PORTS.md card 17).
+
+   Keep the path -> type map in sync with SINGLETON_PREVIEW_PATHS in
+   src/sanity/resolve.ts and FIRST_SEGMENT_PREVIEWABLE in
+   src/layouts/PreviewLayout.astro. noindex comes from PreviewLayout.
+   ============================================================================ */
+export const prerender = false;
+
+import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
+import PreviewLayout from '@/layouts/PreviewLayout.astro';
+import Hero from '@/components/Hero.astro';
+import { previewFetch, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
+import {
+  arrayItemEditAttr,
+  fieldEditAttr,
+  type EditableArrayField,
+} from '@/lib/preview-edit-attr';
+
+// Fresh clone / unset secret: say so, do not 500.
+const config = previewConfig();
+if (!config.ok) {
+  return previewUnconfiguredResponse(config.missing);
+}
+
+const draftMode = Astro.cookies.has(perspectiveCookieName);
+const slug = (Astro.params.slug as string | undefined) || '';
+
+/**
+ * One entry per previewable page. `arrays` names the repeatable object arrays on
+ * that page, in the order they appear on the live page, with the label Mary Ann
+ * sees in the Studio. These are the field names the in-canvas controls patch, so
+ * they must match src/sanity/schemaTypes/<type>.ts exactly.
+ *
+ * Mirror of SINGLETON_PREVIEW_PATHS in src/sanity/resolve.ts and
+ * FIRST_SEGMENT_PREVIEWABLE in src/layouts/PreviewLayout.astro.
+ */
+const PREVIEW_PAGES: Record<
+  string,
+  { type: string; label: string; arrays: Array<{ field: EditableArrayField; label: string }> }
+> = {
+  '': {
+    type: 'homePage',
+    label: 'Home',
+    arrays: [
+      { field: 'trustItems', label: 'Trust bar' },
+      { field: 'processSteps', label: 'How it works, in three steps' },
+    ],
+  },
+  'how-it-works': {
+    type: 'howItWorksPage',
+    label: 'How It Works',
+    arrays: [{ field: 'steps', label: 'Steps' }],
+  },
+  pricing: {
+    type: 'pricingPage',
+    label: 'Pricing',
+    arrays: [{ field: 'addons', label: 'Add-ons' }],
+  },
+  about: {
+    type: 'aboutPage',
+    label: 'About',
+    arrays: [{ field: 'values', label: 'What matters here' }],
+  },
+  'request-a-quote': {
+    type: 'requestAQuotePage',
+    label: 'Request a Quote',
+    arrays: [
+      { field: 'heroTrustItems', label: 'Hero trust items' },
+      { field: 'referralOptions', label: '"How did you hear about us" options' },
+    ],
+  },
+  'shop-by-item': { type: 'shopIndexPage', label: 'Shop by Item', arrays: [] },
+  'style-gallery': {
+    type: 'styleGalleryPage',
+    label: 'Style Gallery',
+    arrays: [{ field: 'filterGroups', label: 'Filter groups' }],
+  },
+  'font-lettering-guide': { type: 'fontGuidePage', label: 'Font & Lettering Guide', arrays: [] },
+  'thread-color-chart': { type: 'threadChartPage', label: 'Thread Color Chart', arrays: [] },
+  clearance: { type: 'clearancePage', label: 'Clearance', arrays: [] },
+  'thank-you': {
+    type: 'thankYouPage',
+    label: 'Thank You',
+    arrays: [{ field: 'nextSteps', label: 'What happens next' }],
+  },
+  '404': { type: 'notFoundPage', label: '404 Page', arrays: [] },
+};
+
+const page = PREVIEW_PAGES[slug];
+if (!page) {
+  return new Response(
+    `"${slug}" is not a previewable page. Previewable: ${Object.keys(PREVIEW_PAGES)
+      .map((s) => `/preview/${s}`)
+      .join(', ')}`,
+    { status: 404 },
+  );
+}
+
+// Reusable image projection, mirroring IMG in src/lib/queries.ts.
+const IMG = `{
+  asset->,
+  "alt": coalesce(alt, asset->altText, ""),
+  "dimensions": {
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  }
+}`;
+
+// Every hero / CTA field any page type may carry, plus its arrays raw. Absent
+// fields come back null and the surface below skips them. `...` pulls the arrays
+// (and everything else) through without naming each one, so adding a field to
+// PREVIEW_PAGES needs no query edit.
+const PREVIEW_FIELDS = `{
+  ...,
+  seoImage ${IMG},
+  heroImages[] ${IMG},
+  heroImage ${IMG}
+}`;
+
+interface PreviewDoc {
+  _id: string;
+  _type: string;
+  [key: string]: unknown;
+}
+
+const doc = await previewFetch<PreviewDoc | null>(
+  draftMode,
+  `*[_type == $type][0]${PREVIEW_FIELDS}`,
+  { type: page.type },
+);
+
+if (!doc) {
+  return new Response(
+    `No "${page.type}" document found. Create it in the Studio, then reopen the preview.`,
+    { status: 404 },
+  );
+}
+
+// The doc id the overlay and /preview/live listen on. The draft perspective can
+// return the drafts. twin's id; strip the prefix so the listen filter matches
+// both twins.
+const pageId = doc._id.replace(/^drafts\./, '');
+
+// ---------------------------------------------------------------------------
+// In-canvas controls (PORTS.md card 17)
+// ---------------------------------------------------------------------------
+// Passed regardless of draftMode. The attribute is inert without the Studio's
+// overlay, this route is noindex and never part of the static build, and a
+// preview opened before the cookie lands would otherwise render uncontrollable
+// items.
+const editDoc = { id: pageId, type: doc._type };
+
+const str = (v: unknown): string => (typeof v === 'string' ? v : '');
+const heroHeadline =
+  str(doc.heroHeadline) || str(doc.headline) || str(doc.seoTitle) || page.label;
+const heroEyebrow = str(doc.heroEyebrow) || str(doc.eyebrow);
+const heroSubhead = str(doc.heroSubhead) || str(doc.subhead);
+const heroImages = (Array.isArray(doc.heroImages) ? doc.heroImages : []).filter(
+  (i: any) => i?.asset,
+);
+
+// The closing CTA band. Field names differ slightly per page, so coalesce.
+const ctaHeadline = str(doc.ctaHeadline) || str(doc.finalCtaHeadline);
+const ctaSubhead = str(doc.ctaSubhead) || str(doc.finalCtaSubhead);
+const ctaLabel = str(doc.ctaLabel) || str(doc.finalCtaLabel);
+
+// The arrays this page actually has content in, paired with their config.
+const arrays = page.arrays
+  .map((a) => ({ ...a, items: (doc[a.field] as any[] | undefined) ?? [] }))
+  .filter((a) => Array.isArray(a.items));
+
+/** The scalar strings on an array item, in schema order, for the card body. */
+function itemLines(item: unknown): string[] {
+  if (!item || typeof item !== 'object') return [String(item ?? '')];
+  return Object.entries(item as Record<string, unknown>)
+    .filter(([k, v]) => !k.startsWith('_') && (typeof v === 'string' || typeof v === 'number'))
+    .map(([, v]) => String(v))
+    .filter(Boolean);
+}
+
+const title = `${page.label} - Preview`;
+---
+
+<PreviewLayout {title} {draftMode} {pageId}>
+  <Hero
+    eyebrow={heroEyebrow}
+    headline={heroHeadline}
+    headlineItalicSuffix={str(doc.heroItalicWord)}
+    subhead={heroSubhead}
+    backgroundImages={heroImages.length > 0 ? (heroImages as never) : null}
+    headingId="preview-hero"
+    size="short"
+    layout={heroImages.length > 0 ? 'split' : undefined}
+  />
+
+  <div class="mx-auto max-w-3xl px-4 py-6">
+    <p class="border-border-soft bg-card text-foreground/80 rounded-md border px-4 py-3 text-sm">
+      This page's middle is drawn in code (the lists, forms and galleries it is
+      built around), so it previews as its editable surface: the hero above, the
+      lists below, and the closing call to action. Click any words to edit them.
+      The parts held in code render on the live site.
+    </p>
+  </div>
+
+  {
+    arrays.map(({ field, label, items }) => (
+      <section class="mx-auto max-w-3xl px-4 py-4">
+        <h2 class="font-display text-h4 text-foreground mb-3">{label}</h2>
+        {items.length === 0 ? (
+          <p class="border-border-soft text-foreground/70 rounded-md border border-dashed px-4 py-6 text-sm">
+            Nothing here yet. Use the plus control in this canvas, or the
+            "{label}" field in the editor panel, to add the first one.
+          </p>
+        ) : (
+          <ul class="grid gap-3">
+            {items.map((item: any, i: number) => (
+              <li
+                class="border-border-soft bg-card rounded-md border px-4 py-3"
+                data-sanity={arrayItemEditAttr(editDoc, field, item?._key ?? i)}
+              >
+                <span class="text-foreground/50 mr-2 text-xs font-semibold">{i + 1}</span>
+                {itemLines(item).map((line, j) => (
+                  <p class={j === 0 ? 'text-foreground font-semibold' : 'text-foreground/80 text-sm'}>
+                    {line}
+                  </p>
+                ))}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    ))
+  }
+
+  {
+    (ctaHeadline || ctaLabel) && (
+      <section
+        class="bg-primary text-primary-foreground mt-8 px-4 py-10 text-center"
+        data-sanity={fieldEditAttr(editDoc, 'ctaHeadline')}
+      >
+        {ctaHeadline && <h2 class="font-display text-h2">{ctaHeadline}</h2>}
+        {ctaSubhead && <p class="mx-auto mt-2 max-w-xl text-sm">{ctaSubhead}</p>}
+        {ctaLabel && (
+          <span class="bg-background text-foreground mt-4 inline-block rounded-full px-5 py-2 text-sm font-bold">
+            {ctaLabel}
+          </span>
+        )}
+      </section>
+    )
+  }
+</PreviewLayout>

@@ -8,13 +8,56 @@ of this file is that nobody writes a fourth check that duplicates the second.
 | Check | Command | Runtime | Covers |
 |---|---|---|---|
 | Unit tests | `npm test` | Node's built-in runner (`node --test`, type-stripped) | Pure functions in `src/lib/*.test.ts` and `scripts/lib/*.test.mjs`: slugify, reservedSlugs, scriptAccent, sectionVisibility, utils, reading-time, phone, image-import helpers, and **theme-tokens** (below) |
-| Everything green | `npm run check` | local | typegen, Astro build, Studio build, unit tests — the one command to run before pushing |
+| Everything green | `npm run check` | local | typegen, Astro build (which now includes the embedded Studio), unit tests — the one command to run before pushing |
 | Lint | `npm run lint` | eslint | `eslint src scripts` — eslint does its own globbing (the `files` patterns in `eslint.config.js` pick up ts/tsx/astro/mjs), so coverage is identical on Windows and Linux CI. Two pre-existing unused-var **warnings**; zero errors is the bar |
-| CI | push to `main` / any PR (`.github/workflows/ci.yml`) | GitHub Actions | install (root + studio), typegen, the **stale-types guard**, lint, credential-less Astro build, Studio build, unit tests |
+| CI | push to `main` / any PR (`.github/workflows/ci.yml`) | GitHub Actions | install, typegen, the **stale-types guard**, lint, credential-less Astro build (Studio included), unit tests |
 | Lighthouse CI | `npm run lighthouse` (`.github/workflows/lighthouse.yml`) | Headless Chrome over `dist/client` | The 12 routes in `lighthouserc.json`. **Accessibility is a hard gate at minScore 1** |
-| Render parity | `npm run parity capture` / `compare` | reads `dist/client` | 23 built pages, byte-compared against committed baselines (below) |
+| Render parity | `npm run parity capture` / `compare` | reads `dist/client` | 23 built pages, byte-compared against committed baselines (below). `dist/client/studio/` is deliberately skipped |
 | Library drift | `npm run sync-check` | node, dependency-free | Every `PORTABLE`-marked file, diffed against `ncs-astro-sanity-starter` |
 | Uptime | `.github/workflows/uptime.yml`, hourly | curl | 4 live routes return 200 (needs the `SITE_URL` repo variable — see docs/PENDING.md) |
+
+## The live-preview check (manual, but do it)
+
+The preview stack is the one part of this repo that no automated gate covers, and
+the starter explicitly asked the first real site to prove it (its own copy could
+only be shown to fail closed, because that template has no Sanity project). Run it
+after any change to `src/lib/cms-preview.ts`, `src/lib/preview-auth.ts`,
+`src/pages/preview/`, `src/pages/api/draft-mode/`, or `sanity.config.ts`:
+
+```powershell
+npm run build
+npm run preview            # wrangler dev -c dist/server/wrangler.json
+```
+
+Then, against the running server, the four things that must hold. Verified
+2026-08-28 on port 8788 against project `xp3elugr`:
+
+| Check | Expected |
+|---|---|
+| `GET /preview/live?page=homePage` with no cookie | **403** "Preview only" |
+| `GET /api/draft-mode/enable` with a junk secret | **401** "Invalid preview secret" |
+| `GET /api/draft-mode/enable` with a freshly minted secret | **302** to `/preview`, `Set-Cookie: sanity-preview-perspective=<64 hex>` with httpOnly + secure + SameSite=None |
+| `GET /preview` with that cookie | 200, `data-draft="1"`, and **stega markers present**; the same URL WITHOUT the cookie must have **zero** |
+
+Mint the secret with `createPreviewSecret` from
+`@sanity/preview-url-secret/create-secret` using the write token.
+
+**Detecting stega is where this check goes wrong.** `@vercel/stega` hides its
+markers in zero-width characters — `[​‌‍﻿]` — not in the
+Unicode tag block (`U+E0000..U+E007F`). Measuring the tag block reads **zero on a
+fully encoded string**, which looks exactly like a broken preview and sent this
+session chasing a bug that did not exist. Measured correctly, `/preview` carries
+about 20,000 marker characters with the cookie and 0 without.
+
+Also worth running, and how the in-canvas controls get proven: count the
+`data-sanity` attributes in the served preview HTML and compare them to the GROQ
+array lengths for that page (one per repeatable item, plus one for the closing
+CTA). That check is what caught `homePage.trustItems` rendering no controls at
+all, because it is an array of plain strings and primitives have no `_key` (see
+`src/lib/preview-edit-attr.ts`). Home is 3 + 4 + 1 = 8; How It Works is 4 + 1 = 5.
+
+And note gotcha 13 in CLAUDE.md: `/studio` returns 200 with real HTML while being
+completely broken at React mount. Open it in a real browser and read the console.
 
 There is **no Playwright suite in this repo.** The sibling repos have one
 (smoke + axe light/dark + a 320-1440 reflow sweep); here the accessibility floor
@@ -93,8 +136,11 @@ Note for whoever adds a Playwright suite later: capture baselines from a plain
 `npm run sync-check` walks this repo for files whose first lines carry
 `PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record`
 and byte-diffs each against the starter's copy (line endings normalized).
-Currently marked: `scripts/free-dist.mjs`, `scripts/with-workerd.mjs`,
-`scripts/lib/sanity-lib.mjs`, `scripts/sync-check.mjs`, `src/lib/contrast.ts`.
+Currently marked (6, all SAME as of 2026-08-28): `scripts/free-dist.mjs`,
+`scripts/with-workerd.mjs`, `scripts/lib/loadEnv.mjs`, `scripts/lib/sanity-lib.mjs`,
+`scripts/sync-check.mjs`, `src/lib/contrast.ts`. `loadEnv.mjs` joined the set on
+2026-08-28 by pulling the starter's marked copy forward; the file body was already
+identical, only the marker line was missing.
 
 Point it at the library with `NCS_STARTER_DIR`, or leave it to find a sibling
 `ncs-astro-sanity-starter` directory. Drift means: either fold this repo's

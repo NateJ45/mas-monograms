@@ -3,7 +3,7 @@
 // Astro page files that a custom `page` document may not shadow.
 //
 // Used by:
-//   - studio/schemaTypes/page.ts   (Studio slug validation rule)
+//   - src/sanity/schemaTypes/page.ts   (Studio slug validation rule)
 //   - src/pages/[slug].astro       (getStaticPaths filter)
 //
 // Keep both consumers in sync: when adding a new page route (e.g., a new

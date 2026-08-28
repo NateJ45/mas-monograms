@@ -88,7 +88,7 @@ for (const page of SINGLETONS) {
 // ---- Dynamic collections → /og/<prefix>-<slug>.png ----------------------
 // Mirrors BaseLayout: /journal/my-post → journal-my-post.png, etc.
 // Each module that defines a dynamic collection should add its own entry here.
-// Field names are verified against studio/schemaTypes/<type>.ts before enabling.
+// Field names are verified against src/sanity/schemaTypes/<type>.ts before enabling.
 // journalEntry: slug (slug type, value at slug.current), seoTitle and title (both string).
 
 const COLLECTIONS = [

@@ -14,8 +14,9 @@ export default [
       '.astro/**',
       '.wrangler/**',
       'node_modules/**',
-      'studio/node_modules/**',
-      'studio/dist/**',
+      // The nested studio/ package is gone (2026-08-28, folded into the root).
+      // A standalone Studio bundle, if anyone ever builds one, lands here.
+      '.studio-dist/**',
       'src/lib/sanity.types.ts',
     ],
   },

@@ -4,7 +4,6 @@
 // The trailing default-list filter is a safety net for unplaced types.
 
 import type { StructureBuilder, StructureResolverContext } from 'sanity/structure';
-import { Iframe, urlForDoc } from './sanity.config';
 import {
   CogIcon,
   HomeIcon,
@@ -22,7 +21,6 @@ import {
   RocketIcon,
   ImagesIcon,
   TextIcon,
-  PinIcon,
   SparklesIcon,
   ControlsIcon,
   BillIcon,
@@ -66,38 +64,19 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'media.tag',
 ]);
 
-function singletonWithPreview(
-  S: StructureBuilder,
-  schemaType: string,
-  title: string,
-  icon: any,
-) {
-  const hasPreview = urlForDoc(schemaType, {}) !== null;
-  const views = [
-    S.view.form(),
-    ...(hasPreview
-      ? [
-          S.view
-            .component(Iframe)
-            .options({
-              url: (doc: any) => urlForDoc(schemaType, doc) ?? '',
-              reload: { button: true },
-              defaultSize: 'desktop',
-            })
-            .title('Preview'),
-        ]
-      : []),
-  ];
-
+// One desk entry for a singleton document, opening straight into its form.
+//
+// The second "Preview" view here used to be a sanity-plugin-iframe-pane frame of
+// the LIVE page: it showed PUBLISHED content only and could not follow an edit.
+// Dropped 2026-08-28 with the Sanity 6 upgrade, because the Presentation tool
+// (sanity.config.ts + src/sanity/resolve.ts) renders real DRAFTS with
+// click-to-edit, which is what that pane was standing in for. The plugin is gone
+// from package.json.
+function singleton(S: StructureBuilder, schemaType: string, title: string, icon: any) {
   return S.listItem()
     .title(title)
     .icon(icon)
-    .child(
-      S.document()
-        .schemaType(schemaType)
-        .documentId(schemaType)
-        .views(views),
-    );
+    .child(S.document().schemaType(schemaType).documentId(schemaType).views([S.view.form()]));
 }
 
 export const deskStructure = (S: StructureBuilder, _context: StructureResolverContext) =>
@@ -158,7 +137,7 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
       S.divider(),
 
       // Site Settings — global identity, SEO defaults, social links, contact info
-      singletonWithPreview(S, 'siteSettings', 'Business info & contact', CogIcon),
+      singleton(S,'siteSettings', 'Business info & contact', CogIcon),
 
       S.divider(),
 
@@ -170,24 +149,24 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
           S.list()
             .title('Website pages')
             .items([
-              singletonWithPreview(S, 'homePage', 'Home', HomeIcon),
-              singletonWithPreview(S, 'howItWorksPage', 'How It Works', ControlsIcon),
-              singletonWithPreview(S, 'pricingPage', 'Pricing', BillIcon),
-              singletonWithPreview(S, 'aboutPage', 'About', UserIcon),
-              singletonWithPreview(S, 'requestAQuotePage', 'Request a Quote', EnvelopeIcon),
+              singleton(S,'homePage', 'Home', HomeIcon),
+              singleton(S,'howItWorksPage', 'How It Works', ControlsIcon),
+              singleton(S,'pricingPage', 'Pricing', BillIcon),
+              singleton(S,'aboutPage', 'About', UserIcon),
+              singleton(S,'requestAQuotePage', 'Request a Quote', EnvelopeIcon),
 
               S.divider(),
 
-              singletonWithPreview(S, 'shopIndexPage', 'Shop by Item', PackageIcon),
-              singletonWithPreview(S, 'styleGalleryPage', 'Style Gallery', ImagesIcon),
-              singletonWithPreview(S, 'fontGuidePage', 'Font & Lettering Guide', TextIcon),
-              singletonWithPreview(S, 'threadChartPage', 'Thread Color Chart', ColorWheelIcon),
+              singleton(S,'shopIndexPage', 'Shop by Item', PackageIcon),
+              singleton(S,'styleGalleryPage', 'Style Gallery', ImagesIcon),
+              singleton(S,'fontGuidePage', 'Font & Lettering Guide', TextIcon),
+              singleton(S,'threadChartPage', 'Thread Color Chart', ColorWheelIcon),
 
               S.divider(),
 
-              singletonWithPreview(S, 'clearancePage', 'Clearance', TagIcon),
-              singletonWithPreview(S, 'thankYouPage', 'Thank You', SparklesIcon),
-              singletonWithPreview(S, 'notFoundPage', '404 Page', HelpCircleIcon),
+              singleton(S,'clearancePage', 'Clearance', TagIcon),
+              singleton(S,'thankYouPage', 'Thank You', SparklesIcon),
+              singleton(S,'notFoundPage', '404 Page', HelpCircleIcon),
             ]),
         ),
 

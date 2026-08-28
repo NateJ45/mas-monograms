@@ -120,8 +120,20 @@ const STALE_MS = 60 * 60 * 1000; // 1 hour
  */
 const PAGES = [];
 
-/** Directories inside the html root that never contain rendered pages. */
-const SKIP_DIRS = new Set(['_astro', '_worker.js', '_worker.js.assets', 'node_modules']);
+/**
+ * Directories inside the html root that never contain rendered pages.
+ *
+ * SITE-LOCAL RULE (added 2026-08-28, with the embedded Studio): `studio` is
+ * ours, not the starter's. @sanity/astro prerenders dist/client/studio/index.html
+ * as a bare React mount point whose markup is Sanity's, not this project's: it is
+ * a script tag plus an empty div, it carries the Sanity package version, and it
+ * therefore churns on every Sanity bump while proving nothing about this site's
+ * rendering. Snapshotting it would turn a routine dependency bump into a parity
+ * failure, and a parity failure that is always noise is a gate people learn to
+ * ignore. Verified 2026-08-28: with `studio` excluded, capture/rebuild/compare is
+ * 23/23 on exactly the 23 real routes.
+ */
+const SKIP_DIRS = new Set(['_astro', '_worker.js', '_worker.js.assets', 'node_modules', 'studio']);
 
 // --------------------------------------------------------------------------
 // Where the built HTML lives (adapter-shape aware)

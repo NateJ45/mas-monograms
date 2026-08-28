@@ -25,6 +25,20 @@ The GitHub repo is connected to **Cloudflare Workers Builds**. Every push to `ma
 `npm ci && npm run build` in Cloudflare's CI and auto-deploys the result. There is **no manual
 `wrangler deploy`** in the normal flow.
 
+> **ACTION REQUIRED since 2026-08-28 (Astro 7 / adapter 14).** The deploy command must now
+> name the generated config: **`npx wrangler deploy -c dist/server/wrangler.json`**. With
+> `@astrojs/cloudflare` 14 the build splits into `dist/client` (static assets) and
+> `dist/server` (the SSR bundle for `/studio`, `/preview/**`, `/api/*`), and the generated
+> `dist/server/wrangler.json` is the config that knows about the SSR entrypoint. A plain
+> `wrangler deploy` reads the root `wrangler.jsonc` and every SSR route 404s. Workers Builds
+> keeps its deploy command in the **Cloudflare dashboard** (Workers & Pages → mas-monograms →
+> Settings → Builds), so this cannot be fixed from the repo. The repo's own `npm run deploy`
+> and `npm run preview` scripts already pass `-c`. Verified 2026-08-28 that the generated
+> config carries the R2 `QUOTE_BACKUP` binding, the compatibility flags and the observability
+> setting through from `wrangler.jsonc`, so nothing is lost by deploying from it. It also
+> carries `"legacy_env": true`, which is exactly why `wrangler` is pinned to `~4.110.0`:
+> 4.126+ rejects that field outright. Tracked in `docs/PENDING.md`.
+
 Because `output: 'static'`, all Sanity reads happen **at build time** in CI. The deployed Worker
 serves prebuilt HTML — so content only refreshes when a build runs. Two ways to rebuild after editing
 content in Sanity:
@@ -33,8 +47,12 @@ content in Sanity:
 2. Set up a **Sanity webhook → Cloudflare deploy hook** so publishing in the Studio triggers a
    rebuild automatically (recommended before handing off to Mary Ann; not yet wired up).
 
-The Studio is deployed separately: `cd studio && npx sanity deploy` (host `mas-monograms`, appId
-pinned in `studio/sanity.cli.ts`).
+**The Studio is no longer deployed separately.** Since 2026-08-28 it is embedded in the site
+build at **`<site>/studio`** via `@sanity/astro`, so deploying the site deploys the Studio and
+it can never drift stale. `studioHost` and `deployment` are deliberately gone from
+`sanity.cli.ts` so a stray `npx sanity deploy` cannot recreate the split. The old hosted
+`mas-monograms.sanity.studio` is now a stale duplicate pointed at the same production data;
+retiring it is in `docs/PENDING.md`.
 
 ### GitHub Actions alongside the Cloudflare build (added 2026-08-27)
 
@@ -43,7 +61,7 @@ push was safe, and what keeps a copy of the content:
 
 | Workflow | When | What it does |
 |---|---|---|
-| `ci.yml` | push to `main`, every PR | install (root + studio), typegen, **fail on stale `src/lib/sanity.types.ts`**, lint, Astro build, Studio build, `npm test` |
+| `ci.yml` | push to `main`, every PR | install, typegen, **fail on stale `src/lib/sanity.types.ts`**, lint, Astro build (the embedded Studio builds with it), `npm test` |
 | `lighthouse.yml` | push to `main`, every PR | Lighthouse over the built `dist/client`; accessibility hard-gated at 1.0 |
 | `sanity-backup.yml` | nightly 07:00 UTC + manual | `sanity dataset export production`, uploaded as a 90-day artifact. **Skips until the `SANITY_AUTH_TOKEN` repo secret exists.** Restore command is in the workflow footer |
 | `uptime.yml` | hourly + manual | curls `/`, `/pricing`, `/shop-by-item`, `/thread-color-chart` for 200. **Skips until the `SITE_URL` repo variable is set** — repoint that variable at the custom domain after cutover; the workflow never changes |
@@ -71,7 +89,11 @@ Read during `npm run build`. Required for the site to pull content:
 
 ### Runtime secrets (the Worker's Variables & Secrets, or `wrangler secret put`)
 
-Used by the quote-form Worker at request time:
+Used by the quote-form Worker and, since 2026-08-28, by the live draft preview at request
+time. The preview reads **`SANITY_TOKEN`, falling back to `SANITY_API_READ_TOKEN`**, so if
+that read token is already a Worker secret the preview needs no new one. Locally these live
+in `.dev.vars` (gitignored; see `.dev.vars.example`), which is a different file from `.env`:
+`.env` is build time, `.dev.vars` is runtime.
 
 | Secret | Purpose |
 |---|---|

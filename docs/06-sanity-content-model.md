@@ -1,7 +1,7 @@
 # 06: Sanity Content Model
 
 > **Status: overview only. The source of truth is the code**, not this file. The live schema lives in
-> `studio/schemaTypes/` and the queries that consume it in `src/lib/queries.ts`. This doc is a plain-
+> `src/sanity/schemaTypes/` and the queries that consume it in `src/lib/queries.ts`. This doc is a plain-
 > language map of what exists so you don't have to open twenty files to get the shape — but when the two
 > disagree, the code wins. (The original build-time spec, with a different planned model, is preserved in
 > the git history.)
@@ -10,7 +10,7 @@ Two principles the model follows:
 1. **Structure over freeform** where content repeats (steps, FAQ items, pricing tiers), so Mary Ann fills
    fields instead of formatting a blob and the front end renders consistently.
 2. **Singletons** for one-of-a-kind pages, **collections** for repeatable content, so the Studio stays
-   tidy. Singletons are enforced (not duplicable/deletable) in `studio/sanity.config.ts`.
+   tidy. Singletons are enforced (not duplicable/deletable) in `the repo-root sanity.config.ts`.
 
 ---
 
@@ -57,7 +57,7 @@ Not rendered on the public site — they drive the onboarding handbook Mary Ann 
 - `studioPlaybook` — "Grow your studio" (Google Business, reviews, social, local marketing, keeping the site fresh).
 
 Seeded by `scripts/seed-studio-guides.mjs` (idempotent). See `docs/08` and the studio components in
-`studio/components/`.
+`src/sanity/components/`.
 
 ---
 
