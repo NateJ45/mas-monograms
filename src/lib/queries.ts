@@ -23,15 +23,27 @@ const PT_BODY = `[]{
   }
 }`;
 
+// One menu link (schemaTypes/navLink.ts), as every menu needs it: the words on
+// the link, the address typed by hand, and the picked page FOLLOWED down to its
+// type and web address. src/lib/nav-href.ts turns that into one address. The
+// field list is kept apart from the braces so it can also be spread into a
+// projection that adds children (the top menu's dropdowns).
+const NAV_LINK_FIELDS = `_key, _type, label, linkType, href, externalUrl,
+        "slug": internalPage->slug.current,
+        "docType": internalPage->_type`;
+export const NAV_LINK_PROJECTION = `{ ${NAV_LINK_FIELDS} }`;
+
 // ─── Site Settings ──────────────────────────────────────────────────────────
 // Memoised — fetched once per build, reused by every page and BaseLayout.
 
 let _siteSettings: Promise<any> | null = null;
 
-export function getSiteSettings(): Promise<any> {
-  if (!_siteSettings) {
-    _siteSettings = sanityFetch(
-      `*[_type == "siteSettings"][0]{
+// Exported so the preview shell (src/layouts/PreviewLayout.astro) reads the
+// header and footer through the SAME projection. It used to fetch the raw
+// document, which was fine while every menu link was a typed address, but a
+// link that points at a PAGE has to be followed to that page here or it
+// resolves to nothing and the preview quietly shows the built-in menus.
+export const SITE_SETTINGS_PROJECTION = `{
         title,
         tagline,
         email,
@@ -40,17 +52,22 @@ export function getSiteSettings(): Promise<any> {
         serviceArea,
         geo { latitude, longitude },
         openingHours[] { days, opens, closes },
+        logo ${IMG},
         navItems[] {
-          _type,
-          label,
-          href,
-          links[] { label, href }
+          ${NAV_LINK_FIELDS},
+          links[] ${NAV_LINK_PROJECTION}
         },
         quoteCtaLabel,
+        headerCta { show, label, link ${NAV_LINK_PROJECTION} },
         footerColumns[] {
+          _key,
           title,
-          links[] { label, href }
+          links[] ${NAV_LINK_PROJECTION}
         },
+        legalNav[] ${NAV_LINK_PROJECTION},
+        showEmail,
+        showSocials,
+        showFooterSocials,
         socialLinks[] { platform, url, label },
         googleBusinessUrl,
         footerCredit,
@@ -63,7 +80,12 @@ export function getSiteSettings(): Promise<any> {
         standardTurnaround,
         rushOrdersAvailable,
         rushTurnaround
-      }`,
+      }`;
+
+export function getSiteSettings(): Promise<any> {
+  if (!_siteSettings) {
+    _siteSettings = sanityFetch(
+      `*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`,
       {},
       null,
     );

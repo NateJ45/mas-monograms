@@ -5,6 +5,10 @@
 
 import { ALL_FIELDS_GROUP } from 'sanity';
 
+// ── Shared building blocks ────────────────────────────────────────────────────
+// One menu link, used by every menu on the site-wide singleton below.
+import { navLink } from './navLink';
+
 // ── Site-wide singleton ───────────────────────────────────────────────────────
 import { siteSettings } from './siteSettings';
 
@@ -38,6 +42,10 @@ import { studioNotes } from './studioNotes';
 import { studioPlaybook } from './studioPlaybook';
 
 export const schemaTypes = [
+  // ── Shared building blocks ───────────────────────────────────────────────────
+  // Registered before the documents whose menus are built out of it.
+  navLink,
+
   // ── Singleton pages ──────────────────────────────────────────────────────────
   siteSettings,
   homePage,

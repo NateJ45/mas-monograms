@@ -68,6 +68,30 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'logo',
+      title: 'Your logo (optional)',
+      type: 'image',
+      group: 'identity',
+      description:
+        'A picture of your logo for the top of every page and the footer. Leave this empty and the site keeps the drawn MAS Monograms logo it already uses, which is the one that was designed for it. If you do add one, upload it with the empty space around the edges already trimmed off.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'What the logo says',
+          type: 'string',
+          description:
+            'For people who use a screen reader, and for Google. Usually just "MAS Monograms".',
+          validation: (Rule) =>
+            Rule.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value
+                ? 'Please say what the logo says, so screen readers can read it'
+                : true,
+            ),
+        }),
+      ],
+    }),
+    defineField({
       name: 'serviceArea',
       title: 'Service area note',
       type: 'string',
@@ -153,17 +177,10 @@ export const siteSettings = defineType({
       description:
         'Header navigation links, in order. Add a Link for a single page, or a Dropdown to group links. Leave empty to use the built-in default menu.',
       of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'navLink',
-          title: 'Link',
-          icon: LinkIcon,
-          fields: [
-            defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'href', title: 'URL', type: 'string', description: 'E.g. /pricing or /shop-by-item.', validation: (R) => R.required() }),
-          ],
-          preview: { select: { title: 'label', subtitle: 'href' } },
-        }),
+        // The shared link (./navLink.ts). Every link already in this menu is
+        // stored as a "navLink", so they all keep working exactly as they are
+        // and simply gain the page picker.
+        defineArrayMember({ type: 'navLink' }),
         defineArrayMember({
           type: 'object',
           name: 'navGroup',
@@ -176,10 +193,15 @@ export const siteSettings = defineType({
               title: 'Menu links',
               type: 'array',
               of: [
+                // Shared link first, so "Add item" reaches for the one with the
+                // page picker.
+                defineArrayMember({ type: 'navLink' }),
+                // The original typed-address link, kept so the dropdowns that
+                // were set up before the picker existed stay editable in place.
                 defineArrayMember({
                   type: 'object',
                   name: 'navSubLink',
-                  title: 'Link',
+                  title: 'Link (address typed by hand)',
                   icon: LinkIcon,
                   fields: [
                     defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required() }),
@@ -229,10 +251,15 @@ export const siteSettings = defineType({
               title: 'Links',
               type: 'array',
               of: [
+                // Shared link first, so "Add item" reaches for the one with the
+                // page picker.
+                defineArrayMember({ type: 'navLink' }),
+                // The original typed-address link, kept so the columns that were
+                // set up before the picker existed stay editable in place.
                 defineArrayMember({
                   type: 'object',
                   name: 'footerLink',
-                  title: 'Link',
+                  title: 'Link (address typed by hand)',
                   icon: LinkIcon,
                   fields: [
                     defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required() }),
@@ -253,6 +280,84 @@ export const siteSettings = defineType({
           },
         }),
       ],
+    }),
+
+    defineField({
+      name: 'legalNav',
+      title: 'Small-print links at the very bottom',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'The little links on the bottom bar, beside the copyright line. Leave this empty and the site lists your legal pages there on its own, which is usually what you want. Anything you add here is shown instead of that list.',
+      validation: (Rule) => Rule.max(6),
+      of: [defineArrayMember({ type: 'navLink' })],
+    }),
+    defineField({
+      name: 'headerCta',
+      title: 'The quote button',
+      type: 'object',
+      group: 'navigation',
+      description:
+        'The one coloured button in the top bar, and the matching button in the phone menu. Leave the boxes empty and it keeps saying what the box above says and goes to the Request a Quote page.',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({
+          name: 'show',
+          title: 'Show the button',
+          type: 'boolean',
+          description: 'Turn this off to take the button out of the top bar and the phone menu.',
+          initialValue: true,
+        }),
+        defineField({
+          name: 'label',
+          title: 'Words on the button',
+          type: 'string',
+          description: 'Leave empty to keep using the box above.',
+        }),
+        defineField({
+          name: 'link',
+          title: 'Where the button goes',
+          type: 'navLink',
+          description: 'Leave empty to keep going to the Request a Quote page.',
+        }),
+      ],
+      preview: {
+        select: { show: 'show', label: 'label' },
+        prepare: ({ show, label }) => ({
+          title: label || 'Request a Quote',
+          subtitle: show === false ? 'Hidden' : 'The quote button',
+        }),
+      },
+    }),
+    // Small on/off switches for the contact details in the menus. All three are
+    // ON unless they are turned off, so a site nobody has touched looks exactly
+    // the same as before these switches existed.
+    defineField({
+      name: 'showEmail',
+      title: 'Show your email address in the menus',
+      type: 'boolean',
+      group: 'navigation',
+      description:
+        'Your email in the strip across the very top of the page on a computer, and in the "Get in touch" part of the phone menu. On unless you turn it off.',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'showSocials',
+      title: 'Show the social buttons in the menus',
+      type: 'boolean',
+      group: 'navigation',
+      description:
+        'The little Facebook and Instagram buttons in the strip across the very top of the page, and at the bottom of the phone menu. On unless you turn it off.',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'showFooterSocials',
+      title: 'Show the social buttons in the footer',
+      type: 'boolean',
+      group: 'navigation',
+      description:
+        'The row of round social buttons down in the footer. On unless you turn it off.',
+      initialValue: true,
     }),
 
     // ── Social & footer ───────────────────────────────────────────────────────

@@ -19,10 +19,16 @@ import {
 } from '@tabler/icons-react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import Logo from './Logo.astro';
+import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
+import {
+  resolveChrome,
+  fallbackFooterColumns,
+  type RawFooterColumn,
+} from '@/lib/siteSettings';
+import { isExternalHref, type RawNavLink } from '@/lib/nav-href';
 
 interface SocialLink { platform?: string; url?: string; label?: string; }
-interface FooterColumn { title?: string; links?: Array<{ label?: string; href?: string }>; }
 
 interface Props {
   siteSettings?: {
@@ -33,9 +39,13 @@ interface Props {
     address?: { street?: string; city?: string; state?: string; zip?: string } | null;
     socialLinks?: SocialLink[] | null;
     googleBusinessUrl?: string;
-    footerColumns?: FooterColumn[] | null;
+    footerColumns?: RawFooterColumn[] | null;
     footerCredit?: string;
     footerCreditUrl?: string;
+    /** A logo picture from Site Settings. When set it stands in for the drawn logo. */
+    logo?: { asset?: { _ref?: string; _id?: string }; alt?: string } | null;
+    legalNav?: (RawNavLink | null)[] | null;
+    showFooterSocials?: boolean | null;
   } | null;
   legalPages?: Array<{ title?: string; slug?: string }> | null;
   /** When false, Clearance links are hidden (nothing on clearance). */
@@ -50,39 +60,30 @@ const email         = siteSettings?.email ?? '';
 const phone         = siteSettings?.phone ?? '';
 const address       = siteSettings?.address;
 const location      = [address?.city, address?.state].filter(Boolean).join(', ');
-const socialLinks   = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
+// Everything Site Settings can change about the footer: the link columns, the
+// small-print row, and the switch for the social buttons. All opt-in, so an
+// untouched Site Settings gives back exactly what this footer always showed.
+const chrome        = resolveChrome(siteSettings);
+const socialLinks   = chrome.showFooterSocials
+  ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
+  : [];
+const customLogo    = siteSettings?.logo?.asset ? siteSettings.logo : null;
 const siteCredit    = siteSettings?.footerCredit;
 const siteCreditUrl = siteSettings?.footerCreditUrl;
 const currentYear   = new Date().getFullYear();
 
-// Navigation columns: editor-managed if present, otherwise a sensible default.
-// Contact + social are NOT columns here — they live in the brand block.
-const sanityColumns = (siteSettings?.footerColumns ?? []).filter(
-  (c) => c.title && Array.isArray(c.links) && c.links.length > 0,
-);
-const FALLBACK_COLUMNS: FooterColumn[] = [
-  { title: 'Explore', links: [
-    { label: 'How It Works', href: '/how-it-works' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'Shop by Item', href: '/shop-by-item' },
-    { label: 'Style Gallery', href: '/style-gallery' },
-    { label: 'About', href: '/about' },
-  ] },
-  { title: 'Resources', links: [
-    { label: 'Font & Lettering Guide', href: '/font-lettering-guide' },
-    { label: 'Thread Color Chart', href: '/thread-color-chart' },
-    ...(hasClearance ? [{ label: 'Clearance', href: '/clearance' }] : []),
-  ] },
-  { title: 'Get Started', links: [
-    { label: 'Request a Quote', href: '/request-a-quote' },
-    { label: 'How the process works', href: '/how-it-works' },
-  ] },
-];
-const columns = (sanityColumns.length > 0 ? sanityColumns : FALLBACK_COLUMNS)
-  .map((c) => ({
-    title: c.title ?? '',
-    links: (c.links ?? []).filter((l) => hasClearance || l.href !== '/clearance'),
-  }));
+// Navigation columns: editor-managed if present, otherwise the built-in ones
+// (both come from src/lib/siteSettings.ts, so the header and the footer share
+// one idea of what the pages of this site are). Contact + social are NOT
+// columns here — they live in the brand block.
+const columns = (chrome.footerColumns ?? fallbackFooterColumns(hasClearance)).map((c) => ({
+  title: c.title,
+  links: c.links.filter((l) => hasClearance || l.href !== '/clearance'),
+}));
+
+// The small-print row: Mary Ann's own links when she has set any, otherwise the
+// legal pages listed automatically (which is the normal case).
+const legalLinks = chrome.legalNav;
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
@@ -103,7 +104,11 @@ function socialIcon(platform: string | undefined) {
       {/* ── Brand column ─────────────────────────────────────────────────── */}
       <div class="lg:col-span-4 lg:pr-l text-center sm:text-left">
         <a href="/" aria-label={`${brandName} home`} class="inline-block hover:opacity-80 transition-opacity">
-          <Logo variant="ink" class="h-14 w-auto" />
+          {customLogo ? (
+            <SanityImage source={customLogo} width={360} alt={customLogo.alt || brandName} class="h-14 w-auto" />
+          ) : (
+            <Logo variant="ink" class="h-14 w-auto" />
+          )}
         </a>
 
         {siteSettings?.tagline && (
@@ -169,7 +174,12 @@ function socialIcon(platform: string | undefined) {
             <ul class="text-sm space-y-2 list-none p-0">
               {col.links.map((link) => (
                 <li>
-                  <a href={link.href ?? '#'} class="text-foreground/85 hover:text-link transition-colors">
+                  <a
+                    href={link.href}
+                    target={isExternalHref(link.href) ? '_blank' : undefined}
+                    rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                    class="text-foreground/85 hover:text-link transition-colors"
+                  >
                     {link.label}
                   </a>
                 </li>
@@ -187,7 +197,21 @@ function socialIcon(platform: string | undefined) {
   <div class="border-t border-dashed border-[#B98A3E]/45">
     <div class="mx-auto max-w-content px-m py-m flex flex-col items-center gap-s text-center text-xs text-[var(--color-text-tertiary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m">
       <p class="sm:justify-self-start">© {currentYear} {brandName} · {location || 'St. Matthews, SC'}</p>
-      {legal.length > 0 ? (
+      {legalLinks ? (
+        /* Site Settings -> Small-print links, when she has set any. */
+        <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center">
+          {legalLinks.map((link) => (
+            <a
+              href={link.href}
+              target={isExternalHref(link.href) ? '_blank' : undefined}
+              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+              class="hover:text-link transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      ) : legal.length > 0 ? (
         <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center">
           {legal.map((lp) => (
             <a href={`/legal/${lp.slug}`} class="hover:text-link transition-colors">{lp.title}</a>

@@ -15,7 +15,10 @@ import { IconBrandInstagram, IconBrandFacebook, IconBrandPinterest } from '@tabl
 import { ChevronDown } from 'lucide-react';
 import MobileNav from './MobileNav';
 import Logo from './Logo.astro';
+import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
+import { resolveChrome, type NavItem, type RawNavItem } from '@/lib/siteSettings';
+import type { RawNavLink } from '@/lib/nav-href';
 
 interface SocialLink {
   platform?: string;
@@ -31,12 +34,16 @@ interface Props {
     phone?: string;
     socialLinks?: SocialLink[] | null;
     quoteCtaLabel?: string;
-    navItems?: Array<{
-      _type?: string;
-      label?: string;
-      href?: string;
-      links?: Array<{ label?: string; href?: string }>;
-    }> | null;
+    /** A logo picture from Site Settings. When set it stands in for the drawn logo. */
+    logo?: { asset?: { _ref?: string; _id?: string }; alt?: string } | null;
+    navItems?: RawNavItem[] | null;
+    headerCta?: {
+      show?: boolean | null;
+      label?: string | null;
+      link?: RawNavLink | null;
+    } | null;
+    showEmail?: boolean | null;
+    showSocials?: boolean | null;
   } | null;
   /** When false, the Clearance nav link is hidden (nothing on clearance). */
   hasClearance?: boolean;
@@ -44,11 +51,22 @@ interface Props {
 
 const { siteSettings, hasClearance = true } = Astro.props as Props;
 
+// Everything Site Settings can change about the header: the menu, the quote
+// button, and the switches for the contact details in the top strip. Every one
+// of them is opt-in, so a Site Settings nobody has touched gives back exactly
+// the built-ins this file has always used.
+const chrome = resolveChrome(siteSettings);
+
 const brandName   = siteSettings?.title ?? site.name;
-const email       = siteSettings?.email ?? '';
+const email       = chrome.showEmail ? (siteSettings?.email ?? '') : '';
 const phone       = siteSettings?.phone ?? '';
-const ctaLabel    = siteSettings?.quoteCtaLabel ?? 'Request a Quote';
-const socialLinks = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
+const ctaLabel    = chrome.headerCta.label;
+const ctaHref     = chrome.headerCta.href;
+const socialLinks = chrome.showSocials
+  ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
+  : [];
+// A logo picture from Site Settings stands in for the drawn Logo component.
+const customLogo  = siteSettings?.logo?.asset ? siteSettings.logo : null;
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
@@ -59,44 +77,18 @@ function socialIcon(platform: string | undefined) {
   }
 }
 
-type NavFlat     = { kind: 'flat';     label: string; href: string };
-type NavDropdown = { kind: 'dropdown'; label: string; items: { label: string; href: string }[] };
-type NavItem     = NavFlat | NavDropdown;
-
-const FALLBACK_NAV: NavItem[] = [
-  { kind: 'flat', label: 'How It Works', href: '/how-it-works' },
-  { kind: 'flat', label: 'Pricing',       href: '/pricing' },
-  { kind: 'flat', label: 'Shop by Item',  href: '/shop-by-item' },
-  { kind: 'flat', label: 'Style Gallery', href: '/style-gallery' },
-  { kind: 'flat', label: 'About',         href: '/about' },
-];
-
-function normaliseSanityNav(
-  items: NonNullable<typeof siteSettings>['navItems'],
-): NavItem[] {
-  if (!items?.length) return FALLBACK_NAV;
-  return items
-    .filter((item) => item.label)
-    // Drop a redundant top-level "Home" link — the logo already links home, and
-    // it was crowding the wordmark. (Sub-links inside groups are untouched.)
-    .filter((item) => !(item._type !== 'navGroup' && (item.href === '/' || item.label?.trim().toLowerCase() === 'home')))
-    .map((item) => {
-      if (item._type === 'navGroup' && Array.isArray(item.links) && item.links.length > 0) {
-        return {
-          kind: 'dropdown' as const,
-          label: item.label ?? '',
-          items: item.links
-            .filter((l) => l.label && l.href)
-            .map((l) => ({ label: l.label!, href: l.href! })),
-        };
-      }
-      return { kind: 'flat' as const, label: item.label!, href: item.href ?? '#' };
-    });
-}
-
-const NAV_ITEMS = normaliseSanityNav(siteSettings?.navItems).filter(
-  (it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance'),
-);
+// The menu itself: Site Settings -> Top menu links when it has anything in it,
+// otherwise the built-in menu. Both come back from resolveChrome already in the
+// shape below, so the mapping lives in one file (src/lib/siteSettings.ts) and
+// the phone menu can never disagree with this one.
+const NAV_ITEMS: NavItem[] = chrome.navItems
+  // Drop a redundant top-level "Home" link — the logo already links home, and
+  // it was crowding the wordmark. (Sub-links inside groups are untouched.)
+  .filter(
+    (item) =>
+      !(item.kind === 'flat' && (item.href === '/' || item.label.trim().toLowerCase() === 'home')),
+  )
+  .filter((it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance'));
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {
@@ -115,6 +107,17 @@ const mobileNavSettings = siteSettings
       socialLinks: siteSettings.socialLinks,
     }
   : null;
+
+// MobileNav is a client:only island, so every prop it is given is WRITTEN INTO
+// THE PAGE. Give it only the switches that are actually turned off, so a Site
+// Settings nobody has touched produces the very same page it always did — the
+// same "nothing changes until you change it" promise the rest of these settings
+// make, kept all the way down to the phone menu's props.
+const mobileChrome = {
+  ...(chrome.headerCta.show ? {} : { showCta: false }),
+  ...(chrome.showEmail ? {} : { showEmail: false }),
+  ...(chrome.showSocials ? {} : { showSocials: false }),
+};
 ---
 
 <header class="site-header bg-background">
@@ -180,7 +183,11 @@ const mobileNavSettings = siteSettings
         class="inline-flex items-center hover:opacity-80 transition-opacity"
         aria-label={`${brandName} home`}
       >
-        <Logo variant="ink" class="h-12 w-auto" />
+        {customLogo ? (
+          <SanityImage source={customLogo} width={320} alt={customLogo.alt || brandName} loading="eager" class="h-12 w-auto" />
+        ) : (
+          <Logo variant="ink" class="h-12 w-auto" />
+        )}
       </a>
 
       {/* Desktop nav + CTA */}
@@ -239,18 +246,22 @@ const mobileNavSettings = siteSettings
           )
         )}
       </nav>
+      {chrome.headerCta.show && (
+        <>
       <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
       <a
-        href="/request-a-quote"
+        href={ctaHref}
         class:list={[
           'press-tactile inline-flex items-center min-h-[44px] px-m py-xs rounded-sm text-xs uppercase tracking-[0.18em] font-semibold text-white transition-colors',
-          isActive('/request-a-quote')
+          isActive(ctaHref)
             ? 'bg-[var(--color-rust-cta-hover,#722C22)]'
             : 'bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)]',
         ]}
         >
           {ctaLabel}
         </a>
+        </>
+      )}
       </div>
 
       <MobileNav
@@ -258,7 +269,8 @@ const mobileNavSettings = siteSettings
         links={NAV_ITEMS}
         siteSettings={mobileNavSettings}
         ctaLabel={ctaLabel}
-        ctaHref="/request-a-quote"
+        ctaHref={ctaHref}
+        {...mobileChrome}
       />
     </div>
   </div>

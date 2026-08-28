@@ -49,6 +49,12 @@ interface Props {
   siteSettings?: MobileNavSiteSettings | null;
   ctaLabel?: string;
   ctaHref?: string;
+  /** Site Settings switch: show the quote button at all. Default yes. */
+  showCta?: boolean;
+  /** Site Settings switch: show the email in "Get in touch". Default yes. */
+  showEmail?: boolean;
+  /** Site Settings switch: show the social buttons. Default yes. */
+  showSocials?: boolean;
 }
 
 // Short, honest descriptor under each big nav label, keyed by exact href. A
@@ -81,14 +87,19 @@ export default function MobileNav({
   siteSettings,
   ctaLabel = 'Request a Quote',
   ctaHref  = '/request-a-quote',
+  showCta = true,
+  showEmail = true,
+  showSocials = true,
 }: Props) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
   const tagline     = siteSettings?.tagline ?? '';
-  const email       = siteSettings?.email;
+  const email       = showEmail ? siteSettings?.email : undefined;
   const phone       = siteSettings?.phone;
-  const socialLinks = (siteSettings?.socialLinks ?? []).filter((l) => l?.url);
+  const socialLinks = showSocials
+    ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
+    : [];
 
   // Active path + which groups are expanded. Both are computed when the panel
   // opens: the path so the active row is right even after a View Transitions
@@ -332,16 +343,19 @@ export default function MobileNav({
               })}
             </nav>
 
-            {/* Primary conversion action. */}
-            <div className="mnav-item mt-l" style={delay(140 + links.length * 45 + 40)}>
-              <a
-                href={ctaHref}
-                onClick={close}
-                className="block w-full min-h-[44px] px-m py-s text-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] text-white text-xs uppercase tracking-[0.18em] font-semibold hover:bg-[var(--color-rust-cta-hover,#722C22)] transition-colors"
-              >
-                {ctaLabel}
-              </a>
-            </div>
+            {/* Primary conversion action. Site Settings -> The quote button can
+                turn it off everywhere, here included. */}
+            {showCta && (
+              <div className="mnav-item mt-l" style={delay(140 + links.length * 45 + 40)}>
+                <a
+                  href={ctaHref}
+                  onClick={close}
+                  className="block w-full min-h-[44px] px-m py-s text-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] text-white text-xs uppercase tracking-[0.18em] font-semibold hover:bg-[var(--color-rust-cta-hover,#722C22)] transition-colors"
+                >
+                  {ctaLabel}
+                </a>
+              </div>
+            )}
 
             {/* Get in touch — pinned to the bottom via mt-auto when the menu is
                 shorter than the viewport; scrolls naturally when it isn't. */}
