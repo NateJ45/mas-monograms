@@ -38,7 +38,7 @@ This file tracks the things that have no other home.
   `.dev.vars` is already wired. Without it the preview routes fail closed with a
   503 naming what is missing, and the public site is unaffected.
 - **Change the Cloudflare Workers Builds deploy command.** With
-- **Activation step (after the modern-stack merge is LIVE):** run
+- **Activation step (after the staging merge is LIVE):** run
   `node scripts/patch-studio-guide-presentation.mjs --apply` to update
   Mary Ann's Start Here guide for the new Studio (the removed per-page
   Preview tab becomes the Presentation tool, plus a new how-to for
