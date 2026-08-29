@@ -2,6 +2,7 @@
 import { VisualEditing } from '@sanity/visual-editing/react';
 import type { HistoryAdapter, HistoryRefresh } from '@sanity/visual-editing';
 import { useCallback, useEffect, useRef } from 'react';
+import { inCanvasControls } from './overlay/index.ts';
 import { SOFT_REFRESH_EVENT, useInstantText } from './overlay/useInstantText.ts';
 import { startTiming } from './overlay/timing.ts';
 import {
@@ -20,7 +21,7 @@ import { isRedundantRender, morph } from '../../lib/preview-morph.ts';
 // the page never did. An MPA adapter instead: any push/replace to a different
 // URL is a REAL load. Module-level so the overlay never resubscribes on
 // re-render. (Ported from ncs-astro-sanity-starter 2026-08-28; the two notes
-// below, and everything under "Three jobs", came from presacademy 2026-08-28.)
+// below, and everything under "Four jobs", came from presacademy 2026-08-28.)
 //
 // TWO NOTES ON THE HOST, both read out of the pinned sources (2026-08-28):
 //
@@ -65,7 +66,7 @@ const mpaHistory: HistoryAdapter = {
 // =============================================================================
 // VisualEditingOverlay - click-to-edit overlay + refresh for the preview
 // =============================================================================
-// Three jobs, all only ever active in the Studio's Presentation preview (this is
+// Four jobs, all only ever active in the Studio's Presentation preview (this is
 // rendered from PreviewLayout with client:only when draftMode is true, so it
 // never ships to a public page):
 //
@@ -100,10 +101,19 @@ const mpaHistory: HistoryAdapter = {
 //     newest one anybody knows about, so any render started before it is stale
 //     even though no SSE signal has arrived for it yet.
 //
-// NOT PORTED from presacademy: the in-canvas controls (`components`) - the
-// section swatches, the accent-word picker and the text card. They are a
-// separate body of work with their own write path; this port is the reliability
-// and speed layer only.
+//  4. THE IN-CANVAS CONTROL (`components`, 2026-08-28, card 28): an "Edit here"
+//     card on the lines the preview surface renders, so a headline is typed
+//     where the headline is instead of in the panel beside it. It lives in
+//     ./overlay/, writes through the optimistic document API (no token in the
+//     browser, every write lands in the draft and is covered by the Studio's
+//     own undo), and its edits come back through the same refresh loop above as
+//     any other change. See ./overlay/index.ts.
+//
+//     ONE control, not three. The sister sites also put a band-colour card and
+//     an accent-word picker in the canvas. Neither has a field to stand on
+//     here: no page schema carries a background or tone, and nothing feeds
+//     `splitScriptAccent`. src/lib/page-fields.ts records both absences and its
+//     drift gate fails the day either stops being true.
 //
 // TIMING. Set `localStorage.previewTiming = '1'` in the preview frame to have
 // both paths log how long they took. See ./overlay/timing.ts.
@@ -377,5 +387,7 @@ export default function VisualEditingOverlay({ pageId }: Props) {
     [pageId, softRefresh],
   );
 
-  return <VisualEditing portal refresh={refresh} history={mpaHistory} />;
+  return (
+    <VisualEditing portal refresh={refresh} history={mpaHistory} components={inCanvasControls} />
+  );
 }

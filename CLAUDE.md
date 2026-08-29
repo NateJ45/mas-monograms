@@ -180,6 +180,27 @@ on the left drives an iframe of the site.
   every live render is byte-identical, and `npm run parity compare` is the gate. (2) The
   wrapper must be a **real block box**, never `display: contents`, because the overlay
   outlines the element's rect and a `contents` element has none.
+- **The "Edit here" card** (card 28, 2026-08-28). Click a line the preview draws - a hero
+  eyebrow, headline, slanted word or intro line, or the closing banner's headline, text or
+  button label - and a small card opens on the line itself with the current words in a box.
+  Enter saves, Shift and Enter starts a new line, Esc cancels; an emptied box unsets the
+  field rather than storing `''`. It writes through the optimistic document API, so there
+  is **no token in the browser**: the patch travels the comlink to the Studio, lands in the
+  draft, shows in the unpublished-changes badge, is covered by the Studio's own undo, and
+  still needs Publish. Which lines it may edit lives in `src/lib/page-fields.ts`, and
+  `src/lib/page-fields.test.ts` is a **drift gate** that reads the page schemas, the
+  registration list and the preview route and fails when they disagree.
+  **ONE control, not three.** The sibling repos also put a band-colour card and an
+  accent-word picker in the canvas. Neither has a field to stand on here: no page schema
+  carries a background or tone, and nothing feeds `splitScriptAccent` (Hero has no
+  `scriptAccent` prop). The one live heading flourish, `heroItalicWord`, is APPENDED after
+  the headline rather than matched inside it, so it gets a plain text card like any other
+  line. The drift gate asserts all three absences, so adding a control has to be a decision
+  rather than a drift.
+  `src/lib/sanity-path.ts` and `src/components/preview/overlay/{styles,usePopover,useDraftDocument}.ts`
+  are **PORTABLE** canonical copies from the starter; the per-repo halves are
+  `page-fields.ts`, `overlay/tool-theme.ts` (the six-value palette), `overlay/index.ts` and
+  `overlay/TextPopover.tsx`.
 - **The path-to-type map lives in THREE places that must stay in sync:**
   `SINGLETON_PREVIEW_PATHS` in `src/sanity/resolve.ts`, `PREVIEW_PAGES` in
   `src/pages/preview/[...slug].astro`, and `FIRST_SEGMENT_PREVIEWABLE` in
