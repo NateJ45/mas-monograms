@@ -88,43 +88,6 @@ export type StudioGuide = {
   }>;
 };
 
-export type LegalPage = {
-  _id: string;
-  _type: 'legalPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  slug?: Slug;
-  seoDescription?: string;
-  lastUpdated?: string;
-  body?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: 'span';
-      _key: string;
-    }>;
-    style?: 'normal' | 'h2' | 'h3';
-    listItem?: 'bullet';
-    markDefs?: Array<{
-      href?: string;
-      _type: 'link';
-      _key: string;
-    }>;
-    level?: number;
-    _type: 'block';
-    _key: string;
-  }>;
-  displayOrder?: number;
-};
-
-export type Slug = {
-  _type: 'slug';
-  current?: string;
-  source?: string;
-};
-
 export type FaqItem = {
   _id: string;
   _type: 'faqItem';
@@ -280,6 +243,12 @@ export type ThreadColor = {
   displayOrder?: number;
 };
 
+export type Slug = {
+  _type: 'slug';
+  current?: string;
+  source?: string;
+};
+
 export type Font = {
   _id: string;
   _type: 'font';
@@ -300,6 +269,273 @@ export type Font = {
   description?: string;
   bestFor?: Array<string>;
   popular?: boolean;
+  displayOrder?: number;
+};
+
+export type NotFoundPage = {
+  _id: string;
+  _type: 'notFoundPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  headline?: string;
+  body?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+};
+
+export type SiteSettings = {
+  _id: string;
+  _type: 'siteSettings';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  tagline?: string;
+  email?: string;
+  phone?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zip?: string;
+  };
+  logo?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  serviceArea?: string;
+  geo?: {
+    latitude?: number;
+    longitude?: number;
+  };
+  openingHours?: Array<{
+    days?: Array<string>;
+    opens?: string;
+    closes?: string;
+    _type: 'hoursSpec';
+    _key: string;
+  }>;
+  navItems?: Array<
+    | ({
+        _key: string;
+      } & NavLink)
+    | {
+        label?: string;
+        links?: Array<
+          | ({
+              _key: string;
+            } & NavLink)
+          | {
+              label?: string;
+              href?: string;
+              _type: 'navSubLink';
+              _key: string;
+            }
+        >;
+        _type: 'navGroup';
+        _key: string;
+      }
+  >;
+  quoteCtaLabel?: string;
+  footerColumns?: Array<{
+    title?: string;
+    links?: Array<
+      | ({
+          _key: string;
+        } & NavLink)
+      | {
+          label?: string;
+          href?: string;
+          _type: 'footerLink';
+          _key: string;
+        }
+    >;
+    _type: 'footerColumn';
+    _key: string;
+  }>;
+  legalNav?: Array<
+    {
+      _key: string;
+    } & NavLink
+  >;
+  headerCta?: {
+    show?: boolean;
+    label?: string;
+    link?: NavLink;
+  };
+  showEmail?: boolean;
+  showSocials?: boolean;
+  showFooterSocials?: boolean;
+  socialLinks?: Array<{
+    platform?: 'Facebook' | 'Instagram' | 'Pinterest' | 'TikTok' | 'YouTube' | 'Other';
+    url?: string;
+    label?: string;
+    _type: 'socialLink';
+    _key: string;
+  }>;
+  googleBusinessUrl?: string;
+  footerCredit?: string;
+  footerCreditUrl?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  businessType?: 'LocalBusiness' | 'Store' | 'ProfessionalService' | 'ClothingStore';
+  priceRange?: '$' | '$$' | '$$$';
+  standardTurnaround?: string;
+  rushOrdersAvailable?: boolean;
+  rushTurnaround?: string;
+};
+
+export type HomePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'homePage';
+};
+
+export type HowItWorksPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'howItWorksPage';
+};
+
+export type PricingPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'pricingPage';
+};
+
+export type AboutPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'aboutPage';
+};
+
+export type RequestAQuotePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'requestAQuotePage';
+};
+
+export type ShopIndexPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'shopIndexPage';
+};
+
+export type StyleGalleryPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'styleGalleryPage';
+};
+
+export type FontGuidePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'fontGuidePage';
+};
+
+export type ThreadChartPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'threadChartPage';
+};
+
+export type ClearancePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'clearancePage';
+};
+
+export type ThankYouPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'thankYouPage';
+};
+
+export type LegalPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'legalPage';
+};
+
+export type NavLink = {
+  _type: 'navLink';
+  label?: string;
+  linkType?: 'internal' | 'external' | 'custom';
+  internalPage?:
+    | HomePageReference
+    | HowItWorksPageReference
+    | PricingPageReference
+    | AboutPageReference
+    | RequestAQuotePageReference
+    | ShopIndexPageReference
+    | StyleGalleryPageReference
+    | FontGuidePageReference
+    | ThreadChartPageReference
+    | ClearancePageReference
+    | ThankYouPageReference
+    | ItemCategoryReference
+    | LegalPageReference;
+  externalUrl?: string;
+  href?: string;
+};
+
+export type LegalPage = {
+  _id: string;
+  _type: 'legalPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  slug?: Slug;
+  seoDescription?: string;
+  lastUpdated?: string;
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: 'span';
+      _key: string;
+    }>;
+    style?: 'normal' | 'h2' | 'h3';
+    listItem?: 'bullet';
+    markDefs?: Array<{
+      href?: string;
+      _type: 'link';
+      _key: string;
+    }>;
+    level?: number;
+    _type: 'block';
+    _key: string;
+  }>;
   displayOrder?: number;
 };
 
@@ -345,22 +581,6 @@ export type ItemCategory = {
     alt?: string;
     _type: 'image';
   };
-};
-
-export type NotFoundPage = {
-  _id: string;
-  _type: 'notFoundPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  headline?: string;
-  body?: string;
-  primaryCtaLabel?: string;
-  primaryCtaHref?: string;
-  secondaryCtaLabel?: string;
-  secondaryCtaHref?: string;
 };
 
 export type ThankYouPage = {
@@ -974,92 +1194,6 @@ export type HomePage = {
   ctaHref?: string;
 };
 
-export type SiteSettings = {
-  _id: string;
-  _type: 'siteSettings';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  title?: string;
-  tagline?: string;
-  email?: string;
-  phone?: string;
-  address?: {
-    street?: string;
-    city?: string;
-    state?: string;
-    zip?: string;
-  };
-  serviceArea?: string;
-  geo?: {
-    latitude?: number;
-    longitude?: number;
-  };
-  openingHours?: Array<{
-    days?: Array<string>;
-    opens?: string;
-    closes?: string;
-    _type: 'hoursSpec';
-    _key: string;
-  }>;
-  navItems?: Array<
-    | {
-        label?: string;
-        href?: string;
-        _type: 'navLink';
-        _key: string;
-      }
-    | {
-        label?: string;
-        links?: Array<{
-          label?: string;
-          href?: string;
-          _type: 'navSubLink';
-          _key: string;
-        }>;
-        _type: 'navGroup';
-        _key: string;
-      }
-  >;
-  quoteCtaLabel?: string;
-  footerColumns?: Array<{
-    title?: string;
-    links?: Array<{
-      label?: string;
-      href?: string;
-      _type: 'footerLink';
-      _key: string;
-    }>;
-    _type: 'footerColumn';
-    _key: string;
-  }>;
-  socialLinks?: Array<{
-    platform?: 'Facebook' | 'Instagram' | 'Pinterest' | 'TikTok' | 'YouTube' | 'Other';
-    url?: string;
-    label?: string;
-    _type: 'socialLink';
-    _key: string;
-  }>;
-  googleBusinessUrl?: string;
-  footerCredit?: string;
-  footerCreditUrl?: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  businessType?: 'LocalBusiness' | 'Store' | 'ProfessionalService' | 'ClothingStore';
-  priceRange?: '$' | '$$' | '$$$';
-  standardTurnaround?: string;
-  rushOrdersAvailable?: boolean;
-  rushTurnaround?: string;
-};
-
 export type MediaTag = {
   _id: string;
   _type: 'media.tag';
@@ -1170,8 +1304,6 @@ export type AllSanitySchemaTypes =
   | StudioPlaybook
   | StudioNotes
   | StudioGuide
-  | LegalPage
-  | Slug
   | FaqItem
   | SanityImageAssetReference
   | ClearanceItem
@@ -1182,9 +1314,25 @@ export type AllSanitySchemaTypes =
   | FontReference
   | GalleryItem
   | ThreadColor
+  | Slug
   | Font
-  | ItemCategory
   | NotFoundPage
+  | SiteSettings
+  | HomePageReference
+  | HowItWorksPageReference
+  | PricingPageReference
+  | AboutPageReference
+  | RequestAQuotePageReference
+  | ShopIndexPageReference
+  | StyleGalleryPageReference
+  | FontGuidePageReference
+  | ThreadChartPageReference
+  | ClearancePageReference
+  | ThankYouPageReference
+  | LegalPageReference
+  | NavLink
+  | LegalPage
+  | ItemCategory
   | ThankYouPage
   | ClearancePage
   | ThreadChartPage
@@ -1196,7 +1344,6 @@ export type AllSanitySchemaTypes =
   | PricingPage
   | HowItWorksPage
   | HomePage
-  | SiteSettings
   | MediaTag
   | SanityImagePaletteSwatch
   | SanityImagePalette
