@@ -49,7 +49,7 @@
     "@sanity/image-url": "^2.1.1",
     "@sanity/orderable-document-list": "2.0.9",
     "@sanity/preview-url-secret": "4.0.8",
-    "@sanity/ui": "3.3.5",
+    "@sanity/ui": "4.0.7",
     "@sanity/vision": "6.4.0",
     "@sanity/visual-editing": "5.4.5",
     "@tabler/icons": "^3.44.0",
