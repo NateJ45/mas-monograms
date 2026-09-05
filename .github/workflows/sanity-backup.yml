@@ -46,20 +46,18 @@ jobs:
     if: needs.gate.outputs.ready == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
 
-      # The sanity CLI is a dependency of the nested studio workspace, not the
-      # root, so install and run it there. A bare `npx sanity` at the root would
-      # download the whole CLI on every run.
-      - name: Install studio dependencies
-        run: npm ci --prefix studio
+      # The sanity CLI is a root dependency (Studio folded into root, PORTS.md
+      # card 10) -- no nested studio/ workspace to install separately.
+      - name: Install dependencies
+        run: npm ci
 
       - name: Export production dataset
-        working-directory: studio
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
           # This project's PUBLIC Sanity id (not a secret — it ships in the
@@ -68,10 +66,10 @@ jobs:
           SANITY_STUDIO_DATASET: production
         run: |
           STAMP=$(date -u +%Y-%m-%d)
-          npx sanity dataset export production "../sanity-backup-$STAMP.tar.gz"
+          npx sanity dataset export production "sanity-backup-$STAMP.tar.gz"
 
       - name: Upload backup artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sanity-backup
           path: sanity-backup-*.tar.gz
@@ -80,7 +78,7 @@ jobs:
           # bound for quote backups).
           retention-days: 90
 
-# RESTORE (run locally, from studio/, with SANITY_AUTH_TOKEN set):
-#   npx sanity dataset import ../sanity-backup-YYYY-MM-DD.tar.gz production --replace
+# RESTORE (run locally, from the repo root, with SANITY_AUTH_TOKEN set):
+#   npx sanity dataset import sanity-backup-YYYY-MM-DD.tar.gz production --replace
 # `--replace` overwrites documents that share an _id and leaves the rest alone.
 # Import into a scratch dataset first if you are unsure what changed.
