@@ -51,7 +51,7 @@
     "@sanity/preview-url-secret": "4.0.8",
     "@sanity/ui": "3.3.5",
     "@sanity/vision": "6.4.0",
-    "@sanity/visual-editing": "5.4.5",
+    "@sanity/visual-editing": "6.1.2",
     "@tabler/icons": "^3.44.0",
     "@tabler/icons-react": "^3.44.0",
     "@types/react": "^19.2.15",
@@ -79,7 +79,7 @@
   },
   "overrides": {
     "sanity-plugin-utils": "2.0.6",
-    "@sanity/visual-editing": "5.4.5",
+    "@sanity/visual-editing": "6.1.2",
     "js-yaml": "^4.3.1",
     "undici": "^7.29.0",
     "qs": "^6.16.0",
