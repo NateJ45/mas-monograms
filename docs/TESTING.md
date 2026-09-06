@@ -175,6 +175,10 @@ Currently marked (6, all SAME as of 2026-08-28): `scripts/free-dist.mjs`,
 2026-08-28 by pulling the starter's marked copy forward; the file body was already
 identical, only the marker line was missing.
 
+Since 2026-09-06 this is a CI gate, not only a hand-run check: the build job
+checks the starter out at `.ncs-starter` and runs `node scripts/sync-check.mjs`
+against it on every push and PR (see the starter's PORTS.md card 36).
+
 Point it at the library with `NCS_STARTER_DIR`, or leave it to find a sibling
 `ncs-astro-sanity-starter` directory. Drift means: either fold this repo's
 improvement back into the starter (with a PORTS.md card in the same commit), or
