@@ -391,19 +391,31 @@ theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
      mismatch dies inside workerd behind a wall of Miniflare stack frames; the
      real message, `Incompatible React versions`, is buried **above** the
      `MiniflareCoreError`.
-   - The Sanity set is pinned to a combination known to work **together**:
-     `sanity` 6.4.0, `@sanity/ui` **3.3.5**, `styled-components` 6.4.3,
-     `@sanity/client` 7.23.0, `sanity-plugin-media` 5.0.11,
-     `sanity-plugin-asset-source-unsplash` 7.0.15, `@sanity/orderable-document-list`
-     2.0.9, plus `sanity-plugin-utils` 2.0.6 and `@sanity/visual-editing` 5.4.5
-     held through **`overrides`** — a plain dependency pin does not stop npm
-     nesting a newer `@sanity/visual-editing` under `@sanity/astro` and dragging a
-     second `@sanity/ui` in with it. "Latest v3" is not close enough:
-     `@sanity/ui` 3.5.x fails against `sanity` 6.4.0's expected theme shape.
+   - The Sanity set is pinned to a combination known to work **together**, and
+     it moves as a SET. As of 2026-09-06 (phase 1 of the coordinated stack
+     migration): `sanity` **6.9.1**, `@sanity/vision` 6.9.1, `@sanity/ui`
+     **3.5.4**, `styled-components` 6.5.3, `@sanity/client` **7.26.2**,
+     `@sanity/visual-editing` **5.7.3**, `@sanity/preview-url-secret` **4.1.5**,
+     `sanity-plugin-media` 5.0.11, `sanity-plugin-asset-source-unsplash` 7.0.15,
+     `@sanity/orderable-document-list` 2.0.9, plus `sanity-plugin-utils` 2.0.6
+     and `@sanity/visual-editing` 5.7.3 held through **`overrides`** — a plain
+     dependency pin does not stop npm nesting a newer `@sanity/visual-editing`
+     under `@sanity/astro` and dragging a second `@sanity/ui` in with it.
+     `@sanity/visual-editing` therefore appears BOTH as a dependency and in
+     `overrides`, and the two must be edited in the same step or npm refuses the
+     whole install with EOVERRIDE.
+   - **The rule is not "hold `@sanity/ui` at 3.3.5".** It is "`@sanity/ui` must
+     be whatever the installed `sanity` core declares": 6.4.0 declared `^3.3.0`,
+     6.9.1 declares `^3.5.1`. The worked example that taught it: `@sanity/ui`
+     3.5.3 against `sanity` 6.4.0 cleared styled-components error #18 and then
+     failed differently, because 6.4.0 expected the 3.3.x theme shape. So
+     "latest v3" is still not the rule; "what the core declares" is.
+     `sanity` **6.9.2 is the next wall**: that PATCH release moves to
+     `@sanity/ui` 4, which is phase 2 and a real migration.
    - **Invariant after any Sanity dependency work:** exactly ONE `@sanity/ui` on
      disk, and exactly ONE styled-components chunk in the build. Verify on DISK,
-     not from install output, and re-resolve from a deleted lockfile when an
-     override "does not work" (npm keeps an already-resolved nested tree).
+     not from install output. Never delete or regenerate the lockfile: move
+     packages with targeted `npm install <pkg>@<version>` only.
      `@sanity/icons` is deliberately NOT deduped (core wants v5, `@sanity/ui` v3
      wants 3.8; icons are stateless, and deduping them broke the build elsewhere
      in the family on a missing v5 `CogIcon`). Nine `@sanity/icons` copies on disk

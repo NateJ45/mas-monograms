@@ -17,6 +17,24 @@ This file tracks the things that have no other home.
 
 ## Open — needs a human (Nathan)
 
+### From the 2026-09-06 Sanity phase-1 stack bump
+
+- **Sign in to the staging Studio, then open Presentation.** The stack moved to
+  `sanity` 6.9.1 / `@sanity/ui` 3.5.4 / `@sanity/client` 7.26.2 /
+  `@sanity/visual-editing` 5.7.3 / `@sanity/preview-url-secret` 4.1.5. Every
+  automated gate is green and the single-instance invariant holds on disk and in
+  the bundle (one `@sanity/ui` 3.5.4, one `styled-components` 6.5.3, one
+  styled-components `errors.md#` chunk). But the failure this pinning regime
+  exists for shows up ONLY after sign-in: the login screen is core code and
+  renders fine even when the theme context is broken. So open `/studio` on
+  staging, sign in, open a document with a custom component pane, then open
+  **Presentation** and hover a headline so the in-canvas text popover draws and
+  a bold or italic toggle writes back. If the desk throws styled-components
+  error #18 or `Cannot read properties of undefined (reading 'v2')`, the bump is
+  bad and the revert is the two-file diff on package.json + package-lock.json.
+  Bonus while you are in there: 6.6.0 added **tables in Portable Text**, so a
+  table should now be insertable in body copy.
+
 - **Add the CORS origins the embedded Studio needs.** The Studio now lives at
   `<site>/studio` and calls the Sanity API from the SITE's origin, which is not
   on the project's allow list. Until it is, the Studio renders Sanity's own

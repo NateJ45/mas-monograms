@@ -24,7 +24,7 @@ updates:
     open-pull-requests-limit: 5
     ignore:
       # The Sanity stack is version-locked as a SET, not per package. sanity
-      # 6.4.0 depends on @sanity/ui ^3.3.0 and @sanity/client ^7.23.0, so a
+      # 6.9.1 depends on @sanity/ui ^3.5.1 and @sanity/client ^7.26.0, so a
       # lone major bump nests a second @sanity/ui instead of replacing it;
       # two instances means two styled-components contexts and the signed-in
       # Studio dies while the login screen still works (PORTS.md card 10).

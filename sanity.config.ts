@@ -3,7 +3,8 @@
 // Sanity Studio configuration for MAS Monograms - loaded by the EMBEDDED /studio
 // =============================================================================
 // Moved here from studio/sanity.config.ts on 2026-08-28, when the nested studio/
-// package was folded into this one and Sanity went 5 -> 6.4.0 (PORTS.md card 10).
+// package was folded into this one and Sanity went 5 -> 6.x (PORTS.md card 10;
+// the pin set moved to 6.9.1 on 2026-09-06).
 //
 // The studio now lives in the SAME package as the site. One node_modules, one
 // copy of every module, which is what keeps the styled-components / @sanity/ui

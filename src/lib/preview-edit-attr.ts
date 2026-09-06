@@ -36,7 +36,7 @@
 //  3. The field name must be the array the items actually live in. Point the
 //     overlay at the wrong array and every control silently edits nothing.
 //
-// Drag-and-drop needs no extra props in @sanity/visual-editing 5.4.5: it is on as
+// Drag-and-drop needs no extra props in @sanity/visual-editing 5.7.3: it is on as
 // soon as the attribute exists.
 // =============================================================================
 import { createDataAttribute } from '@sanity/visual-editing/create-data-attribute';
