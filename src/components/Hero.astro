@@ -21,6 +21,8 @@ import CtaLink from '@/components/CtaLink.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import ScriptKicker from '@/components/ScriptKicker.astro';
 import { ChevronDown } from 'lucide-react';
+import HeroTriScript from '@/components/HeroTriScript.astro';
+import HeroFillScript from '@/components/HeroFillScript.astro';
 
 interface CtaBlock {
   label?: string;
@@ -159,42 +161,7 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
     wire the scroll cue to glide past the hero. Runs synchronously so the
     height is set before first paint (no layout shift), then refreshes on
     load, resize, and View Transitions navigations. */}
-{size === 'tall' && layout === 'bleed' && (
-  <script is:inline>
-    (function () {
-      function setHeaderH() {
-        var header = document.querySelector('header.site-header');
-        if (header) {
-          document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
-        }
-      }
-      function wireCue() {
-        var cue = document.querySelector('[data-scroll-cue]');
-        if (!cue || cue.dataset.wired === '1') return;
-        cue.dataset.wired = '1';
-        cue.addEventListener('click', function () {
-          var hero = cue.closest('section');
-          if (!hero) return;
-          var hh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 0;
-          var top = hero.offsetTop + hero.offsetHeight - hh;
-          if (window.lenis && typeof window.lenis.scrollTo === 'function') {
-            window.lenis.scrollTo(top);
-          } else {
-            window.scrollTo({ top: top, behavior: 'smooth' });
-          }
-        });
-      }
-      setHeaderH();
-      wireCue();
-      if (!window.__heroLayoutBound) {
-        window.__heroLayoutBound = true;
-        window.addEventListener('resize', setHeaderH, { passive: true });
-        window.addEventListener('load', setHeaderH);
-        document.addEventListener('astro:page-load', function () { setHeaderH(); wireCue(); });
-      }
-    })();
-  </script>
-)}
+{size === 'tall' && layout === 'bleed' && <HeroFillScript />}
 
 {/* Direction C drench: the split hero commits to Heritage Indigo as a full
     surface — linen/paper type on top, gold accents, paper-matted photos.
@@ -304,41 +271,7 @@ const textWrapperHeight = 'min-h-[46svh] md:min-h-[52svh]';
     {/* Round-robin cross-fade cycler for the three viewports: every ~2s one
         frame advances to its next photo, so something changes often without all
         three flipping at once. Reduced-motion users get static first frames. */}
-    {triImages.length >= 4 && (
-      <script is:inline>
-        (function () {
-          function initHeroTri() {
-            if (window.__heroTriTimer) { clearInterval(window.__heroTriTimer); window.__heroTriTimer = null; }
-            var frames = Array.prototype.slice.call(document.querySelectorAll('[data-hero-tri]'));
-            if (!frames.length) return;
-            var reduce = false;
-            try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
-            if (reduce) return;
-            var states = frames.map(function (f) {
-              var slides = f.querySelectorAll('.hero-tri-slide');
-              var cur = 0;
-              for (var i = 0; i < slides.length; i++) { if (slides[i].classList.contains('is-active')) { cur = i; break; } }
-              return { slides: slides, cur: cur };
-            });
-            var turn = 0;
-            window.__heroTriTimer = setInterval(function () {
-              if (document.hidden) return;
-              var s = states[turn % states.length];
-              turn++;
-              if (s.slides.length < 2) return;
-              s.slides[s.cur].classList.remove('is-active');
-              s.cur = (s.cur + 1) % s.slides.length;
-              s.slides[s.cur].classList.add('is-active');
-            }, 2000);
-          }
-          initHeroTri();
-          if (!window.__heroTriBound) {
-            window.__heroTriBound = true;
-            document.addEventListener('astro:page-load', initHeroTri);
-          }
-        })();
-      </script>
-    )}
+    {triImages.length >= 4 && <HeroTriScript />}
   </section>
 ) : hasImage ? (
   <section
