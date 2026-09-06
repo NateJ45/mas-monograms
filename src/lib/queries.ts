@@ -692,6 +692,15 @@ export function getFeaturedGalleryItems(limit = 9): Promise<any[]> {
 
 // ─── Stub: kept so BaseLayout import doesn't break ──────────────────────────
 
-export function getActiveAnnouncement(): Promise<null> {
+// The shape BaseLayout renders when an announcement exists. Typed here rather
+// than as `null` so the layout's `announcement.message` / `.style` / `.link`
+// reads type-check instead of collapsing to `never` (astro check, 2026-09-05).
+export interface Announcement {
+  message?: string;
+  style?: 'info' | 'highlight' | 'urgent';
+  link?: { url?: string; label?: string };
+}
+
+export function getActiveAnnouncement(): Promise<Announcement | null> {
   return Promise.resolve(null);
 }

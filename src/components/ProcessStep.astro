@@ -8,13 +8,9 @@
 // left of the content column on desktop, stacked above on mobile. Bronze tint for the
 // number plays against Charcoal text.
 
+import type { PortableTextBlock } from '@portabletext/types';
 import PortableText from '@/components/PortableText';
 import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
-
-interface PortableTextBlock {
-  _type?: string;
-  [key: string]: any;
-}
 
 interface Props {
   step: {
