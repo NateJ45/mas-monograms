@@ -5,20 +5,20 @@ of this file is that nobody writes a fourth check that duplicates the second.
 
 ## The checks
 
-| Check | Command | Runtime | Covers |
-|---|---|---|---|
-| Unit tests | `npm run test:unit` | Node's built-in runner (`node --test`, type-stripped) | Pure functions in `src/lib/*.test.ts` and `scripts/lib/*.test.mjs`: slugify, reservedSlugs, scriptAccent, sectionVisibility, utils, reading-time, phone, image-import helpers, the page-fields drift gate, and **theme-tokens** (below) |
-| Type check + lint | `npm run check` | `astro check` then eslint | The family-standard "is it clean" command: zero `astro check` errors, zero eslint errors. Run before pushing |
-| Everything green | `npm run check:full` | local | typegen, `npm run check`, unit tests, Astro build (which includes the embedded Studio) |
-| Lint | `npm run lint` | eslint | `eslint src scripts tests` — eslint does its own globbing (the `files` patterns in `eslint.config.js` pick up ts/tsx/astro/mjs), so coverage is identical on Windows and Linux CI. Three pre-existing unused-var **warnings**; zero errors is the bar |
-| Format | `npm run format:check` / `npm run format` | prettier + `prettier-plugin-astro` + `prettier-plugin-tailwindcss` | Every file prettier can parse, minus `.prettierignore` (generated files, parity baselines, `docs/superpowers`). The tailwind plugin also sorts class lists |
-| Browser suites | `npm test` (`npm run test:ui` for the inspector) | Playwright, chromium + WebKit iPhone 14, against a fresh `npm run build` served by `http-server` | `tests/smoke.spec.ts` (200 + brand in `<title>` per route), `tests/a11y.spec.ts` (axe default rule set, zero violations), `tests/reflow.spec.ts` (no horizontal overflow at 320 and 1440/1024/768). Routes come from `tests/routes.ts` |
-| Internal links | `npm run check:links` | linkinator over `dist/client` | Every internal link resolves. `/studio`, `/preview` and `/api` are skipped (SSR, or a bare React mount shell) |
-| CI | push to `main` / `staging`, any PR, or manual dispatch (`.github/workflows/ci.yml`) | GitHub Actions | `build` job: install, typegen (3-attempt retry), the **stale-types guard**, `astro check`, lint, format check, unit tests, credential-less Astro build (Studio included), link check. `test` job (parallel): the Playwright suites, report uploaded as an artifact |
-| Lighthouse CI | `npm run lighthouse` (`.github/workflows/lighthouse.yml`) | Headless Chrome over `dist/client` | The 12 routes in `lighthouserc.json`. **Accessibility is a hard gate at minScore 1**; LCP under 4.5s and CLS under 0.1 are also errors; performance / best-practices / SEO are warnings |
-| Render parity | `npm run parity capture` / `compare` | reads `dist/client` | 23 built pages, byte-compared against committed baselines (below). `dist/client/studio/` is deliberately skipped |
-| Library drift | `npm run sync-check` | node, dependency-free | Every `PORTABLE`-marked file, diffed against `ncs-astro-sanity-starter` |
-| Uptime | `.github/workflows/uptime.yml`, hourly | curl | 4 live routes return 200 (needs the `SITE_URL` repo variable — see docs/PENDING.md) |
+| Check             | Command                                                                             | Runtime                                                                                          | Covers                                                                                                                                                                                                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit tests        | `npm run test:unit`                                                                 | Node's built-in runner (`node --test`, type-stripped)                                            | Pure functions in `src/lib/*.test.ts` and `scripts/lib/*.test.mjs`: slugify, reservedSlugs, scriptAccent, sectionVisibility, utils, reading-time, phone, image-import helpers, the page-fields drift gate, and **theme-tokens** (below)                            |
+| Type check + lint | `npm run check`                                                                     | `astro check` then eslint                                                                        | The family-standard "is it clean" command: zero `astro check` errors, zero eslint errors. Run before pushing                                                                                                                                                       |
+| Everything green  | `npm run check:full`                                                                | local                                                                                            | typegen, `npm run check`, unit tests, Astro build (which includes the embedded Studio)                                                                                                                                                                             |
+| Lint              | `npm run lint`                                                                      | eslint                                                                                           | `eslint src scripts tests` — eslint does its own globbing (the `files` patterns in `eslint.config.js` pick up ts/tsx/astro/mjs), so coverage is identical on Windows and Linux CI. Three pre-existing unused-var **warnings**; zero errors is the bar              |
+| Format            | `npm run format:check` / `npm run format`                                           | prettier + `prettier-plugin-astro` + `prettier-plugin-tailwindcss`                               | Every file prettier can parse, minus `.prettierignore` (generated files, parity baselines, `docs/superpowers`). The tailwind plugin also sorts class lists                                                                                                         |
+| Browser suites    | `npm test` (`npm run test:ui` for the inspector)                                    | Playwright, chromium + WebKit iPhone 14, against a fresh `npm run build` served by `http-server` | `tests/smoke.spec.ts` (200 + brand in `<title>` per route), `tests/a11y.spec.ts` (axe default rule set, zero violations), `tests/reflow.spec.ts` (no horizontal overflow at 320 and 1440/1024/768). Routes come from `tests/routes.ts`                             |
+| Internal links    | `npm run check:links`                                                               | linkinator over `dist/client`                                                                    | Every internal link resolves. `/studio`, `/preview` and `/api` are skipped (SSR, or a bare React mount shell)                                                                                                                                                      |
+| CI                | push to `main` / `staging`, any PR, or manual dispatch (`.github/workflows/ci.yml`) | GitHub Actions                                                                                   | `build` job: install, typegen (3-attempt retry), the **stale-types guard**, `astro check`, lint, format check, unit tests, credential-less Astro build (Studio included), link check. `test` job (parallel): the Playwright suites, report uploaded as an artifact |
+| Lighthouse CI     | `npm run lighthouse` (`.github/workflows/lighthouse.yml`)                           | Headless Chrome over `dist/client`                                                               | The 12 routes in `lighthouserc.json`. **Accessibility is a hard gate at minScore 1**; LCP under 4.5s and CLS under 0.1 are also errors; performance / best-practices / SEO are warnings                                                                            |
+| Render parity     | `npm run parity capture` / `compare`                                                | reads `dist/client`                                                                              | 23 built pages, byte-compared against committed baselines (below). `dist/client/studio/` is deliberately skipped                                                                                                                                                   |
+| Library drift     | `npm run sync-check`                                                                | node, dependency-free                                                                            | Every `PORTABLE`-marked file, diffed against `ncs-astro-sanity-starter`                                                                                                                                                                                            |
+| Uptime            | `.github/workflows/uptime.yml`, hourly                                              | curl                                                                                             | 4 live routes return 200 (needs the `SITE_URL` repo variable — see docs/PENDING.md)                                                                                                                                                                                |
 
 ## The live-preview check (manual, but do it)
 
@@ -36,12 +36,12 @@ npm run preview            # wrangler dev -c dist/server/wrangler.json
 Then, against the running server, the four things that must hold. Verified
 2026-08-28 on port 8788 against project `xp3elugr`:
 
-| Check | Expected |
-|---|---|
-| `GET /preview/live?page=homePage` with no cookie | **403** "Preview only" |
-| `GET /api/draft-mode/enable` with a junk secret | **401** "Invalid preview secret" |
+| Check                                                     | Expected                                                                                                        |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `GET /preview/live?page=homePage` with no cookie          | **403** "Preview only"                                                                                          |
+| `GET /api/draft-mode/enable` with a junk secret           | **401** "Invalid preview secret"                                                                                |
 | `GET /api/draft-mode/enable` with a freshly minted secret | **302** to `/preview`, `Set-Cookie: sanity-preview-perspective=<64 hex>` with httpOnly + secure + SameSite=None |
-| `GET /preview` with that cookie | 200, `data-draft="1"`, and **stega markers present**; the same URL WITHOUT the cookie must have **zero** |
+| `GET /preview` with that cookie                           | 200, `data-draft="1"`, and **stega markers present**; the same URL WITHOUT the cookie must have **zero**        |
 
 Mint the secret with `createPreviewSecret` from
 `@sanity/preview-url-secret/create-secret` using the write token.
@@ -69,11 +69,11 @@ Ported from WCP on 2026-09-05 (the family test standard). `npm test` builds the
 site, serves `dist/client` on port 4321 and runs three suites on two browser
 profiles (Desktop Chrome, and a WebKit iPhone 14 for smoke + a11y):
 
-| Suite | Asserts |
-|---|---|
-| `tests/smoke.spec.ts` | every route answers 200 and its `<title>` carries "MAS Monograms" |
-| `tests/a11y.spec.ts` | axe-core's DEFAULT rule set reports zero violations. Do not narrow it to `.withTags([...])`: the default set is what keeps this in step with (and slightly ahead of) the Lighthouse gate |
-| `tests/reflow.spec.ts` | `document.documentElement.scrollWidth` never exceeds the viewport at 320px, then at 1440, 1024 and 768 |
+| Suite                  | Asserts                                                                                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/smoke.spec.ts`  | every route answers 200 and its `<title>` carries "MAS Monograms"                                                                                                                        |
+| `tests/a11y.spec.ts`   | axe-core's DEFAULT rule set reports zero violations. Do not narrow it to `.withTags([...])`: the default set is what keeps this in step with (and slightly ahead of) the Lighthouse gate |
+| `tests/reflow.spec.ts` | `document.documentElement.scrollWidth` never exceeds the viewport at 320px, then at 1440, 1024 and 768                                                                                   |
 
 `tests/helpers.ts` has `settle()`: wait for fonts, kill transitions, force the
 `.img-curtain` and `[data-reveal]` end-states, so axe never audits a half-drawn
@@ -130,7 +130,7 @@ be added there with `AA_NON_TEXT`.**
 ## Render parity
 
 `scripts/page-parity.mjs` snapshots each built page's normalized HTML, so any
-change that is *supposed* to be render-neutral can be proven so: extracting a
+change that is _supposed_ to be render-neutral can be proven so: extracting a
 component, reordering imports, swapping a wrapper, bumping a dependency.
 
 **Neither mode builds.** The caller builds; the script reads `dist/client` and

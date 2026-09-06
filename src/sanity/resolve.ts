@@ -22,10 +22,7 @@
 // src/layouts/PreviewLayout.astro's click interceptor. Three places, one truth:
 // change one and change all three.
 // =============================================================================
-import {
-  defineDocuments,
-  type PresentationPluginOptions,
-} from 'sanity/presentation';
+import { defineDocuments, type PresentationPluginOptions } from 'sanity/presentation';
 
 /** Preview path per page singleton. */
 export const SINGLETON_PREVIEW_PATHS: Record<string, string> = {
@@ -72,7 +69,9 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     threadColor: {
       locations: [{ title: 'Thread Color Chart', href: '/preview/thread-color-chart' }],
     },
-    font: { locations: [{ title: 'Font & Lettering Guide', href: '/preview/font-lettering-guide' }] },
+    font: {
+      locations: [{ title: 'Font & Lettering Guide', href: '/preview/font-lettering-guide' }],
+    },
     faqItem: { locations: [{ title: 'How It Works', href: '/preview/how-it-works' }] },
     legalPage: {
       locations: [{ title: 'Home', href: '/preview' }],

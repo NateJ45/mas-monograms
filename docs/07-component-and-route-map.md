@@ -80,19 +80,19 @@ Two differences from the original plan worth noting:
 
 ## Squarespace section → where it lives now
 
-| Squarespace section | Lives in | Data source |
-|---|---|---|
-| Two-column hero | inline in each page / `[slug].astro` | page singleton or `itemCategory` |
-| 4-step "How it works" strip | inline (`index.astro`, `how-it-works.astro`) | `processSteps[]` / `steps[]` |
-| Category card grid | inline (`index.astro`, `shop-by-item.astro`) | `itemCategory` docs |
-| Gallery grid (frameless) | inline (`style-gallery.astro`, `[slug].astro`) | `galleryItem` docs |
-| Pricing tier cards | inline (`pricing.astro`) | `pricingTier` docs (rendered "from $X") |
-| About "why come back" cards | inline (`about.astro`) | `aboutPage.values[]` |
-| FAQ | `FaqAccordion.tsx` | `faqItem` docs |
-| Quote form | `request-a-quote.astro` + `src/pages/api/quote.ts` | Sanity for labels, Resend for send |
-| Footer | `Footer.astro` | `siteSettings` |
-| CTA banner | `CtaBanner.astro` | page singleton CTA fields |
-| Rich text (about, intros, FAQ answers) | `PortableText.tsx` | Portable Text fields |
+| Squarespace section                    | Lives in                                           | Data source                             |
+| -------------------------------------- | -------------------------------------------------- | --------------------------------------- |
+| Two-column hero                        | inline in each page / `[slug].astro`               | page singleton or `itemCategory`        |
+| 4-step "How it works" strip            | inline (`index.astro`, `how-it-works.astro`)       | `processSteps[]` / `steps[]`            |
+| Category card grid                     | inline (`index.astro`, `shop-by-item.astro`)       | `itemCategory` docs                     |
+| Gallery grid (frameless)               | inline (`style-gallery.astro`, `[slug].astro`)     | `galleryItem` docs                      |
+| Pricing tier cards                     | inline (`pricing.astro`)                           | `pricingTier` docs (rendered "from $X") |
+| About "why come back" cards            | inline (`about.astro`)                             | `aboutPage.values[]`                    |
+| FAQ                                    | `FaqAccordion.tsx`                                 | `faqItem` docs                          |
+| Quote form                             | `request-a-quote.astro` + `src/pages/api/quote.ts` | Sanity for labels, Resend for send      |
+| Footer                                 | `Footer.astro`                                     | `siteSettings`                          |
+| CTA banner                             | `CtaBanner.astro`                                  | page singleton CTA fields               |
+| Rich text (about, intros, FAQ answers) | `PortableText.tsx`                                 | Portable Text fields                    |
 
 ---
 

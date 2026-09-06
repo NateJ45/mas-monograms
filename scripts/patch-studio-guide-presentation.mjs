@@ -54,10 +54,7 @@ const sg2 = doc.studioMap?.find((r) => r._key === 'sg-2');
 if (sg2 && sg2.description !== NEW_MAP_SG2) {
   changes++;
   await apply('studioMap sg-2: Preview tab -> Presentation tool', () =>
-    client
-      .patch(DOC_ID)
-      .set({ 'studioMap[_key=="sg-2"].description': NEW_MAP_SG2 })
-      .commit(),
+    client.patch(DOC_ID).set({ 'studioMap[_key=="sg-2"].description': NEW_MAP_SG2 }).commit(),
   );
 }
 
@@ -65,20 +62,14 @@ const sgi = doc.tips?.find((t) => t._key === 'sg-i');
 if (sgi && sgi.body !== NEW_TIP_SGI) {
   changes++;
   await apply('tip sg-i: Preview tab -> Presentation, drafts visible', () =>
-    client
-      .patch(DOC_ID)
-      .set({ 'tips[_key=="sg-i"].body': NEW_TIP_SGI })
-      .commit(),
+    client.patch(DOC_ID).set({ 'tips[_key=="sg-i"].body': NEW_TIP_SGI }).commit(),
   );
 }
 
 if (!doc.howTos?.some((h) => h._key === NEW_HOWTO._key)) {
   changes++;
   await apply('howTos: insert the Presentation how-to in position 2', () =>
-    client
-      .patch(DOC_ID)
-      .insert('after', 'howTos[0]', [NEW_HOWTO])
-      .commit(),
+    client.patch(DOC_ID).insert('after', 'howTos[0]', [NEW_HOWTO]).commit(),
   );
 }
 

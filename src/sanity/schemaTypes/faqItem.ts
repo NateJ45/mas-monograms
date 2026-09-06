@@ -21,7 +21,7 @@ export const faqItem = defineType({
       name: 'answer',
       title: 'Answer',
       type: 'array',
-      description: 'Answer in Mary Ann\'s voice. Paragraphs and bullet lists are supported.',
+      description: "Answer in Mary Ann's voice. Paragraphs and bullet lists are supported.",
       of: [
         defineArrayMember({
           type: 'block',
@@ -45,7 +45,12 @@ export const faqItem = defineType({
                 title: 'Link',
                 fields: [
                   { name: 'href', type: 'url', title: 'URL' },
-                  { name: 'openInNewTab', type: 'boolean', title: 'Open in new tab', initialValue: false },
+                  {
+                    name: 'openInNewTab',
+                    type: 'boolean',
+                    title: 'Open in new tab',
+                    initialValue: false,
+                  },
                 ],
               },
             ],
@@ -104,7 +109,18 @@ export const faqItem = defineType({
     }),
   },
   orderings: [
-    { title: 'Category, then order', name: 'categoryOrder', by: [{ field: 'category', direction: 'asc' }, { field: 'displayOrder', direction: 'asc' }] },
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Category, then order',
+      name: 'categoryOrder',
+      by: [
+        { field: 'category', direction: 'asc' },
+        { field: 'displayOrder', direction: 'asc' },
+      ],
+    },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
   ],
 });

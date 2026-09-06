@@ -11,87 +11,102 @@ const [siteSettings, page, categories] = await Promise.all([
   getAllItemCategories(),
 ]);
 
-const title       = page?.seoTitle       ?? 'Shop by Item — MAS Monograms';
-const description = page?.seoDescription ?? 'Browse all the items Mary Ann can embroider — towels, bags, shirts, baby gifts, and more.';
+const title = page?.seoTitle ?? 'Shop by Item — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Browse all the items Mary Ann can embroider — towels, bags, shirts, baby gifts, and more.';
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-
-  {/* Hero — deliberately compact. The band is a headline plus one lead line,
+  {
+    /* Hero — deliberately compact. The band is a headline plus one lead line,
       not a tall empty parchment void over the grid. The subhead sits directly
       under the headline; the longer gridIntro (if present) still leads the
-      grid below, so we don't duplicate the intro copy up here. */}
+      grid below, so we don't duplicate the intro copy up here. */
+  }
   <section class="bg-tertiary py-section-md">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-s">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-s font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'Shop by Item'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
     </div>
   </section>
 
   {/* Category Grid */}
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {page?.gridIntro && (
-        <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto">
-          {page.gridIntro}
-        </p>
-      )}
-      {categories.length > 0 ? (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
-          {categories.map((cat: any) => (
-            <a
-              href={`/${cat.slug?.current ?? ''}`}
-              class="group block rounded-xl overflow-hidden border border-border bg-background hover:shadow-lg transition-shadow"
-            >
-              {cat.cardImage?.asset ? (
-                <div class="aspect-[4/3] overflow-hidden">
-                  <SanityImage
-                    source={cat.cardImage}
-                    width={600}
-                    height={450}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              ) : (
-                <div class="aspect-[4/3] bg-tertiary flex items-center justify-center">
-                  <span class="text-[var(--color-text-secondary)] text-sm">No image</span>
-                </div>
-              )}
-              <div class="p-m">
-                {cat.eyebrow && (
-                  <p class="text-xs uppercase tracking-eyebrow text-link mb-xs">{cat.eyebrow}</p>
+      {
+        page?.gridIntro && (
+          <p class="mx-auto mb-l max-w-2xl text-center text-[var(--color-text-secondary)]">
+            {page.gridIntro}
+          </p>
+        )
+      }
+      {
+        categories.length > 0 ? (
+          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 lg:grid-cols-3">
+            {categories.map((cat: any) => (
+              <a
+                href={`/${cat.slug?.current ?? ''}`}
+                class="group block overflow-hidden rounded-xl border border-border bg-background transition-shadow hover:shadow-lg"
+              >
+                {cat.cardImage?.asset ? (
+                  <div class="aspect-[4/3] overflow-hidden">
+                    <SanityImage
+                      source={cat.cardImage}
+                      width={600}
+                      height={450}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                ) : (
+                  <div class="flex aspect-[4/3] items-center justify-center bg-tertiary">
+                    <span class="text-sm text-[var(--color-text-secondary)]">No image</span>
+                  </div>
                 )}
-                <h2 class="font-display text-h4 text-foreground mb-xs group-hover:text-link transition-colors">
-                  {cat.name}
-                </h2>
-                {cat.description && (
-                  <p class="text-sm text-[var(--color-text-secondary)] line-clamp-2">{cat.description}</p>
-                )}
-                <div class="mt-m flex items-center justify-between gap-m">
-                  <span class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link">
-                    {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
-                  </span>
-                  {cat.startingPrice && (
-                    <span class="text-sm font-semibold text-foreground whitespace-nowrap">{cat.startingPrice}</span>
+                <div class="p-m">
+                  {cat.eyebrow && (
+                    <p class="mb-xs text-xs tracking-eyebrow text-link uppercase">{cat.eyebrow}</p>
                   )}
+                  <h2 class="mb-xs font-display text-h4 text-foreground transition-colors group-hover:text-link">
+                    {cat.name}
+                  </h2>
+                  {cat.description && (
+                    <p class="line-clamp-2 text-sm text-[var(--color-text-secondary)]">
+                      {cat.description}
+                    </p>
+                  )}
+                  <div class="mt-m flex items-center justify-between gap-m">
+                    <span class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase">
+                      {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
+                    </span>
+                    {cat.startingPrice && (
+                      <span class="text-sm font-semibold whitespace-nowrap text-foreground">
+                        {cat.startingPrice}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </a>
-          ))}
-        </div>
-      ) : (
-        <p class="text-center text-[var(--color-text-secondary)] py-l">
-          Item categories coming soon — check back or <a href="/request-a-quote" class="text-link underline">request a quote</a> for any item.
-        </p>
-      )}
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="py-l text-center text-[var(--color-text-secondary)]">
+            Item categories coming soon — check back or{' '}
+            <a href="/request-a-quote" class="text-link underline">
+              request a quote
+            </a>{' '}
+            for any item.
+          </p>
+        )
+      }
     </div>
   </section>
 

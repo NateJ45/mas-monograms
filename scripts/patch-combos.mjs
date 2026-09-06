@@ -22,12 +22,30 @@ const client = createClient({
 const ref = (id) => ({ _type: 'reference', _ref: id });
 const combos = [
   // description names the ACTUAL referenced font, so the card text matches.
-  { _id: 'combo-classic', font: 'font-classic',      thread: 'threadColor-navy',        description: 'Classic font · three-letter monogram · perfect for towels and linens.' },
-  { _id: 'combo-gift',    font: 'font-fishtail',      thread: 'threadColor-blush-pink',  description: 'Fishtail font · first name · ideal for totes and baby items.' },
-  { _id: 'combo-bold',    font: 'font-vine-heirloom', thread: 'threadColor-forest-green', description: 'Vine Heirloom font · three-letter monogram · great for sweatshirts.' },
+  {
+    _id: 'combo-classic',
+    font: 'font-classic',
+    thread: 'threadColor-navy',
+    description: 'Classic font · three-letter monogram · perfect for towels and linens.',
+  },
+  {
+    _id: 'combo-gift',
+    font: 'font-fishtail',
+    thread: 'threadColor-blush-pink',
+    description: 'Fishtail font · first name · ideal for totes and baby items.',
+  },
+  {
+    _id: 'combo-bold',
+    font: 'font-vine-heirloom',
+    thread: 'threadColor-forest-green',
+    description: 'Vine Heirloom font · three-letter monogram · great for sweatshirts.',
+  },
 ];
 
 for (const c of combos) {
-  const res = await client.patch(c._id).set({ font: ref(c.font), threadColor: ref(c.thread), description: c.description }).commit();
+  const res = await client
+    .patch(c._id)
+    .set({ font: ref(c.font), threadColor: ref(c.thread), description: c.description })
+    .commit();
   console.log('patched', res._id, '→', c.font, '+', c.thread);
 }

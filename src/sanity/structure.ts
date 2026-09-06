@@ -137,7 +137,7 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
       S.divider(),
 
       // Site Settings — global identity, SEO defaults, social links, contact info
-      singleton(S,'siteSettings', 'Business info & contact', CogIcon),
+      singleton(S, 'siteSettings', 'Business info & contact', CogIcon),
 
       S.divider(),
 
@@ -149,24 +149,24 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
           S.list()
             .title('Website pages')
             .items([
-              singleton(S,'homePage', 'Home', HomeIcon),
-              singleton(S,'howItWorksPage', 'How It Works', ControlsIcon),
-              singleton(S,'pricingPage', 'Pricing', BillIcon),
-              singleton(S,'aboutPage', 'About', UserIcon),
-              singleton(S,'requestAQuotePage', 'Request a Quote', EnvelopeIcon),
+              singleton(S, 'homePage', 'Home', HomeIcon),
+              singleton(S, 'howItWorksPage', 'How It Works', ControlsIcon),
+              singleton(S, 'pricingPage', 'Pricing', BillIcon),
+              singleton(S, 'aboutPage', 'About', UserIcon),
+              singleton(S, 'requestAQuotePage', 'Request a Quote', EnvelopeIcon),
 
               S.divider(),
 
-              singleton(S,'shopIndexPage', 'Shop by Item', PackageIcon),
-              singleton(S,'styleGalleryPage', 'Style Gallery', ImagesIcon),
-              singleton(S,'fontGuidePage', 'Font & Lettering Guide', TextIcon),
-              singleton(S,'threadChartPage', 'Thread Color Chart', ColorWheelIcon),
+              singleton(S, 'shopIndexPage', 'Shop by Item', PackageIcon),
+              singleton(S, 'styleGalleryPage', 'Style Gallery', ImagesIcon),
+              singleton(S, 'fontGuidePage', 'Font & Lettering Guide', TextIcon),
+              singleton(S, 'threadChartPage', 'Thread Color Chart', ColorWheelIcon),
 
               S.divider(),
 
-              singleton(S,'clearancePage', 'Clearance', TagIcon),
-              singleton(S,'thankYouPage', 'Thank You', SparklesIcon),
-              singleton(S,'notFoundPage', '404 Page', HelpCircleIcon),
+              singleton(S, 'clearancePage', 'Clearance', TagIcon),
+              singleton(S, 'thankYouPage', 'Thank You', SparklesIcon),
+              singleton(S, 'notFoundPage', '404 Page', HelpCircleIcon),
             ]),
         ),
 
@@ -182,13 +182,19 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
             .title('Photos & products')
             .items([
               // The two most common "add something" tasks, up top.
-              S.documentTypeListItem('galleryItem').title('Style gallery — photos of your work').icon(ImagesIcon),
-              S.documentTypeListItem('clearanceItem').title('Clearance — ready-to-ship items').icon(TagIcon),
+              S.documentTypeListItem('galleryItem')
+                .title('Style gallery — photos of your work')
+                .icon(ImagesIcon),
+              S.documentTypeListItem('clearanceItem')
+                .title('Clearance — ready-to-ship items')
+                .icon(TagIcon),
 
               S.divider(),
 
               // The shop pages (Hats, Totes, …) and their prices.
-              S.documentTypeListItem('itemCategory').title('Shop categories (Hats, Totes…)').icon(PackageIcon),
+              S.documentTypeListItem('itemCategory')
+                .title('Shop categories (Hats, Totes…)')
+                .icon(PackageIcon),
               S.documentTypeListItem('pricingTier').title('Prices').icon(BillIcon),
 
               S.divider(),
@@ -196,7 +202,9 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
               // Reference lists that change less often.
               S.documentTypeListItem('font').title('Embroidery fonts').icon(TextIcon),
               S.documentTypeListItem('threadColor').title('Thread colors').icon(ColorWheelIcon),
-              S.documentTypeListItem('faqItem').title('FAQ — questions & answers').icon(HelpCircleIcon),
+              S.documentTypeListItem('faqItem')
+                .title('FAQ — questions & answers')
+                .icon(HelpCircleIcon),
             ]),
         ),
 

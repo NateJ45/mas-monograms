@@ -12,171 +12,189 @@ const [siteSettings, page, items] = await Promise.all([
   getAllClearanceItems(),
 ]);
 
-const title       = page?.seoTitle       ?? 'Clearance — MAS Monograms';
-const description = page?.seoDescription ?? 'Shop pre-made clearance embroidery items at reduced prices. Ready to ship — no custom order wait time.';
+const title = page?.seoTitle ?? 'Clearance — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Shop pre-made clearance embroidery items at reduced prices. Ready to ship — no custom order wait time.';
 
 const inStockItems = items.filter((item: any) => !item.sold);
 const soldOutItems = items.filter((item: any) => item.sold);
-const buyLabel     = page?.buyButtonLabel  ?? 'Buy Now';
-const soldLabel    = page?.soldOutLabel    ?? 'Sold Out';
+const buyLabel = page?.buyButtonLabel ?? 'Buy Now';
+const soldLabel = page?.soldOutLabel ?? 'Sold Out';
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'Clearance'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
     </div>
   </section>
 
   {/* Intro + notes */}
   <section class="py-section-md">
     <div class="mx-auto max-w-3xl px-m">
-      {page?.intro && (
-        <div>
-          <PortableText client:idle value={page.intro} />
-        </div>
-      )}
-      {(page?.paymentNote || page?.pickupNote) && (
-        <div class="mt-l grid grid-cols-1 sm:grid-cols-2 gap-m">
-          {page?.paymentNote && (
-            <div class="bg-tertiary rounded-xl p-m border border-border-soft">
-              <p class="text-sm text-[var(--color-text-secondary)]">{page.paymentNote}</p>
-            </div>
-          )}
-          {page?.pickupNote && (
-            <div class="bg-tertiary rounded-xl p-m border border-border-soft">
-              <p class="text-sm text-[var(--color-text-secondary)]">{page.pickupNote}</p>
-            </div>
-          )}
-        </div>
-      )}
+      {
+        page?.intro && (
+          <div>
+            <PortableText client:idle value={page.intro} />
+          </div>
+        )
+      }
+      {
+        (page?.paymentNote || page?.pickupNote) && (
+          <div class="mt-l grid grid-cols-1 gap-m sm:grid-cols-2">
+            {page?.paymentNote && (
+              <div class="rounded-xl border border-border-soft bg-tertiary p-m">
+                <p class="text-sm text-[var(--color-text-secondary)]">{page.paymentNote}</p>
+              </div>
+            )}
+            {page?.pickupNote && (
+              <div class="rounded-xl border border-border-soft bg-tertiary p-m">
+                <p class="text-sm text-[var(--color-text-secondary)]">{page.pickupNote}</p>
+              </div>
+            )}
+          </div>
+        )
+      }
     </div>
   </section>
 
   {/* Items Grid */}
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {items.length === 0 ? (
-        <div class="text-center py-l">
-          <p class="text-[var(--color-text-secondary)]">
-            {page?.emptyStateMessage ?? 'No clearance items available at this time. Check back soon!'}
-          </p>
-          <div class="mt-l flex flex-col sm:flex-row items-center justify-center gap-m">
-            <a
-              href={page?.emptyStateCtaHref ?? '/request-a-quote'}
-              class="inline-flex items-center justify-center min-h-[44px] px-l py-s rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors press-tactile"
-            >
-              {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
-            </a>
-            {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
+      {
+        items.length === 0 ? (
+          <div class="py-l text-center">
+            <p class="text-[var(--color-text-secondary)]">
+              {page?.emptyStateMessage ??
+                'No clearance items available at this time. Check back soon!'}
+            </p>
+            <div class="mt-l flex flex-col items-center justify-center gap-m sm:flex-row">
               <a
-                href={page?.emptyStateSecondaryHref ?? '/shop-by-item'}
-                class="text-sm font-semibold text-link underline hover:text-primary-dark transition-colors"
+                href={page?.emptyStateCtaHref ?? '/request-a-quote'}
+                class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)]"
               >
-                {page?.emptyStateSecondaryLabel ?? 'Browse what I make'} →
+                {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
               </a>
-            )}
+              {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
+                <a
+                  href={page?.emptyStateSecondaryHref ?? '/shop-by-item'}
+                  class="text-sm font-semibold text-link underline transition-colors hover:text-primary-dark"
+                >
+                  {page?.emptyStateSecondaryLabel ?? 'Browse what I make'} →
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-      ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
-          {[...inStockItems, ...soldOutItems].map((item: any) => {
-            const isSold = item.sold;
-            const primaryImage = item.images?.[0];
-            return (
-              <div
-                class:list={[
-                  'rounded-xl border bg-background overflow-hidden flex flex-col',
-                  isSold ? 'border-border opacity-70' : 'border-border hover:shadow-md transition-shadow',
-                ]}
-              >
-                {/* Image */}
-                {primaryImage?.asset ? (
-                  <div class="aspect-[4/3]">
-                    <div class="w-full h-full overflow-hidden relative">
-                      <SanityImage
-                        source={primaryImage}
-                        width={600}
-                        height={450}
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        class="w-full h-full object-cover"
-                      />
-                      {isSold && (
-                        <div class="absolute inset-0 bg-background/50 flex items-center justify-center">
-                          <span class="bg-foreground text-background text-xs uppercase tracking-eyebrow font-semibold px-m py-xs rounded-full">
-                            {soldLabel}
-                          </span>
-                        </div>
-                      )}
+        ) : (
+          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 lg:grid-cols-3">
+            {[...inStockItems, ...soldOutItems].map((item: any) => {
+              const isSold = item.sold;
+              const primaryImage = item.images?.[0];
+              return (
+                <div
+                  class:list={[
+                    'flex flex-col overflow-hidden rounded-xl border bg-background',
+                    isSold
+                      ? 'border-border opacity-70'
+                      : 'border-border transition-shadow hover:shadow-md',
+                  ]}
+                >
+                  {/* Image */}
+                  {primaryImage?.asset ? (
+                    <div class="aspect-[4/3]">
+                      <div class="relative h-full w-full overflow-hidden">
+                        <SanityImage
+                          source={primaryImage}
+                          width={600}
+                          height={450}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          class="h-full w-full object-cover"
+                        />
+                        {isSold && (
+                          <div class="absolute inset-0 flex items-center justify-center bg-background/50">
+                            <span class="rounded-full bg-foreground px-m py-xs text-xs font-semibold tracking-eyebrow text-background uppercase">
+                              {soldLabel}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div class="aspect-[4/3] bg-tertiary flex items-center justify-center">
-                    <span class="text-[var(--color-text-secondary)] text-sm">No photo</span>
-                  </div>
-                )}
-
-                {/* Info */}
-                <div class="p-m flex flex-col flex-1 gap-s">
-                  <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
-                  {item.description && (
-                    <p class="text-sm text-[var(--color-text-secondary)] line-clamp-3">{item.description}</p>
+                  ) : (
+                    <div class="flex aspect-[4/3] items-center justify-center bg-tertiary">
+                      <span class="text-sm text-[var(--color-text-secondary)]">No photo</span>
+                    </div>
                   )}
 
-                  {/* Pricing */}
-                  <div class="flex items-baseline gap-s mt-auto pt-s">
-                    {item.originalPrice && (
-                      <span class="text-sm text-[var(--color-text-tertiary)] line-through">
-                        ${typeof item.originalPrice === 'number' ? item.originalPrice.toFixed(2) : item.originalPrice}
-                      </span>
+                  {/* Info */}
+                  <div class="flex flex-1 flex-col gap-s p-m">
+                    <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
+                    {item.description && (
+                      <p class="line-clamp-3 text-sm text-[var(--color-text-secondary)]">
+                        {item.description}
+                      </p>
                     )}
-                    {item.salePrice && (
-                      <span class="font-display text-h4 text-[var(--color-rust-decorative,#8C3A2E)]">
-                        ${typeof item.salePrice === 'number' ? item.salePrice.toFixed(2) : item.salePrice}
-                      </span>
-                    )}
-                    {item.quantityAvailable && !isSold && (
-                      <span class="ml-auto text-xs text-[var(--color-text-tertiary)]">
-                        {item.quantityAvailable} left
-                      </span>
-                    )}
-                  </div>
 
-                  {/* Buy button — Stripe Payment Link, no cart needed */}
-                  {isSold ? (
-                    <button
-                      type="button"
-                      disabled
-                      class="w-full mt-s py-m rounded-md bg-tertiary text-foreground/40 text-xs uppercase tracking-eyebrow font-semibold cursor-not-allowed"
-                    >
-                      {soldLabel}
-                    </button>
-                  ) : item.stripePaymentLink ? (
-                    <a
-                      href={item.stripePaymentLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="block w-full mt-s min-h-[44px] py-s rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)] text-white text-xs uppercase tracking-[0.18em] font-semibold text-center transition-colors press-tactile"
-                    >
-                      {buyLabel}
-                    </a>
-                  ) : null}
+                    {/* Pricing */}
+                    <div class="mt-auto flex items-baseline gap-s pt-s">
+                      {item.originalPrice && (
+                        <span class="text-sm text-[var(--color-text-tertiary)] line-through">
+                          $
+                          {typeof item.originalPrice === 'number'
+                            ? item.originalPrice.toFixed(2)
+                            : item.originalPrice}
+                        </span>
+                      )}
+                      {item.salePrice && (
+                        <span class="font-display text-h4 text-[var(--color-rust-decorative,#8C3A2E)]">
+                          $
+                          {typeof item.salePrice === 'number'
+                            ? item.salePrice.toFixed(2)
+                            : item.salePrice}
+                        </span>
+                      )}
+                      {item.quantityAvailable && !isSold && (
+                        <span class="ml-auto text-xs text-[var(--color-text-tertiary)]">
+                          {item.quantityAvailable} left
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Buy button — Stripe Payment Link, no cart needed */}
+                    {isSold ? (
+                      <button
+                        type="button"
+                        disabled
+                        class="mt-s w-full cursor-not-allowed rounded-md bg-tertiary py-m text-xs font-semibold tracking-eyebrow text-foreground/40 uppercase"
+                      >
+                        {soldLabel}
+                      </button>
+                    ) : item.stripePaymentLink ? (
+                      <a
+                        href={item.stripePaymentLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="press-tactile mt-s block min-h-[44px] w-full rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] py-s text-center text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)]"
+                      >
+                        {buyLabel}
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )
+      }
     </div>
   </section>
 

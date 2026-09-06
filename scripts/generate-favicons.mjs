@@ -87,4 +87,6 @@ icoHeader.writeUInt32LE(png32.length, 14); // image size
 icoHeader.writeUInt32LE(22, 18); // image offset
 writeFileSync(join(publicDir, 'favicon.ico'), Buffer.concat([icoHeader, png32]));
 
-console.log('wrote favicon.svg, favicon.ico, manifest.webmanifest, apple-touch-icon.png, icon-192.png, icon-512.png');
+console.log(
+  'wrote favicon.svg, favicon.ico, manifest.webmanifest, apple-touch-icon.png, icon-192.png, icon-512.png',
+);

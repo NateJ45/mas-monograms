@@ -12,15 +12,17 @@ const [siteSettings, page, items] = await Promise.all([
   getAllGalleryItems(),
 ]);
 
-const title       = page?.seoTitle       ?? 'Style Gallery — MAS Monograms';
-const description = page?.seoDescription ?? 'Browse the MAS Monograms photo gallery for inspiration — see real embroidery samples across fonts, items, and color combinations.';
+const title = page?.seoTitle ?? 'Style Gallery — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Browse the MAS Monograms photo gallery for inspiration — see real embroidery samples across fonts, items, and color combinations.';
 
 // ─── Tag normalisation ──────────────────────────────────────────────────────
 // Two tags mean "appliqué" — canonicalise the accented one so it filters as
 // one. Meta tags describe the PHOTO, not the work, so they never become
 // filters (and are stripped from data-tags so they can't match anything).
 const META_TAGS = new Set(['closeup', 'customer-photo']);
-const TAG_ALIASES: Record<string, string> = { 'appliqué': 'applique' };
+const TAG_ALIASES: Record<string, string> = { appliqué: 'applique' };
 
 function normalizeTag(tag: string): string {
   return TAG_ALIASES[tag] ?? tag;
@@ -56,7 +58,7 @@ const presentTags = new Set(tagCounts.keys());
 function orderPresent(tags: string[]): string[] {
   return tags
     .filter((t) => presentTags.has(t))
-    .sort((a, b) => (tagCounts.get(b)! - tagCounts.get(a)!) || a.localeCompare(b));
+    .sort((a, b) => tagCounts.get(b)! - tagCounts.get(a)! || a.localeCompare(b));
 }
 
 function titleCase(slug: string): string {
@@ -69,8 +71,7 @@ function titleCase(slug: string): string {
 // ─── Build the rendered groups ──────────────────────────────────────────────
 type RenderGroup = { label: string; tags: string[] };
 
-const configuredGroups: Array<{ groupLabel?: string; tags?: string[] }> =
-  page?.filterGroups ?? [];
+const configuredGroups: Array<{ groupLabel?: string; tags?: string[] }> = page?.filterGroups ?? [];
 
 let renderGroups: RenderGroup[] = [];
 
@@ -98,26 +99,24 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'Style Gallery'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
-      {/* Photo → quote bridge: a visible path from browsing inspiration to
-          starting a real request, right under the intro. */}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
+      {
+        /* Photo → quote bridge: a visible path from browsing inspiration to
+          starting a real request, right under the intro. */
+      }
       <div class="mt-l flex justify-center">
-        <CtaLink
-          cta={{ label: 'Start your quote', href: '/request-a-quote' }}
-          variant="primary"
-        />
+        <CtaLink cta={{ label: 'Start your quote', href: '/request-a-quote' }} variant="primary" />
       </div>
     </div>
   </section>
@@ -125,138 +124,156 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
   {/* Gallery with client-side filter */}
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
-
-      {/* Grouped filters. On mobile the whole block collapses behind one
+      {
+        /* Grouped filters. On mobile the whole block collapses behind one
           "Filter" disclosure so photos lead on first paint; on sm+ it's
           always open. The panel is rendered `open` so it reserves layout
           height — a closed disclosure collapses to zero height even when its
           content is force-shown via CSS, which would overlap the grid. The
-          init script closes it on mobile so it collapses behind the summary. */}
-      {hasFilters && (
-        <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
-          <summary
-            class="flex sm:hidden items-center justify-center gap-xs cursor-pointer list-none text-xs uppercase tracking-eyebrow text-link px-m py-xs rounded-full border border-border w-max mx-auto mb-m select-none"
-          >
-            <span>{filterAllLabel === 'All' ? 'Filter' : filterAllLabel}</span>
-            <svg class="w-3 h-3 transition-transform group-open:rotate-180" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </summary>
-
-          <div id="gallery-filters" role="group" aria-label="Filter gallery">
-            {/* "All" reset button */}
-            <div class="flex justify-center mb-m">
-              <button
-                type="button"
-                data-filter="all"
-                class="gallery-filter active-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-primary bg-primary text-white transition-colors"
-                aria-pressed="true"
+          init script closes it on mobile so it collapses behind the summary. */
+      }
+      {
+        hasFilters && (
+          <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
+            <summary class="mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-link uppercase select-none sm:hidden">
+              <span>{filterAllLabel === 'All' ? 'Filter' : filterAllLabel}</span>
+              <svg
+                class="h-3 w-3 transition-transform group-open:rotate-180"
+                viewBox="0 0 12 12"
+                fill="none"
+                aria-hidden="true"
               >
-                {filterAllLabel}
-              </button>
-            </div>
+                <path
+                  d="M2 4l4 4 4-4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </summary>
 
-            {/* One labelled block per group */}
-            <div class="space-y-m">
-              {renderGroups.map((grp) => {
-                const visible = grp.tags.slice(0, MAX_VISIBLE);
-                const overflow = grp.tags.slice(MAX_VISIBLE);
-                return (
-                  <div class="text-center">
-                    <p class="text-[var(--color-text-tertiary)] text-xs uppercase tracking-eyebrow mb-s">{grp.label}</p>
-                    <div class="flex flex-wrap gap-s justify-center">
-                      {visible.map((tag) => (
-                        <button
-                          type="button"
-                          data-filter={tag}
-                          class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-[var(--color-text-secondary)] hover:border-primary hover:text-link transition-colors"
-                          aria-pressed="false"
-                        >
-                          {titleCase(tag)}
-                        </button>
-                      ))}
-                      {overflow.length > 0 && (
-                        <details class="more-tags group/more inline">
-                          <summary
-                            class="gallery-more-toggle inline-flex items-center text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-[var(--color-text-tertiary)] hover:border-primary hover:text-link transition-colors cursor-pointer list-none select-none"
+            <div id="gallery-filters" role="group" aria-label="Filter gallery">
+              {/* "All" reset button */}
+              <div class="mb-m flex justify-center">
+                <button
+                  type="button"
+                  data-filter="all"
+                  class="gallery-filter active-filter rounded-full border border-primary bg-primary px-m py-xs text-xs tracking-eyebrow text-white uppercase transition-colors"
+                  aria-pressed="true"
+                >
+                  {filterAllLabel}
+                </button>
+              </div>
+
+              {/* One labelled block per group */}
+              <div class="space-y-m">
+                {renderGroups.map((grp) => {
+                  const visible = grp.tags.slice(0, MAX_VISIBLE);
+                  const overflow = grp.tags.slice(MAX_VISIBLE);
+                  return (
+                    <div class="text-center">
+                      <p class="mb-s text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase">
+                        {grp.label}
+                      </p>
+                      <div class="flex flex-wrap justify-center gap-s">
+                        {visible.map((tag) => (
+                          <button
+                            type="button"
+                            data-filter={tag}
+                            class="gallery-filter rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
+                            aria-pressed="false"
                           >
-                            <span class="group-open/more:hidden">+ {overflow.length} more</span>
-                            <span class="hidden group-open/more:inline">Less</span>
-                          </summary>
-                          <span class="contents">
-                            {overflow.map((tag) => (
-                              <button
-                                type="button"
-                                data-filter={tag}
-                                class="gallery-filter text-xs uppercase tracking-eyebrow px-m py-xs rounded-full border border-border text-[var(--color-text-secondary)] hover:border-primary hover:text-link transition-colors ml-s"
-                                aria-pressed="false"
-                              >
-                                {titleCase(tag)}
-                              </button>
-                            ))}
-                          </span>
-                        </details>
-                      )}
+                            {titleCase(tag)}
+                          </button>
+                        ))}
+                        {overflow.length > 0 && (
+                          <details class="more-tags group/more inline">
+                            <summary class="gallery-more-toggle inline-flex cursor-pointer list-none items-center rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase transition-colors select-none hover:border-primary hover:text-link">
+                              <span class="group-open/more:hidden">+ {overflow.length} more</span>
+                              <span class="hidden group-open/more:inline">Less</span>
+                            </summary>
+                            <span class="contents">
+                              {overflow.map((tag) => (
+                                <button
+                                  type="button"
+                                  data-filter={tag}
+                                  class="gallery-filter ml-s rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
+                                  aria-pressed="false"
+                                >
+                                  {titleCase(tag)}
+                                </button>
+                              ))}
+                            </span>
+                          </details>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        </details>
-      )}
+          </details>
+        )
+      }
 
-      {items.length > 0 ? (
-        <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m" id="gallery-grid">
-          {(items as any[]).map((item) => (
-            <div
-              class="gallery-item group break-inside-avoid"
-              data-tags={JSON.stringify(cleanTags(item.tags))}
-            >
-              {/* Direction C imagery pass: frameless photo, quiet caption below
+      {
+        items.length > 0 ? (
+          <div class="columns-2 gap-m space-y-m sm:columns-3 lg:columns-4" id="gallery-grid">
+            {(items as any[]).map((item) => (
+              <div
+                class="gallery-item group break-inside-avoid"
+                data-tags={JSON.stringify(cleanTags(item.tags))}
+              >
+                {/* Direction C imagery pass: frameless photo, quiet caption below
                   on the page ground — the brass mat + card chrome are retired
                   (the mat treatment is reserved for the hero's pinned
                   snapshots; grids stay frameless like the reference sites). */}
-              {item.image?.asset && (
-                <div class="relative overflow-hidden rounded-xl img-zoom">
-                  <SanityImage
-                    source={item.image}
-                    width={400}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    class="w-full h-auto object-cover"
-                  />
-                  <div class="img-tint" aria-hidden="true"></div>
-                </div>
-              )}
-              {(item.relatedCategory?.name || item.relatedFont?.name) && (
-                <div class="pt-xs pb-s">
-                  {item.relatedCategory?.name && (
-                    <p class="text-xs text-[var(--color-text-secondary)]">{item.relatedCategory.name}</p>
-                  )}
-                  {item.relatedFont?.name && (
-                    <p class="text-xs text-[var(--color-text-tertiary)] italic">{item.relatedFont.name} font</p>
-                  )}
-                  {/* Per-photo quote bridge — only when we can deep-link the
+                {item.image?.asset && (
+                  <div class="img-zoom relative overflow-hidden rounded-xl">
+                    <SanityImage
+                      source={item.image}
+                      width={400}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      class="h-auto w-full object-cover"
+                    />
+                    <div class="img-tint" aria-hidden="true" />
+                  </div>
+                )}
+                {(item.relatedCategory?.name || item.relatedFont?.name) && (
+                  <div class="pt-xs pb-s">
+                    {item.relatedCategory?.name && (
+                      <p class="text-xs text-[var(--color-text-secondary)]">
+                        {item.relatedCategory.name}
+                      </p>
+                    )}
+                    {item.relatedFont?.name && (
+                      <p class="text-xs text-[var(--color-text-tertiary)] italic">
+                        {item.relatedFont.name} font
+                      </p>
+                    )}
+                    {/* Per-photo quote bridge — only when we can deep-link the
                       item type into the form. */}
-                  {item.relatedCategory?.slug?.current && (
-                    <a
-                      href={`/request-a-quote?item=${item.relatedCategory.slug.current}`}
-                      class="mt-xs inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:underline"
-                    >
-                      Request this <span aria-hidden="true">→</span>
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p class="text-center text-[var(--color-text-secondary)] py-l">
-          {page?.emptyStateMessage ?? 'Gallery photos coming soon.'}
-        </p>
-      )}
-      <div id="gallery-empty" class="hidden text-center py-l">
+                    {item.relatedCategory?.slug?.current && (
+                      <a
+                        href={`/request-a-quote?item=${item.relatedCategory.slug.current}`}
+                        class="mt-xs inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase hover:underline"
+                      >
+                        Request this <span aria-hidden="true">→</span>
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="py-l text-center text-[var(--color-text-secondary)]">
+            {page?.emptyStateMessage ?? 'Gallery photos coming soon.'}
+          </p>
+        )
+      }
+      <div id="gallery-empty" class="hidden py-l text-center">
         <p class="text-[var(--color-text-secondary)]">
           {page?.emptyStateMessage ?? 'No items match that filter.'}
         </p>
@@ -276,21 +293,30 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
 <style>
   /* Hide the default disclosure triangle on our filter summaries. */
   .gallery-filter-panel > summary::-webkit-details-marker,
-  .more-tags > summary::-webkit-details-marker { display: none; }
+  .more-tags > summary::-webkit-details-marker {
+    display: none;
+  }
   /* Smooth the fade back IN when a tile stops being filtered out (the tile is a
      plain div, so it has no default transition). The fade OUT is driven by
      `.is-filtered-out` in globals.css. */
   .gallery-item {
-    transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1),
-                transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition:
+      opacity 360ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   @media (prefers-reduced-motion: reduce) {
-    .gallery-item { transition: none; }
+    .gallery-item {
+      transition: none;
+    }
   }
   /* Keep the filter panel open on sm+ regardless of the <details> open attr. */
   @media (min-width: 640px) {
-    .gallery-filter-panel > #gallery-filters { display: block !important; }
-    .gallery-filter-panel > summary { display: none; }
+    .gallery-filter-panel > #gallery-filters {
+      display: block !important;
+    }
+    .gallery-filter-panel > summary {
+      display: none;
+    }
   }
 </style>
 

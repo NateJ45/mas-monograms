@@ -47,29 +47,50 @@ export function pathForDoc(schemaType: string, doc: any): string | null {
   const slug = doc?.slug?.current;
   switch (schemaType) {
     // ── Page singletons ─────────────────────────────────────────────────────
-    case 'homePage':          return '/';
-    case 'howItWorksPage':    return '/how-it-works';
-    case 'pricingPage':       return '/pricing';
-    case 'aboutPage':         return '/about';
-    case 'requestAQuotePage': return '/request-a-quote';
-    case 'shopIndexPage':     return '/shop-by-item';
-    case 'styleGalleryPage':  return '/style-gallery';
-    case 'fontGuidePage':     return '/font-lettering-guide';
-    case 'threadChartPage':   return '/thread-color-chart';
-    case 'clearancePage':     return '/clearance';
-    case 'thankYouPage':      return '/thank-you';
-    case 'notFoundPage':      return '/404';
+    case 'homePage':
+      return '/';
+    case 'howItWorksPage':
+      return '/how-it-works';
+    case 'pricingPage':
+      return '/pricing';
+    case 'aboutPage':
+      return '/about';
+    case 'requestAQuotePage':
+      return '/request-a-quote';
+    case 'shopIndexPage':
+      return '/shop-by-item';
+    case 'styleGalleryPage':
+      return '/style-gallery';
+    case 'fontGuidePage':
+      return '/font-lettering-guide';
+    case 'threadChartPage':
+      return '/thread-color-chart';
+    case 'clearancePage':
+      return '/clearance';
+    case 'thankYouPage':
+      return '/thank-you';
+    case 'notFoundPage':
+      return '/404';
     // ── Collections with their own route ────────────────────────────────────
-    case 'itemCategory':      return slug ? `/${slug}` : '/shop-by-item';
-    case 'legalPage':         return slug ? `/legal/${slug}` : null;
+    case 'itemCategory':
+      return slug ? `/${slug}` : '/shop-by-item';
+    case 'legalPage':
+      return slug ? `/legal/${slug}` : null;
     // ── Collections that render inside a parent page ────────────────────────
-    case 'galleryItem':       return '/style-gallery';
-    case 'font':              return '/font-lettering-guide';
-    case 'threadColor':       return '/thread-color-chart';
-    case 'pricingTier':       return '/pricing';
-    case 'clearanceItem':     return '/clearance';
-    case 'faqItem':           return '/how-it-works';
-    default:                  return null;
+    case 'galleryItem':
+      return '/style-gallery';
+    case 'font':
+      return '/font-lettering-guide';
+    case 'threadColor':
+      return '/thread-color-chart';
+    case 'pricingTier':
+      return '/pricing';
+    case 'clearanceItem':
+      return '/clearance';
+    case 'faqItem':
+      return '/how-it-works';
+    default:
+      return null;
   }
 }
 

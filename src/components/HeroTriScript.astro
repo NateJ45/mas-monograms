@@ -16,16 +16,26 @@
 <script is:inline>
   (function () {
     function initHeroTri() {
-      if (window.__heroTriTimer) { clearInterval(window.__heroTriTimer); window.__heroTriTimer = null; }
+      if (window.__heroTriTimer) {
+        clearInterval(window.__heroTriTimer);
+        window.__heroTriTimer = null;
+      }
       var frames = Array.prototype.slice.call(document.querySelectorAll('[data-hero-tri]'));
       if (!frames.length) return;
       var reduce = false;
-      try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) {}
+      try {
+        reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (_) {}
       if (reduce) return;
       var states = frames.map(function (f) {
         var slides = f.querySelectorAll('.hero-tri-slide');
         var cur = 0;
-        for (var i = 0; i < slides.length; i++) { if (slides[i].classList.contains('is-active')) { cur = i; break; } }
+        for (var i = 0; i < slides.length; i++) {
+          if (slides[i].classList.contains('is-active')) {
+            cur = i;
+            break;
+          }
+        }
         return { slides: slides, cur: cur };
       });
       var turn = 0;

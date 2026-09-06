@@ -12,7 +12,12 @@ import CtaBanner from '@/components/CtaBanner.astro';
 import CtaLink from '@/components/CtaLink.astro';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
-import { getSiteSettings, getAllItemCategories, getItemCategoryBySlug, getAllGalleryItems } from '@/lib/queries';
+import {
+  getSiteSettings,
+  getAllItemCategories,
+  getItemCategoryBySlug,
+  getAllGalleryItems,
+} from '@/lib/queries';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const categories = await getAllItemCategories();
@@ -41,18 +46,22 @@ const otherCategories = (allCategories ?? [])
   .filter((c: any) => c.slug?.current && c.slug.current !== slug)
   .map((c: any) => ({
     ...c,
-    galleryCount: allGallery.filter((item: any) => item.relatedCategory?.slug?.current === c.slug?.current).length,
+    galleryCount: allGallery.filter(
+      (item: any) => item.relatedCategory?.slug?.current === c.slug?.current,
+    ).length,
   }))
   .sort((a: any, b: any) => b.galleryCount - a.galleryCount)
   .slice(0, 3);
 
-const title       = category?.seoTitle       ?? `${category.name} Embroidery — MAS Monograms`;
-const description = category?.seoDescription ?? `Custom embroidered ${category.name?.toLowerCase() ?? 'items'} from MAS Monograms in St. Matthews, SC. Personalized gifts and monograms.`;
+const title = category?.seoTitle ?? `${category.name} Embroidery — MAS Monograms`;
+const description =
+  category?.seoDescription ??
+  `Custom embroidered ${category.name?.toLowerCase() ?? 'items'} from MAS Monograms in St. Matthews, SC. Personalized gifts and monograms.`;
 
 // Filter gallery to items related to this category
-const relatedGallery = allGallery.filter(
-  (item: any) => item.relatedCategory?.slug?.current === slug,
-).slice(0, 8);
+const relatedGallery = allGallery
+  .filter((item: any) => item.relatedCategory?.slug?.current === slug)
+  .slice(0, 8);
 
 const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset);
 
@@ -67,8 +76,13 @@ const pageSchemas = [
 ];
 ---
 
-<BaseLayout {title} {description} seoImage={category?.seoImage} {siteSettings} schemas={pageSchemas}>
-
+<BaseLayout
+  {title}
+  {description}
+  seoImage={category?.seoImage}
+  {siteSettings}
+  schemas={pageSchemas}
+>
   {/* Hero */}
   <Hero
     backgroundImages={heroImages}
@@ -81,78 +95,86 @@ const pageSchemas = [
   />
 
   {/* Trust items */}
-  {(category?.trustItems ?? []).length > 0 && (
-    <section class="bg-primary py-m">
-      <div class="mx-auto max-w-content px-m">
-        <ul class="flex flex-wrap justify-center gap-l list-none">
-          {(category.trustItems as string[]).map((item: string) => (
-            <li class="text-sm text-white/90 flex items-center gap-xs">
-              <span class="text-white/50" aria-hidden="true">✦</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  )}
+  {
+    (category?.trustItems ?? []).length > 0 && (
+      <section class="bg-primary py-m">
+        <div class="mx-auto max-w-content px-m">
+          <ul class="flex list-none flex-wrap justify-center gap-l">
+            {(category.trustItems as string[]).map((item: string) => (
+              <li class="flex items-center gap-xs text-sm text-white/90">
+                <span class="text-white/50" aria-hidden="true">
+                  ✦
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
 
   {/* Gallery — items in this category */}
-  {relatedGallery.length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <h2 class="font-display text-h2 text-foreground text-center mb-l">
-          {category.name} Gallery
-        </h2>
-        {/* Aligned grid (not a ragged masonry): uniform square tiles, up to 4
+  {
+    relatedGallery.length > 0 && (
+      <section class="py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          <h2 class="mb-l text-center font-display text-h2 text-foreground">
+            {category.name} Gallery
+          </h2>
+          {/* Aligned grid (not a ragged masonry): uniform square tiles, up to 4
             across, so the gallery reads as tidy rows rather than uneven columns. */}
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m">
-          {relatedGallery.map((item: any) => (
-            item.image?.asset && (
-              <div class="group">
-                <div class="relative aspect-square overflow-hidden rounded-xl img-zoom">
-                  <SanityImage
-                    source={item.image}
-                    width={500}
-                    height={500}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    class="w-full h-full object-cover"
-                  />
-                  <div class="img-tint" aria-hidden="true"></div>
-                </div>
-              </div>
-            )
-          ))}
-        </div>
-        {/* Photo → quote bridge: turn "I like this" into an action, with the
+          <div class="grid grid-cols-2 gap-m sm:grid-cols-3 lg:grid-cols-4">
+            {relatedGallery.map(
+              (item: any) =>
+                item.image?.asset && (
+                  <div class="group">
+                    <div class="img-zoom relative aspect-square overflow-hidden rounded-xl">
+                      <SanityImage
+                        source={item.image}
+                        width={500}
+                        height={500}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        class="h-full w-full object-cover"
+                      />
+                      <div class="img-tint" aria-hidden="true" />
+                    </div>
+                  </div>
+                ),
+            )}
+          </div>
+          {/* Photo → quote bridge: turn "I like this" into an action, with the
             item type already pre-filled on the quote form. */}
-        <div class="mt-l flex justify-center">
-          <CtaLink
-            cta={{ label: `Request something like this`, href: `/request-a-quote?item=${slug}` }}
-            variant="primary"
-          />
+          <div class="mt-l flex justify-center">
+            <CtaLink
+              cta={{ label: `Request something like this`, href: `/request-a-quote?item=${slug}` }}
+              variant="primary"
+            />
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   {/* Explore Other Items — cross-sell */}
-  {otherCategories.length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <h2 class="font-display text-h2 text-foreground text-center mb-l">
-          Explore Other Items
-        </h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-m max-w-3xl mx-auto">
-          {otherCategories.map((cat: any) => (
-            <CategoryCard name={cat.name} slug={cat.slug?.current ?? ''} cardImage={cat.cardImage} />
-          ))}
+  {
+    otherCategories.length > 0 && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          <h2 class="mb-l text-center font-display text-h2 text-foreground">Explore Other Items</h2>
+          <div class="mx-auto grid max-w-3xl grid-cols-2 gap-m sm:grid-cols-3">
+            {otherCategories.map((cat: any) => (
+              <CategoryCard
+                name={cat.name}
+                slug={cat.slug?.current ?? ''}
+                cardImage={cat.cardImage}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
-  <CtaBanner
-    ctaLabel={category?.ctaLabel ?? 'Request a Quote'}
-    ctaHref="/request-a-quote"
-  />
+  <CtaBanner ctaLabel={category?.ctaLabel ?? 'Request a Quote'} ctaHref="/request-a-quote" />
 </BaseLayout>

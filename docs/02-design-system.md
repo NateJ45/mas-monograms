@@ -18,27 +18,28 @@ editing do the work, not effects.
 
 ## Color palette (Heirloom Coast)
 
-| Token | Hex | Use |
-|---|---|---|
-| Linen | `#F4EEE3` | Default page background |
-| Paper | `#FBF8F1` | Cards, raised surfaces, and the button that sits on a dark band |
-| Sage Band | `#E4E2D3` | Alternating section band |
-| Heirloom Ink | `#26312E` | Default text and headings |
-| Heritage Indigo | `#28486B` | Primary / links / focus ring — **and a drench surface** (home hero band + bottom CTA band) |
-| Indigo Deep | `#1C3550` | Link / primary hover |
-| Claret — CTA | `#8C3A2E` | CTA button background on light surfaces; the running-stitch borders on hero photo mats |
-| Claret Deep | `#722C22` | CTA hover |
-| Brass — text | `#835A24` | Small brass-toned text (pricing figures, meta) — AA-safe on Linen |
-| Brass — decorative | `#B98A3E` | Decorative strokes / hairlines ONLY — never text on a light surface |
-| Gold — script | `#D9B15F` | The Petemoss script kicker + hairlines, **on indigo/dark backgrounds only** (≈1.6:1 on Linen) |
-| Secondary Taupe | `#5A5148` | Secondary text |
-| Tertiary | `#67614F` | Captions / muted text |
+| Token              | Hex       | Use                                                                                           |
+| ------------------ | --------- | --------------------------------------------------------------------------------------------- |
+| Linen              | `#F4EEE3` | Default page background                                                                       |
+| Paper              | `#FBF8F1` | Cards, raised surfaces, and the button that sits on a dark band                               |
+| Sage Band          | `#E4E2D3` | Alternating section band                                                                      |
+| Heirloom Ink       | `#26312E` | Default text and headings                                                                     |
+| Heritage Indigo    | `#28486B` | Primary / links / focus ring — **and a drench surface** (home hero band + bottom CTA band)    |
+| Indigo Deep        | `#1C3550` | Link / primary hover                                                                          |
+| Claret — CTA       | `#8C3A2E` | CTA button background on light surfaces; the running-stitch borders on hero photo mats        |
+| Claret Deep        | `#722C22` | CTA hover                                                                                     |
+| Brass — text       | `#835A24` | Small brass-toned text (pricing figures, meta) — AA-safe on Linen                             |
+| Brass — decorative | `#B98A3E` | Decorative strokes / hairlines ONLY — never text on a light surface                           |
+| Gold — script      | `#D9B15F` | The Petemoss script kicker + hairlines, **on indigo/dark backgrounds only** (≈1.6:1 on Linen) |
+| Secondary Taupe    | `#5A5148` | Secondary text                                                                                |
+| Tertiary           | `#67614F` | Captions / muted text                                                                         |
 
 **Two decisions worth protecting:**
-- Claret is split so it only ever backs a button on a *light* ground. On the indigo drench, buttons flip
+
+- Claret is split so it only ever backs a button on a _light_ ground. On the indigo drench, buttons flip
   to **Paper background + Ink text** (`CtaLink` handles this via its `onDark` prop) — claret-on-indigo
   vibrates and fails contrast.
-- Gold is a *dark-surface-only* accent. It disappears on Linen. Use it for the script kicker and hairlines
+- Gold is a _dark-surface-only_ accent. It disappears on Linen. Use it for the script kicker and hairlines
   when they sit on indigo, never on the light page.
 
 No dark mode anywhere. There is no `.dark` CSS, no theme toggle, and no theme-bootstrap script — a
@@ -52,11 +53,11 @@ Three families, self-hosted via `@fontsource` (no Google Fonts runtime dependenc
 **serif display (light, optical-sized) + humanist-sans body + a script face for monogram artifacts and
 one kicker per page.**
 
-| Role | Family | Notes |
-|---|---|---|
+| Role               | Family                | Notes                                                                                                                                                                                                                                              |
+| ------------------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Display / headings | **Fraunces Variable** | Loaded via the **opsz builds** (`opsz.css` + `opsz-italic.css` — the real italic cut, never synthetic oblique). Weight **440** at display sizes, **560** for h4–h6. Do NOT force 700 — hierarchy comes from size + the optical axis, not boldness. |
-| Body / UI | **Mulish Variable** | Everything that isn't a heading — body copy, labels, buttons. |
-| Script accent | **Petemoss** | Two uses only: (1) on-screen monogram artifacts (combo preview, the logo's script M) and (2) **one "script kicker" per page** at ≥2.75rem, via `src/components/ScriptKicker.astro`. Never for prose, buttons, nav, or small text. |
+| Body / UI          | **Mulish Variable**   | Everything that isn't a heading — body copy, labels, buttons.                                                                                                                                                                                      |
+| Script accent      | **Petemoss**          | Two uses only: (1) on-screen monogram artifacts (combo preview, the logo's script M) and (2) **one "script kicker" per page** at ≥2.75rem, via `src/components/ScriptKicker.astro`. Never for prose, buttons, nav, or small text.                  |
 
 **Script kicker** (`ScriptKicker.astro`) is the opening-hero eyebrow rendered in Petemoss: **Claret on
 light grounds, Gold on dark grounds**, tilted −2°, one per page. Section-level eyebrows stay tracked
@@ -70,11 +71,12 @@ caps — only the top-of-page kicker is script.
 ## Logo
 
 Hybrid system (chosen 2026-07-02 — see `docs/logo-concepts/`). Built in `src/components/Logo.astro`.
-- **Lockup ("Flourished Initial")** — an oversized Petemoss script *M* in Claret with a drawn
+
+- **Lockup ("Flourished Initial")** — an oversized Petemoss script _M_ in Claret with a drawn
   thread-swash beneath a Fraunces "MAS MONOGRAMS". Used in the header and footer.
-- **Compact mark ("Shopkeeper's Badge")** — a double indigo hoop-ring around an outlined Fraunces-700 *M*
+- **Compact mark ("Shopkeeper's Badge")** — a double indigo hoop-ring around an outlined Fraunces-700 _M_
   in Claret. Used for `<Logo mark />`, `public/favicon.svg`, and social/stamp placements. The favicon
-  set is generated by `scripts/generate-favicons.mjs` (the *M* is an outlined path — favicons can't load
+  set is generated by `scripts/generate-favicons.mjs` (the _M_ is an outlined path — favicons can't load
   webfonts).
 
 The old needle-and-thread cross (from the Thread Ledger era) is retired.

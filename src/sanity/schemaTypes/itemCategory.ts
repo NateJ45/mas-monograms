@@ -14,7 +14,13 @@ export const itemCategory = defineType({
     { name: 'content', title: 'Content', default: true },
     { name: 'seo', title: 'Google & sharing' },
   ],
-  fieldsets: [{ name: 'seo', title: 'Google & sharing — you rarely need to touch this', options: { collapsible: true, collapsed: true } }],
+  fieldsets: [
+    {
+      name: 'seo',
+      title: 'Google & sharing — you rarely need to touch this',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     defineField({
       name: 'name',
@@ -54,13 +60,19 @@ export const itemCategory = defineType({
       title: 'Top-of-page photos',
       type: 'array',
       group: 'content',
-      description: 'One to three photos for the hero. Two or more creates a slow cross-fade slideshow.',
+      description:
+        'One to three photos for the hero. Two or more creates a slow cross-fade slideshow.',
       of: [
         defineArrayMember({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'alt',
+              title: 'Photo description (helps screen readers & Google)',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
           ],
         }),
       ],
@@ -74,7 +86,12 @@ export const itemCategory = defineType({
       description: 'Thumbnail shown in the Shop by Item category grid. Square crop works best.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() }),
+        defineField({
+          name: 'alt',
+          title: 'Photo description (helps screen readers & Google)',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
       ],
       validation: (Rule) => Rule.required(),
     }),
@@ -83,7 +100,8 @@ export const itemCategory = defineType({
       title: 'Trust strip items',
       type: 'array',
       group: 'content',
-      description: 'Short reassuring lines shown in the trust strip below the hero. E.g. "Starting at $12 per piece" or "Minimum 12 pieces".',
+      description:
+        'Short reassuring lines shown in the trust strip below the hero. E.g. "Starting at $12 per piece" or "Minimum 12 pieces".',
       of: [defineArrayMember({ type: 'string' })],
       // Sensible starter lines for a new category — keep, tweak, or replace.
       initialValue: ['Hand-stitched to order', 'Local pickup or shipping'],
@@ -94,7 +112,8 @@ export const itemCategory = defineType({
       title: 'Starting price (optional)',
       type: 'string',
       group: 'content',
-      description: 'Short "from" price shown on the shop and category cards. E.g. "from $16". Leave blank to hide.',
+      description:
+        'Short "from" price shown on the shop and category cards. E.g. "from $16". Leave blank to hide.',
       validation: (Rule) => Rule.max(30),
     }),
     defineField({
@@ -129,27 +148,39 @@ export const itemCategory = defineType({
       name: 'seoTitle',
       title: 'Google & browser-tab title',
       type: 'string',
-      group: 'seo', fieldset: 'seo',
+      group: 'seo',
+      fieldset: 'seo',
       description: 'Browser tab and Google title. Aim for 50–60 characters.',
-      validation: (Rule) => Rule.max(60).warning('Over 60 characters may be cut off in search results.'),
+      validation: (Rule) =>
+        Rule.max(60).warning('Over 60 characters may be cut off in search results.'),
     }),
     defineField({
       name: 'seoDescription',
       title: 'Google search description',
       type: 'text',
       rows: 3,
-      group: 'seo', fieldset: 'seo',
+      group: 'seo',
+      fieldset: 'seo',
       description: 'Shown under the title in Google. Aim for 150–160 characters.',
-      validation: (Rule) => Rule.max(160).warning('Over 160 characters may be cut off in search results.'),
+      validation: (Rule) =>
+        Rule.max(160).warning('Over 160 characters may be cut off in search results.'),
     }),
     defineField({
       name: 'seoImage',
       title: 'Photo shown when the page is shared',
       type: 'image',
-      group: 'seo', fieldset: 'seo',
-      description: 'Image shown when this page is shared. ~1200 × 630 px. Overrides the site default.',
+      group: 'seo',
+      fieldset: 'seo',
+      description:
+        'Image shown when this page is shared. ~1200 × 630 px. Overrides the site default.',
       options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' })],
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Photo description (helps screen readers & Google)',
+          type: 'string',
+        }),
+      ],
     }),
   ],
   preview: {
@@ -161,7 +192,11 @@ export const itemCategory = defineType({
     }),
   },
   orderings: [
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
     { title: 'Name A–Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
   ],
 });

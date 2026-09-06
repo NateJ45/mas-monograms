@@ -54,14 +54,22 @@ export const legalPage = defineType({
           ],
           lists: [{ title: 'Bullet', value: 'bullet' }],
           marks: {
-            decorators: [{ title: 'Bold', value: 'strong' }, { title: 'Italic', value: 'em' }],
+            decorators: [
+              { title: 'Bold', value: 'strong' },
+              { title: 'Italic', value: 'em' },
+            ],
             annotations: [
               {
                 name: 'link',
                 type: 'object',
                 title: 'Link',
                 fields: [
-                  { name: 'href', type: 'url', title: 'URL', validation: (R) => R.uri({ scheme: ['http', 'https', 'mailto', 'tel'] }) },
+                  {
+                    name: 'href',
+                    type: 'url',
+                    title: 'URL',
+                    validation: (R) => R.uri({ scheme: ['http', 'https', 'mailto', 'tel'] }),
+                  },
                 ],
               },
             ],
@@ -79,7 +87,11 @@ export const legalPage = defineType({
     }),
   ],
   orderings: [
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
   ],
   preview: {
     select: { title: 'title', subtitle: 'slug.current' },

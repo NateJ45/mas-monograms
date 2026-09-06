@@ -24,7 +24,9 @@ export default function StudioLogo() {
       }}
     >
       <span style={{ fontStyle: 'italic', fontWeight: 500, color: '#E7B980' }}>Mas</span>
-      <span style={{ fontWeight: 600, letterSpacing: '0.14em', color: '#FBF8F1', fontSize: '0.82em' }}>
+      <span
+        style={{ fontWeight: 600, letterSpacing: '0.14em', color: '#FBF8F1', fontSize: '0.82em' }}
+      >
         MONOGRAMS
       </span>
     </span>

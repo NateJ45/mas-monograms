@@ -35,19 +35,19 @@
     // and hid from every command-line probe. Without the field, asset misses
     // invoke the Worker and Astro renders the 404 page itself.
     "directory": "./dist/client",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
   // R2 bucket for backing up quote form submissions as JSON.
   // Create first: wrangler r2 bucket create mas-monograms-quotes
   "r2_buckets": [
     {
       "binding": "QUOTE_BACKUP",
-      "bucket_name": "mas-monograms-quotes"
-    }
-  ]
+      "bucket_name": "mas-monograms-quotes",
+    },
+  ],
   // Secrets (set via: wrangler secret put SECRET_NAME) — never in this file:
   //   RESEND_API_KEY        — Resend email API key
   //   QUOTE_OWNER_EMAIL     — Mary Ann's email address

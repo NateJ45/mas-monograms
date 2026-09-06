@@ -1,15 +1,18 @@
 # MAS Monograms — Claude Project Context
 
 ## What this is
+
 Mary Ann Stone's custom embroidery studio site in St. Matthews, SC.
 Built by Nixon Creative Studio (nathanjnixon86@gmail.com · nixoncreativestudio.com) —
 this matches the live footer credit in `siteSettings.footerCredit`.
 Migrated from Squarespace 7.1 → Astro 7 + Sanity 6 + Cloudflare Workers.
 
 ## Status (current — 2026-07-03)
+
 Built and **deployed**; all content seeded into Sanity and rendering live. Design system is Heirloom
 Coast wearing the "Direction C — The Sampler" treatment (see below); the Studio has been reworked for
 Mary Ann (Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first desk).
+
 - Live site: https://mas-monograms.nathanjnixon86.workers.dev (custom domain `mas-monograms.com` pending)
 - Studio (Mary Ann's editor): **`<site>/studio`** — embedded in the site build since
   2026-08-28. The old hosted https://mas-monograms.sanity.studio still exists and is now
@@ -21,6 +24,7 @@ Mary Ann (Heirloom Coast theme + "Start Here" handbook + plain-language labels +
   env-var matrix in `docs/08-deployment-and-status.md`.
 
 ## Design system note
+
 The current visual identity is **Heirloom Coast** (rebranded 2026-07-01): Fraunces + Mulish +
 Petemoss type on a Linen/Ink/Indigo/Claret/Brass palette, wearing the **"Direction C — The Sampler"**
 treatment applied 2026-07-03 (indigo-drench hero + bottom CTA band, a gold Petemoss script kicker,
@@ -32,6 +36,7 @@ spec (`docs/superpowers/specs/2026-06-30-thread-ledger-redesign-design.md`) is r
 but no longer describes the live code.
 
 ## Stack
+
 - **Astro 7.2** — `output: 'static'` plus a handful of SSR routes, `@astrojs/cloudflare`
   adapter pinned **exactly 14.2.4**, Sharp image service, `session: false`
 - **Cloudflare Workers** — unified Pages/Workers platform, Git auto-deploy (Workers Builds),
@@ -52,34 +57,41 @@ but no longer describes the live code.
 ## Absolute rules
 
 ### Sanity-first — NO hardcoded content
+
 Every string visible on the site must come from Sanity: headings, prose,
 button labels, form labels, pricing, gallery captions, FAQ answers.
 Mary Ann must be able to edit everything without touching code.
 
 ### No dark mode
+
 The brand is warm linen/ink/indigo/claret ("Heirloom Coast"). There is no `.dark` CSS, no
 theme toggle, and no theme-bootstrap script anywhere in the codebase — this was a considered
 decision (not just an unused old rule), see `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
 Do NOT add a ThemeToggle component or reintroduce a `.dark` class.
 
 ### No Web3Forms
+
 The quote form backend is a Cloudflare Worker + Resend. Do not use Web3Forms.
 
 ### Clearance items — Stripe Payment Links only
+
 No cart, no checkout code. Each `clearanceItem` doc has a `stripePaymentLink`.
 The buy button is a plain `<a href={...}>` that links to Stripe.
 
 ### Worker secrets — never in the repo
+
 `RESEND_API_KEY`, `QUOTE_OWNER_EMAIL`, `TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN`
 are set via `wrangler secret put`. Never write them into `.env` or commit them.
 
 ## Typography
+
 The rule: **serif display (light, optical-sized) + humanist-sans body + a script face for monogram
 artifacts and ONE kicker per page.**
+
 - **Fraunces Variable** — display / headings, via the **opsz builds** (`@fontsource-variable/fraunces/opsz.css`
-  + `opsz-italic.css` — the real italic cut is loaded; never synthesize oblique). Weight is **440**
-  for display sizes and **560** for h4–h6 (set globally in `globals.css`) — do NOT force 700; the
-  Direction C decision (2026-07-03) is that hierarchy comes from size + optical axis, not boldness.
+  - `opsz-italic.css` — the real italic cut is loaded; never synthesize oblique). Weight is **440**
+    for display sizes and **560** for h4–h6 (set globally in `globals.css`) — do NOT force 700; the
+    Direction C decision (2026-07-03) is that hierarchy comes from size + optical axis, not boldness.
 - **Mulish Variable** — body / UI text (humanist sans).
 - **Petemoss** — the script face. Allowed in exactly two places: (1) on-screen monogram initials
   (the combo preview, recipe cards, and the logo's script M), and (2) **one script kicker per page**
@@ -97,21 +109,22 @@ artifacts and ONE kicker per page.**
 - **Embroidery fonts are NOT web fonts** — each `font` document has a `previewImage` field.
 
 ## Color palette (Heirloom Coast)
-| Token | Hex | Use |
-|-------|-----|-----|
-| Linen | `#F4EEE3` | page background |
-| Paper | `#FBF8F1` | raised surfaces / cards |
-| Sage band | `#E4E2D3` | alternating section band |
-| Heirloom Ink | `#26312E` | default text |
-| Heritage Indigo | `#28486B` | primary / links |
-| Indigo Deep | `#1C3550` | link / primary hover |
-| Claret — CTA | `#8C3A2E` | CTA buttons on LIGHT surfaces; running-stitch borders |
-| Claret Deep | `#722C22` | CTA hover |
-| Brass — text | `#835A24` | small brass text (AA-safe) |
-| Brass — decorative | `#B98A3E` | decorative strokes only (never text on light) |
-| Gold — script | `#D9B15F` | Petemoss kicker + hairlines ON INDIGO/DARK ONLY (≈1.6:1 on Linen) |
-| Secondary text | `#5A5148` | secondary text |
-| Tertiary text | `#67614F` | tertiary / muted text |
+
+| Token              | Hex       | Use                                                               |
+| ------------------ | --------- | ----------------------------------------------------------------- |
+| Linen              | `#F4EEE3` | page background                                                   |
+| Paper              | `#FBF8F1` | raised surfaces / cards                                           |
+| Sage band          | `#E4E2D3` | alternating section band                                          |
+| Heirloom Ink       | `#26312E` | default text                                                      |
+| Heritage Indigo    | `#28486B` | primary / links                                                   |
+| Indigo Deep        | `#1C3550` | link / primary hover                                              |
+| Claret — CTA       | `#8C3A2E` | CTA buttons on LIGHT surfaces; running-stitch borders             |
+| Claret Deep        | `#722C22` | CTA hover                                                         |
+| Brass — text       | `#835A24` | small brass text (AA-safe)                                        |
+| Brass — decorative | `#B98A3E` | decorative strokes only (never text on light)                     |
+| Gold — script      | `#D9B15F` | Petemoss kicker + hairlines ON INDIGO/DARK ONLY (≈1.6:1 on Linen) |
+| Secondary text     | `#5A5148` | secondary text                                                    |
+| Tertiary text      | `#67614F` | tertiary / muted text                                             |
 
 Direction C surface rules (2026-07-03): Heritage Indigo is also a **drench surface** (home hero band,
 bottom CTA band) with Linen/Paper type on it. On any dark surface the primary button is **paper bg +
@@ -122,25 +135,26 @@ Full rationale, contrast math, and what NOT to use these for:
 `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
 
 ## Routes
-| Page | Route | Schema |
-|------|-------|--------|
-| Home | `/` | `homePage` |
-| How It Works | `/how-it-works` | `howItWorksPage` |
-| Pricing | `/pricing` | `pricingPage` |
-| About | `/about` | `aboutPage` |
-| Request a Quote | `/request-a-quote` | `requestAQuotePage` |
-| Shop by Item | `/shop-by-item` | `shopIndexPage` |
-| Item category | `/[slug]` | `itemCategory` |
-| Style Gallery | `/style-gallery` | `styleGalleryPage` |
-| Font Guide | `/font-lettering-guide` | `fontGuidePage` |
-| Thread Chart | `/thread-color-chart` | `threadChartPage` |
-| Clearance | `/clearance` | `clearancePage` |
-| Thank You | `/thank-you` | `thankYouPage` |
-| 404 | `/404` | `notFoundPage` |
-| Studio | `/studio` | `@sanity/astro` (mounted) — the embedded Sanity Studio |
-| Draft preview | `/preview/**` | SSR draft preview for the Presentation tool. noindex, sitemap-excluded |
-| Preview stream | `/preview/live` | SSE proxy for preview auto-refresh (403 without the Studio cookie) |
-| Draft mode | `/api/draft-mode/*` | Turns draft mode on/off for the preview |
+
+| Page            | Route                   | Schema                                                                 |
+| --------------- | ----------------------- | ---------------------------------------------------------------------- |
+| Home            | `/`                     | `homePage`                                                             |
+| How It Works    | `/how-it-works`         | `howItWorksPage`                                                       |
+| Pricing         | `/pricing`              | `pricingPage`                                                          |
+| About           | `/about`                | `aboutPage`                                                            |
+| Request a Quote | `/request-a-quote`      | `requestAQuotePage`                                                    |
+| Shop by Item    | `/shop-by-item`         | `shopIndexPage`                                                        |
+| Item category   | `/[slug]`               | `itemCategory`                                                         |
+| Style Gallery   | `/style-gallery`        | `styleGalleryPage`                                                     |
+| Font Guide      | `/font-lettering-guide` | `fontGuidePage`                                                        |
+| Thread Chart    | `/thread-color-chart`   | `threadChartPage`                                                      |
+| Clearance       | `/clearance`            | `clearancePage`                                                        |
+| Thank You       | `/thank-you`            | `thankYouPage`                                                         |
+| 404             | `/404`                  | `notFoundPage`                                                         |
+| Studio          | `/studio`               | `@sanity/astro` (mounted) — the embedded Sanity Studio                 |
+| Draft preview   | `/preview/**`           | SSR draft preview for the Presentation tool. noindex, sitemap-excluded |
+| Preview stream  | `/preview/live`         | SSE proxy for preview auto-refresh (403 without the Studio cookie)     |
+| Draft mode      | `/api/draft-mode/*`     | Turns draft mode on/off for the preview                                |
 
 `/preview/**`, `/preview/live`, `/api/draft-mode/*` and `/api/quote` are the site's only
 **SSR** routes (`prerender = false`). Everything else stays statically built.
@@ -213,17 +227,17 @@ on the left drives an iframe of the site.
   stack trace. The public site builds and serves normally either way.
 
 ## Sanity query pattern
+
 ```ts
 import { sanityClient } from '@/lib/sanity';
 import type { SomePageType } from '@/sanity.types';
 
 // In Astro page (build-time, token-authenticated)
-const data = await sanityClient.fetch<SomePageType>(
-  `*[_type == "homePage"][0]`,
-);
+const data = await sanityClient.fetch<SomePageType>(`*[_type == "homePage"][0]`);
 ```
 
 ## Quote form Worker
+
 - Route: `POST /api/quote`
 - Parses `multipart/form-data` (no npm parser — uses native `Request.formData()`)
 - Validates Turnstile token server-side
@@ -233,6 +247,7 @@ const data = await sanityClient.fetch<SomePageType>(
 - On success: redirects to `/thank-you`
 
 ## Redirects (public/_redirects)
+
 ```
 /aboutcontact  /about  301
 /shop          /shop-by-item  301
@@ -240,10 +255,12 @@ const data = await sanityClient.fetch<SomePageType>(
 ```
 
 ## LocalBusiness JSON-LD
+
 Auto-injected in `<BaseLayout>` on every page using `siteSettings` data.
 Schema.org type comes from `siteSettings.businessType` field.
 
 ## Read these early
+
 - **`docs/PENDING.md`** — the authoritative registry of open patches and
   waiting-on-a-human items. Edit it in the same commit that opens or closes one.
 - **`docs/TESTING.md`** — which check covers what, and how to run each.
@@ -254,9 +271,10 @@ Schema.org type comes from `siteSettings.businessType` field.
   the starter checked out as a sibling directory) proves there is no drift.
 
 ## Project notes
+
 - `npm run typegen` must be run after any schema changes to regenerate `sanity.types.ts`.
   It runs from the **repo root** now (`sanity schema extract --force && sanity typegen
-  generate`), not from a `studio/` workspace.
+generate`), not from a `studio/` workspace.
 - **There is no separate studio dev server or deploy.** `npm run dev` serves the site at
   localhost:4321 and the Studio at **localhost:4321/studio**; deploying the site deploys the
   Studio. For CLI work (`sanity dataset`, `sanity cors`, typegen) run `npx sanity ...` from
@@ -287,13 +305,13 @@ Schema.org type comes from `siteSettings.businessType` field.
   `build` wrapper on 2026-08-28 with the Astro 7 upgrade — see gotcha 3.
 - Workflows: `ci.yml` (family test standard since 2026-09-05: a `build` job with
   install + typegen + stale-types guard + `astro check` + lint + prettier check
-  + unit tests + build + link check, and a parallel `test` job running the
-  Playwright smoke/axe/reflow suites on chromium and a WebKit iPhone),
-  `lighthouse.yml` (accessibility hard-gated at 1.0, LCP/CLS errors),
-  `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
-  on a secret/variable that is not set yet — see `docs/PENDING.md`.
-  `npm run check` is now `astro check && npm run lint` (the family shape);
-  `npm run check:full` is the old typegen + build + unit-test sweep.
+  - unit tests + build + link check, and a parallel `test` job running the
+    Playwright smoke/axe/reflow suites on chromium and a WebKit iPhone),
+    `lighthouse.yml` (accessibility hard-gated at 1.0, LCP/CLS errors),
+    `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
+    on a secret/variable that is not set yet — see `docs/PENDING.md`.
+    `npm run check` is now `astro check && npm run lint` (the family shape);
+    `npm run check:full` is the old typegen + build + unit-test sweep.
 - **Never put a `<script>` inside a JSX expression** (`{cond && (<script>...)}`).
   `prettier-plugin-astro` hands the script body to the JSX parser, where every
   `{` opens an expression, and `npm run format:check` fails on the file. Put the
@@ -307,7 +325,7 @@ Schema.org type comes from `siteSettings.businessType` field.
 ## Gotchas (each one cost real time somewhere in this family)
 
 1. **The committed `src/lib/sanity.types.ts` goes stale silently.** `npm run
-   build` does not chain typegen, so the file is committed by hand after every
+build` does not chain typegen, so the file is committed by hand after every
    schema change — and on 2026-08-27 it was already two `studioGuide` fields
    behind, on a green build. presacademy shipped types describing a schema that
    no longer existed the same way. CI now regenerates and fails on any diff. Two
@@ -323,7 +341,7 @@ Schema.org type comes from `siteSettings.businessType` field.
    respawn it), and never blanket-kill `node.exe` — the editor/agent session is
    itself node.
 3. **`scripts/with-workerd.mjs` is now WIRED** (`"build": "node
-   scripts/with-workerd.mjs astro build"`, 2026-08-28). It works around a Windows
+scripts/with-workerd.mjs astro build"`, 2026-08-28). It works around a Windows
    workerd crash that happens on Astro 7 / `@astrojs/cloudflare` 14, where
    prerendering routes through `@cloudflare/vite-plugin`: the plugin's pinned
    workerd dies instantly with `std::terminate` behind a
@@ -334,7 +352,7 @@ Schema.org type comes from `siteSettings.businessType` field.
 4. **Palette ratios in CSS comments are not a gate.** Two of this file's own
    documented ratios were wrong (gold-on-indigo was 4.67 not 4.84; error text on
    Linen 5.60 not 5.35 — that was text-tertiary's number). `src/lib/
-   theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
+theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
    the pairs under `npm test`. **Any token that becomes a focus ring or the
    visible edge of a control must be added there** with `AA_NON_TEXT`, or the one
    bug class Lighthouse cannot see stays invisible.
@@ -404,29 +422,29 @@ Schema.org type comes from `siteSettings.businessType` field.
      prerender entry point in the build output", which reads like an Astro bug and
      is really a pinned bundler. The override is gone.
 10. **`grep "errors.md#"` over the built chunks is a FALSE-POSITIVE-PRONE check.**
-   The family's one-styled-components invariant is usually written as
-   `grep -l "errors.md#" dist/client/_astro/*.js` must list ONE file. It lists TWO
-   here and always will: `polished` (a Sanity dependency) uses the same
-   `errors.md#` filename in its own error URL. The precise check is the
-   styled-components-specific path:
-   `Select-String -Path "dist\client\_astro\*.js" -Pattern "styled-components/src/utils/errors\.md#" -List`
-   which must return exactly one file. Verified 2026-08-28.
+    The family's one-styled-components invariant is usually written as
+    `grep -l "errors.md#" dist/client/_astro/*.js` must list ONE file. It lists TWO
+    here and always will: `polished` (a Sanity dependency) uses the same
+    `errors.md#` filename in its own error URL. The precise check is the
+    styled-components-specific path:
+    `Select-String -Path "dist\client\_astro\*.js" -Pattern "styled-components/src/utils/errors\.md#" -List`
+    which must return exactly one file. Verified 2026-08-28.
 11. **`wrangler deploy` must name the generated config.** Use
-   `wrangler deploy -c dist/server/wrangler.json`; a plain `wrangler deploy` reads
-   the root `wrangler.jsonc`, which knows nothing about the SSR entrypoint, and
-   every SSR route 404s. The `deploy` and `preview` scripts already do this.
-   **Cloudflare Workers Builds runs its own deploy command from the dashboard**,
-   so that setting has to be changed by hand — see `docs/PENDING.md`.
+    `wrangler deploy -c dist/server/wrangler.json`; a plain `wrangler deploy` reads
+    the root `wrangler.jsonc`, which knows nothing about the SSR entrypoint, and
+    every SSR route 404s. The `deploy` and `preview` scripts already do this.
+    **Cloudflare Workers Builds runs its own deploy command from the dashboard**,
+    so that setting has to be changed by hand — see `docs/PENDING.md`.
 12. **Never rewrite a repo file through PowerShell `Get-Content`/`Set-Content`.**
-   `Get-Content` decodes as ANSI on this machine, so a round trip turns every
-   em-dash into mojibake and the re-encode is lossy enough that it cannot be
-   undone in place. It corrupted `src/sanity/structure.ts` on 2026-08-28 and cost
-   a `git checkout` and a redo. Use the editor's own edit tooling for content
-   changes; keep PowerShell for running commands.
+    `Get-Content` decodes as ANSI on this machine, so a round trip turns every
+    em-dash into mojibake and the re-encode is lossy enough that it cannot be
+    undone in place. It corrupted `src/sanity/structure.ts` on 2026-08-28 and cost
+    a `git checkout` and a redo. Use the editor's own edit tooling for content
+    changes; keep PowerShell for running commands.
 13. **Curling a page is not verifying it.** `/studio` returns 200 with real HTML
-   while being completely broken at React mount. Anything that mounts a client
-   framework has to be opened in a real browser with the console read. A healthy
-   embedded Studio on an origin that is not yet CORS-allowed shows Sanity's own
-   "Connect this Studio to your project" screen and CORS errors in the console,
-   and **nothing else** — no styled-components error #18, no
-   "Cannot read properties of undefined (reading 'v2')".
+    while being completely broken at React mount. Anything that mounts a client
+    framework has to be opened in a real browser with the console read. A healthy
+    embedded Studio on an origin that is not yet CORS-allowed shows Sanity's own
+    "Connect this Studio to your project" screen and CORS errors in the console,
+    and **nothing else** — no styled-components error #18, no
+    "Cannot read properties of undefined (reading 'v2')".

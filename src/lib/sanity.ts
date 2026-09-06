@@ -50,24 +50,31 @@ const proc: Record<string, string | undefined> = import.meta.env.SSR
 // makes createClient throw "Datasets can only contain lowercase characters…",
 // which crashes the whole build at prerender. clean() defends against all of it.
 const clean = (v: unknown): string | undefined => {
-  const s = String(v ?? '').trim().replace(/^["']|["']$/g, '').trim();
+  const s = String(v ?? '')
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .trim();
   return s.length > 0 ? s : undefined;
 };
 
-const projectId = clean(import.meta.env.PUBLIC_SANITY_PROJECT_ID) ?? clean(proc.PUBLIC_SANITY_PROJECT_ID);
+const projectId =
+  clean(import.meta.env.PUBLIC_SANITY_PROJECT_ID) ?? clean(proc.PUBLIC_SANITY_PROJECT_ID);
 // Sanity datasets are always lowercase, so lowercasing is safe and forgives a
 // "Production"-style typo in the dashboard.
 const dataset = (
-  clean(import.meta.env.PUBLIC_SANITY_DATASET) ?? clean(proc.PUBLIC_SANITY_DATASET) ?? 'production'
+  clean(import.meta.env.PUBLIC_SANITY_DATASET) ??
+  clean(proc.PUBLIC_SANITY_DATASET) ??
+  'production'
 ).toLowerCase();
 const apiVersion =
-  clean(import.meta.env.PUBLIC_SANITY_API_VERSION) ?? clean(proc.PUBLIC_SANITY_API_VERSION) ?? '2026-05-01';
+  clean(import.meta.env.PUBLIC_SANITY_API_VERSION) ??
+  clean(proc.PUBLIC_SANITY_API_VERSION) ??
+  '2026-05-01';
 const readToken = clean(import.meta.env.SANITY_API_READ_TOKEN) ?? clean(proc.SANITY_API_READ_TOKEN);
 
 /** Returns true when no real Sanity project has been configured. */
 const PLACEHOLDER_IDS = new Set(['', 'your-project-id', 'placeholder']);
-export const isSanityUnconfigured =
-  !projectId || PLACEHOLDER_IDS.has(projectId.trim());
+export const isSanityUnconfigured = !projectId || PLACEHOLDER_IDS.has(projectId.trim());
 
 // Warnings below are scoped to server-only (build + SSR pass) so they don't
 // leak into the browser console. The Sanity client module gets imported by

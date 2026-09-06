@@ -280,9 +280,9 @@ console.log(
 
 if (failed) {
   console.log('');
-  console.log('DRIFT: reconcile before shipping. Either port the site\'s improvement');
+  console.log("DRIFT: reconcile before shipping. Either port the site's improvement");
   console.log('back into the starter (and add a PORTS.md card in the same commit), or');
-  console.log('pull the starter\'s copy forward into the site.');
+  console.log("pull the starter's copy forward into the site.");
   console.log('MISSING-IN-STARTER: the file is marked canonical but the starter has no');
   console.log('copy at that path. Install it in the starter, or fix the path.');
   process.exit(1);

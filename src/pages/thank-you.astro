@@ -5,90 +5,98 @@ import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import { getSiteSettings, getThankYouPage } from '@/lib/queries';
 
-const [siteSettings, page] = await Promise.all([
-  getSiteSettings(),
-  getThankYouPage(),
-]);
+const [siteSettings, page] = await Promise.all([getSiteSettings(), getThankYouPage()]);
 
-const title       = page?.seoTitle       ?? 'Thank You — MAS Monograms';
-const description = page?.seoDescription ?? 'Your quote request has been received. Mary Ann will be in touch soon!';
+const title = page?.seoTitle ?? 'Thank You — MAS Monograms';
+const description =
+  page?.seoDescription ?? 'Your quote request has been received. Mary Ann will be in touch soon!';
 ---
 
 <BaseLayout {title} {description} {siteSettings} noindex>
-  <section class="min-h-[70vh] py-section-lg flex items-center">
+  <section class="flex min-h-[70vh] items-center py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
-
+      <div class="grid grid-cols-1 items-center gap-section-md lg:grid-cols-2">
         {/* Text */}
         <div>
-          {page?.eyebrow && (
-            <ScriptKicker text={page.eyebrow} class="mb-xs" />
-          )}
-          <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+          {page?.eyebrow && <ScriptKicker text={page.eyebrow} class="mb-xs" />}
+          <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
             {page?.headline ?? 'Thank You!'}
           </h1>
-          {page?.body && (
-            <div class="text-[var(--color-text-secondary)] mb-l">
-              <PortableText client:idle value={page.body} />
-            </div>
-          )}
-          {page?.expectedResponseTime && (
-            <div class="bg-tertiary rounded-xl p-m mb-l">
-              <p class="text-sm text-[var(--color-text-secondary)]">
-                <strong class="text-foreground">Expected response time:</strong>{' '}
-                {page.expectedResponseTime}
-              </p>
-            </div>
-          )}
-          {(page?.nextSteps ?? []).length > 0 && (
-            <div class="mb-l">
-              <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s">What's next</p>
-              <ol class="space-y-s list-none">
-                {(page.nextSteps as string[]).map((step: string, i: number) => (
-                  <li class="flex items-start gap-m">
-                    <span class="flex-shrink-0 w-7 h-7 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span class="text-[var(--color-text-secondary)]">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )}
-          {((page?.ctaLabel && page?.ctaHref) || (page?.secondaryCtaLabel && page?.secondaryCtaHref)) && (
-            <div class="flex flex-col sm:flex-row sm:items-center gap-m">
-              {page?.ctaLabel && page?.ctaHref && (
-                <a
-                  href={page.ctaHref}
-                  class="inline-flex items-center px-l py-m rounded-md bg-primary hover:bg-primary-dark text-white text-sm uppercase tracking-eyebrow font-semibold transition-colors press-tactile"
-                >
-                  {page.ctaLabel}
-                </a>
-              )}
-              {page?.secondaryCtaLabel && page?.secondaryCtaHref && (
-                <a
-                  href={page.secondaryCtaHref}
-                  class="text-sm font-semibold text-link underline hover:text-primary-dark transition-colors"
-                >
-                  {page.secondaryCtaLabel} →
-                </a>
-              )}
-            </div>
-          )}
+          {
+            page?.body && (
+              <div class="mb-l text-[var(--color-text-secondary)]">
+                <PortableText client:idle value={page.body} />
+              </div>
+            )
+          }
+          {
+            page?.expectedResponseTime && (
+              <div class="mb-l rounded-xl bg-tertiary p-m">
+                <p class="text-sm text-[var(--color-text-secondary)]">
+                  <strong class="text-foreground">Expected response time:</strong>{' '}
+                  {page.expectedResponseTime}
+                </p>
+              </div>
+            )
+          }
+          {
+            (page?.nextSteps ?? []).length > 0 && (
+              <div class="mb-l">
+                <p class="mb-s text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                  What's next
+                </p>
+                <ol class="list-none space-y-s">
+                  {(page.nextSteps as string[]).map((step: string, i: number) => (
+                    <li class="flex items-start gap-m">
+                      <span class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
+                        {i + 1}
+                      </span>
+                      <span class="text-[var(--color-text-secondary)]">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )
+          }
+          {
+            ((page?.ctaLabel && page?.ctaHref) ||
+              (page?.secondaryCtaLabel && page?.secondaryCtaHref)) && (
+              <div class="flex flex-col gap-m sm:flex-row sm:items-center">
+                {page?.ctaLabel && page?.ctaHref && (
+                  <a
+                    href={page.ctaHref}
+                    class="press-tactile inline-flex items-center rounded-md bg-primary px-l py-m text-sm font-semibold tracking-eyebrow text-white uppercase transition-colors hover:bg-primary-dark"
+                  >
+                    {page.ctaLabel}
+                  </a>
+                )}
+                {page?.secondaryCtaLabel && page?.secondaryCtaHref && (
+                  <a
+                    href={page.secondaryCtaHref}
+                    class="text-sm font-semibold text-link underline transition-colors hover:text-primary-dark"
+                  >
+                    {page.secondaryCtaLabel} →
+                  </a>
+                )}
+              </div>
+            )
+          }
         </div>
 
         {/* Image */}
-        {page?.image?.asset && (
-          <div class="rounded-2xl overflow-hidden shadow-xl">
-            <SanityImage
-              source={page.image}
-              width={700}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              class="w-full h-auto object-cover"
-              fetchpriority="high"
-            />
-          </div>
-        )}
+        {
+          page?.image?.asset && (
+            <div class="overflow-hidden rounded-2xl shadow-xl">
+              <SanityImage
+                source={page.image}
+                width={700}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                class="h-auto w-full object-cover"
+                fetchpriority="high"
+              />
+            </div>
+          )
+        }
       </div>
     </div>
   </section>

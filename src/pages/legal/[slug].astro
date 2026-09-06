@@ -6,32 +6,33 @@ import { getSiteSettings, getAllLegalPages, getLegalPageBySlug } from '@/lib/que
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const pages = await getAllLegalPages();
-  return (pages ?? [])
-    .filter((p: any) => p.slug)
-    .map((p: any) => ({ params: { slug: p.slug } }));
+  return (pages ?? []).filter((p: any) => p.slug).map((p: any) => ({ params: { slug: p.slug } }));
 };
 
 const { slug } = Astro.params as { slug: string };
 
-const [siteSettings, page] = await Promise.all([
-  getSiteSettings(),
-  getLegalPageBySlug(slug),
-]);
+const [siteSettings, page] = await Promise.all([getSiteSettings(), getLegalPageBySlug(slug)]);
 
 const title = page?.title ? `${page.title} — MAS Monograms` : 'MAS Monograms';
 const description = page?.seoDescription ?? `${page?.title ?? 'Policy'} for MAS Monograms.`;
 const updated = page?.lastUpdated
-  ? new Date(page.lastUpdated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  ? new Date(page.lastUpdated).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
   : null;
 ---
 
 <BaseLayout {title} {description} {siteSettings}>
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-3xl px-m text-center">
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight">{page?.title}</h1>
-      {updated && (
-        <p class="text-sm text-[var(--color-text-secondary)] mt-s">Last updated {updated}</p>
-      )}
+      <h1 class="font-display text-h1 leading-headline-tight text-foreground">{page?.title}</h1>
+      {
+        updated && (
+          <p class="mt-s text-sm text-[var(--color-text-secondary)]">Last updated {updated}</p>
+        )
+      }
     </div>
   </section>
 

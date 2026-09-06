@@ -28,12 +28,15 @@ export const threadColor = defineType({
       name: 'hexColor',
       title: 'Hex color',
       type: 'string',
-      description: 'The approximate hex value for UI display. E.g. "#1a3a5c". Used for the color swatch chip in the chart.',
+      description:
+        'The approximate hex value for UI display. E.g. "#1a3a5c". Used for the color swatch chip in the chart.',
       validation: (Rule) =>
-        Rule.required().regex(/^#[0-9A-Fa-f]{6}$/, {
-          name: 'hex',
-          invert: false,
-        }).error('Must be a valid hex color like #1a3a5c.'),
+        Rule.required()
+          .regex(/^#[0-9A-Fa-f]{6}$/, {
+            name: 'hex',
+            invert: false,
+          })
+          .error('Must be a valid hex color like #1a3a5c.'),
     }),
     defineField({
       name: 'dmcNumber',
@@ -45,10 +48,15 @@ export const threadColor = defineType({
       name: 'swatchImage',
       title: 'Swatch photo (optional)',
       type: 'image',
-      description: 'A photo of the actual thread or an embroidered swatch. More accurate than the hex color for customer reference.',
+      description:
+        'A photo of the actual thread or an embroidered swatch. More accurate than the hex color for customer reference.',
       options: { hotspot: true },
       fields: [
-        defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' }),
+        defineField({
+          name: 'alt',
+          title: 'Photo description (helps screen readers & Google)',
+          type: 'string',
+        }),
       ],
     }),
     defineField({
@@ -90,8 +98,19 @@ export const threadColor = defineType({
     }),
   },
   orderings: [
-    { title: 'Color family, then order', name: 'familyOrder', by: [{ field: 'colorFamily', direction: 'asc' }, { field: 'displayOrder', direction: 'asc' }] },
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Color family, then order',
+      name: 'familyOrder',
+      by: [
+        { field: 'colorFamily', direction: 'asc' },
+        { field: 'displayOrder', direction: 'asc' },
+      ],
+    },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
     { title: 'Name A–Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
   ],
 });

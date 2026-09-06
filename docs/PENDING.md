@@ -56,6 +56,7 @@ This file tracks the things that have no other home.
   R2 `QUOTE_BACKUP` binding through, so nothing is lost by using it. **Do this
   before the next push to `main`,** or the deploy will use the root config, which
   knows nothing about the SSR entrypoint and 404s `/studio` and `/preview/**`.
+
 - **Retire the hosted Studio at mas-monograms.sanity.studio.** It is now a stale
   duplicate: `studioHost`/`deployment` are gone from `sanity.cli.ts`, so it will
   never update again while still pointing at the same production data. Delete it
@@ -100,9 +101,9 @@ This file tracks the things that have no other home.
   `scripts/.parity/*.html` holds 23 committed snapshots captured 2026-08-27 off
   a clean build. They only earn their keep if `npm run parity compare` is
   actually run after a render-neutral change. Re-capture only when a markup
-  change is *intended*, and say so in the commit message.
+  change is _intended_, and say so in the commit message.
 - **`scripts/lib/sanity-lib.mjs` is installed but unused.** Ported 2026-08-27 so
-  the *next* seed or patch script gets a dry-run gate for free instead of
+  the _next_ seed or patch script gets a dry-run gate for free instead of
   re-inventing one. The existing `scripts/*.mjs` still carry their own inline
   clients; converting them is optional and should happen one script at a time,
   when one is being touched anyway.

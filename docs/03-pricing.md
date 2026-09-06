@@ -28,21 +28,25 @@ clothing, even socks, shoe laces, and pet items."
 ## The four pricing tiers
 
 ### Basic Monogram: from $16
+
 Monogram or text starts at $16.00. Six letters or fewer is the basic cost. Seven letters or more
 adds a small charge. Typically a single-color monogram or name. This is the "from $16" anchor used
 across most category pages.
 
 ### Premium Monogram: from $18
+
 Premium features (bordered/sash styles, two-sided designs, multiple colors) start at $18.00 and go up
 with stitch count and color changes. The larger the monogram, the higher the price. This is the
 "from $18" anchor used for Jackets & Sweatshirts.
 
 ### Custom Appliqué: from about $45
+
 A one-time **setup charge of $30.00**, plus a separate stitching fee based on stitch count. The
 examples Mary Ann references (a "Merry" design on a red sweatshirt; a cupcake in the Fishtail font)
 land around $45.00 total.
 
 ### Custom Embroidery: from $16, plus a one-time $30 digitization fee
+
 Custom embroidery starts at $16.00 for roughly a 5,000-stitch design, plus a one-time **$30.00 setup
 / digitization fee**. Larger, more detailed pieces cost more: the extensive sweatshirt examples,
 which involve digitization and a high stitch count, run between **$60 and $75**.
@@ -80,6 +84,7 @@ for quoted work. The quote form's only job is to capture the request and email i
 **Clearance: Stripe Payment Links.** The live Squarespace site added a Clearance section with real
 add-to-cart checkout for pre-made stock. Astro on Cloudflare has no native cart, and standing up a
 full cart for a handful of clearance items is not worth it. Use **Stripe Payment Links**:
+
 - Each `clearanceItem` in Sanity has a `stripePaymentLink` field (a URL Mary Ann creates in her
   Stripe dashboard, no code required).
 - The "Buy now" button links straight to that Stripe-hosted checkout. Stripe handles payment, the

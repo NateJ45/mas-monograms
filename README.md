@@ -26,15 +26,15 @@ A fast, almost-no-JavaScript site (Astro pulls everything from Sanity at build t
 
 ## Stack
 
-| Layer | Tool | Notes |
-|---|---|---|
-| Framework | **Astro 6** | `output: 'static'`, `@astrojs/cloudflare` adapter, Sharp images. Ships almost no JS. |
-| CMS | **Sanity** (Studio 5 + client 7) | Project `xp3elugr`, dataset `production`. All content. |
-| Hosting | **Cloudflare Workers** | Git-connected auto-deploy via Workers Builds. |
-| Quote form | **Cloudflare Worker** (`src/pages/api/quote.ts`) | Turnstile CAPTCHA, R2 backup, Resend email, redirect to `/thank-you`. |
-| Email | **Resend** | Owner notification + customer confirmation. |
-| Clearance | **Stripe Payment Links** | One link per item; the buy button is a plain `<a>`. |
-| Styling | **Tailwind 4** | Brand tokens in `src/styles/`. |
+| Layer      | Tool                                             | Notes                                                                                |
+| ---------- | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Framework  | **Astro 6**                                      | `output: 'static'`, `@astrojs/cloudflare` adapter, Sharp images. Ships almost no JS. |
+| CMS        | **Sanity** (Studio 5 + client 7)                 | Project `xp3elugr`, dataset `production`. All content.                               |
+| Hosting    | **Cloudflare Workers**                           | Git-connected auto-deploy via Workers Builds.                                        |
+| Quote form | **Cloudflare Worker** (`src/pages/api/quote.ts`) | Turnstile CAPTCHA, R2 backup, Resend email, redirect to `/thank-you`.                |
+| Email      | **Resend**                                       | Owner notification + customer confirmation.                                          |
+| Clearance  | **Stripe Payment Links**                         | One link per item; the buy button is a plain `<a>`.                                  |
+| Styling    | **Tailwind 4**                                   | Brand tokens in `src/styles/`.                                                       |
 
 ## Running it locally
 

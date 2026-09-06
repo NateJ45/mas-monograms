@@ -29,7 +29,8 @@ export const font = defineType({
       name: 'previewImage',
       title: 'Preview image',
       type: 'image',
-      description: 'A photo or scan of this font embroidered on fabric. This IS the font — the website never loads font files.',
+      description:
+        'A photo or scan of this font embroidered on fabric. This IS the font — the website never loads font files.',
       options: { hotspot: true },
       fields: [
         defineField({
@@ -64,7 +65,8 @@ export const font = defineType({
       title: 'Description (optional)',
       type: 'text',
       rows: 2,
-      description: 'One or two sentences describing the look and feel. E.g. "Elegant thin letterforms with flowing connections. Great for formal gifts."',
+      description:
+        'One or two sentences describing the look and feel. E.g. "Elegant thin letterforms with flowing connections. Great for formal gifts."',
     }),
     defineField({
       name: 'bestFor',
@@ -98,7 +100,11 @@ export const font = defineType({
     }),
   },
   orderings: [
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
     { title: 'Name A–Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
     { title: 'Style', name: 'styleTag', by: [{ field: 'styleTag', direction: 'asc' }] },
   ],

@@ -5,7 +5,12 @@ import FaqAccordion from '@/components/FaqAccordion';
 import CtaBanner from '@/components/CtaBanner.astro';
 import PortableText from '@/components/PortableText';
 import { faqPageSchema } from '@/lib/schemas';
-import { getSiteSettings, getPricingPage, getAllPricingTiers, getFaqItemsForPricing } from '@/lib/queries';
+import {
+  getSiteSettings,
+  getPricingPage,
+  getAllPricingTiers,
+  getFaqItemsForPricing,
+} from '@/lib/queries';
 
 const [siteSettings, page, tiers, faqs] = await Promise.all([
   getSiteSettings(),
@@ -14,124 +19,138 @@ const [siteSettings, page, tiers, faqs] = await Promise.all([
   getFaqItemsForPricing(),
 ]);
 
-const title       = page?.seoTitle       ?? 'Pricing — MAS Monograms';
-const description = page?.seoDescription ?? 'Transparent embroidery pricing. Per-piece rates based on quantity, with add-on options for backing, specialty thread, and rush orders.';
+const title = page?.seoTitle ?? 'Pricing — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Transparent embroidery pricing. Per-piece rates based on quantity, with add-on options for backing, specialty thread, and rush orders.';
 
 // FAQPage rich-result schema — only emit when there are FAQs to describe.
 const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
-
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'Pricing'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
     </div>
   </section>
 
   {/* Pricing Tiers */}
-  {tiers.length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        {page?.tiersHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-s">
-            {page.tiersHeadline}
-          </h2>
-        )}
-        {page?.tiersSubhead && (
-          <p class="text-[var(--color-text-secondary)] text-center mb-l max-w-2xl mx-auto">
-            {page.tiersSubhead}
-          </p>
-        )}
-        {/* 2×2 → 4-up (not 3-col): there are four tiers, and a 3-col grid
+  {
+    tiers.length > 0 && (
+      <section class="py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          {page?.tiersHeadline && (
+            <h2 class="mb-s text-center font-display text-h2 text-foreground">
+              {page.tiersHeadline}
+            </h2>
+          )}
+          {page?.tiersSubhead && (
+            <p class="mx-auto mb-l max-w-2xl text-center text-[var(--color-text-secondary)]">
+              {page.tiersSubhead}
+            </p>
+          )}
+          {/* 2×2 → 4-up (not 3-col): there are four tiers, and a 3-col grid
             stranded the fourth card alone on its own row. */}
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-m">
-          {tiers.map((tier: any) => (
-            <div
-              class:list={[
-                'rounded-xl border p-l flex flex-col gap-s transition-shadow',
-                tier.highlighted
-                  ? 'border-primary bg-tertiary shadow-md ring-2 ring-primary'
-                  : 'border-border bg-background hover:shadow-sm',
-              ]}
-            >
-              {tier.highlighted && (
-                <span class="self-start text-xs uppercase tracking-eyebrow font-semibold text-white bg-primary px-s py-0.5 rounded-full">
-                  Most Popular
-                </span>
-              )}
-              <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)]">{tier.label}</p>
-              <p class="font-display text-h2 text-foreground leading-none">
-                <span class="text-base font-body text-[var(--color-text-secondary)]">from </span>${typeof tier.pricePerPiece === 'number' ? tier.pricePerPiece.toFixed(2) : tier.pricePerPiece}
-              </p>
-              {tier.note && <p class="text-sm text-[var(--color-text-secondary)]">{tier.note}</p>}
-            </div>
-          ))}
+          <div class="grid grid-cols-1 gap-m sm:grid-cols-2 xl:grid-cols-4">
+            {tiers.map((tier: any) => (
+              <div
+                class:list={[
+                  'flex flex-col gap-s rounded-xl border p-l transition-shadow',
+                  tier.highlighted
+                    ? 'border-primary bg-tertiary shadow-md ring-2 ring-primary'
+                    : 'border-border bg-background hover:shadow-sm',
+                ]}
+              >
+                {tier.highlighted && (
+                  <span class="self-start rounded-full bg-primary px-s py-0.5 text-xs font-semibold tracking-eyebrow text-white uppercase">
+                    Most Popular
+                  </span>
+                )}
+                <p class="text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                  {tier.label}
+                </p>
+                <p class="font-display text-h2 leading-none text-foreground">
+                  <span class="font-body text-base text-[var(--color-text-secondary)]">from </span>$
+                  {typeof tier.pricePerPiece === 'number'
+                    ? tier.pricePerPiece.toFixed(2)
+                    : tier.pricePerPiece}
+                </p>
+                {tier.note && <p class="text-sm text-[var(--color-text-secondary)]">{tier.note}</p>}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   {/* Add-ons */}
-  {(page?.addons ?? []).length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        {page?.addonsHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-l">
-            {page.addonsHeadline}
-          </h2>
-        )}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-m">
-          {(page.addons as any[]).map((addon: any) => (
-            <div class="bg-background rounded-xl border border-border p-l">
-              <p class="font-semibold text-foreground mb-xs">{addon.label}</p>
-              {addon.price && <p class="text-link font-display text-h4">{addon.price}</p>}
-              {addon.note && <p class="text-sm text-[var(--color-text-secondary)] mt-xs">{addon.note}</p>}
-            </div>
-          ))}
+  {
+    (page?.addons ?? []).length > 0 && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          {page?.addonsHeadline && (
+            <h2 class="mb-l text-center font-display text-h2 text-foreground">
+              {page.addonsHeadline}
+            </h2>
+          )}
+          <div class="grid grid-cols-1 gap-m sm:grid-cols-2 lg:grid-cols-3">
+            {(page.addons as any[]).map((addon: any) => (
+              <div class="rounded-xl border border-border bg-background p-l">
+                <p class="mb-xs font-semibold text-foreground">{addon.label}</p>
+                {addon.price && <p class="font-display text-h4 text-link">{addon.price}</p>}
+                {addon.note && (
+                  <p class="mt-xs text-sm text-[var(--color-text-secondary)]">{addon.note}</p>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   {/* Rush Orders */}
-  {(page?.rushHeadline || page?.rushBody) && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m max-w-3xl">
-        {page?.rushHeadline && (
-          <h2 class="font-display text-h2 text-foreground mb-m">{page.rushHeadline}</h2>
-        )}
-        {page?.rushBody && (
-          <PortableText client:visible value={page.rushBody} />
-        )}
-      </div>
-    </section>
-  )}
+  {
+    (page?.rushHeadline || page?.rushBody) && (
+      <section class="py-section-lg">
+        <div class="mx-auto max-w-3xl max-w-content px-m">
+          {page?.rushHeadline && (
+            <h2 class="mb-m font-display text-h2 text-foreground">{page.rushHeadline}</h2>
+          )}
+          {page?.rushBody && <PortableText client:visible value={page.rushBody} />}
+        </div>
+      </section>
+    )
+  }
 
   {/* FAQ */}
-  {faqs.length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        {page?.faqHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-l">
-            {page.faqHeadline}
-          </h2>
-        )}
-        <div>
-          <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
+  {
+    faqs.length > 0 && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          {page?.faqHeadline && (
+            <h2 class="mb-l text-center font-display text-h2 text-foreground">
+              {page.faqHeadline}
+            </h2>
+          )}
+          <div>
+            <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

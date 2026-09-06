@@ -32,9 +32,21 @@ import {
 } from '@/components/ui/sheet';
 import { telHref } from '@/lib/phone';
 
-interface SocialLink { platform?: string; url?: string; label?: string; }
-interface FlatNavLink      { kind: 'flat';     label: string; href: string; }
-interface DropdownNavGroup { kind: 'dropdown'; label: string; items: { label: string; href: string }[]; }
+interface SocialLink {
+  platform?: string;
+  url?: string;
+  label?: string;
+}
+interface FlatNavLink {
+  kind: 'flat';
+  label: string;
+  href: string;
+}
+interface DropdownNavGroup {
+  kind: 'dropdown';
+  label: string;
+  items: { label: string; href: string }[];
+}
 type NavItem = FlatNavLink | DropdownNavGroup;
 
 interface MobileNavSiteSettings {
@@ -73,10 +85,14 @@ const DESCRIPTIONS: Record<string, string> = {
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
-    case 'Instagram': return IconBrandInstagram;
-    case 'Facebook':  return IconBrandFacebook;
-    case 'Pinterest': return IconBrandPinterest;
-    default:          return IconLink;
+    case 'Instagram':
+      return IconBrandInstagram;
+    case 'Facebook':
+      return IconBrandFacebook;
+    case 'Pinterest':
+      return IconBrandPinterest;
+    default:
+      return IconLink;
   }
 }
 
@@ -86,7 +102,7 @@ export default function MobileNav({
   links,
   siteSettings,
   ctaLabel = 'Request a Quote',
-  ctaHref  = '/request-a-quote',
+  ctaHref = '/request-a-quote',
   showCta = true,
   showEmail = true,
   showSocials = true,
@@ -94,12 +110,10 @@ export default function MobileNav({
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
 
-  const tagline     = siteSettings?.tagline ?? '';
-  const email       = showEmail ? siteSettings?.email : undefined;
-  const phone       = siteSettings?.phone;
-  const socialLinks = showSocials
-    ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
-    : [];
+  const tagline = siteSettings?.tagline ?? '';
+  const email = showEmail ? siteSettings?.email : undefined;
+  const phone = siteSettings?.phone;
+  const socialLinks = showSocials ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url) : [];
 
   // Active path + which groups are expanded. Both are computed when the panel
   // opens: the path so the active row is right even after a View Transitions
@@ -140,13 +154,13 @@ export default function MobileNav({
   const delay = (ms: number): CSSProperties => ({ '--mnav-delay': `${ms}ms` }) as CSSProperties;
 
   return (
-    <div className="lg:hidden absolute right-m top-1/2 -translate-y-1/2">
+    <div className="absolute top-1/2 right-m -translate-y-1/2 lg:hidden">
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
             type="button"
             aria-label="Open menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground hover:bg-muted transition-colors"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted"
           >
             <Menu size={22} />
           </button>
@@ -160,7 +174,7 @@ export default function MobileNav({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="!w-full !max-w-full !border-0 overflow-y-auto bg-background text-foreground p-0"
+          className="!w-full !max-w-full overflow-y-auto !border-0 bg-background p-0 text-foreground"
         >
           <style>{`
             @keyframes mnav-in {
@@ -198,7 +212,7 @@ export default function MobileNav({
                 type="button"
                 onClick={close}
                 aria-label="Close menu"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground hover:text-link transition-colors"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:text-link"
               >
                 <X size={24} />
               </button>
@@ -232,7 +246,7 @@ export default function MobileNav({
                       href={item.href}
                       onClick={close}
                       aria-current={active ? 'page' : undefined}
-                      className="mnav-item group flex items-center justify-between gap-m py-3 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+                      className="mnav-item group flex items-center justify-between gap-m rounded-md py-3 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       style={rowDelay}
                     >
                       <span className="flex flex-col gap-0.5">
@@ -245,7 +259,9 @@ export default function MobileNav({
                           {item.label}
                         </span>
                         {desc && (
-                          <span className="font-body text-xs text-[var(--color-text-secondary)]">{desc}</span>
+                          <span className="font-body text-xs text-[var(--color-text-secondary)]">
+                            {desc}
+                          </span>
                         )}
                       </span>
                       <span
@@ -274,7 +290,7 @@ export default function MobileNav({
                       onClick={() => toggleGroup(item.label)}
                       aria-expanded={groupOpen}
                       aria-controls={panelId}
-                      className="group flex w-full items-center justify-between gap-m py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+                      className="group flex w-full items-center justify-between gap-m rounded-md py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     >
                       <span
                         className={
@@ -311,7 +327,7 @@ export default function MobileNav({
                                 href={sub.href}
                                 onClick={close}
                                 aria-current={active ? 'page' : undefined}
-                                className="group flex items-center justify-between gap-m py-2 pl-s no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+                                className="group flex items-center justify-between gap-m rounded-md py-2 pl-s no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                               >
                                 <span
                                   className={
@@ -350,7 +366,7 @@ export default function MobileNav({
                 <a
                   href={ctaHref}
                   onClick={close}
-                  className="block w-full min-h-[44px] px-m py-s text-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] text-white text-xs uppercase tracking-[0.18em] font-semibold hover:bg-[var(--color-rust-cta-hover,#722C22)] transition-colors"
+                  className="block min-h-[44px] w-full rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] px-m py-s text-center text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)]"
                 >
                   {ctaLabel}
                 </a>
@@ -359,18 +375,15 @@ export default function MobileNav({
 
             {/* Get in touch — pinned to the bottom via mt-auto when the menu is
                 shorter than the viewport; scrolls naturally when it isn't. */}
-            <div
-              className="mnav-item mt-auto pt-l"
-              style={delay(140 + links.length * 45 + 100)}
-            >
-              <p className="text-xs uppercase tracking-eyebrow text-[var(--color-text-tertiary)]">
+            <div className="mnav-item mt-auto pt-l" style={delay(140 + links.length * 45 + 100)}>
+              <p className="text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase">
                 Get in touch
               </p>
               <div className="mt-s flex flex-col gap-1">
                 {email && (
                   <a
                     href={`mailto:${email}`}
-                    className="inline-flex min-h-11 w-fit items-center text-sm text-link hover:underline hover:underline-offset-2 transition-colors"
+                    className="inline-flex min-h-11 w-fit items-center text-sm text-link transition-colors hover:underline hover:underline-offset-2"
                   >
                     {email}
                   </a>
@@ -378,7 +391,7 @@ export default function MobileNav({
                 {phone && (
                   <a
                     href={telHref(phone)}
-                    className="inline-flex min-h-11 w-fit items-center text-sm text-link hover:underline hover:underline-offset-2 transition-colors"
+                    className="inline-flex min-h-11 w-fit items-center text-sm text-link transition-colors hover:underline hover:underline-offset-2"
                   >
                     {phone}
                   </a>
@@ -395,7 +408,7 @@ export default function MobileNav({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={link.label ?? link.platform ?? 'Social link'}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border-soft text-foreground hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border-soft text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-white"
                       >
                         <Icon size={20} stroke={1.5} />
                       </a>

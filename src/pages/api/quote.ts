@@ -51,7 +51,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: env.TURNSTILE_SECRET_KEY, response: token }),
     });
-    const tsBody = await tsRes.json() as { success: boolean };
+    const tsBody = (await tsRes.json()) as { success: boolean };
     if (!tsBody.success) return jsonError('CAPTCHA verification failed', 400);
   }
 
@@ -59,20 +59,28 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   // NOTE: the select fields carry a "Recommend for me" / "Not sure" option that
   // is a VALID submitted value — we only reject the empty placeholder (""), so a
   // simple non-empty check is exactly right here.
-  const itemType        = (formData.get('itemType')        as string | null)?.trim() ?? '';
-  const ownership       = (formData.get('ownership')       as string | null)?.trim() ?? '';
+  const itemType = (formData.get('itemType') as string | null)?.trim() ?? '';
+  const ownership = (formData.get('ownership') as string | null)?.trim() ?? '';
   const personalization = (formData.get('personalization') as string | null)?.trim() ?? '';
-  const monogramStyle   = (formData.get('monogramStyle')   as string | null)?.trim() ?? '';
-  const placement       = (formData.get('placement')       as string | null)?.trim() ?? '';
-  const size            = (formData.get('size')            as string | null)?.trim() ?? '';
-  const threadCount     = (formData.get('threadCount')     as string | null)?.trim() ?? '';
-  const name            = (formData.get('name')            as string | null)?.trim() ?? '';
-  const email           = (formData.get('email')           as string | null)?.trim() ?? '';
-  const phone           = (formData.get('phone')           as string | null)?.trim() ?? '';
+  const monogramStyle = (formData.get('monogramStyle') as string | null)?.trim() ?? '';
+  const placement = (formData.get('placement') as string | null)?.trim() ?? '';
+  const size = (formData.get('size') as string | null)?.trim() ?? '';
+  const threadCount = (formData.get('threadCount') as string | null)?.trim() ?? '';
+  const name = (formData.get('name') as string | null)?.trim() ?? '';
+  const email = (formData.get('email') as string | null)?.trim() ?? '';
+  const phone = (formData.get('phone') as string | null)?.trim() ?? '';
 
   if (
-    !itemType || !ownership || !personalization || !monogramStyle ||
-    !placement || !size || !threadCount || !name || !email || !phone
+    !itemType ||
+    !ownership ||
+    !personalization ||
+    !monogramStyle ||
+    !placement ||
+    !size ||
+    !threadCount ||
+    !name ||
+    !email ||
+    !phone
   ) {
     return jsonError('Required fields are missing', 400);
   }
@@ -82,15 +90,15 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
 
   // ── 3. Collect optional fields ────────────────────────────────────────────
   const itemDescription = (formData.get('itemDescription') as string | null)?.trim() ?? '';
-  const quantity        = (formData.get('quantity')        as string | null)?.trim() ?? '';
-  const fontPreference  = (formData.get('fontPreference')  as string | null)?.trim() ?? '';
-  const threadColor     = (formData.get('threadColor')     as string | null)?.trim() ?? '';
-  const neededBy        = (formData.get('neededBy')        as string | null)?.trim() ?? '';
-  const rush            = (formData.get('rush')            as string | null)?.trim() ?? '';
-  const isGift          = (formData.get('isGift')          as string | null)?.trim() ?? 'no';
-  const referral        = (formData.get('referral')        as string | null)?.trim() ?? '';
-  const notes           = (formData.get('notes')           as string | null)?.trim() ?? '';
-  const isRush          = rush === 'yes';
+  const quantity = (formData.get('quantity') as string | null)?.trim() ?? '';
+  const fontPreference = (formData.get('fontPreference') as string | null)?.trim() ?? '';
+  const threadColor = (formData.get('threadColor') as string | null)?.trim() ?? '';
+  const neededBy = (formData.get('neededBy') as string | null)?.trim() ?? '';
+  const rush = (formData.get('rush') as string | null)?.trim() ?? '';
+  const isGift = (formData.get('isGift') as string | null)?.trim() ?? 'no';
+  const referral = (formData.get('referral') as string | null)?.trim() ?? '';
+  const notes = (formData.get('notes') as string | null)?.trim() ?? '';
+  const isRush = rush === 'yes';
 
   // ── 4. Validate file attachments ──────────────────────────────────────────
   const rawFiles = formData.getAll('attachments') as File[];
@@ -98,7 +106,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
 
   for (const file of attachments) {
     if (file.size > MAX_FILE_SIZE) return jsonError(`File "${file.name}" exceeds 5 MB`, 400);
-    if (!ALLOWED_MIME.has(file.type)) return jsonError(`File "${file.name}" has unsupported type`, 400);
+    if (!ALLOWED_MIME.has(file.type))
+      return jsonError(`File "${file.name}" has unsupported type`, 400);
   }
 
   // ── 5. Backup to R2 ───────────────────────────────────────────────────────
@@ -107,14 +116,28 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     id: submissionId,
     submittedAt: new Date().toISOString(),
     // Contact
-    name, email, phone, referral,
+    name,
+    email,
+    phone,
+    referral,
     // Item
-    itemType, ownership, itemDescription, quantity,
+    itemType,
+    ownership,
+    itemDescription,
+    quantity,
     // Monogram spec
-    personalization, monogramStyle, placement, size,
-    threadCount, fontPreference, threadColor,
+    personalization,
+    monogramStyle,
+    placement,
+    size,
+    threadCount,
+    fontPreference,
+    threadColor,
     // Logistics
-    neededBy, rush: isRush, isGift, notes,
+    neededBy,
+    rush: isRush,
+    isGift,
+    notes,
     attachmentNames: attachments.map((f) => f.name),
   };
 
@@ -127,11 +150,9 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       );
       for (const file of attachments) {
         const buf = await file.arrayBuffer();
-        await env.QUOTE_BACKUP.put(
-          `submissions/${submissionId}/attachments/${file.name}`,
-          buf,
-          { httpMetadata: { contentType: file.type } },
-        );
+        await env.QUOTE_BACKUP.put(`submissions/${submissionId}/attachments/${file.name}`, buf, {
+          httpMetadata: { contentType: file.type },
+        });
       }
     } catch (err) {
       console.error('R2 backup failed (non-fatal):', err);
@@ -148,23 +169,23 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   // into email HTML must be escaped to prevent HTML/attribute injection into
   // Mary Ann's (and the customer's) inbox. escapeHtml() handles the raw fields;
   // multi-line fields escape FIRST, then swap newlines for <br/>.
-  const eName            = escapeHtml(name);
-  const eEmail           = escapeHtml(email);
-  const ePhone           = escapeHtml(phone);
-  const eReferral        = escapeHtml(referral);
-  const eItemType        = escapeHtml(itemType);
-  const eOwnership       = escapeHtml(ownership);
+  const eName = escapeHtml(name);
+  const eEmail = escapeHtml(email);
+  const ePhone = escapeHtml(phone);
+  const eReferral = escapeHtml(referral);
+  const eItemType = escapeHtml(itemType);
+  const eOwnership = escapeHtml(ownership);
   const eItemDescription = escapeHtml(itemDescription);
-  const eQuantity        = escapeHtml(quantity);
-  const eMonogramStyle   = escapeHtml(monogramStyle);
-  const ePlacement       = escapeHtml(placement);
-  const eSize            = escapeHtml(size);
-  const eThreadCount     = escapeHtml(threadCount);
-  const eFontPreference  = escapeHtml(fontPreference);
-  const eThreadColor     = escapeHtml(threadColor);
-  const eNeededBy        = escapeHtml(neededBy);
+  const eQuantity = escapeHtml(quantity);
+  const eMonogramStyle = escapeHtml(monogramStyle);
+  const ePlacement = escapeHtml(placement);
+  const eSize = escapeHtml(size);
+  const eThreadCount = escapeHtml(threadCount);
+  const eFontPreference = escapeHtml(fontPreference);
+  const eThreadColor = escapeHtml(threadColor);
+  const eNeededBy = escapeHtml(neededBy);
   const ePersonalization = escapeHtml(personalization);
-  const eNotes           = escapeHtml(notes);
+  const eNotes = escapeHtml(notes);
 
   const attachmentRows = attachments.length
     ? `<p><strong>Attachments:</strong> ${attachments.map((f) => escapeHtml(f.name)).join(', ')}</p>`

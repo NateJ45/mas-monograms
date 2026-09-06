@@ -28,7 +28,10 @@ const k = () => `k${(_k++).toString(36)}`;
 /** One PT block. `marks` applies to the whole paragraph (e.g. ['em']). */
 function block(text, marks = []) {
   return {
-    _type: 'block', _key: k(), style: 'normal', markDefs: [],
+    _type: 'block',
+    _key: k(),
+    style: 'normal',
+    markDefs: [],
     children: [{ _type: 'span', _key: k(), text, marks }],
   };
 }
@@ -49,18 +52,21 @@ const add = (d) => docs.push(d);
 // ═══════════════════════════════════════════════════════════════════════════
 
 add({
-  _id: 'siteSettings', _type: 'siteSettings',
+  _id: 'siteSettings',
+  _type: 'siteSettings',
   title: 'MAS Monograms',
   tagline: 'Hand-stitched monograms and embroidery, made locally in St. Matthews, SC.',
   email: 'owner@example.com',
   phone: '(000) 000-0000',
   address: { street: '', city: 'St. Matthews', state: 'SC', zip: '' },
-  serviceArea: 'St. Matthews and the surrounding Calhoun County area, with shipping available nationwide.',
+  serviceArea:
+    'St. Matthews and the surrounding Calhoun County area, with shipping available nationwide.',
   navItems: keyed([
     { _type: 'navLink', label: 'Home', href: '/' },
     { _type: 'navLink', label: 'About', href: '/about' },
     {
-      _type: 'navGroup', label: 'Shop by Item',
+      _type: 'navGroup',
+      label: 'Shop by Item',
       links: keyed([
         { label: 'Tote Bags & Pouches', href: '/tote-bags' },
         { label: 'Towels & Linens', href: '/towels-linens' },
@@ -73,7 +79,8 @@ add({
       ]),
     },
     {
-      _type: 'navGroup', label: 'Inspiration',
+      _type: 'navGroup',
+      label: 'Inspiration',
       links: keyed([
         { label: 'Style Gallery', href: '/style-gallery' },
         { label: 'Font & Lettering Guide', href: '/font-lettering-guide' },
@@ -139,7 +146,8 @@ add({
 });
 
 add({
-  _id: 'homePage', _type: 'homePage',
+  _id: 'homePage',
+  _type: 'homePage',
   seoTitle: 'MAS Monograms — Custom Embroidery in St. Matthews, SC',
   seoDescription:
     'Hand-stitched monograms on towels, totes, hats, sweatshirts, baby gifts, and more. Free quotes, 1 business day reply. Made locally in St. Matthews, SC.',
@@ -152,10 +160,15 @@ add({
   heroPrimaryCtaHref: '/request-a-quote',
   heroSecondaryCtaLabel: 'Browse by Item',
   heroSecondaryCtaHref: '/shop-by-item',
-  trustItems: ['No payment to request a quote', 'Reply within 1 business day', 'Local, home-based studio'],
+  trustItems: [
+    'No payment to request a quote',
+    'Reply within 1 business day',
+    'Local, home-based studio',
+  ],
   categoriesEyebrow: 'Shop by Item',
   categoriesHeadline: 'Choose a category to get started',
-  categoriesSubhead: 'Every item is hand-stitched to order. Pick a category to see real work and starting prices.',
+  categoriesSubhead:
+    'Every item is hand-stitched to order. Pick a category to see real work and starting prices.',
   categoriesCtaLabel: 'View all items',
   categoriesCtaHref: '/shop-by-item',
   aboutEyebrow: 'Meet the maker',
@@ -191,7 +204,8 @@ add({
 });
 
 add({
-  _id: 'howItWorksPage', _type: 'howItWorksPage',
+  _id: 'howItWorksPage',
+  _type: 'howItWorksPage',
   seoTitle: 'How It Works — MAS Monograms',
   seoDescription:
     'No cart, no checkout, no guessing. See exactly how custom monogram ordering works, from a free quote to your finished, hand-stitched item.',
@@ -203,20 +217,32 @@ add({
   stepsHeadline: 'Four simple steps',
   steps: keyed([
     {
-      number: '01', label: 'Browse & get inspired',
-      body: pt('Start by exploring my item categories. Each page shows real photos of finished work, popular font and thread combinations, and pricing ranges so you know what to expect before you ever fill out a form.'),
+      number: '01',
+      label: 'Browse & get inspired',
+      body: pt(
+        'Start by exploring my item categories. Each page shows real photos of finished work, popular font and thread combinations, and pricing ranges so you know what to expect before you ever fill out a form.',
+      ),
     },
     {
-      number: '02', label: 'Fill out the quote form',
-      body: pt('My quote form walks you through everything I need to give you an accurate price: item type, letters, font style, thread color, placement, quantity, and your timeline. It takes about 2 minutes. No payment required at this stage.'),
+      number: '02',
+      label: 'Fill out the quote form',
+      body: pt(
+        'My quote form walks you through everything I need to give you an accurate price: item type, letters, font style, thread color, placement, quantity, and your timeline. It takes about 2 minutes. No payment required at this stage.',
+      ),
     },
     {
-      number: '03', label: 'Receive your custom quote',
-      body: pt('I’ll review your request and send a custom invoice to your email within 1 business day. The price is based on your specific item, stitch count, and any complexity. No surprises, what you see is what you pay.'),
+      number: '03',
+      label: 'Receive your custom quote',
+      body: pt(
+        'I’ll review your request and send a custom invoice to your email within 1 business day. The price is based on your specific item, stitch count, and any complexity. No surprises, what you see is what you pay.',
+      ),
     },
     {
-      number: '04', label: 'Approve & I get to stitching',
-      body: pt('Once you approve the quote and complete payment, I get to work. I’ll keep you updated along the way and reach out if I have any questions before I stitch. When it’s done, I’ll arrange pickup or shipping, whatever works best for you.'),
+      number: '04',
+      label: 'Approve & I get to stitching',
+      body: pt(
+        'Once you approve the quote and complete payment, I get to work. I’ll keep you updated along the way and reach out if I have any questions before I stitch. When it’s done, I’ll arrange pickup or shipping, whatever works best for you.',
+      ),
     },
   ]),
   faqEyebrow: 'Common questions',
@@ -230,7 +256,8 @@ add({
 });
 
 add({
-  _id: 'pricingPage', _type: 'pricingPage',
+  _id: 'pricingPage',
+  _type: 'pricingPage',
   seoTitle: 'Pricing — MAS Monograms',
   seoDescription:
     'Transparent monogram and embroidery pricing. Starting prices by complexity, with add-ons for appliqué, custom digitizing, and rush orders. No surprises.',
@@ -242,16 +269,41 @@ add({
   tiersHeadline: 'Starting prices',
   tiersSubhead:
     'These are starting prices. The exact cost depends on your item, stitch count, letter count, and complexity, and is always confirmed in your quote before anything is charged.',
-  tiersNote: "Prices do not include the cost of the garment or item unless you're bringing your own.",
+  tiersNote:
+    "Prices do not include the cost of the garment or item unless you're bringing your own.",
   addonsEyebrow: 'What affects your price',
   addonsHeadline: 'Add-ons and modifiers',
   addons: keyed([
-    { label: 'Names of 7+ letters', price: 'small add-on', note: 'A small charge on top of the base price.' },
-    { label: 'Jackets & sweatshirts', price: 'from $18', note: 'Premium tier for bordered, appliqué, or bold collegiate lettering.' },
-    { label: 'Custom appliqué', price: 'from $45', note: 'Includes a one-time $30 setup charge plus a stitching fee by stitch count.' },
-    { label: 'Custom digitizing', price: '+$30 one-time', note: 'A one-time fee to digitize custom artwork, plus stitching from $16.' },
-    { label: 'Rush turnaround', price: 'case by case', note: "Available and priced per order. Flag it in your quote request." },
-    { label: 'Shipping', price: 'added to quote', note: 'Available nationwide. Default is local pickup in St. Matthews, SC.' },
+    {
+      label: 'Names of 7+ letters',
+      price: 'small add-on',
+      note: 'A small charge on top of the base price.',
+    },
+    {
+      label: 'Jackets & sweatshirts',
+      price: 'from $18',
+      note: 'Premium tier for bordered, appliqué, or bold collegiate lettering.',
+    },
+    {
+      label: 'Custom appliqué',
+      price: 'from $45',
+      note: 'Includes a one-time $30 setup charge plus a stitching fee by stitch count.',
+    },
+    {
+      label: 'Custom digitizing',
+      price: '+$30 one-time',
+      note: 'A one-time fee to digitize custom artwork, plus stitching from $16.',
+    },
+    {
+      label: 'Rush turnaround',
+      price: 'case by case',
+      note: 'Available and priced per order. Flag it in your quote request.',
+    },
+    {
+      label: 'Shipping',
+      price: 'added to quote',
+      note: 'Available nationwide. Default is local pickup in St. Matthews, SC.',
+    },
   ]),
   rushHeadline: 'Need it fast?',
   rushBody: pt(
@@ -268,7 +320,8 @@ add({
 });
 
 add({
-  _id: 'aboutPage', _type: 'aboutPage',
+  _id: 'aboutPage',
+  _type: 'aboutPage',
   seoTitle: 'About Mary Ann — MAS Monograms',
   seoDescription:
     'MAS Monograms is a one-woman home embroidery studio in St. Matthews, SC. Meet Mary Ann Stone, the person behind every hand-stitched order.',
@@ -281,7 +334,10 @@ add({
   storyContent: pt(
     'MAS Monograms started the way most good things do, as a creative outlet that quietly turned into something bigger. I’ve been doing embroidery for the last three years, and what started as a challenge has become one of my favorite things. There’s something deeply satisfying about taking a blank item and turning it into something personal and lasting.',
     'I run this business out of my home in St. Matthews, SC. That means every order comes directly to me, there’s no team, no warehouse, and no assembly line. When you reach out, you’re talking to the person who will actually stitch your item.',
-    ['“No task is too great, and I really mean that. If you have an idea you’re not sure about, just ask. That’s my favorite kind of conversation.”', ['em']],
+    [
+      '“No task is too great, and I really mean that. If you have an idea you’re not sure about, just ask. That’s my favorite kind of conversation.”',
+      ['em'],
+    ],
     'I work with blankets, towels, clothing, totes, hats, baby items, home goods, even socks and shoe laces. Beyond embroidery, I also do card making and basic sewing, and I’m always exploring new crafts.',
   ),
   makerAttribution: 'Mary Ann Stone · Founder, MAS Monograms',
@@ -289,22 +345,42 @@ add({
   valuesEyebrow: 'Why customers come back',
   valuesHeadline: 'What makes MAS Monograms different',
   values: keyed([
-    { label: 'One person, every order', body: 'You deal directly with me, no customer service queues, no middlemen. Your message goes straight to the person stitching your item.' },
-    { label: 'Personal guidance included', body: 'Not sure what font or thread to pick? Just say so. Helping you figure out what you actually want is one of the best parts of the job.' },
-    { label: 'Local & accessible', body: 'Based in St. Matthews, SC. Local pickup is always available, and the pricing reflects a home studio, not a commercial retailer.' },
-    { label: 'Gift-ready thinking', body: "A lot of orders are gifts. Tight timelines, specific occasions, handwritten note requests, I'm used to making it work." },
-    { label: 'Price before payment, always', body: 'Every order starts with a free custom quote. You approve the price before anything is stitched or charged. No surprises.' },
-    { label: 'Bring what you have', body: "You don't have to buy from me. If you have an item you love and want monogrammed, bring it in. Most fabric items work just fine." },
+    {
+      label: 'One person, every order',
+      body: 'You deal directly with me, no customer service queues, no middlemen. Your message goes straight to the person stitching your item.',
+    },
+    {
+      label: 'Personal guidance included',
+      body: 'Not sure what font or thread to pick? Just say so. Helping you figure out what you actually want is one of the best parts of the job.',
+    },
+    {
+      label: 'Local & accessible',
+      body: 'Based in St. Matthews, SC. Local pickup is always available, and the pricing reflects a home studio, not a commercial retailer.',
+    },
+    {
+      label: 'Gift-ready thinking',
+      body: "A lot of orders are gifts. Tight timelines, specific occasions, handwritten note requests, I'm used to making it work.",
+    },
+    {
+      label: 'Price before payment, always',
+      body: 'Every order starts with a free custom quote. You approve the price before anything is stitched or charged. No surprises.',
+    },
+    {
+      label: 'Bring what you have',
+      body: "You don't have to buy from me. If you have an item you love and want monogrammed, bring it in. Most fabric items work just fine.",
+    },
   ]),
   ctaEyebrow: "Let's make something",
   ctaHeadline: 'Ready to make something personal?',
-  ctaSubhead: "Requesting a quote is free and takes about 2 minutes. I'll reply within 1 business day.",
+  ctaSubhead:
+    "Requesting a quote is free and takes about 2 minutes. I'll reply within 1 business day.",
   ctaLabel: 'Request a Quote',
   ctaHref: '/request-a-quote',
 });
 
 add({
-  _id: 'requestAQuotePage', _type: 'requestAQuotePage',
+  _id: 'requestAQuotePage',
+  _type: 'requestAQuotePage',
   seoTitle: 'Request a Quote — MAS Monograms',
   seoDescription:
     "Request a free custom embroidery quote. Tell me what you'd like monogrammed and I'll send your price within 1 business day. No payment to ask.",
@@ -317,15 +393,19 @@ add({
     "The more detail you can share, the more accurate your quote. Not sure about something? Leave it blank or just say 'recommend for me,' that's genuinely one of my favorite things to help with.",
   turnaroundCallout: 'I reply to every request within 1 business day.',
   requiredFieldNote: 'Fields marked * are required.',
-  nameLabel: 'Your name', namePlaceholder: 'Jane Smith',
-  emailLabel: 'Email address', emailPlaceholder: 'you@example.com',
+  nameLabel: 'Your name',
+  namePlaceholder: 'Jane Smith',
+  emailLabel: 'Email address',
+  emailPlaceholder: 'you@example.com',
   emailHelp: "I'll send your quote to this address.",
-  phoneLabel: 'Phone number (optional)', phonePlaceholder: '(803) 555-1234',
+  phoneLabel: 'Phone number (optional)',
+  phonePlaceholder: '(803) 555-1234',
   phoneHelp: 'Optional. Only used if I have a quick follow-up question.',
   itemTypeLabel: 'What would you like embroidered?',
   itemTypeHelp: 'Select the closest match. You can add details in the notes below.',
   itemTypeOtherLabel: 'Something else / not listed',
-  quantityLabel: 'Quantity', quantityPlaceholder: 'e.g. 1',
+  quantityLabel: 'Quantity',
+  quantityPlaceholder: 'e.g. 1',
   quantityHelp: 'How many pieces? Most orders have no minimum.',
   monogramDetailsLabel: 'Letters, name, or text',
   monogramDetailsPlaceholder: 'e.g. Three-letter monogram: F J L (last initial in the center)',
@@ -333,9 +413,11 @@ add({
     "Include the letters or text and the format if you know it (single initial, three-letter monogram, full name, custom phrase). Not sure? Write 'recommend for me.'",
   placementLabel: 'Embroidery placement',
   placementPlaceholder: 'e.g. Left chest, center, cuff, hat front, corner',
-  placementHelp: "Where on the item would you like the embroidery? Not sure? Just say 'recommend for me.'",
+  placementHelp:
+    "Where on the item would you like the embroidery? Not sure? Just say 'recommend for me.'",
   fontPreferenceLabel: 'Font preference (optional)',
-  fontPreferenceHelp: "Browse the Font & Lettering Guide for examples. Not sure? Leave it blank and I'll suggest options.",
+  fontPreferenceHelp:
+    "Browse the Font & Lettering Guide for examples. Not sure? Leave it blank and I'll suggest options.",
   fontPreferenceGuideLinkLabel: 'Browse the font guide',
   colorPreferenceLabel: 'Thread color preference (optional)',
   colorPreferencePlaceholder: "e.g. Navy, blush, or 'recommend for me'",
@@ -343,18 +425,27 @@ add({
     "Browse the Thread Color Chart for specific colors, or describe what you have in mind and I'll match it as closely as I can.",
   colorPreferenceChartLinkLabel: 'Browse the thread color chart',
   fileUploadLabel: 'Reference photos (optional)',
-  fileUploadHelp: 'Upload photos of your item or any inspiration images. Accepted formats: JPG, PNG, WEBP, PDF.',
+  fileUploadHelp:
+    'Upload photos of your item or any inspiration images. Accepted formats: JPG, PNG, WEBP, PDF.',
   fileUploadAcceptedTypes: 'JPG, PNG, WEBP, PDF · 10 MB max per file · 5 files max',
   rushLabel: 'I need this by a specific date',
-  rushHelp: "Rush orders are often possible for an additional fee. I'll confirm the timeline and cost in your quote.",
+  rushHelp:
+    "Rush orders are often possible for an additional fee. I'll confirm the timeline and cost in your quote.",
   neededByLabel: 'Needed by',
-  neededByHelp: "I'll do my best to meet your deadline. Earlier notice means a better chance of availability.",
+  neededByHelp:
+    "I'll do my best to meet your deadline. Earlier notice means a better chance of availability.",
   specialInstructionsLabel: 'Anything else?',
-  specialInstructionsPlaceholder: 'Special requests, the occasion, gift notes, questions, anything at all.',
+  specialInstructionsPlaceholder:
+    'Special requests, the occasion, gift notes, questions, anything at all.',
   referralLabel: 'How did you hear about MAS Monograms? (optional)',
   referralOptions: [
-    'Facebook', 'Instagram', 'Google search', 'Word of mouth / referral',
-    'Returning customer', 'Local event or market', 'Other',
+    'Facebook',
+    'Instagram',
+    'Google search',
+    'Word of mouth / referral',
+    'Returning customer',
+    'Local event or market',
+    'Other',
   ],
   submitLabel: 'Send my quote request',
   privacyNote: 'Your information is kept private and never shared.',
@@ -363,7 +454,8 @@ add({
 });
 
 add({
-  _id: 'shopIndexPage', _type: 'shopIndexPage',
+  _id: 'shopIndexPage',
+  _type: 'shopIndexPage',
   seoTitle: 'Shop by Item — MAS Monograms',
   seoDescription:
     'Browse custom embroidery by item type: totes, towels, hats, shirts, jackets, baby gifts, home goods, or bring your own item. Free quotes.',
@@ -380,7 +472,8 @@ add({
 });
 
 add({
-  _id: 'styleGalleryPage', _type: 'styleGalleryPage',
+  _id: 'styleGalleryPage',
+  _type: 'styleGalleryPage',
   seoTitle: 'Style Gallery — MAS Monograms',
   seoDescription:
     'Browse real custom embroidery work from the MAS Monograms studio. Monograms, names, and appliqué on towels, totes, apparel, baby gifts, and more.',
@@ -389,16 +482,19 @@ add({
   heroSubhead:
     "Browse real work from my studio, then tell me your vibe. I'll pick the perfect font and thread combination for you.",
   filterAllLabel: 'All',
-  emptyStateMessage: 'New photos are added often, check back soon, or request a quote to start your own.',
+  emptyStateMessage:
+    'New photos are added often, check back soon, or request a quote to start your own.',
   ctaEyebrow: 'Found something you love?',
   ctaHeadline: "Let's make it yours",
-  ctaSubhead: "Tell me your vibe and I'll recommend the perfect combination. Requesting a quote is free.",
+  ctaSubhead:
+    "Tell me your vibe and I'll recommend the perfect combination. Requesting a quote is free.",
   ctaLabel: 'Request a Quote',
   ctaHref: '/request-a-quote',
 });
 
 add({
-  _id: 'fontGuidePage', _type: 'fontGuidePage',
+  _id: 'fontGuidePage',
+  _type: 'fontGuidePage',
   seoTitle: 'Font & Lettering Guide — MAS Monograms',
   seoDescription:
     'Browse available embroidery fonts and monogram styles, shown as real stitched samples. Find your lettering style, then request a free quote.',
@@ -412,7 +508,8 @@ add({
   ),
   fontGridEyebrow: 'Browse the styles',
   fontGridHeadline: 'Available fonts',
-  customFontNote: "Don't see the style you want? Ask in your quote request, I'm always happy to source something new.",
+  customFontNote:
+    "Don't see the style you want? Ask in your quote request, I'm always happy to source something new.",
   ctaEyebrow: 'Found a favorite?',
   ctaHeadline: "Let's put it on something",
   ctaSubhead: 'Tell me the font you like (or let me recommend one) and request your free quote.',
@@ -421,7 +518,8 @@ add({
 });
 
 add({
-  _id: 'threadChartPage', _type: 'threadChartPage',
+  _id: 'threadChartPage',
+  _type: 'threadChartPage',
   seoTitle: 'Thread Color Chart — MAS Monograms',
   seoDescription:
     'Browse the embroidery thread colors I work with most, grouped by color family. On-screen colors are approximate, I confirm the exact thread with you.',
@@ -443,21 +541,26 @@ add({
 });
 
 add({
-  _id: 'clearancePage', _type: 'clearancePage',
+  _id: 'clearancePage',
+  _type: 'clearancePage',
   seoTitle: 'Clearance — MAS Monograms',
   seoDescription:
     'Ready-to-ship, one-of-a-kind embroidered pieces, no quote needed. Buy now while supplies last, or request a custom order.',
   heroEyebrow: 'Clearance',
   heroHeadline: 'Ready to ship, no quote needed',
-  heroSubhead: "Pre-made and one-of-a-kind pieces, priced to move. When they're gone, they're gone.",
+  heroSubhead:
+    "Pre-made and one-of-a-kind pieces, priced to move. When they're gone, they're gone.",
   intro: pt(
     "Every item here is already made and ready to ship or pick up, no quote, no wait. These are one-of-a-kind pieces, so once something sells it's gone for good. Check back often; I add new pieces as I make them.",
   ),
-  paymentNote: 'Each item links directly to a secure Stripe checkout. I never see your card details.',
-  pickupNote: "Local pickup in St. Matthews, SC, or I'll arrange shipping, just reach out after you buy.",
+  paymentNote:
+    'Each item links directly to a secure Stripe checkout. I never see your card details.',
+  pickupNote:
+    "Local pickup in St. Matthews, SC, or I'll arrange shipping, just reach out after you buy.",
   soldOutLabel: 'Sold',
   buyButtonLabel: 'Buy now',
-  emptyStateMessage: 'Nothing in the clearance section right now, check back soon, or request a custom quote.',
+  emptyStateMessage:
+    'Nothing in the clearance section right now, check back soon, or request a custom quote.',
   ctaEyebrow: 'Want something custom?',
   ctaHeadline: "I'll make it just for you",
   ctaSubhead:
@@ -467,7 +570,8 @@ add({
 });
 
 add({
-  _id: 'thankYouPage', _type: 'thankYouPage',
+  _id: 'thankYouPage',
+  _type: 'thankYouPage',
   seoTitle: 'Quote request received — MAS Monograms',
   eyebrow: 'Request received!',
   headline: "Thank you, I'll be in touch soon.",
@@ -485,43 +589,88 @@ add({
 });
 
 add({
-  _id: 'notFoundPage', _type: 'notFoundPage',
+  _id: 'notFoundPage',
+  _type: 'notFoundPage',
   seoTitle: 'Page not found — MAS Monograms',
   seoDescription: 'That page wandered off. Head back home or request a quote.',
   eyebrow: '404',
   headline: 'That page wandered off.',
   body: "It happens! Maybe a link got stale or the URL has a small typo. Here's where to head next.",
-  primaryCtaLabel: 'Back to home', primaryCtaHref: '/',
-  secondaryCtaLabel: 'Request a quote', secondaryCtaHref: '/request-a-quote',
-  tertiaryCtaLabel: 'Browse what I embroider', tertiaryCtaHref: '/shop-by-item',
+  primaryCtaLabel: 'Back to home',
+  primaryCtaHref: '/',
+  secondaryCtaLabel: 'Request a quote',
+  secondaryCtaHref: '/request-a-quote',
+  tertiaryCtaLabel: 'Browse what I embroider',
+  tertiaryCtaHref: '/shop-by-item',
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ITEM CATEGORIES (8)
 // ═══════════════════════════════════════════════════════════════════════════
 const categories = [
-  { slug: 'tote-bags', name: 'Tote Bags & Pouches', price: 'Starting at $16',
-    description: 'The gift people actually use. Canvas, jute, nylon, monogrammed with your initials or name.' },
-  { slug: 'towels-linens', name: 'Towels & Linens', price: 'Starting at $16',
-    description: 'Bath towels, hand towels, tea towels, napkins. The easiest upgrade to your guest bath or kitchen.' },
-  { slug: 'hats-caps', name: 'Hats & Caps', price: 'Starting at $16',
-    description: 'Baseball caps, beanies, sun hats, monogrammed or custom text, centered or side-stitched.' },
-  { slug: 'shirts-tops', name: 'Shirts & Tops', price: 'Starting at $16',
-    description: 'Polos, t-shirts, button-downs. Chest, cuff, or pocket placement, perfect for teams or gifts.' },
-  { slug: 'jackets-sweatshirts', name: 'Jackets & Sweatshirts', price: 'Starting at $18',
-    description: 'Bordered sash, appliqué, or bold collegiate lettering.' },
-  { slug: 'baby-kids', name: 'Baby & Kids', price: 'Starting at $16',
-    description: "Soft thread, sweet fonts, and something they'll keep forever. Onesies, blankets, burp cloths." },
-  { slug: 'home-gifts', name: 'Home & Gifts', price: 'Starting at $16',
-    description: "Ornaments, pillows, blankets, door hangers, wreath sashes. If it's fabric, I can monogram it." },
-  { slug: 'bring-your-own-item', name: 'Bring Your Own Item', price: 'Free assessment',
-    description: "Have something you love? Bring it in. I'll assess it free, most fabric items work beautifully." },
+  {
+    slug: 'tote-bags',
+    name: 'Tote Bags & Pouches',
+    price: 'Starting at $16',
+    description:
+      'The gift people actually use. Canvas, jute, nylon, monogrammed with your initials or name.',
+  },
+  {
+    slug: 'towels-linens',
+    name: 'Towels & Linens',
+    price: 'Starting at $16',
+    description:
+      'Bath towels, hand towels, tea towels, napkins. The easiest upgrade to your guest bath or kitchen.',
+  },
+  {
+    slug: 'hats-caps',
+    name: 'Hats & Caps',
+    price: 'Starting at $16',
+    description:
+      'Baseball caps, beanies, sun hats, monogrammed or custom text, centered or side-stitched.',
+  },
+  {
+    slug: 'shirts-tops',
+    name: 'Shirts & Tops',
+    price: 'Starting at $16',
+    description:
+      'Polos, t-shirts, button-downs. Chest, cuff, or pocket placement, perfect for teams or gifts.',
+  },
+  {
+    slug: 'jackets-sweatshirts',
+    name: 'Jackets & Sweatshirts',
+    price: 'Starting at $18',
+    description: 'Bordered sash, appliqué, or bold collegiate lettering.',
+  },
+  {
+    slug: 'baby-kids',
+    name: 'Baby & Kids',
+    price: 'Starting at $16',
+    description:
+      "Soft thread, sweet fonts, and something they'll keep forever. Onesies, blankets, burp cloths.",
+  },
+  {
+    slug: 'home-gifts',
+    name: 'Home & Gifts',
+    price: 'Starting at $16',
+    description:
+      "Ornaments, pillows, blankets, door hangers, wreath sashes. If it's fabric, I can monogram it.",
+  },
+  {
+    slug: 'bring-your-own-item',
+    name: 'Bring Your Own Item',
+    price: 'Free assessment',
+    description:
+      "Have something you love? Bring it in. I'll assess it free, most fabric items work beautifully.",
+  },
 ];
 categories.forEach((c, i) => {
   const isByo = c.slug === 'bring-your-own-item';
   add({
-    _id: `category-${c.slug}`, _type: 'itemCategory',
-    name: c.name, slug: slug(c.slug),
+    _id: `category-${c.slug}`,
+    _type: 'itemCategory',
+    name: c.name,
+    slug: slug(c.slug),
     description: c.description,
     trustItems: isByo
       ? ['Free assessment', 'Most fabric items work', 'No purchase required']
@@ -537,28 +686,59 @@ categories.forEach((c, i) => {
 // guess for the line fonts and should be reviewed against the real samples.
 // ═══════════════════════════════════════════════════════════════════════════
 const lineFonts = [
-  ['Meadow', 'script', false], ['Moonlight', 'script', true], ['Fuchsia', 'script', false],
-  ['Hydrangea', 'script', true], ['Subscriber', 'modern', false], ['Melissa', 'script', false],
-  ['Swallow', 'script', false], ['Green Lemonade', 'script', false], ['Katherine', 'script', true],
+  ['Meadow', 'script', false],
+  ['Moonlight', 'script', true],
+  ['Fuchsia', 'script', false],
+  ['Hydrangea', 'script', true],
+  ['Subscriber', 'modern', false],
+  ['Melissa', 'script', false],
+  ['Swallow', 'script', false],
+  ['Green Lemonade', 'script', false],
+  ['Katherine', 'script', true],
   ['Edelweiss', 'script', false],
 ];
 lineFonts.forEach(([name, style, popular], i) => {
   add({
-    _id: `font-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, _type: 'font',
-    name, slug: slug(name.toLowerCase().replace(/[^a-z0-9]+/g, '-')),
-    styleTag: style, popular, displayOrder: i + 1,
+    _id: `font-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    _type: 'font',
+    name,
+    slug: slug(name.toLowerCase().replace(/[^a-z0-9]+/g, '-')),
+    styleTag: style,
+    popular,
+    displayOrder: i + 1,
   });
 });
 
 const monogramStyles = [
-  ['Master Circle', 'master-circle', 'The classic interlocking three-letter monogram, set in a circular shape. The default when someone says "monogram."', true],
-  ['Vine / Heirloom', 'vine-heirloom', 'A full ornate vine-script alphabet with paired forms. Elegant for both monograms and names.', false],
-  ['Pillow', 'pillow', 'An ornate, flourished single-letter script alphabet. Works beautifully for monograms and names.', false],
+  [
+    'Master Circle',
+    'master-circle',
+    'The classic interlocking three-letter monogram, set in a circular shape. The default when someone says "monogram."',
+    true,
+  ],
+  [
+    'Vine / Heirloom',
+    'vine-heirloom',
+    'A full ornate vine-script alphabet with paired forms. Elegant for both monograms and names.',
+    false,
+  ],
+  [
+    'Pillow',
+    'pillow',
+    'An ornate, flourished single-letter script alphabet. Works beautifully for monograms and names.',
+    false,
+  ],
 ];
 monogramStyles.forEach(([name, s, description, popular], i) => {
   add({
-    _id: `font-${s}`, _type: 'font',
-    name, slug: slug(s), styleTag: 'monogram', description, popular, displayOrder: 11 + i,
+    _id: `font-${s}`,
+    _type: 'font',
+    name,
+    slug: slug(s),
+    styleTag: 'monogram',
+    description,
+    popular,
+    displayOrder: 11 + i,
   });
 });
 
@@ -571,8 +751,14 @@ const appliqueFonts = [
 ];
 appliqueFonts.forEach(([name, s, style, description], i) => {
   add({
-    _id: `font-${s}`, _type: 'font',
-    name, slug: slug(s), styleTag: style, description, popular: false, displayOrder: 14 + i,
+    _id: `font-${s}`,
+    _type: 'font',
+    name,
+    slug: slug(s),
+    styleTag: style,
+    description,
+    popular: false,
+    displayOrder: 14 + i,
   });
 });
 
@@ -581,21 +767,43 @@ appliqueFonts.forEach(([name, s, style, description], i) => {
 // Hex values are approximate for on-screen display only.
 // ═══════════════════════════════════════════════════════════════════════════
 const threads = [
-  ['White', '#fafafa', 'white'], ['Cream', '#f3ead6', 'white'], ['Ivory', '#f7f2e3', 'white'],
-  ['Black', '#1a1a1a', 'gray'], ['Charcoal', '#3a3a3a', 'gray'], ['Silver Gray', '#a8a8a8', 'gray'],
-  ['Navy', '#1f2d4d', 'blue'], ['Royal Blue', '#23418b', 'blue'], ['Light Blue', '#9dc3e6', 'blue'], ['Teal', '#0f6b6b', 'blue'],
-  ['Forest Green', '#2c4a32', 'green'], ['Sage', '#8a9e8c', 'green'], ['Kelly Green', '#2e7d4f', 'green'], ['Olive', '#6b6b3a', 'green'],
-  ['Red', '#b22222', 'red'], ['Burgundy', '#6e1f2a', 'red'], ['Blush Pink', '#e0a8a0', 'red'], ['Hot Pink', '#d94f8a', 'red'],
-  ['Orange', '#d2691e', 'orange'], ['Gold', '#c9a227', 'orange'], ['Sunflower Yellow', '#f0c419', 'orange'],
-  ['Purple', '#5b2a83', 'purple'], ['Lavender', '#b497bd', 'purple'],
-  ['Chocolate Brown', '#5a3a22', 'brown'], ['Tan', '#c2a878', 'brown'],
-  ['Metallic Gold', '#caa83d', 'metallic'], ['Metallic Silver', '#c0c0c0', 'metallic'],
+  ['White', '#fafafa', 'white'],
+  ['Cream', '#f3ead6', 'white'],
+  ['Ivory', '#f7f2e3', 'white'],
+  ['Black', '#1a1a1a', 'gray'],
+  ['Charcoal', '#3a3a3a', 'gray'],
+  ['Silver Gray', '#a8a8a8', 'gray'],
+  ['Navy', '#1f2d4d', 'blue'],
+  ['Royal Blue', '#23418b', 'blue'],
+  ['Light Blue', '#9dc3e6', 'blue'],
+  ['Teal', '#0f6b6b', 'blue'],
+  ['Forest Green', '#2c4a32', 'green'],
+  ['Sage', '#8a9e8c', 'green'],
+  ['Kelly Green', '#2e7d4f', 'green'],
+  ['Olive', '#6b6b3a', 'green'],
+  ['Red', '#b22222', 'red'],
+  ['Burgundy', '#6e1f2a', 'red'],
+  ['Blush Pink', '#e0a8a0', 'red'],
+  ['Hot Pink', '#d94f8a', 'red'],
+  ['Orange', '#d2691e', 'orange'],
+  ['Gold', '#c9a227', 'orange'],
+  ['Sunflower Yellow', '#f0c419', 'orange'],
+  ['Purple', '#5b2a83', 'purple'],
+  ['Lavender', '#b497bd', 'purple'],
+  ['Chocolate Brown', '#5a3a22', 'brown'],
+  ['Tan', '#c2a878', 'brown'],
+  ['Metallic Gold', '#caa83d', 'metallic'],
+  ['Metallic Silver', '#c0c0c0', 'metallic'],
 ];
 threads.forEach(([name, hex, family], i) => {
   add({
-    _id: `thread-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`, _type: 'threadColor',
-    name, slug: slug(name.toLowerCase().replace(/[^a-z0-9]+/g, '-')),
-    hexColor: hex, colorFamily: family, displayOrder: i + 1,
+    _id: `thread-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    _type: 'threadColor',
+    name,
+    slug: slug(name.toLowerCase().replace(/[^a-z0-9]+/g, '-')),
+    hexColor: hex,
+    colorFamily: family,
+    displayOrder: i + 1,
   });
 });
 
@@ -608,43 +816,104 @@ threads.forEach(([name, hex, family], i) => {
 // PRICING TIERS (4) — MAS prices by complexity, not quantity. minQuantity is
 // set to 1 (vestigial for this model); the note carries the real descriptor.
 // ═══════════════════════════════════════════════════════════════════════════
-add({ _id: 'tier-basic', _type: 'pricingTier', label: 'Basic Monogram', minQuantity: 1, pricePerPiece: 16,
-  note: 'Single-color monogram or name. Six letters or fewer. The everyday starting point.', highlighted: true, displayOrder: 1 });
-add({ _id: 'tier-premium', _type: 'pricingTier', label: 'Premium Monogram', minQuantity: 1, pricePerPiece: 18,
-  note: 'Bordered or sash styles, two-sided designs, or multiple colors. Great for jackets and sweatshirts.', highlighted: false, displayOrder: 2 });
-add({ _id: 'tier-applique', _type: 'pricingTier', label: 'Custom Appliqué', minQuantity: 1, pricePerPiece: 45,
-  note: 'Layered fabric designs. Includes a one-time $30 setup charge plus stitching by stitch count.', highlighted: false, displayOrder: 3 });
-add({ _id: 'tier-custom', _type: 'pricingTier', label: 'Custom Embroidery', minQuantity: 1, pricePerPiece: 16,
-  note: 'Your own artwork, digitized and stitched, plus a one-time $30 digitizing fee. Detailed pieces run $60–$75.', highlighted: false, displayOrder: 4 });
+add({
+  _id: 'tier-basic',
+  _type: 'pricingTier',
+  label: 'Basic Monogram',
+  minQuantity: 1,
+  pricePerPiece: 16,
+  note: 'Single-color monogram or name. Six letters or fewer. The everyday starting point.',
+  highlighted: true,
+  displayOrder: 1,
+});
+add({
+  _id: 'tier-premium',
+  _type: 'pricingTier',
+  label: 'Premium Monogram',
+  minQuantity: 1,
+  pricePerPiece: 18,
+  note: 'Bordered or sash styles, two-sided designs, or multiple colors. Great for jackets and sweatshirts.',
+  highlighted: false,
+  displayOrder: 2,
+});
+add({
+  _id: 'tier-applique',
+  _type: 'pricingTier',
+  label: 'Custom Appliqué',
+  minQuantity: 1,
+  pricePerPiece: 45,
+  note: 'Layered fabric designs. Includes a one-time $30 setup charge plus stitching by stitch count.',
+  highlighted: false,
+  displayOrder: 3,
+});
+add({
+  _id: 'tier-custom',
+  _type: 'pricingTier',
+  label: 'Custom Embroidery',
+  minQuantity: 1,
+  pricePerPiece: 16,
+  note: 'Your own artwork, digitized and stitched, plus a one-time $30 digitizing fee. Detailed pieces run $60–$75.',
+  highlighted: false,
+  displayOrder: 4,
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FAQ ITEMS (6) — from the How It Works page. answer is Portable Text.
 // ═══════════════════════════════════════════════════════════════════════════
 const faqs = [
-  ['Do I have to pay anything to request a quote?',
+  [
+    'Do I have to pay anything to request a quote?',
     "No, submitting a quote request is completely free. You'll only pay after you review and approve your custom invoice.",
-    'Pricing', true, true],
-  ['What if I’m not sure what font or thread color to choose?',
+    'Pricing',
+    true,
+    true,
+  ],
+  [
+    'What if I’m not sure what font or thread color to choose?',
     "Just say 'recommend for me' on any choice in the form, that's genuinely one of my favorite things to do. Tell me your vibe (classic, bold, soft, festive) and I'll suggest the perfect combination.",
-    'Design', true, false],
-  ['Can I bring my own item to be monogrammed?',
+    'Design',
+    true,
+    false,
+  ],
+  [
+    'Can I bring my own item to be monogrammed?',
     "Yes. 'Bring Your Own Item' is a first-class option. Most fabric items work well. Select that option on the quote form and describe what you have, I'll let you know if it's a good candidate before you commit to anything.",
-    'Items', true, false],
-  ['How long does it take from quote to finished item?',
+    'Items',
+    true,
+    false,
+  ],
+  [
+    'How long does it take from quote to finished item?',
     "I respond to quote requests within 1 business day (usually the same day). Once approved and paid, most orders are completed within 3 to 7 business days. Rush turnaround is available, just flag it in your request and I'll let you know if it's possible.",
-    'Turnaround', true, true],
-  ['What if I want to make changes after I submit the form?',
+    'Turnaround',
+    true,
+    true,
+  ],
+  [
+    'What if I want to make changes after I submit the form?',
     "No problem. Just reply to the quote email before approving, I can adjust the design, font, thread, or anything else. Changes after stitching has begun may not be possible, but I'll always check in with you first if anything looks unclear.",
-    'Ordering', true, false],
-  ['Do you ship, or is this pickup only?',
+    'Ordering',
+    true,
+    false,
+  ],
+  [
+    'Do you ship, or is this pickup only?',
     "I'm based in St. Matthews, South Carolina, and local pickup is always welcome. Shipping is available, just mention it in your quote request and I'll include the shipping cost in your invoice.",
-    'Shipping', true, false],
+    'Shipping',
+    true,
+    false,
+  ],
 ];
 faqs.forEach(([question, answer, category, hiw, pricing], i) => {
   add({
-    _id: `faq-${i + 1}`, _type: 'faqItem',
-    question, answer: pt(answer), category,
-    displayOrder: i + 1, showOnHowItWorks: hiw, showOnPricing: pricing,
+    _id: `faq-${i + 1}`,
+    _type: 'faqItem',
+    question,
+    answer: pt(answer),
+    category,
+    displayOrder: i + 1,
+    showOnHowItWorks: hiw,
+    showOnPricing: pricing,
   });
 });
 

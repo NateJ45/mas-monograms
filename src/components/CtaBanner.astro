@@ -11,33 +11,31 @@ interface Props {
 }
 
 const {
-  eyebrow  = 'Ready to get started?',
+  eyebrow = 'Ready to get started?',
   headline = 'Request a Custom Quote',
-  subhead  = 'Tell us about your project and we\'ll get back to you within one business day.',
+  subhead = "Tell us about your project and we'll get back to you within one business day.",
   ctaLabel = 'Request a Quote',
-  ctaHref  = '/request-a-quote',
+  ctaHref = '/request-a-quote',
 } = Astro.props;
 ---
 
-{/* Direction C drench band: Heritage Indigo, not the old near-black
+{
+  /* Direction C drench band: Heritage Indigo, not the old near-black
     (#1a1512) slab — the near-black was the largest tonal jump on the site
     and had no counterpart in the reference set. On indigo, the button flips
     to paper-with-ink (claret-on-indigo vibrates; light-button-on-drench is
-    the pattern every premium reference uses on dark surfaces). */}
-<section class="bg-primary text-bg py-section-lg">
+    the pattern every premium reference uses on dark surfaces). */
+}
+<section class="bg-primary py-section-lg text-bg">
   <div class="mx-auto max-w-content px-m text-center">
-    {eyebrow && (
-      <p class="text-xs uppercase tracking-eyebrow text-bg/80 mb-s">{eyebrow}</p>
-    )}
-    <h2 class="font-display text-h2 text-bg mb-m leading-headline-tight">
+    {eyebrow && <p class="mb-s text-xs tracking-eyebrow text-bg/80 uppercase">{eyebrow}</p>}
+    <h2 class="mb-m font-display text-h2 leading-headline-tight text-bg">
       {headline}
     </h2>
-    {subhead && (
-      <p class="text-bg/85 mb-l max-w-xl mx-auto">{subhead}</p>
-    )}
+    {subhead && <p class="mx-auto mb-l max-w-xl text-bg/85">{subhead}</p>}
     <a
       href={ctaHref}
-      class="inline-flex items-center justify-center min-h-[44px] px-l py-s rounded-sm bg-card text-foreground hover:bg-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors press-tactile"
+      class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-card px-l py-s text-xs font-semibold tracking-[0.18em] text-foreground uppercase transition-colors hover:bg-white"
     >
       {ctaLabel}
     </a>

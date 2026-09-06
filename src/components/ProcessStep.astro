@@ -32,8 +32,9 @@ const { step, variant = 'preview', isLast = false } = Astro.props as Props;
 const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0') : '01');
 ---
 
-{variant === 'preview' ? (
-  /* ── Home preview: compact vertical-stack card ──────────────────────────────
+{
+  variant === 'preview' ? (
+    /* ── Home preview: compact vertical-stack card ──────────────────────────────
      The homepage renders these steps in a horizontal grid (2-up on mobile,
      4-across on desktop — see the <ol> in index.astro), so each step is a
      self-contained card with the numeral, illustration, title, and short line
@@ -41,67 +42,68 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
      row, which left a vast empty right column on desktop. The left-to-right
      reading order of the grid itself conveys the sequence, so the vertical
      connector thread is dropped here (it only made sense in the tall list). */
-  <article class="flex flex-col items-center text-center gap-s h-full">
-    <div class="flex items-center gap-s">
-      <span class="font-display text-h2 leading-none text-link/85 select-none">
-        {padNum(step.stepNumber)}
-      </span>
-      <ProcessStepIllustration stepNumber={step.stepNumber} />
-    </div>
-    <h3 class="font-display text-h4 text-foreground mt-xs">{step.title}</h3>
-    {step.shortDescription && (
-      <p class="text-sm text-foreground/85">{step.shortDescription}</p>
-    )}
-    {step.tierNote && (
-      <p class="mt-auto pt-s text-xs italic text-muted-foreground">{step.tierNote}</p>
-    )}
-  </article>
-) : (
-<article class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-m md:gap-l items-stretch">
-  <div class="flex flex-col items-start gap-s">
-    {/* Soft-sage line illustration above the step numeral. Renders nothing for
+    <article class="flex h-full flex-col items-center gap-s text-center">
+      <div class="flex items-center gap-s">
+        <span class="font-display text-h2 leading-none text-link/85 select-none">
+          {padNum(step.stepNumber)}
+        </span>
+        <ProcessStepIllustration stepNumber={step.stepNumber} />
+      </div>
+      <h3 class="mt-xs font-display text-h4 text-foreground">{step.title}</h3>
+      {step.shortDescription && <p class="text-sm text-foreground/85">{step.shortDescription}</p>}
+      {step.tierNote && (
+        <p class="mt-auto pt-s text-xs text-muted-foreground italic">{step.tierNote}</p>
+      )}
+    </article>
+  ) : (
+    <article class="grid grid-cols-1 items-stretch gap-m md:grid-cols-[auto_1fr] md:gap-l">
+      <div class="flex flex-col items-start gap-s">
+        {/* Soft-sage line illustration above the step numeral. Renders nothing for
         steps outside 1-4 so the numeral-only treatment still works. */}
-    <ProcessStepIllustration stepNumber={step.stepNumber} />
-    <div class="font-display text-h1 leading-none text-link/85 select-none">
-      {padNum(step.stepNumber)}
-    </div>
-    {!isLast && <div class="step-connector" aria-hidden="true"></div>}
-  </div>
+        <ProcessStepIllustration stepNumber={step.stepNumber} />
+        <div class="font-display text-h1 leading-none text-link/85 select-none">
+          {padNum(step.stepNumber)}
+        </div>
+        {!isLast && <div class="step-connector" aria-hidden="true" />}
+      </div>
 
-  <div>
-    {/* A11y: on the Process page each step IS a major page section beneath the
+      <div>
+        {/* A11y: on the Process page each step IS a major page section beneath the
         H1, so the title is an H2. (The homepage preview variant renders its own
         H3 in the compact-card branch above.) */}
-    <header class="flex flex-wrap items-baseline gap-x-m gap-y-xs">
-      <h2 class="font-display text-h3 text-foreground">{step.title}</h2>
-      {step.timeEstimate && (
-        <p class="text-xs uppercase tracking-widest text-[var(--color-text-secondary)]">{step.timeEstimate}</p>
-      )}
-    </header>
+        <header class="flex flex-wrap items-baseline gap-x-m gap-y-xs">
+          <h2 class="font-display text-h3 text-foreground">{step.title}</h2>
+          {step.timeEstimate && (
+            <p class="text-xs tracking-widest text-[var(--color-text-secondary)] uppercase">
+              {step.timeEstimate}
+            </p>
+          )}
+        </header>
 
-    {step.fullDescription && (
-      <div class="mt-s max-w-2xl">
-        <PortableText client:visible value={step.fullDescription} />
+        {step.fullDescription && (
+          <div class="mt-s max-w-2xl">
+            <PortableText client:visible value={step.fullDescription} />
+          </div>
+        )}
+
+        {step.features && step.features.length > 0 && (
+          <ul class="mt-m grid max-w-2xl gap-1.5 text-sm text-foreground/85 sm:grid-cols-2">
+            {step.features.map((f) => (
+              <li class="flex items-start gap-s">
+                <span
+                  class="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-tertiary"
+                  aria-hidden="true"
+                />
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {step.tierNote && (
+          <p class="mt-m max-w-2xl text-xs text-muted-foreground italic">{step.tierNote}</p>
+        )}
       </div>
-    )}
-
-    {step.features && step.features.length > 0 && (
-      <ul class="mt-m grid gap-1.5 sm:grid-cols-2 text-sm text-foreground/85 max-w-2xl">
-        {step.features.map((f) => (
-          <li class="flex items-start gap-s">
-            <span
-              class="mt-1.5 inline-block w-1.5 h-1.5 rounded-full bg-tertiary shrink-0"
-              aria-hidden="true"
-            ></span>
-            <span>{f}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-
-    {step.tierNote && (
-      <p class="mt-m text-xs italic text-muted-foreground max-w-2xl">{step.tierNote}</p>
-    )}
-  </div>
-</article>
-)}
+    </article>
+  )
+}

@@ -14,93 +14,103 @@ const [siteSettings, page, faqs] = await Promise.all([
   getFaqItemsForHowItWorks(),
 ]);
 
-const title       = page?.seoTitle       ?? 'How It Works — MAS Monograms';
-const description = page?.seoDescription ?? 'See exactly how the MAS Monograms process works, from placing your request to receiving your finished embroidered items.';
+const title = page?.seoTitle ?? 'How It Works — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'See exactly how the MAS Monograms process works, from placing your request to receiving your finished embroidered items.';
 
 // FAQPage rich-result schema — only emit when there are FAQs to describe.
 const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
-
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'How It Works'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
     </div>
   </section>
 
   {/* Process Steps */}
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {page?.stepsHeadline && (
-        <h2 class="font-display text-h2 text-foreground text-center mb-l">
-          {page.stepsHeadline}
-        </h2>
-      )}
-      {(page?.steps ?? []).length > 0 && (
-        <ol class="space-y-section-md">
-          {(page.steps as any[]).map((step: any, i: number) => (
-            <li class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-l items-start">
-              <div class="flex items-center gap-m md:flex-col md:items-center md:gap-s">
-                <span class="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white font-display text-h4 flex items-center justify-center">
-                  {step.number ?? i + 1}
-                </span>
-                {i < (page.steps as any[]).length - 1 && (
-                  <div class="step-connector hidden md:block w-px flex-1 min-h-[3rem]" aria-hidden="true"></div>
-                )}
-              </div>
-              <div class="pb-l">
-                <h3 class="font-display text-h3 text-foreground mb-s">{step.label}</h3>
-                {step.body && (
-                  <div class="text-[var(--color-text-secondary)] prose prose-sm max-w-none">
-                    <PortableText client:visible value={step.body} />
-                  </div>
-                )}
-                {step.image?.asset && (
-                  <div class="mt-m rounded-xl overflow-hidden">
-                    <SanityImage
-                      source={step.image}
-                      width={800}
-                      sizes="(max-width: 768px) 100vw, 800px"
-                      class="w-full h-auto object-cover"
+      {
+        page?.stepsHeadline && (
+          <h2 class="mb-l text-center font-display text-h2 text-foreground">
+            {page.stepsHeadline}
+          </h2>
+        )
+      }
+      {
+        (page?.steps ?? []).length > 0 && (
+          <ol class="space-y-section-md">
+            {(page.steps as any[]).map((step: any, i: number) => (
+              <li class="grid grid-cols-1 items-start gap-l md:grid-cols-[auto_1fr]">
+                <div class="flex items-center gap-m md:flex-col md:items-center md:gap-s">
+                  <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary font-display text-h4 text-white">
+                    {step.number ?? i + 1}
+                  </span>
+                  {i < (page.steps as any[]).length - 1 && (
+                    <div
+                      class="step-connector hidden min-h-[3rem] w-px flex-1 md:block"
+                      aria-hidden="true"
                     />
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
-      )}
+                  )}
+                </div>
+                <div class="pb-l">
+                  <h3 class="mb-s font-display text-h3 text-foreground">{step.label}</h3>
+                  {step.body && (
+                    <div class="prose prose-sm max-w-none text-[var(--color-text-secondary)]">
+                      <PortableText client:visible value={step.body} />
+                    </div>
+                  )}
+                  {step.image?.asset && (
+                    <div class="mt-m overflow-hidden rounded-xl">
+                      <SanityImage
+                        source={step.image}
+                        width={800}
+                        sizes="(max-width: 768px) 100vw, 800px"
+                        class="h-auto w-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )
+      }
     </div>
   </section>
 
   {/* FAQ */}
-  {faqs.length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        {page?.faqHeadline && (
-          <h2 class="font-display text-h2 text-foreground mb-s text-center">
-            {page.faqHeadline}
-          </h2>
-        )}
-        {page?.faqSubhead && (
-          <p class="text-[var(--color-text-secondary)] text-center mb-l">{page.faqSubhead}</p>
-        )}
-        <div>
-          <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
+  {
+    faqs.length > 0 && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          {page?.faqHeadline && (
+            <h2 class="mb-s text-center font-display text-h2 text-foreground">
+              {page.faqHeadline}
+            </h2>
+          )}
+          {page?.faqSubhead && (
+            <p class="mb-l text-center text-[var(--color-text-secondary)]">{page.faqSubhead}</p>
+          )}
+          <div>
+            <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

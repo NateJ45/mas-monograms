@@ -42,7 +42,8 @@ export const pricingTier = defineType({
       name: 'note',
       title: 'Note (optional)',
       type: 'string',
-      description: 'Short clarifying note for this tier. E.g. "Best for sports teams" or "Most popular tier".',
+      description:
+        'Short clarifying note for this tier. E.g. "Best for sports teams" or "Most popular tier".',
     }),
     defineField({
       name: 'highlighted',
@@ -68,7 +69,11 @@ export const pricingTier = defineType({
     }),
   },
   orderings: [
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
     { title: 'Min quantity', name: 'minQty', by: [{ field: 'minQuantity', direction: 'asc' }] },
   ],
 });

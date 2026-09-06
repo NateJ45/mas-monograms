@@ -15,103 +15,119 @@ const [siteSettings, page, allFonts] = await Promise.all([
 // Only show fonts that have a real specimen photo — no "coming soon" placeholders.
 const fonts = (allFonts ?? []).filter((f: any) => f.previewImage?.asset);
 
-const title       = page?.seoTitle       ?? 'Font & Lettering Guide — MAS Monograms';
-const description = page?.seoDescription ?? 'Browse all embroidery fonts and lettering styles available at MAS Monograms. See preview photos of each font on actual embroidered fabric.';
+const title = page?.seoTitle ?? 'Font & Lettering Guide — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Browse all embroidery fonts and lettering styles available at MAS Monograms. See preview photos of each font on actual embroidered fabric.';
 
 // Group fonts by styleTag
-const styleGroups = fonts.reduce((acc: Record<string, any[]>, font: any) => {
-  const key = font.styleTag ?? 'Other';
-  if (!acc[key]) acc[key] = [];
-  acc[key].push(font);
-  return acc;
-}, {} as Record<string, any[]>);
+const styleGroups = fonts.reduce(
+  (acc: Record<string, any[]>, font: any) => {
+    const key = font.styleTag ?? 'Other';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(font);
+    return acc;
+  },
+  {} as Record<string, any[]>,
+);
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'Font & Lettering Guide'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
     </div>
   </section>
 
   {/* Intro */}
-  {page?.intro && (
-    <section class="py-section-md">
-      <div class="mx-auto max-w-3xl px-m">
-        <PortableText client:idle value={page.intro} />
-      </div>
-    </section>
-  )}
+  {
+    page?.intro && (
+      <section class="py-section-md">
+        <div class="mx-auto max-w-3xl px-m">
+          <PortableText client:idle value={page.intro} />
+        </div>
+      </section>
+    )
+  }
 
   {/* Font Grid */}
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {page?.fontGridEyebrow && (
-        <p class="text-xs uppercase tracking-eyebrow text-link text-center mb-s">
-          {page.fontGridEyebrow}
-        </p>
-      )}
-      {page?.fontGridHeadline && (
-        <h2 class="font-display text-h2 text-foreground text-center mb-l">
-          {page.fontGridHeadline}
-        </h2>
-      )}
+      {
+        page?.fontGridEyebrow && (
+          <p class="mb-s text-center text-xs tracking-eyebrow text-link uppercase">
+            {page.fontGridEyebrow}
+          </p>
+        )
+      }
+      {
+        page?.fontGridHeadline && (
+          <h2 class="mb-l text-center font-display text-h2 text-foreground">
+            {page.fontGridHeadline}
+          </h2>
+        )
+      }
 
-      {fonts.length > 0 ? (
-        Object.entries(styleGroups).map(([style, styleFonts]) => (
-          <div class="mb-section-lg">
-            <h3 class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-m border-b border-border-soft pb-s">
-              {style}
-            </h3>
-            {/* Centered flex-wrap, not a left-anchored 5-col grid: most style
+      {
+        fonts.length > 0 ? (
+          Object.entries(styleGroups).map(([style, styleFonts]) => (
+            <div class="mb-section-lg">
+              <h3 class="mb-m border-b border-border-soft pb-s text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                {style}
+              </h3>
+              {/* Centered flex-wrap, not a left-anchored 5-col grid: most style
                 groups hold only 1-3 specimens, and partial grid rows read as
                 accidental holes. Centering the fixed-width specimen cards makes
                 a sparse group look composed instead of unfinished. */}
-            <div class="flex flex-wrap justify-center gap-m">
-              {(styleFonts as any[]).map((font: any) => (
-                <div class="group w-[230px] max-w-full rounded-xl overflow-hidden bg-card border border-border-soft hover:shadow-sm transition-shadow">
-                  <div class="aspect-square overflow-hidden">
-                    <SanityImage
-                      source={font.previewImage}
-                      width={300}
-                      height={300}
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+              <div class="flex flex-wrap justify-center gap-m">
+                {(styleFonts as any[]).map((font: any) => (
+                  <div class="group w-[230px] max-w-full overflow-hidden rounded-xl border border-border-soft bg-card transition-shadow hover:shadow-sm">
+                    <div class="aspect-square overflow-hidden">
+                      <SanityImage
+                        source={font.previewImage}
+                        width={300}
+                        height={300}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div class="p-s">
+                      <p class="text-sm font-semibold text-foreground">{font.name}</p>
+                      {font.popular && (
+                        <span class="text-xs font-semibold text-primary">Popular</span>
+                      )}
+                      {font.bestFor && (
+                        <p class="mt-xs text-xs text-[var(--color-text-secondary)]">
+                          {font.bestFor}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div class="p-s">
-                    <p class="font-semibold text-sm text-foreground">{font.name}</p>
-                    {font.popular && (
-                      <span class="text-xs text-primary font-semibold">Popular</span>
-                    )}
-                    {font.bestFor && (
-                      <p class="text-xs text-[var(--color-text-secondary)] mt-xs">{font.bestFor}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))
-      ) : (
-        <p class="text-center text-[var(--color-text-secondary)] py-l">Font guide coming soon.</p>
-      )}
+          ))
+        ) : (
+          <p class="py-l text-center text-[var(--color-text-secondary)]">Font guide coming soon.</p>
+        )
+      }
 
-      {page?.customFontNote && (
-        <div class="mt-l bg-tertiary rounded-xl p-l text-center">
-          <p class="text-[var(--color-text-secondary)]">{page.customFontNote}</p>
-        </div>
-      )}
+      {
+        page?.customFontNote && (
+          <div class="mt-l rounded-xl bg-tertiary p-l text-center">
+            <p class="text-[var(--color-text-secondary)]">{page.customFontNote}</p>
+          </div>
+        )
+      }
     </div>
   </section>
 

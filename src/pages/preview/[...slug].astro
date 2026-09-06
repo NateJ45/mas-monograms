@@ -36,11 +36,7 @@ import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
 import PreviewLayout from '@/layouts/PreviewLayout.astro';
 import Hero from '@/components/Hero.astro';
 import { previewFetch, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
-import {
-  arrayItemEditAttr,
-  fieldEditAttr,
-  type EditableArrayField,
-} from '@/lib/preview-edit-attr';
+import { arrayItemEditAttr, fieldEditAttr, type EditableArrayField } from '@/lib/preview-edit-attr';
 
 // Fresh clone / unset secret: say so, do not 500.
 const config = previewConfig();
@@ -184,8 +180,7 @@ const pageId = doc._id.replace(/^drafts\./, '');
 const editDoc = { id: pageId, type: doc._type };
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : '');
-const heroHeadline =
-  str(doc.heroHeadline) || str(doc.headline) || str(doc.seoTitle) || page.label;
+const heroHeadline = str(doc.heroHeadline) || str(doc.headline) || str(doc.seoTitle) || page.label;
 const heroEyebrow = str(doc.heroEyebrow) || str(doc.eyebrow);
 const heroSubhead = str(doc.heroSubhead) || str(doc.subhead);
 const heroImages = (Array.isArray(doc.heroImages) ? doc.heroImages : []).filter(
@@ -227,33 +222,34 @@ const title = `${page.label} - Preview`;
   />
 
   <div class="mx-auto max-w-3xl px-4 py-6">
-    <p class="border-border-soft bg-card text-foreground/80 rounded-md border px-4 py-3 text-sm">
-      This page's middle is drawn in code (the lists, forms and galleries it is
-      built around), so it previews as its editable surface: the hero above, the
-      lists below, and the closing call to action. Click any words to edit them.
-      The parts held in code render on the live site.
+    <p class="rounded-md border border-border-soft bg-card px-4 py-3 text-sm text-foreground/80">
+      This page's middle is drawn in code (the lists, forms and galleries it is built around), so it
+      previews as its editable surface: the hero above, the lists below, and the closing call to
+      action. Click any words to edit them. The parts held in code render on the live site.
     </p>
   </div>
 
   {
     arrays.map(({ field, label, items }) => (
       <section class="mx-auto max-w-3xl px-4 py-4">
-        <h2 class="font-display text-h4 text-foreground mb-3">{label}</h2>
+        <h2 class="mb-3 font-display text-h4 text-foreground">{label}</h2>
         {items.length === 0 ? (
-          <p class="border-border-soft text-foreground/70 rounded-md border border-dashed px-4 py-6 text-sm">
-            Nothing here yet. Use the plus control in this canvas, or the
-            "{label}" field in the editor panel, to add the first one.
+          <p class="rounded-md border border-dashed border-border-soft px-4 py-6 text-sm text-foreground/70">
+            Nothing here yet. Use the plus control in this canvas, or the "{label}" field in the
+            editor panel, to add the first one.
           </p>
         ) : (
           <ul class="grid gap-3">
             {items.map((item: any, i: number) => (
               <li
-                class="border-border-soft bg-card rounded-md border px-4 py-3"
+                class="rounded-md border border-border-soft bg-card px-4 py-3"
                 data-sanity={arrayItemEditAttr(editDoc, field, item?._key ?? i)}
               >
-                <span class="text-foreground/50 mr-2 text-xs font-semibold">{i + 1}</span>
+                <span class="mr-2 text-xs font-semibold text-foreground/50">{i + 1}</span>
                 {itemLines(item).map((line, j) => (
-                  <p class={j === 0 ? 'text-foreground font-semibold' : 'text-foreground/80 text-sm'}>
+                  <p
+                    class={j === 0 ? 'font-semibold text-foreground' : 'text-sm text-foreground/80'}
+                  >
                     {line}
                   </p>
                 ))}
@@ -268,13 +264,13 @@ const title = `${page.label} - Preview`;
   {
     (ctaHeadline || ctaLabel) && (
       <section
-        class="bg-primary text-primary-foreground mt-8 px-4 py-10 text-center"
+        class="mt-8 bg-primary px-4 py-10 text-center text-primary-foreground"
         data-sanity={fieldEditAttr(editDoc, 'ctaHeadline')}
       >
         {ctaHeadline && <h2 class="font-display text-h2">{ctaHeadline}</h2>}
         {ctaSubhead && <p class="mx-auto mt-2 max-w-xl text-sm">{ctaSubhead}</p>}
         {ctaLabel && (
-          <span class="bg-background text-foreground mt-4 inline-block rounded-full px-5 py-2 text-sm font-bold">
+          <span class="mt-4 inline-block rounded-full bg-background px-5 py-2 text-sm font-bold text-foreground">
             {ctaLabel}
           </span>
         )}

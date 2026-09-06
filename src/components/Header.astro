@@ -57,23 +57,27 @@ const { siteSettings, hasClearance = true } = Astro.props as Props;
 // the built-ins this file has always used.
 const chrome = resolveChrome(siteSettings);
 
-const brandName   = siteSettings?.title ?? site.name;
-const email       = chrome.showEmail ? (siteSettings?.email ?? '') : '';
-const phone       = siteSettings?.phone ?? '';
-const ctaLabel    = chrome.headerCta.label;
-const ctaHref     = chrome.headerCta.href;
+const brandName = siteSettings?.title ?? site.name;
+const email = chrome.showEmail ? (siteSettings?.email ?? '') : '';
+const phone = siteSettings?.phone ?? '';
+const ctaLabel = chrome.headerCta.label;
+const ctaHref = chrome.headerCta.href;
 const socialLinks = chrome.showSocials
   ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
   : [];
 // A logo picture from Site Settings stands in for the drawn Logo component.
-const customLogo  = siteSettings?.logo?.asset ? siteSettings.logo : null;
+const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
-    case 'Instagram': return IconBrandInstagram;
-    case 'Facebook':  return IconBrandFacebook;
-    case 'Pinterest': return IconBrandPinterest;
-    default:          return null;
+    case 'Instagram':
+      return IconBrandInstagram;
+    case 'Facebook':
+      return IconBrandFacebook;
+    case 'Pinterest':
+      return IconBrandPinterest;
+    default:
+      return null;
   }
 }
 
@@ -101,9 +105,9 @@ function isGroupActive(items: { href: string }[]) {
 
 const mobileNavSettings = siteSettings
   ? {
-      tagline:     siteSettings.tagline,
-      email:       siteSettings.email,
-      phone:       siteSettings.phone,
+      tagline: siteSettings.tagline,
+      email: siteSettings.email,
+      phone: siteSettings.phone,
       socialLinks: siteSettings.socialLinks,
     }
   : null;
@@ -121,147 +125,171 @@ const mobileChrome = {
 ---
 
 <header class="site-header bg-background">
-  {/* Eyebrow strip — desktop only. Direction C: the strip IS the indigo
+  {
+    /* Eyebrow strip — desktop only. Direction C: the strip IS the indigo
       announcement band (replacing sage-with-taupe), so the old 4px indigo
       stripe above it is gone — it would read as a hairline of the same color.
-      Linen text on indigo = 7.6:1; /90 variants stay comfortably AA. */}
-  <div class="hidden lg:block bg-primary">
+      Linen text on indigo = 7.6:1; /90 variants stay comfortably AA. */
+  }
+  <div class="hidden bg-primary lg:block">
     <div class="mx-auto flex max-w-content items-center justify-between px-m py-2">
-      <p class="text-xs uppercase tracking-eyebrow text-bg/90">
+      <p class="text-xs tracking-eyebrow text-bg/90 uppercase">
         {siteSettings?.tagline ?? site.name}
       </p>
       <div class="flex items-center gap-m">
-        {email && (
-          <a
-            href={`mailto:${email}`}
-            class="inline-flex items-center gap-xs text-xs text-bg hover:text-white transition-colors"
-          >
-            <Mail size={12} aria-hidden="true" />
-            {email}
-          </a>
-        )}
-        {phone && (
-          <a
-            href={telHref(phone)}
-            class="inline-flex items-center gap-xs text-xs text-bg hover:text-white transition-colors"
-          >
-            <Phone size={12} aria-hidden="true" />
-            {phone}
-          </a>
-        )}
-        {socialLinks.length > 0 && (
-          <div class="flex items-center gap-1">
-            {socialLinks.map((link) => {
-              const Icon = socialIcon(link.platform);
-              if (!Icon) return null;
-              return (
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={link.label ?? link.platform}
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-full text-bg hover:bg-white/10 hover:text-white transition-colors"
-                >
-                  <Icon size={14} stroke={1.5} />
-                </a>
-              );
-            })}
-          </div>
-        )}
+        {
+          email && (
+            <a
+              href={`mailto:${email}`}
+              class="inline-flex items-center gap-xs text-xs text-bg transition-colors hover:text-white"
+            >
+              <Mail size={12} aria-hidden="true" />
+              {email}
+            </a>
+          )
+        }
+        {
+          phone && (
+            <a
+              href={telHref(phone)}
+              class="inline-flex items-center gap-xs text-xs text-bg transition-colors hover:text-white"
+            >
+              <Phone size={12} aria-hidden="true" />
+              {phone}
+            </a>
+          )
+        }
+        {
+          socialLinks.length > 0 && (
+            <div class="flex items-center gap-1">
+              {socialLinks.map((link) => {
+                const Icon = socialIcon(link.platform);
+                if (!Icon) return null;
+                return (
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label ?? link.platform}
+                    class="inline-flex h-7 w-7 items-center justify-center rounded-full text-bg transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    <Icon size={14} stroke={1.5} />
+                  </a>
+                );
+              })}
+            </div>
+          )
+        }
       </div>
     </div>
   </div>
   {/* Mobile keeps a slim indigo brand stripe since the eyebrow strip is hidden */}
   <div class="h-1 bg-primary lg:hidden" aria-hidden="true"></div>
 
-  {/* Main nav row. The bottom border lives on the inner flex (content width),
-      not the full-bleed wrapper, so the rule aligns with the logo/CTA edges. */}
+  {
+    /* Main nav row. The bottom border lives on the inner flex (content width),
+      not the full-bleed wrapper, so the rule aligns with the logo/CTA edges. */
+  }
   <div class="mx-auto max-w-content px-m">
-    <div class="relative flex items-center justify-center lg:justify-between py-m border-b border-border">
+    <div
+      class="relative flex items-center justify-center border-b border-border py-m lg:justify-between"
+    >
       <a
         href="/"
-        class="inline-flex items-center hover:opacity-80 transition-opacity"
+        class="inline-flex items-center transition-opacity hover:opacity-80"
         aria-label={`${brandName} home`}
       >
-        {customLogo ? (
-          <SanityImage source={customLogo} width={320} alt={customLogo.alt || brandName} loading="eager" class="h-12 w-auto" />
-        ) : (
-          <Logo variant="ink" class="h-12 w-auto" />
-        )}
+        {
+          customLogo ? (
+            <SanityImage
+              source={customLogo}
+              width={320}
+              alt={customLogo.alt || brandName}
+              loading="eager"
+              class="h-12 w-auto"
+            />
+          ) : (
+            <Logo variant="ink" class="h-12 w-auto" />
+          )
+        }
       </a>
 
       {/* Desktop nav + CTA */}
-      <div class="hidden lg:flex items-center gap-l">
+      <div class="hidden items-center gap-l lg:flex">
         <nav class="site-nav flex items-center gap-m" aria-label="Primary">
-        {NAV_ITEMS.map((item) =>
-          item.kind === 'flat' ? (
-            <a
-              href={item.href}
-              class:list={[
-                'nav-underline text-sm tracking-wide transition-colors',
-                isActive(item.href)
-                  ? 'text-link font-semibold'
-                  : 'text-foreground hover:text-link',
-              ]}
-              aria-current={isActive(item.href) ? 'page' : undefined}
-            >
-              {item.label}
-            </a>
-          ) : (
-            <details class="site-nav__group relative">
-              <summary
-                class:list={[
-                  'nav-underline text-sm tracking-wide transition-colors',
-                  'inline-flex items-center gap-0.5 cursor-pointer select-none list-none',
-                  'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm',
-                  isGroupActive(item.items)
-                    ? 'text-link font-semibold'
-                    : 'text-foreground hover:text-link',
-                ]}
-                aria-current={isGroupActive(item.items) ? 'page' : undefined}
-              >
-                {item.label}
-                <ChevronDown
-                  size={14}
-                  className="site-nav__chevron mt-px transition-transform duration-150"
-                  aria-hidden="true"
-                />
-              </summary>
-              <div class="site-nav__menu absolute left-0 top-full mt-2 min-w-[200px] rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 z-50">
-                {item.items.map((sub) => (
-                  <a
-                    href={sub.href}
+          {
+            NAV_ITEMS.map((item) =>
+              item.kind === 'flat' ? (
+                <a
+                  href={item.href}
+                  class:list={[
+                    'nav-underline text-sm tracking-wide transition-colors',
+                    isActive(item.href)
+                      ? 'font-semibold text-link'
+                      : 'text-foreground hover:text-link',
+                  ]}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <details class="site-nav__group relative">
+                  <summary
                     class:list={[
-                      'block rounded-md px-2.5 py-1.5 text-sm transition-colors',
-                      'hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground outline-none',
-                      isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
+                      'nav-underline text-sm tracking-wide transition-colors',
+                      'inline-flex cursor-pointer list-none items-center gap-0.5 select-none',
+                      'rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                      isGroupActive(item.items)
+                        ? 'font-semibold text-link'
+                        : 'text-foreground hover:text-link',
                     ]}
-                    aria-current={isActive(sub.href) ? 'page' : undefined}
+                    aria-current={isGroupActive(item.items) ? 'page' : undefined}
                   >
-                    {sub.label}
-                  </a>
-                ))}
-              </div>
-            </details>
+                    {item.label}
+                    <ChevronDown
+                      size={14}
+                      className="site-nav__chevron mt-px transition-transform duration-150"
+                      aria-hidden="true"
+                    />
+                  </summary>
+                  <div class="site-nav__menu absolute top-full left-0 z-50 mt-2 min-w-[200px] rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10">
+                    {item.items.map((sub) => (
+                      <a
+                        href={sub.href}
+                        class:list={[
+                          'block rounded-md px-2.5 py-1.5 text-sm transition-colors',
+                          'outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground',
+                          isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
+                        ]}
+                        aria-current={isActive(sub.href) ? 'page' : undefined}
+                      >
+                        {sub.label}
+                      </a>
+                    ))}
+                  </div>
+                </details>
+              ),
+            )
+          }
+        </nav>
+        {
+          chrome.headerCta.show && (
+            <>
+              <span class="h-6 w-px bg-border-soft" aria-hidden="true" />
+              <a
+                href={ctaHref}
+                class:list={[
+                  'press-tactile inline-flex min-h-[44px] items-center rounded-sm px-m py-xs text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors',
+                  isActive(ctaHref)
+                    ? 'bg-[var(--color-rust-cta-hover,#722C22)]'
+                    : 'bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)]',
+                ]}
+              >
+                {ctaLabel}
+              </a>
+            </>
           )
-        )}
-      </nav>
-      {chrome.headerCta.show && (
-        <>
-      <span class="h-6 w-px bg-border-soft" aria-hidden="true"></span>
-      <a
-        href={ctaHref}
-        class:list={[
-          'press-tactile inline-flex items-center min-h-[44px] px-m py-xs rounded-sm text-xs uppercase tracking-[0.18em] font-semibold text-white transition-colors',
-          isActive(ctaHref)
-            ? 'bg-[var(--color-rust-cta-hover,#722C22)]'
-            : 'bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)]',
-        ]}
-        >
-          {ctaLabel}
-        </a>
-        </>
-      )}
+        }
       </div>
 
       <MobileNav
@@ -277,10 +305,17 @@ const mobileChrome = {
 </header>
 
 <style>
-  .site-nav__group > summary { list-style: none; }
+  .site-nav__group > summary {
+    list-style: none;
+  }
   .site-nav__group > summary::-webkit-details-marker,
-  .site-nav__group > summary::marker { display: none; content: ""; }
-  .site-nav__group[open] > summary .site-nav__chevron { transform: rotate(180deg); }
+  .site-nav__group > summary::marker {
+    display: none;
+    content: '';
+  }
+  .site-nav__group[open] > summary .site-nav__chevron {
+    transform: rotate(180deg);
+  }
 
   /* Dropdown panel fades + slides in on the brand easing instead of hard-popping
      from display:none. It stays in the DOM (so its layout is stable) but is
@@ -314,7 +349,10 @@ const mobileChrome = {
   }
   @media (prefers-reduced-motion: reduce) {
     .site-nav__menu,
-    .site-nav__group[open] > .site-nav__menu { transition: none; translate: none; }
+    .site-nav__group[open] > .site-nav__menu {
+      transition: none;
+      translate: none;
+    }
   }
 </style>
 
@@ -323,7 +361,9 @@ const mobileChrome = {
     return Array.from(document.querySelectorAll<HTMLDetailsElement>('.site-nav__group'));
   }
   function closeAllGroups(except?: HTMLDetailsElement) {
-    for (const g of currentGroups()) { if (g !== except) g.open = false; }
+    for (const g of currentGroups()) {
+      if (g !== except) g.open = false;
+    }
   }
   function initHeaderNav() {
     const groups = currentGroups();
@@ -332,20 +372,31 @@ const mobileChrome = {
       const summary = group.querySelector('summary');
       let closeTimer: number | undefined;
       const cancelClose = () => {
-        if (closeTimer) { window.clearTimeout(closeTimer); closeTimer = undefined; }
+        if (closeTimer) {
+          window.clearTimeout(closeTimer);
+          closeTimer = undefined;
+        }
       };
       group.addEventListener('pointerenter', (e) => {
         if (e.pointerType === 'touch') return;
-        cancelClose(); closeAllGroups(group); group.open = true;
+        cancelClose();
+        closeAllGroups(group);
+        group.open = true;
       });
       group.addEventListener('pointerleave', (e) => {
         if (e.pointerType === 'touch') return;
         cancelClose();
-        closeTimer = window.setTimeout(() => { group.open = false; }, 140);
+        closeTimer = window.setTimeout(() => {
+          group.open = false;
+        }, 140);
       });
-      summary?.addEventListener('click', () => { if (!group.open) closeAllGroups(group); });
+      summary?.addEventListener('click', () => {
+        if (!group.open) closeAllGroups(group);
+      });
       group.querySelectorAll('a').forEach((link) => {
-        link.addEventListener('click', () => { group.open = false; });
+        link.addEventListener('click', () => {
+          group.open = false;
+        });
       });
     }
   }
@@ -359,7 +410,10 @@ const mobileChrome = {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       const openGroup = currentGroups().find((g) => g.open);
-      if (openGroup) { openGroup.open = false; openGroup.querySelector('summary')?.focus(); }
+      if (openGroup) {
+        openGroup.open = false;
+        openGroup.querySelector('summary')?.focus();
+      }
     });
   }
   initHeaderNav();

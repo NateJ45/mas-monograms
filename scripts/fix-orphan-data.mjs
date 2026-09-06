@@ -37,10 +37,29 @@ const client = createClient({ projectId, dataset, token, apiVersion: '2026-05-01
 // Fields removed from the schema in the orphan-content cleanup, per document.
 // Unsetting is harmless if the value is already gone (idempotent).
 const ORPHAN_FIELDS = {
-  homePage: ['comboPreviewEyebrow', 'comboPreviewHeadline', 'comboPreviewSubhead', 'combosEyebrow', 'combosHeadline', 'combosSubhead', 'combosCtaLabel', 'combosCtaHref', 'categoriesCtaLabel', 'categoriesCtaHref', 'ctaBackgroundImage'],
+  homePage: [
+    'comboPreviewEyebrow',
+    'comboPreviewHeadline',
+    'comboPreviewSubhead',
+    'combosEyebrow',
+    'combosHeadline',
+    'combosSubhead',
+    'combosCtaLabel',
+    'combosCtaHref',
+    'categoriesCtaLabel',
+    'categoriesCtaHref',
+    'ctaBackgroundImage',
+  ],
   aboutPage: ['storyEyebrow', 'valuesEyebrow'],
   howItWorksPage: ['stepsEyebrow', 'faqEyebrow', 'heroImage'],
-  pricingPage: ['tiersEyebrow', 'faqEyebrow', 'tiersNote', 'tiersMinimumNote', 'addonsEyebrow', 'heroImage'],
+  pricingPage: [
+    'tiersEyebrow',
+    'faqEyebrow',
+    'tiersNote',
+    'tiersMinimumNote',
+    'addonsEyebrow',
+    'heroImage',
+  ],
   notFoundPage: ['eyebrow', 'tertiaryCtaLabel', 'tertiaryCtaHref', 'heroImage'],
   requestAQuotePage: ['formIntroHeadline', 'formIntroBody', 'heroImage'],
   shopIndexPage: ['heroImage'],
@@ -55,7 +74,10 @@ function addMissingKeys(node) {
   if (Array.isArray(node)) {
     for (const item of node) {
       if (item && typeof item === 'object' && !Array.isArray(item)) {
-        if (item._key === undefined) { item._key = newKey(); changed = true; }
+        if (item._key === undefined) {
+          item._key = newKey();
+          changed = true;
+        }
         if (addMissingKeys(item)) changed = true;
       }
     }
@@ -96,4 +118,7 @@ async function run() {
   console.log(`\nDone. Orphan fields unset + ${keyed} documents re-keyed.`);
 }
 
-run().catch((e) => { console.error('ERROR:', e.message); process.exit(1); });
+run().catch((e) => {
+  console.error('ERROR:', e.message);
+  process.exit(1);
+});

@@ -9,13 +9,13 @@ Last updated: 2026-07-03.
 
 ## Live URLs
 
-| What | URL |
-|---|---|
-| Site (Cloudflare Worker) | https://mas-monograms.nathanjnixon86.workers.dev/ |
-| Custom domain | `mas-monograms.com` — **pending** DNS cutover |
-| Sanity Studio (Mary Ann's editor) | https://mas-monograms.sanity.studio/ |
-| GitHub repo | `NateJ45/mas-monograms` (private) |
-| Sanity project / dataset | `xp3elugr` / `production` |
+| What                              | URL                                               |
+| --------------------------------- | ------------------------------------------------- |
+| Site (Cloudflare Worker)          | https://mas-monograms.nathanjnixon86.workers.dev/ |
+| Custom domain                     | `mas-monograms.com` — **pending** DNS cutover     |
+| Sanity Studio (Mary Ann's editor) | https://mas-monograms.sanity.studio/              |
+| GitHub repo                       | `NateJ45/mas-monograms` (private)                 |
+| Sanity project / dataset          | `xp3elugr` / `production`                         |
 
 ---
 
@@ -59,12 +59,12 @@ retiring it is in `docs/PENDING.md`.
 Cloudflare Workers Builds is what deploys. GitHub Actions is what tells you the
 push was safe, and what keeps a copy of the content:
 
-| Workflow | When | What it does |
-|---|---|---|
-| `ci.yml` | push to `main`, every PR | install, typegen, **fail on stale `src/lib/sanity.types.ts`**, lint, Astro build (the embedded Studio builds with it), `npm test` |
-| `lighthouse.yml` | push to `main`, every PR | Lighthouse over the built `dist/client`; accessibility hard-gated at 1.0 |
-| `sanity-backup.yml` | nightly 07:00 UTC + manual | `sanity dataset export production`, uploaded as a 90-day artifact. **Skips until the `SANITY_AUTH_TOKEN` repo secret exists.** Restore command is in the workflow footer |
-| `uptime.yml` | hourly + manual | curls `/`, `/pricing`, `/shop-by-item`, `/thread-color-chart` for 200. **Skips until the `SITE_URL` repo variable is set** — repoint that variable at the custom domain after cutover; the workflow never changes |
+| Workflow            | When                       | What it does                                                                                                                                                                                                      |
+| ------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`            | push to `main`, every PR   | install, typegen, **fail on stale `src/lib/sanity.types.ts`**, lint, Astro build (the embedded Studio builds with it), `npm test`                                                                                 |
+| `lighthouse.yml`    | push to `main`, every PR   | Lighthouse over the built `dist/client`; accessibility hard-gated at 1.0                                                                                                                                          |
+| `sanity-backup.yml` | nightly 07:00 UTC + manual | `sanity dataset export production`, uploaded as a 90-day artifact. **Skips until the `SANITY_AUTH_TOKEN` repo secret exists.** Restore command is in the workflow footer                                          |
+| `uptime.yml`        | hourly + manual            | curls `/`, `/pricing`, `/shop-by-item`, `/thread-color-chart` for 200. **Skips until the `SITE_URL` repo variable is set** — repoint that variable at the custom domain after cutover; the workflow never changes |
 
 Both schedules are left **on**: the repo is public, so Actions minutes are free.
 The two unset gates are tracked in `docs/PENDING.md`.
@@ -79,13 +79,13 @@ There are **two** distinct buckets. Putting a variable in the wrong one is the m
 
 Read during `npm run build`. Required for the site to pull content:
 
-| Variable | Value | Secret? |
-|---|---|---|
-| `PUBLIC_SANITY_PROJECT_ID` | `xp3elugr` | no |
-| `PUBLIC_SANITY_DATASET` | `production` | no |
-| `SANITY_API_READ_TOKEN` | Viewer token from sanity.io/manage | **yes** |
-| `PUBLIC_TURNSTILE_SITE_KEY` | Turnstile site key | no (embedded in form HTML) |
-| `PUBLIC_CF_ANALYTICS_TOKEN` | optional | no |
+| Variable                    | Value                              | Secret?                    |
+| --------------------------- | ---------------------------------- | -------------------------- |
+| `PUBLIC_SANITY_PROJECT_ID`  | `xp3elugr`                         | no                         |
+| `PUBLIC_SANITY_DATASET`     | `production`                       | no                         |
+| `SANITY_API_READ_TOKEN`     | Viewer token from sanity.io/manage | **yes**                    |
+| `PUBLIC_TURNSTILE_SITE_KEY` | Turnstile site key                 | no (embedded in form HTML) |
+| `PUBLIC_CF_ANALYTICS_TOKEN` | optional                           | no                         |
 
 ### Runtime secrets (the Worker's Variables & Secrets, or `wrangler secret put`)
 
@@ -95,11 +95,11 @@ that read token is already a Worker secret the preview needs no new one. Locally
 in `.dev.vars` (gitignored; see `.dev.vars.example`), which is a different file from `.env`:
 `.env` is build time, `.dev.vars` is runtime.
 
-| Secret | Purpose |
-|---|---|
-| `RESEND_API_KEY` | Send owner + customer emails |
-| `QUOTE_OWNER_EMAIL` | Where quote notifications go (Mary Ann) |
-| `TURNSTILE_SECRET_KEY` | Server-side CAPTCHA verification |
+| Secret                      | Purpose                                              |
+| --------------------------- | ---------------------------------------------------- |
+| `RESEND_API_KEY`            | Send owner + customer emails                         |
+| `QUOTE_OWNER_EMAIL`         | Where quote notifications go (Mary Ann)              |
+| `TURNSTILE_SECRET_KEY`      | Server-side CAPTCHA verification                     |
 | `QUOTE_BACKUP` (R2 binding) | Bucket `mas-monograms-quotes` for submission backups |
 
 ### Two gotchas baked into `src/lib/sanity.ts` (learned the hard way)

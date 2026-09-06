@@ -15,7 +15,9 @@ const root = resolve(__dirname, '..');
 const fragmentsDir = resolve(root, 'tmp/manifest-fragments');
 const outPath = resolve(root, 'tmp/image-manifest.json');
 
-const fragmentFiles = readdirSync(fragmentsDir).filter((f) => f.endsWith('.json')).sort();
+const fragmentFiles = readdirSync(fragmentsDir)
+  .filter((f) => f.endsWith('.json'))
+  .sort();
 
 const merged = {
   galleryItems: [],
@@ -31,13 +33,20 @@ for (const file of fragmentFiles) {
   if (fragment.fonts) merged.fonts.push(...fragment.fonts);
   if (fragment.threadColors) merged.threadColors.push(...fragment.threadColors);
   if (fragment.categoryImages) Object.assign(merged.categoryImages, fragment.categoryImages);
-  if (fragment.categoriesMissingPhotos) merged.categoriesMissingPhotos.push(...fragment.categoriesMissingPhotos);
+  if (fragment.categoriesMissingPhotos)
+    merged.categoriesMissingPhotos.push(...fragment.categoriesMissingPhotos);
   console.log(`Merged ${file}`);
 }
 
-merged.galleryItems.forEach((item, i) => { item.displayOrder = i + 1; });
-merged.fonts.forEach((item, i) => { item.displayOrder = i + 1; });
-merged.threadColors.forEach((item, i) => { item.displayOrder = i + 1; });
+merged.galleryItems.forEach((item, i) => {
+  item.displayOrder = i + 1;
+});
+merged.fonts.forEach((item, i) => {
+  item.displayOrder = i + 1;
+});
+merged.threadColors.forEach((item, i) => {
+  item.displayOrder = i + 1;
+});
 
 writeFileSync(outPath, JSON.stringify(merged, null, 2), 'utf-8');
 console.log(`\nWrote ${outPath}`);

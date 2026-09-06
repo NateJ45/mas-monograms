@@ -16,7 +16,12 @@ export const studioGuide = defineType({
   type: 'document',
   options: { canvasApp: { exclude: true } },
   fields: [
-    defineField({ name: 'guideTitle', title: 'Guide title', type: 'string', initialValue: 'How the website works' }),
+    defineField({
+      name: 'guideTitle',
+      title: 'Guide title',
+      type: 'string',
+      initialValue: 'How the website works',
+    }),
     defineField({
       name: 'guideIntro',
       title: 'Welcome line',
@@ -28,7 +33,8 @@ export const studioGuide = defineType({
       name: 'videoUrl',
       title: 'Walkthrough video link (optional)',
       type: 'url',
-      description: 'Paste a Loom or YouTube link to a short "how to use this" video. When set, a "Watch the video" button appears at the top of the guide for Mary Ann.',
+      description:
+        'Paste a Loom or YouTube link to a short "how to use this" video. When set, a "Watch the video" button appears at the top of the guide for Mary Ann.',
       validation: (R) => R.uri({ scheme: ['http', 'https'] }),
     }),
     defineField({
@@ -46,8 +52,19 @@ export const studioGuide = defineType({
           type: 'object',
           name: 'mapRow',
           fields: [
-            defineField({ name: 'area', title: 'Area', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'description', title: 'What lives here', type: 'text', rows: 3, validation: (R) => R.required() }),
+            defineField({
+              name: 'area',
+              title: 'Area',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'description',
+              title: 'What lives here',
+              type: 'text',
+              rows: 3,
+              validation: (R) => R.required(),
+            }),
           ],
           preview: { select: { title: 'area', subtitle: 'description' } },
         }),
@@ -62,7 +79,12 @@ export const studioGuide = defineType({
           type: 'object',
           name: 'howTo',
           fields: [
-            defineField({ name: 'title', title: 'Task title', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'title',
+              title: 'Task title',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
             defineField({
               name: 'steps',
               title: 'Steps',
@@ -79,15 +101,33 @@ export const studioGuide = defineType({
       name: 'tips',
       title: 'Tip cards',
       type: 'array',
-      description: 'The colored callout cards: the most-important note, photo tips, launching in stages, scheduling, comments, SEO hints, and "stuck?".',
+      description:
+        'The colored callout cards: the most-important note, photo tips, launching in stages, scheduling, comments, SEO hints, and "stuck?".',
       of: [
         defineArrayMember({
           type: 'object',
           name: 'tip',
           fields: [
-            defineField({ name: 'heading', title: 'Heading', type: 'string', validation: (R) => R.required() }),
-            defineField({ name: 'tone', title: 'Color tone', type: 'string', options: { list: TONES }, initialValue: 'default' }),
-            defineField({ name: 'body', title: 'Body', type: 'text', rows: 5, validation: (R) => R.required() }),
+            defineField({
+              name: 'heading',
+              title: 'Heading',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
+            defineField({
+              name: 'tone',
+              title: 'Color tone',
+              type: 'string',
+              options: { list: TONES },
+              initialValue: 'default',
+            }),
+            defineField({
+              name: 'body',
+              title: 'Body',
+              type: 'text',
+              rows: 5,
+              validation: (R) => R.required(),
+            }),
           ],
           preview: { select: { title: 'heading', subtitle: 'tone' } },
         }),

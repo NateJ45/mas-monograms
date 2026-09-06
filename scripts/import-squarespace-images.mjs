@@ -92,14 +92,19 @@ function loadManifest() {
   for (const [i, entry] of manifest.galleryItems.entries()) {
     if (!entry.sourceUrl) errors.push(`galleryItems[${i}]: missing sourceUrl`);
     if (!entry.alt) errors.push(`galleryItems[${i}]: missing alt`);
-    if (typeof entry.displayOrder !== 'number') errors.push(`galleryItems[${i}]: displayOrder must be a number`);
+    if (typeof entry.displayOrder !== 'number')
+      errors.push(`galleryItems[${i}]: displayOrder must be a number`);
     if (entry.sourceUrl) {
       const filename = filenameFromUrl(entry.sourceUrl).replace(/\.[^.]+$/, '');
       const id = galleryItemId(filename);
       if (id === 'galleryItem-') {
-        errors.push(`galleryItems[${i}]: sourceUrl "${entry.sourceUrl}" slugifies to an empty id — filename has no alphanumeric characters`);
+        errors.push(
+          `galleryItems[${i}]: sourceUrl "${entry.sourceUrl}" slugifies to an empty id — filename has no alphanumeric characters`,
+        );
       } else if (seenGalleryIds.has(id)) {
-        errors.push(`galleryItems[${i}]: duplicate derived id "${id}" — another entry already slugifies to this same id, which would silently overwrite it via createOrReplace`);
+        errors.push(
+          `galleryItems[${i}]: duplicate derived id "${id}" — another entry already slugifies to this same id, which would silently overwrite it via createOrReplace`,
+        );
       } else {
         seenGalleryIds.add(id);
       }
@@ -133,8 +138,13 @@ function loadManifest() {
     if (!Array.isArray(entry.heroImageUrls) || entry.heroImageUrls.length < 1) {
       errors.push(`categoryImages.${slug}: heroImageUrls must have at least 1 entry`);
     }
-    if (!Array.isArray(entry.heroAlts) || entry.heroAlts.length !== (entry.heroImageUrls ?? []).length) {
-      errors.push(`categoryImages.${slug}: heroAlts must have exactly one entry per heroImageUrls entry`);
+    if (
+      !Array.isArray(entry.heroAlts) ||
+      entry.heroAlts.length !== (entry.heroImageUrls ?? []).length
+    ) {
+      errors.push(
+        `categoryImages.${slug}: heroAlts must have exactly one entry per heroImageUrls entry`,
+      );
     }
   }
 
@@ -187,7 +197,9 @@ async function main() {
   console.log(`  categoryImages:  ${counts.categoryImages}`);
   console.log(`  threadColors:    ${counts.threadColors}`);
   if (manifest.categoriesMissingPhotos.length > 0) {
-    console.log(`  categories missing photos (skipped, not an error): ${manifest.categoriesMissingPhotos.join(', ')}`);
+    console.log(
+      `  categories missing photos (skipped, not an error): ${manifest.categoriesMissingPhotos.join(', ')}`,
+    );
   }
 
   if (dryRun) {
@@ -217,7 +229,9 @@ async function main() {
       uploaded += 1;
       console.log(`  galleryItem: ${doc._id}`);
     } catch (err) {
-      throw new Error(`Failed on galleryItems[${i}] (sourceUrl: ${entry.sourceUrl}): ${err.message}`);
+      throw new Error(
+        `Failed on galleryItems[${i}] (sourceUrl: ${entry.sourceUrl}): ${err.message}`,
+      );
     }
   }
 
@@ -229,7 +243,9 @@ async function main() {
       uploaded += 1;
       console.log(`  font: ${doc._id}`);
     } catch (err) {
-      throw new Error(`Failed on fonts[${i}] (name: ${entry.name}, sourceUrl: ${entry.sourceUrl}): ${err.message}`);
+      throw new Error(
+        `Failed on fonts[${i}] (name: ${entry.name}, sourceUrl: ${entry.sourceUrl}): ${err.message}`,
+      );
     }
   }
 
@@ -252,7 +268,11 @@ async function main() {
         const assetId = await uploadImage(entry.heroImageUrls[i]);
         heroImages.push({ assetId, alt: entry.heroAlts[i] });
       }
-      const patch = buildCategoryImagePatch({ cardImageAssetId, cardAlt: entry.cardAlt, heroImages });
+      const patch = buildCategoryImagePatch({
+        cardImageAssetId,
+        cardAlt: entry.cardAlt,
+        heroImages,
+      });
       await client.patch(`category-${slug}`).set(patch).commit();
       uploaded += 1;
       console.log(`  itemCategory patched: category-${slug}`);
@@ -263,10 +283,14 @@ async function main() {
 
   if (manifest.categoriesMissingPhotos.length > 0) {
     skipped = manifest.categoriesMissingPhotos.length;
-    console.log(`\nSkipped (no fitting photo found): ${manifest.categoriesMissingPhotos.join(', ')}`);
+    console.log(
+      `\nSkipped (no fitting photo found): ${manifest.categoriesMissingPhotos.join(', ')}`,
+    );
   }
 
-  console.log(`\nDone. ${uploaded} document(s) created/updated, ${skipped} category/categories intentionally skipped.`);
+  console.log(
+    `\nDone. ${uploaded} document(s) created/updated, ${skipped} category/categories intentionally skipped.`,
+  );
 }
 
 main().catch((err) => {

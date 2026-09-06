@@ -16,7 +16,7 @@ versions saved here), then chose the **hybrid system**: the Flourished Initial l
 - Heritage/luxury embroidery brands (Leontine Linens, Matouk, Weezie, Courtland & Co.): letterspaced
   serif caps in one muted ink; script rationed to a single element (usually one initial); place-name
   microtext in the lockup; tool imagery (needles/thread) absent from the primary mark; responsive
-  logo *families* (full lockup → reduced lockup → bold mark) rather than naive shrinking.
+  logo _families_ (full lockup → reduced lockup → bold mark) rather than naive shrinking.
 - Favicon best practice (Evil Martians et al.): ship favicon.ico 32px + icon.svg + apple-touch-icon
   180px (solid bg, ~20px padding) + icon-192/512 + manifest; ≥2px strokes at 16px; thin scripts
   never survive tab size.
@@ -24,11 +24,13 @@ versions saved here), then chose the **hybrid system**: the Flourished Initial l
 ## Finalists
 
 ### 2 — The Shopkeeper's Badge (`2-shopkeepers-badge/`)
+
 Double indigo ring reading as an embroidery hoop (screw-tab detail at top), Claret Fraunces "M"
 center. Stacked form arcs "MAS MONOGRAMS" / "ST. MATTHEWS, SC" around the rim. Mark = rings + M,
 no text. At a dedicated 16px cut: drop the inner ring, thicken the outer to 8 units.
 
 ### 3 — The Flourished Initial (`3-flourished-initial/`)
+
 Oversized Petemoss script "M" in Claret with a drawn thread-swash underlining a normal-tracked
 Fraunces "MAS MONOGRAMS". Mark deliberately swaps the script for a bold Fraunces M + thick claret
 swash (the luxury-brand favicon reduction — script never shrinks below ~48px).

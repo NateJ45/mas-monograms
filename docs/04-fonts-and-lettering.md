@@ -23,18 +23,18 @@ The original source images live in `assets/`. Upload them into Sanity (and crop 
 Ten named fonts, shown together in `assets/font-10-popular.jpg`. These are the everyday lettering
 choices for names, words, and text. Available stitch heights vary by font:
 
-| Font | Available sizes |
-|---|---|
-| Meadow | 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Moonlight | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Fuchsia | 0.5", 1", 1.5", 2", 2.5", 3", 3.5" |
-| Hydrangea | 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Subscriber | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Melissa | 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Swallow | 1", 1.5", 2", 2.5", 3", 3.5", 4" |
+| Font           | Available sizes                        |
+| -------------- | -------------------------------------- |
+| Meadow         | 1", 1.5", 2", 2.5", 3", 3.5", 4"       |
+| Moonlight      | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
+| Fuchsia        | 0.5", 1", 1.5", 2", 2.5", 3", 3.5"     |
+| Hydrangea      | 1", 1.5", 2", 2.5", 3", 3.5", 4"       |
+| Subscriber     | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
+| Melissa        | 1", 1.5", 2", 2.5", 3", 3.5", 4"       |
+| Swallow        | 1", 1.5", 2", 2.5", 3", 3.5", 4"       |
 | Green Lemonade | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Katherine | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
-| Edelweiss | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
+| Katherine      | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
+| Edelweiss      | 0.5", 1", 1.5", 2", 2.5", 3", 3.5", 4" |
 
 For the guide, you can either crop `font-10-popular.jpg` into ten individual previews (cleaner, lets
 each font be its own card and its own dropdown option) or show the single combined image with a
@@ -46,14 +46,14 @@ caption listing the names. Individual crops are the better experience.
 
 These are the ornate alphabets used for classic monograms (and some work for full names too).
 
-| Style | Asset | What it is |
-|---|---|---|
-| **Master Circle** | `assets/font-master-circle.jpg` | The classic interlocking 3-letter monogram, set in a circular/oval shape. The "AAA, BBB, CCC..." grid. The default when someone says "monogram." |
-| **Vine / Heirloom** | `assets/font-vine-heirloom.jpg` | A full ornate vine script alphabet with paired upper/lower forms. Elegant, works for monograms and names. |
-| **Pillow** | `assets/font-pillow.jpg` | An ornate single-letter flourished script alphabet (A to Z). Works for monograms and names. |
+| Style               | Asset                           | What it is                                                                                                                                       |
+| ------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Master Circle**   | `assets/font-master-circle.jpg` | The classic interlocking 3-letter monogram, set in a circular/oval shape. The "AAA, BBB, CCC..." grid. The default when someone says "monogram." |
+| **Vine / Heirloom** | `assets/font-vine-heirloom.jpg` | A full ornate vine script alphabet with paired upper/lower forms. Elegant, works for monograms and names.                                        |
+| **Pillow**          | `assets/font-pillow.jpg`        | An ornate single-letter flourished script alphabet (A to Z). Works for monograms and names.                                                      |
 
-A monogram "style" is conceptually different from a "font": the style is the *arrangement* of the
-three letters (interlocking circle, stacked, etc.), while the font is the *typeface* used for a name
+A monogram "style" is conceptually different from a "font": the style is the _arrangement_ of the
+three letters (interlocking circle, stacked, etc.), while the font is the _typeface_ used for a name
 or word. The quote form reflects this with two separate fields (see below).
 
 ---
@@ -64,13 +64,13 @@ Five additional fonts that live in `assets/fonts-from-pdf.pdf`. Squarespace coul
 inline, and neither can the new site, so these need to be **exported as individual JPG crops** before
 upload. Same task carries over.
 
-| Font | Character |
-|---|---|
-| **Golden Valley** | Flowing connected script |
-| **Fishtail** | Tall decorative serif caps |
-| **Curlz** | Playful, curly, casual |
-| **Classic** | Clean serif, full a–z plus numbers and symbols |
-| **CA Liberty** | Tall condensed appliqué-style lettering |
+| Font              | Character                                      |
+| ----------------- | ---------------------------------------------- |
+| **Golden Valley** | Flowing connected script                       |
+| **Fishtail**      | Tall decorative serif caps                     |
+| **Curlz**         | Playful, curly, casual                         |
+| **Classic**       | Clean serif, full a–z plus numbers and symbols |
+| **CA Liberty**    | Tall condensed appliqué-style lettering        |
 
 Action item: open the PDF, crop each font's sample to its own JPG, name them to match
 (`font-golden-valley.jpg`, etc.), and upload as the `previewImage` on each `font` document.
@@ -96,7 +96,7 @@ in code. That constraint is gone here. The dropdowns are generated from the `fon
 Sanity at build time, so adding a font is: add the document, the option appears. The shipped `font`
 schema uses a `styleTag` field (classic / script / block / modern / monogram) to group the specimens on
 the guide page; the quote form's font dropdown lists all `font` documents plus an "Other" and a
-"Recommend for me" escape. (The monogram *style* vs. name *font* distinction described above is a
+"Recommend for me" escape. (The monogram _style_ vs. name _font_ distinction described above is a
 content convention, not two separate types.)
 
 ---

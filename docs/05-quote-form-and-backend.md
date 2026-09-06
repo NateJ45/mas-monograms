@@ -20,33 +20,39 @@ Six field groups. In Squarespace the group headers used the "Line" field type; h
 me" option, and the page copy invites it.
 
 **Group 1: Contact**
+
 - Full name (required, text)
 - Email (required, email)
 - Phone (optional, tel)
 
 **Group 2: The item**
+
 - Item type (required, select): the 8 categories (Tote Bags & Pouches, Towels & Linens, Hats & Caps,
   Shirts & Tops, Jackets & Sweatshirts, Baby & Kids, Home & Gifts) plus "Bring my own item" and
   "Something else"
 - Ownership (required, radio): "I'd like you to provide the item" / "I'm bringing my own item"
 
 **Group 3: Lettering**
+
 - Letters, name, or text (text) with a hint that they can leave it to Mary Ann
 - Monogram style (select): Master Circle, Vine / Heirloom, Pillow, Recommend for me
 - Font (select): the named + appliqué fonts from `docs/04`, plus Recommend for me
 
 **Group 4: Stitch details**
+
 - Thread color (select, generated from `threadColor` docs, plus Recommend for me)
 - Placement (select or text): e.g. centered, left chest, cuff, pocket, corner, plus "Recommend"
 - Size (select): the size options from `docs/04`, plus Recommend for me
 
 **Group 5: Logistics**
+
 - Quantity (number, default 1)
 - This is a gift (checkbox)
 - Deadline / need-by date (date, optional)
 - Rush (checkbox): "I need this by a specific date"
 
 **Group 6: Extras**
+
 - Notes (textarea): anything else, special requests, occasion, etc.
 - Reference image (file upload, optional): a photo or inspiration image
 
@@ -128,12 +134,14 @@ noted API instability, so Resend is the safer default for a live business. Revis
 general availability.
 
 **File upload.** Two options:
-- *Recommended:* store the uploaded image in a Cloudflare **R2** bucket and include a link to it in
+
+- _Recommended:_ store the uploaded image in a Cloudflare **R2** bucket and include a link to it in
   the owner email. Keeps emails small and avoids attachment limits.
-- *Simpler:* attach the file to the owner email directly. Fine for small images; watch provider
+- _Simpler:_ attach the file to the owner email directly. Fine for small images; watch provider
   attachment size limits. Start here if R2 feels like overkill, move to R2 if files get large.
 
 **Spam protection.** A quote form with a file upload is a spam magnet. Two layers:
+
 - A honeypot field (a hidden input real users never fill; if it's filled, drop the submission).
 - **Cloudflare Turnstile**, the free CAPTCHA alternative native to Cloudflare. Add the widget to the
   form and verify the token in the Function before sending any email.

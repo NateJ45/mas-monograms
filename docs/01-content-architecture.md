@@ -47,6 +47,7 @@ folders), so Mary Ann can reorder or rename it without code. The live top nav, i
 **Inspiration** (folder) contains: Style Gallery, Font & Lettering Guide, Thread Color Chart.
 
 Notes:
+
 - There is no "Seasonal" nav item (that page was never built) and no persistent cart icon. Clearance
   ships with Stripe Payment Links, not a real cart, so "Clearance" links straight to the clearance
   page.
@@ -64,30 +65,30 @@ live at the root as a dynamic route while the standalone pages stay as their own
 to remember:** never create a category whose slug collides with a standalone route name (e.g. do not
 name a category "pricing").
 
-| Path | Page | Source in Astro | Notes |
-|---|---|---|---|
-| `/` | Homepage | `pages/index.astro` | Singleton (`homePage`) |
-| `/about` | About / Contact | `pages/about.astro` | Canonical (`aboutPage`). Redirect `/aboutcontact` → here |
-| `/how-it-works` | How It Works | `pages/how-it-works.astro` | `howItWorksPage` |
-| `/pricing` | Pricing | `pages/pricing.astro` | `pricingPage` |
-| `/request-a-quote` | Request a Quote | `pages/request-a-quote.astro` | Posts to the `/api/quote` Worker route |
-| `/thank-you` | Thank You | `pages/thank-you.astro` | Not in nav. Quote redirects here (`thankYouPage`) |
-| `/shop-by-item` | Shop index | `pages/shop-by-item.astro` | Lists the item categories (`shopIndexPage`) |
-| `/shop` | Shop alias | redirect → `/shop-by-item` | |
-| `/tote-bags` | Category | `pages/[slug].astro` | from Sanity `itemCategory` |
-| `/towels-linens` | Category | `pages/[slug].astro` | |
-| `/hats-caps` | Category | `pages/[slug].astro` | |
-| `/shirts-tops` | Category | `pages/[slug].astro` | |
-| `/jackets-sweatshirts` | Category | `pages/[slug].astro` | |
-| `/baby-kids` | Category | `pages/[slug].astro` | |
-| `/home-gifts` | Category | `pages/[slug].astro` | |
-| `/bring-your-own-item` | Category (special) | `pages/[slug].astro` | "free assessment" instead of "from $" |
-| `/style-gallery` | Style Gallery | `pages/style-gallery.astro` | `styleGalleryPage` + `galleryItem` docs |
-| `/font-lettering-guide` | Font & Lettering Guide | `pages/font-lettering-guide.astro` | `fontGuidePage` + `font` docs |
-| `/thread-color-chart` | Thread Color Chart | `pages/thread-color-chart.astro` | `threadChartPage` + `threadColor` docs |
-| `/clearance` | Clearance | `pages/clearance.astro` | `clearancePage` + `clearanceItem` docs (Stripe Payment Links) |
-| `/legal/[slug]` | Legal / policy pages | `pages/legal/[slug].astro` | from Sanity `legalPage` docs |
-| `/404` | Not found | `pages/404.astro` | `notFoundPage` |
+| Path                    | Page                   | Source in Astro                    | Notes                                                         |
+| ----------------------- | ---------------------- | ---------------------------------- | ------------------------------------------------------------- |
+| `/`                     | Homepage               | `pages/index.astro`                | Singleton (`homePage`)                                        |
+| `/about`                | About / Contact        | `pages/about.astro`                | Canonical (`aboutPage`). Redirect `/aboutcontact` → here      |
+| `/how-it-works`         | How It Works           | `pages/how-it-works.astro`         | `howItWorksPage`                                              |
+| `/pricing`              | Pricing                | `pages/pricing.astro`              | `pricingPage`                                                 |
+| `/request-a-quote`      | Request a Quote        | `pages/request-a-quote.astro`      | Posts to the `/api/quote` Worker route                        |
+| `/thank-you`            | Thank You              | `pages/thank-you.astro`            | Not in nav. Quote redirects here (`thankYouPage`)             |
+| `/shop-by-item`         | Shop index             | `pages/shop-by-item.astro`         | Lists the item categories (`shopIndexPage`)                   |
+| `/shop`                 | Shop alias             | redirect → `/shop-by-item`         |                                                               |
+| `/tote-bags`            | Category               | `pages/[slug].astro`               | from Sanity `itemCategory`                                    |
+| `/towels-linens`        | Category               | `pages/[slug].astro`               |                                                               |
+| `/hats-caps`            | Category               | `pages/[slug].astro`               |                                                               |
+| `/shirts-tops`          | Category               | `pages/[slug].astro`               |                                                               |
+| `/jackets-sweatshirts`  | Category               | `pages/[slug].astro`               |                                                               |
+| `/baby-kids`            | Category               | `pages/[slug].astro`               |                                                               |
+| `/home-gifts`           | Category               | `pages/[slug].astro`               |                                                               |
+| `/bring-your-own-item`  | Category (special)     | `pages/[slug].astro`               | "free assessment" instead of "from $"                         |
+| `/style-gallery`        | Style Gallery          | `pages/style-gallery.astro`        | `styleGalleryPage` + `galleryItem` docs                       |
+| `/font-lettering-guide` | Font & Lettering Guide | `pages/font-lettering-guide.astro` | `fontGuidePage` + `font` docs                                 |
+| `/thread-color-chart`   | Thread Color Chart     | `pages/thread-color-chart.astro`   | `threadChartPage` + `threadColor` docs                        |
+| `/clearance`            | Clearance              | `pages/clearance.astro`            | `clearancePage` + `clearanceItem` docs (Stripe Payment Links) |
+| `/legal/[slug]`         | Legal / policy pages   | `pages/legal/[slug].astro`         | from Sanity `legalPage` docs                                  |
+| `/404`                  | Not found              | `pages/404.astro`                  | `notFoundPage`                                                |
 
 There is no `/seasonal` page. The `[slug].astro` catch-all serves the item-category pages at the
 root; explicit page files win over it, so never create a category whose slug collides with a
@@ -103,12 +104,13 @@ Put these in a Cloudflare Pages `_redirects` file:
 
 ---
 
-## Homepage  (`/`)
+## Homepage (`/`)
 
 The funnel in one page: orient, build trust, route to the quote. All copy comes from the `homePage`
 singleton. Current section order (top to bottom):
 
 **1. Hero** (indigo "drench" surface — Direction C / The Sampler)
+
 - Eyebrow: `Handmade in St. Matthews, SC`
 - Heading: `Custom monogramming, *made just for you.*`
 - Subhead: `From classic 3-letter monograms to full appliqué designs, we stitch everything by hand, locally. Towels, totes, hats, sweatshirts, baby gifts, and more.`
@@ -122,30 +124,33 @@ indigo hero: e.g. `No payment to request a quote` · `Reply within 1 business da
 home-based studio`.
 
 **3. Category grid**
+
 - Label: `Choose a category to get started`
 - Exactly **8** cards — the 8 item categories, each rendered from its `itemCategory` `cardImage`
   (real photo thumbnails, not emoji). There are no Seasonal or Clearance cards in this grid. A "View
   all items" link points to `/shop-by-item`. The starting hero/description copy for each category
   (still useful as a reference for the category pages) is:
 
-| Category | Description | Hint |
-|---|---|---|
-| Tote Bags & Pouches | The gift people actually use. Canvas, jute, nylon, monogrammed with your initials or name. | from $16 |
-| Towels & Linens | Bath towels, hand towels, tea towels, napkins. The easiest upgrade to your guest bath or kitchen. | from $16 |
-| Hats & Caps | Baseball caps, beanies, sun hats, monogrammed or custom text, centered or side-stitched. | from $16 |
-| Shirts & Tops | Polos, t-shirts, button-downs. Chest, cuff, or pocket placement, perfect for teams or gifts. | from $16 |
-| Jackets & Sweatshirts | Bordered sash, appliqué, or bold collegiate lettering. | from $18 |
-| Baby & Kids | Soft thread, sweet fonts, and something they'll keep forever. Onesies, blankets, burp cloths. | from $16 |
-| Home & Gifts | Ornaments, pillows, blankets, door hangers, wreath sashes. If it's fabric, we can monogram it. | from $16 |
-| Bring Your Own Item | Have something you love? Bring it in. We'll assess it free, most fabric items work beautifully. | free assessment |
+| Category              | Description                                                                                       | Hint            |
+| --------------------- | ------------------------------------------------------------------------------------------------- | --------------- |
+| Tote Bags & Pouches   | The gift people actually use. Canvas, jute, nylon, monogrammed with your initials or name.        | from $16        |
+| Towels & Linens       | Bath towels, hand towels, tea towels, napkins. The easiest upgrade to your guest bath or kitchen. | from $16        |
+| Hats & Caps           | Baseball caps, beanies, sun hats, monogrammed or custom text, centered or side-stitched.          | from $16        |
+| Shirts & Tops         | Polos, t-shirts, button-downs. Chest, cuff, or pocket placement, perfect for teams or gifts.      | from $16        |
+| Jackets & Sweatshirts | Bordered sash, appliqué, or bold collegiate lettering.                                            | from $18        |
+| Baby & Kids           | Soft thread, sweet fonts, and something they'll keep forever. Onesies, blankets, burp cloths.     | from $16        |
+| Home & Gifts          | Ornaments, pillows, blankets, door hangers, wreath sashes. If it's fabric, we can monogram it.    | from $16        |
+| Bring Your Own Item   | Have something you love? Bring it in. We'll assess it free, most fabric items work beautifully.   | free assessment |
 
 **4. Meet the maker** (About / maker blurb — `aboutEyebrow`/`aboutHeadline`/`aboutBody`/`aboutPhoto`)
+
 - Label: `Meet the maker`
 - Heading: `Hi, I'm *Mary Ann.*`
 - Body: `I'm a home-based embroidery artist in St. Matthews, SC. What started as a creative hobby three years ago has grown into something I truly love sharing. Every order comes directly to me, no team, no warehouse. When you reach out, you're talking to the person who will actually stitch your item.`
 - Link: `More about MAS Monograms` (→ `/about`)
 
 **5. Process preview** (`processSteps`, the 3–4 step pattern, reused on key pages)
+
 - Label: `How it works`
 - 1 `Browse`: `Pick your item & get inspired`
 - 2 `Request`: `Submit a free quote form`
@@ -154,11 +159,13 @@ home-based studio`.
 - CTA: `See how it works` (→ `/how-it-works`)
 
 **6. Gallery preview** (`galleryEyebrow`/`galleryHeadline`/`gallerySubhead`)
+
 - A masonry grid of up to 9 featured `galleryItem` photos.
 - Body voice: `Browse real work from our studio, and tell us your vibe. We'll pick the perfect font and thread for you.`
 - Button: `View full style gallery` (→ `/style-gallery`)
 
 **7. Final CTA banner** (indigo drench, matching the hero — Direction C bookends)
+
 - Heading: `Ready to make something *personal?*`
 - Body: `Requesting a quote is free and takes about 2 minutes. We'll reply within 1 business day with your custom price.`
 - Button: `Request a Free Quote`
@@ -171,9 +178,10 @@ are invented; the `testimonial` type was removed), or a stat-counter strip.
 
 ---
 
-## How It Works  (`/how-it-works`)
+## How It Works (`/how-it-works`)
 
 **1. Hero**
+
 - Eyebrow: `No cart. No checkout. No guessing.`
 - Heading: `Here's *exactly* how ordering works.`
 - Body: `Custom monogramming means every order is unique, so we use a simple quote process instead of a standard checkout. It takes about 2 minutes to request, and we handle everything from there.`
@@ -215,7 +223,7 @@ Pricing. Seed copy:
 
 ---
 
-## Pricing  (`/pricing`)
+## Pricing (`/pricing`)
 
 The numbers are authoritative in `docs/03-pricing.md` (transcribed from Mary Ann's scan). The page
 itself presents them as ranges with a "no surprises" trust statement. Section pattern: hero → the
@@ -225,7 +233,7 @@ tier copy and the one-time fees from `docs/03`.
 
 ---
 
-## Item category pages  (one template, currently 8 categories)
+## Item category pages (one template, currently 8 categories)
 
 Driven by the `itemCategory` type in Sanity and served by `pages/[slug].astro` at the site root.
 The count is data-driven (add or retire categories in Sanity). Same template for all:
@@ -246,7 +254,7 @@ card table above. Bring Your Own Item still uses `free assessment` in place of a
 
 ---
 
-## Shop index  (`/shop-by-item`)
+## Shop index (`/shop-by-item`)
 
 A simple landing page (`shopIndexPage`) listing every `itemCategory` as a card — each with its
 photo, name, one-line description, CTA label, and `startingPrice` — under a compact hero and an
@@ -255,7 +263,7 @@ destination. (`/shop` redirects here.)
 
 ---
 
-## Style Gallery  (`/style-gallery`)
+## Style Gallery (`/style-gallery`)
 
 Label `Style Gallery`, heading `Not sure where to *start?*` (matches the homepage teaser voice). A
 filterable grid of finished-work photos, ideally tagged by item type / font / thread so visitors can
@@ -264,7 +272,7 @@ into the quote form ("tell us your vibe and we'll pick the combination"). End wi
 
 ---
 
-## Font & Lettering Guide  (`/font-lettering-guide`)
+## Font & Lettering Guide (`/font-lettering-guide`)
 
 The full font catalog, driven by the `font` type in Sanity. Because these are embroidery fonts, not
 web fonts, every font is shown as an **uploaded image preview**, not CSS-rendered text. Group them
@@ -274,7 +282,7 @@ dropdown read from the same `font` documents, so the list stays in sync.
 
 ---
 
-## Thread Color Chart  (`/thread-color-chart`)
+## Thread Color Chart (`/thread-color-chart`)
 
 A swatch grid driven by the `threadColor` type. Each swatch shows the color (an approximate hex for
 display, or an uploaded swatch image for accuracy) and its name, grouped by color family. Include the
@@ -283,7 +291,7 @@ End with a CTA to the quote form.
 
 ---
 
-## Request a Quote  (`/request-a-quote`)
+## Request a Quote (`/request-a-quote`)
 
 The conversion page and the single most important build. Full field list, validation, and the
 Cloudflare + Resend backend are in `docs/05-quote-form-and-backend.md`. Page copy keeps the
@@ -291,7 +299,7 @@ reassurance front and center: free, about 2 minutes, reply within 1 business day
 
 ---
 
-## About  (`/about`)
+## About (`/about`)
 
 Driven by the `aboutPage` singleton. This is Mary Ann's story page, **not** a contact hub: there is
 no on-page "Get in touch" split, no second contact form, and no info-blocks section. Contact details
@@ -303,6 +311,7 @@ seed copy: eyebrow `St. Matthews, SC · Home-based · Handcrafted`; heading `The
 
 **2. Story** (`storyHeadline` + `storyContent` portable text, optional `makerPhoto`, `makerAttribution`
 signature line, and an optional `studioNote` callout). Seed copy:
+
 - `MAS Monograms started the way most good things do, as a creative outlet that quietly turned into something bigger. I've been doing embroidery for the last three years, and what started as a challenge has become one of my favorite things. There's something deeply satisfying about taking a blank item and turning it into something personal and lasting.`
 - `I run this business out of my home in St. Matthews, SC. That means every order comes directly to me, there's no team, no warehouse, and no assembly line. When you reach out, you're talking to the person who will actually stitch your item.`
 - `I work with blankets, towels, clothing, totes, hats, baby items, home goods, even socks and shoe laces. Beyond embroidery, I also do card making and basic sewing, and I'm always exploring new crafts.`
@@ -313,6 +322,7 @@ three featured `galleryItem` photos, reused to fill the imagery gap on this othe
 
 **4. Values** (`valuesHeadline` + `values[]`, three to four short `label` + `body` cards) —
 seed copy (heading `What makes MAS Monograms different`):
+
 - **One person, every order**: You deal directly with Mary Ann, no customer service queues, no middlemen. Your message goes straight to the person stitching your item.
 - **Personal guidance included**: Not sure what font or thread to pick? Just say so. Helping customers figure out what they actually want is one of the best parts of the job.
 - **Local & accessible**: Based in St. Matthews, SC. Local pickup is always available, and the pricing reflects a home studio, not a commercial retailer.
@@ -327,7 +337,7 @@ split, the second/general contact form, and the testimonials section (no genuine
 
 ---
 
-## Thank You  (`/thank-you`, not in nav)
+## Thank You (`/thank-you`, not in nav)
 
 Where the quote form redirects on success. Should confirm receipt, reset expectations (reply within
 1 business day), and offer somewhere to go next (browse the gallery, read How It Works). Keep it warm
@@ -335,7 +345,7 @@ and specific so the visitor knows the submission actually worked.
 
 ---
 
-## Clearance  (`/clearance`)
+## Clearance (`/clearance`)
 
 The only "buy now" page. Pre-made stock, fixed prices, no quote. Each item is a `clearanceItem` in
 Sanity with a name, photo, price, and a **Stripe Payment Link**. The "Add to cart / check out" copy
@@ -344,7 +354,7 @@ manage. See `docs/03` for the commerce note.
 
 ---
 
-## Legal / policy pages  (`/legal/[slug]`)
+## Legal / policy pages (`/legal/[slug]`)
 
 Policy pages (e.g. privacy policy, terms) driven by the `legalPage` collection — each doc has a
 title, slug, `lastUpdated` date, and portable-text body. Served by `pages/legal/[slug].astro` and
@@ -352,7 +362,7 @@ linked from the footer legal row. Add or edit a policy entirely in Sanity, no co
 
 ---
 
-## 404  (`/404`)
+## 404 (`/404`)
 
 On-brand not-found page (`notFoundPage`): a short apologetic line in the house voice, and links back
 to the homepage, the shop, and the quote form.
@@ -380,6 +390,7 @@ Data-driven from `siteSettings` (`footerColumns`, `socialLinks`, contact fields,
 
 Warm, direct, confident. The job of the copy is to lower anxiety about an unfamiliar quote process.
 Anchor phrases that should stay consistent across the site:
+
 - "No payment required to request a quote" / "It's free and takes about 2 minutes"
 - "We respond within 1 business day" (often "usually same day")
 - "Tell us your vibe and we'll pick the perfect combination"

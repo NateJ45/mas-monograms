@@ -12,13 +12,19 @@ export const siteSettings = defineType({
   icon: CogIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'identity',   title: 'Identity & contact', default: true },
+    { name: 'identity', title: 'Identity & contact', default: true },
     { name: 'navigation', title: 'Navigation' },
-    { name: 'social',     title: 'Social & footer' },
-    { name: 'seo',        title: 'SEO defaults' },
-    { name: 'business',   title: 'Business details' },
+    { name: 'social', title: 'Social & footer' },
+    { name: 'seo', title: 'SEO defaults' },
+    { name: 'business', title: 'Business details' },
   ],
-  fieldsets: [{ name: 'seo', title: 'Google & sharing — you rarely need to touch this', options: { collapsible: true, collapsed: true } }],
+  fieldsets: [
+    {
+      name: 'seo',
+      title: 'Google & sharing — you rarely need to touch this',
+      options: { collapsible: true, collapsed: true },
+    },
+  ],
   fields: [
     // ── Identity ──────────────────────────────────────────────────────────────
     defineField({
@@ -35,7 +41,8 @@ export const siteSettings = defineType({
       title: 'Tagline',
       type: 'string',
       group: 'identity',
-      description: 'Short tagline shown under the logo in the footer. E.g. "Custom embroidery from St. Matthews, SC."',
+      description:
+        'Short tagline shown under the logo in the footer. E.g. "Custom embroidery from St. Matthews, SC."',
       validation: (Rule) => Rule.required().max(120),
     }),
     defineField({
@@ -44,8 +51,7 @@ export const siteSettings = defineType({
       type: 'string',
       group: 'identity',
       description: 'Public email address — shown in the footer and on the quote form.',
-      validation: (Rule) =>
-        Rule.required().regex(/.+@.+\..+/, { name: 'email', invert: false }),
+      validation: (Rule) => Rule.required().regex(/.+@.+\..+/, { name: 'email', invert: false }),
     }),
     defineField({
       name: 'phone',
@@ -63,7 +69,12 @@ export const siteSettings = defineType({
       fields: [
         defineField({ name: 'street', title: 'Street address', type: 'string' }),
         defineField({ name: 'city', title: 'City', type: 'string', initialValue: 'St. Matthews' }),
-        defineField({ name: 'state', title: 'State (2-letter)', type: 'string', initialValue: 'SC' }),
+        defineField({
+          name: 'state',
+          title: 'State (2-letter)',
+          type: 'string',
+          initialValue: 'SC',
+        }),
         defineField({ name: 'zip', title: 'ZIP code', type: 'string' }),
       ],
     }),
@@ -96,7 +107,8 @@ export const siteSettings = defineType({
       title: 'Service area note',
       type: 'string',
       group: 'identity',
-      description: 'Short description of service area for footer and SEO. E.g. "St. Matthews and surrounding Calhoun County."',
+      description:
+        'Short description of service area for footer and SEO. E.g. "St. Matthews and surrounding Calhoun County."',
     }),
     defineField({
       name: 'geo',
@@ -106,8 +118,18 @@ export const siteSettings = defineType({
       description:
         'Latitude & longitude for the LocalBusiness map pin in Google. Optional — leave blank until you have exact coordinates (find them on Google Maps: right-click your location → the first line is "latitude, longitude").',
       fields: [
-        defineField({ name: 'latitude', title: 'Latitude', type: 'number', description: 'E.g. 33.6640' }),
-        defineField({ name: 'longitude', title: 'Longitude', type: 'number', description: 'E.g. -80.7776' }),
+        defineField({
+          name: 'latitude',
+          title: 'Latitude',
+          type: 'number',
+          description: 'E.g. 33.6640',
+        }),
+        defineField({
+          name: 'longitude',
+          title: 'Longitude',
+          type: 'number',
+          description: 'E.g. -80.7776',
+        }),
       ],
       options: { collapsible: true, collapsed: true },
     }),
@@ -187,7 +209,12 @@ export const siteSettings = defineType({
           title: 'Dropdown',
           icon: ChevronDownIcon,
           fields: [
-            defineField({ name: 'label', title: 'Menu label', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'label',
+              title: 'Menu label',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
             defineField({
               name: 'links',
               title: 'Menu links',
@@ -204,8 +231,18 @@ export const siteSettings = defineType({
                   title: 'Link (address typed by hand)',
                   icon: LinkIcon,
                   fields: [
-                    defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required() }),
-                    defineField({ name: 'href', title: 'URL', type: 'string', validation: (R) => R.required() }),
+                    defineField({
+                      name: 'label',
+                      title: 'Label',
+                      type: 'string',
+                      validation: (R) => R.required(),
+                    }),
+                    defineField({
+                      name: 'href',
+                      title: 'URL',
+                      type: 'string',
+                      validation: (R) => R.required(),
+                    }),
                   ],
                   preview: { select: { title: 'label', subtitle: 'href' } },
                 }),
@@ -245,7 +282,12 @@ export const siteSettings = defineType({
           title: 'Column',
           icon: ListIcon,
           fields: [
-            defineField({ name: 'title', title: 'Column heading', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'title',
+              title: 'Column heading',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
             defineField({
               name: 'links',
               title: 'Links',
@@ -262,8 +304,18 @@ export const siteSettings = defineType({
                   title: 'Link (address typed by hand)',
                   icon: LinkIcon,
                   fields: [
-                    defineField({ name: 'label', title: 'Label', type: 'string', validation: (R) => R.required() }),
-                    defineField({ name: 'href', title: 'URL', type: 'string', validation: (R) => R.required() }),
+                    defineField({
+                      name: 'label',
+                      title: 'Label',
+                      type: 'string',
+                      validation: (R) => R.required(),
+                    }),
+                    defineField({
+                      name: 'href',
+                      title: 'URL',
+                      type: 'string',
+                      validation: (R) => R.required(),
+                    }),
                   ],
                   preview: { select: { title: 'label', subtitle: 'href' } },
                 }),
@@ -355,8 +407,7 @@ export const siteSettings = defineType({
       title: 'Show the social buttons in the footer',
       type: 'boolean',
       group: 'navigation',
-      description:
-        'The row of round social buttons down in the footer. On unless you turn it off.',
+      description: 'The row of round social buttons down in the footer. On unless you turn it off.',
       initialValue: true,
     }),
 
@@ -389,12 +440,20 @@ export const siteSettings = defineType({
               },
               validation: (R) => R.required(),
             }),
-            defineField({ name: 'url', title: 'URL', type: 'url', validation: (R) => R.required().uri({ scheme: ['http', 'https'] }) }),
+            defineField({
+              name: 'url',
+              title: 'URL',
+              type: 'url',
+              validation: (R) => R.required().uri({ scheme: ['http', 'https'] }),
+            }),
             defineField({ name: 'label', title: 'Custom label (for "Other")', type: 'string' }),
           ],
           preview: {
             select: { platform: 'platform', url: 'url' },
-            prepare: ({ platform, url }) => ({ title: platform ?? 'Social link', subtitle: url ?? '' }),
+            prepare: ({ platform, url }) => ({
+              title: platform ?? 'Social link',
+              subtitle: url ?? '',
+            }),
           },
         }),
       ],
@@ -404,7 +463,8 @@ export const siteSettings = defineType({
       title: 'Google Business Profile URL',
       type: 'url',
       group: 'social',
-      description: 'Link to the Google Business listing. Used in the LocalBusiness structured data.',
+      description:
+        'Link to the Google Business listing. Used in the LocalBusiness structured data.',
     }),
     defineField({
       name: 'footerCredit',
@@ -426,8 +486,10 @@ export const siteSettings = defineType({
       name: 'seoTitle',
       title: 'Default SEO title',
       type: 'string',
-      group: 'seo', fieldset: 'seo',
-      description: 'Used on pages that don\'t have their own SEO title. E.g. "MAS Monograms — Custom Embroidery in St. Matthews, SC".',
+      group: 'seo',
+      fieldset: 'seo',
+      description:
+        'Used on pages that don\'t have their own SEO title. E.g. "MAS Monograms — Custom Embroidery in St. Matthews, SC".',
       validation: (Rule) => Rule.required().max(70),
     }),
     defineField({
@@ -435,18 +497,27 @@ export const siteSettings = defineType({
       title: 'Default SEO description',
       type: 'text',
       rows: 3,
-      group: 'seo', fieldset: 'seo',
-      description: 'Used on pages that don\'t have their own SEO description. Aim for 150–160 characters.',
+      group: 'seo',
+      fieldset: 'seo',
+      description:
+        "Used on pages that don't have their own SEO description. Aim for 150–160 characters.",
       validation: (Rule) => Rule.required().max(160),
     }),
     defineField({
       name: 'seoImage',
       title: 'Photo shown when the site is shared',
       type: 'image',
-      group: 'seo', fieldset: 'seo',
+      group: 'seo',
+      fieldset: 'seo',
       description: 'Image shown when the site is shared on social media. ~1200 × 630 px.',
       options: { hotspot: true },
-      fields: [defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string' })],
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Photo description (helps screen readers & Google)',
+          type: 'string',
+        }),
+      ],
     }),
 
     // ── Business details (JSON-LD) ─────────────────────────────────────────────
@@ -459,9 +530,9 @@ export const siteSettings = defineType({
       options: {
         list: [
           { title: 'Local Business (generic)', value: 'LocalBusiness' },
-          { title: 'Store',                    value: 'Store' },
-          { title: 'Professional Service',     value: 'ProfessionalService' },
-          { title: 'Clothing Store',            value: 'ClothingStore' },
+          { title: 'Store', value: 'Store' },
+          { title: 'Professional Service', value: 'ProfessionalService' },
+          { title: 'Clothing Store', value: 'ClothingStore' },
         ],
         layout: 'radio',
       },
@@ -506,7 +577,8 @@ export const siteSettings = defineType({
       title: 'Rush turnaround time',
       type: 'string',
       group: 'business',
-      description: 'Only shown when rush orders are available. E.g. "3–5 business days (additional fee applies)".',
+      description:
+        'Only shown when rush orders are available. E.g. "3–5 business days (additional fee applies)".',
     }),
   ],
   preview: {

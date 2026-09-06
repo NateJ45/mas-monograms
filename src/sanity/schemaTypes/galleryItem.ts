@@ -71,7 +71,12 @@ export const galleryItem = defineType({
     }),
   ],
   preview: {
-    select: { media: 'image', alt: 'image.alt', category: 'relatedCategory.name', font: 'relatedFont.name' },
+    select: {
+      media: 'image',
+      alt: 'image.alt',
+      category: 'relatedCategory.name',
+      font: 'relatedFont.name',
+    },
     prepare: ({ media, alt, category, font }) => ({
       title: alt ?? '(no alt text)',
       subtitle: [category, font].filter(Boolean).join(' · ') || 'No category / font',
@@ -79,7 +84,18 @@ export const galleryItem = defineType({
     }),
   },
   orderings: [
-    { title: 'Featured first, then order', name: 'featuredOrder', by: [{ field: 'featured', direction: 'desc' }, { field: 'displayOrder', direction: 'asc' }] },
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Featured first, then order',
+      name: 'featuredOrder',
+      by: [
+        { field: 'featured', direction: 'desc' },
+        { field: 'displayOrder', direction: 'asc' },
+      ],
+    },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
   ],
 });

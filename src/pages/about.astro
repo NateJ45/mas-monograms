@@ -18,154 +18,178 @@ const [siteSettings, page, recentWork] = await Promise.all([
 const recentWorkPhotos = (recentWork ?? []).filter((item: any) => item?.image?.asset).slice(0, 3);
 const recentWorkHeadline = page?.recentWorkHeadline ?? 'Recent work from the studio';
 
-const title       = page?.seoTitle       ?? 'About — MAS Monograms';
-const description = page?.seoDescription ?? 'Meet Mary Ann Stone, the maker behind MAS Monograms. One-woman embroidery studio in St. Matthews, SC.';
+const title = page?.seoTitle ?? 'About — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Meet Mary Ann Stone, the maker behind MAS Monograms. One-woman embroidery studio in St. Matthews, SC.';
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-
-  {/* Hero. The two-column grid only exists when Sanity has a heroImage —
+  {
+    /* Hero. The two-column grid only exists when Sanity has a heroImage —
       without one, reserving the right half stranded the headline against a
       screen-wide void (the "accidental empty space" problem). Centered text
-      is the composed no-photo fallback, matching the other interior heroes. */}
+      is the composed no-photo fallback, matching the other interior heroes. */
+  }
   <section class="bg-tertiary py-section-lg">
     <div
       class:list={[
         'mx-auto max-w-content px-m',
         page?.heroImage?.asset
-          ? 'grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center'
+          ? 'grid grid-cols-1 items-center gap-section-md lg:grid-cols-2'
           : 'text-center',
       ]}
     >
-      <div class:list={[!page?.heroImage?.asset && 'max-w-2xl mx-auto']}>
-        {page?.heroEyebrow && (
-          <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-        )}
-        <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      <div class:list={[!page?.heroImage?.asset && 'mx-auto max-w-2xl']}>
+        {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+        <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
           {page?.heroHeadline ?? 'About MAS Monograms'}
         </h1>
-        {page?.heroSubhead && (
-          <p class:list={['text-[var(--color-text-secondary)] max-w-xl', !page?.heroImage?.asset && 'mx-auto']}>{page.heroSubhead}</p>
-        )}
+        {
+          page?.heroSubhead && (
+            <p
+              class:list={[
+                'max-w-xl text-[var(--color-text-secondary)]',
+                !page?.heroImage?.asset && 'mx-auto',
+              ]}
+            >
+              {page.heroSubhead}
+            </p>
+          )
+        }
       </div>
-      {page?.heroImage?.asset && (
-        <div class="rounded-2xl overflow-hidden shadow-xl">
-          <SanityImage
-            source={page.heroImage}
-            width={700}
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            class="w-full h-auto object-cover"
-            loading="eager"
-            fetchpriority="high"
-          />
-        </div>
-      )}
+      {
+        page?.heroImage?.asset && (
+          <div class="overflow-hidden rounded-2xl shadow-xl">
+            <SanityImage
+              source={page.heroImage}
+              width={700}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              class="h-auto w-full object-cover"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+        )
+      }
     </div>
   </section>
 
-  {/* Story — photo-optional. With a makerPhoto it's a two-column layout;
+  {
+    /* Story — photo-optional. With a makerPhoto it's a two-column layout;
       without one (current state) the prose runs as a single centered column
       instead of stranding in a half-width block. The signed maker
       attribution renders beneath the prose in BOTH cases so the
-      "Mary Ann Stone · Founder" signature always shows. */}
-  {(page?.storyContent || page?.makerPhoto) && (
-    <section class="py-section-lg">
-      <div
-        class:list={[
-          'mx-auto max-w-content px-m',
-          page?.makerPhoto?.asset
-            ? 'grid grid-cols-1 lg:grid-cols-2 gap-section-md items-start'
-            : '',
-        ]}
-      >
-        {page?.makerPhoto?.asset && (
-          <div class="relative">
-            <div class="rounded-2xl overflow-hidden">
-              <SanityImage
-                source={page.makerPhoto}
-                width={700}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                class="w-full h-auto object-cover"
-              />
-            </div>
-          </div>
-        )}
-        <div class:list={[!page?.makerPhoto?.asset && 'max-w-3xl mx-auto']}>
-          {page?.storyHeadline && (
-            <h2 class="font-display text-h2 text-foreground mb-m leading-headline-tight">
-              {page.storyHeadline}
-            </h2>
-          )}
-          {page?.storyContent && (
-            <div class="text-[var(--color-text-secondary)]">
-              <PortableText client:idle value={page.storyContent} />
-            </div>
-          )}
-          {page?.makerAttribution && (
-            <p class="mt-l font-display italic text-lg text-primary">{page.makerAttribution}</p>
-          )}
-          {page?.studioNote && (
-            <div class="mt-l bg-tertiary rounded-xl p-l">
-              <p class="font-display italic text-h4 text-foreground/85">{page.studioNote}</p>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {/* Recent work strip — real featured gallery photos, frameless. Fills the
-      imagery gap on this otherwise text-heavy page using assets that already
-      exist (no new photography). */}
-  {recentWorkPhotos.length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <h2 class="font-display text-h2 text-foreground text-center mb-l">
-          {recentWorkHeadline}
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-m max-w-4xl mx-auto">
-          {recentWorkPhotos.map((item: any) => (
-            <div>
-              <div class="aspect-square overflow-hidden rounded-xl">
+      "Mary Ann Stone · Founder" signature always shows. */
+  }
+  {
+    (page?.storyContent || page?.makerPhoto) && (
+      <section class="py-section-lg">
+        <div
+          class:list={[
+            'mx-auto max-w-content px-m',
+            page?.makerPhoto?.asset
+              ? 'grid grid-cols-1 items-start gap-section-md lg:grid-cols-2'
+              : '',
+          ]}
+        >
+          {page?.makerPhoto?.asset && (
+            <div class="relative">
+              <div class="overflow-hidden rounded-2xl">
                 <SanityImage
-                  source={item.image}
-                  width={500}
-                  height={500}
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                  class="w-full h-full object-cover"
+                  source={page.makerPhoto}
+                  width={700}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  class="h-auto w-full object-cover"
                 />
               </div>
             </div>
-          ))}
+          )}
+          <div class:list={[!page?.makerPhoto?.asset && 'mx-auto max-w-3xl']}>
+            {page?.storyHeadline && (
+              <h2 class="mb-m font-display text-h2 leading-headline-tight text-foreground">
+                {page.storyHeadline}
+              </h2>
+            )}
+            {page?.storyContent && (
+              <div class="text-[var(--color-text-secondary)]">
+                <PortableText client:idle value={page.storyContent} />
+              </div>
+            )}
+            {page?.makerAttribution && (
+              <p class="mt-l font-display text-lg text-primary italic">{page.makerAttribution}</p>
+            )}
+            {page?.studioNote && (
+              <div class="mt-l rounded-xl bg-tertiary p-l">
+                <p class="font-display text-h4 text-foreground/85 italic">{page.studioNote}</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
+
+  {
+    /* Recent work strip — real featured gallery photos, frameless. Fills the
+      imagery gap on this otherwise text-heavy page using assets that already
+      exist (no new photography). */
+  }
+  {
+    recentWorkPhotos.length > 0 && (
+      <section class="py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          <h2 class="mb-l text-center font-display text-h2 text-foreground">
+            {recentWorkHeadline}
+          </h2>
+          <div class="mx-auto grid max-w-4xl grid-cols-1 gap-m sm:grid-cols-3">
+            {recentWorkPhotos.map((item: any) => (
+              <div>
+                <div class="aspect-square overflow-hidden rounded-xl">
+                  <SanityImage
+                    source={item.image}
+                    width={500}
+                    height={500}
+                    sizes="(max-width: 640px) 100vw, 33vw"
+                    class="h-full w-full object-cover"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   {/* Values */}
-  {(page?.values ?? []).length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        {page?.valuesHeadline && (
-          <h2 class="font-display text-h2 text-foreground text-center mb-l">
-            {page.valuesHeadline}
-          </h2>
-        )}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-l">
-          {(page.values as any[]).map((v: any) => (
-            <div class="bg-background rounded-xl border border-border p-l">
-              <h3 class="font-display text-h4 text-foreground mb-s">{v.label}</h3>
-              <p class="text-[var(--color-text-secondary)]">{v.body}</p>
-            </div>
-          ))}
+  {
+    (page?.values ?? []).length > 0 && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          {page?.valuesHeadline && (
+            <h2 class="mb-l text-center font-display text-h2 text-foreground">
+              {page.valuesHeadline}
+            </h2>
+          )}
+          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 lg:grid-cols-3">
+            {(page.values as any[]).map((v: any) => (
+              <div class="rounded-xl border border-border bg-background p-l">
+                <h3 class="mb-s font-display text-h4 text-foreground">{v.label}</h3>
+                <p class="text-[var(--color-text-secondary)]">{v.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
-  {/* Testimonials section removed 2026-07-03 — same placeholder quotes we pulled
+  {
+    /* Testimonials section removed 2026-07-03 — same placeholder quotes we pulled
       from the homepage. Mary Ann has no real reviews to publish yet, and we don't
-      invent them. Re-add when genuine ones exist. */}
+      invent them. Re-add when genuine ones exist. */
+  }
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

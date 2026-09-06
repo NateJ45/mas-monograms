@@ -54,29 +54,29 @@ import { documentBadges } from './src/sanity/components/documentBadges';
 // complaint, the fix is buildTheme() from '@sanity/ui/theme' and accepting the
 // loss of tinting (see PORTS.md card 10).
 const studioThemeProps = {
-  '--black':   '#26312E',  // Heirloom Ink — darkest text
-  '--white':   '#FBF8F1',  // Paper — lightest surface
+  '--black': '#26312E', // Heirloom Ink — darkest text
+  '--white': '#FBF8F1', // Paper — lightest surface
   '--gray-base': '#5A5148', // Secondary Taupe — warm neutral ramp (grays lean warm, not cold)
 
-  '--brand-primary':           '#28486B',  // Heritage Indigo — links, selections, highlights
+  '--brand-primary': '#28486B', // Heritage Indigo — links, selections, highlights
   '--brand-primary--inverted': '#FBF8F1',
-  '--focus-color':             '#28486B',  // Indigo focus rings
+  '--focus-color': '#28486B', // Indigo focus rings
 
-  '--input-bg':             '#FBF8F1',
-  '--component-bg':         '#F4EEE3',      // Linen — card / panel backgrounds
+  '--input-bg': '#FBF8F1',
+  '--component-bg': '#F4EEE3', // Linen — card / panel backgrounds
   '--component-text-color': '#26312E',
 
-  '--default-button-color':         '#5A5148',  // neutral buttons — warm taupe
-  '--default-button-primary-color': '#8C3A2E',  // Claret — the Publish / primary action (matches site CTA)
+  '--default-button-color': '#5A5148', // neutral buttons — warm taupe
+  '--default-button-primary-color': '#8C3A2E', // Claret — the Publish / primary action (matches site CTA)
   '--default-button-success-color': '#3F7A4B',
-  '--default-button-warning-color': '#B98A3E',  // Brass (decorative)
-  '--default-button-danger-color':  '#B3261E',
+  '--default-button-warning-color': '#B98A3E', // Brass (decorative)
+  '--default-button-danger-color': '#B3261E',
 
   '--state-success-color': '#3F7A4B',
-  '--state-warning-color': '#835A24',      // Brass text (AA-safe)
-  '--state-danger-color':  '#B3261E',
+  '--state-warning-color': '#835A24', // Brass text (AA-safe)
+  '--state-danger-color': '#B3261E',
 
-  '--main-navigation-color':           '#28486B',  // Indigo navbar — echoes the live site header band
+  '--main-navigation-color': '#28486B', // Indigo navbar — echoes the live site header band
   '--main-navigation-color--inverted': '#FBF8F1',
 };
 

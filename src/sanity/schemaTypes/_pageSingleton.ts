@@ -70,9 +70,9 @@ export function definePageSingleton(
     // Configuration-style document -- keep Canvas AI writing tools away from it.
     options: { canvasApp: { exclude: true } },
     groups: [
-      { name: 'hero',     title: 'Hero' },
-      { name: 'builder',  title: 'Page sections' },
-      { name: 'seo',      title: 'SEO' },
+      { name: 'hero', title: 'Hero' },
+      { name: 'builder', title: 'Page sections' },
+      { name: 'seo', title: 'SEO' },
       ...(extra.groups ?? []),
     ],
     fields: [
@@ -85,9 +85,7 @@ export function definePageSingleton(
         description:
           'Full-bleed photo behind the hero text. Landscape orientation works best. Leave empty to use a solid brand-color hero.',
         options: { hotspot: true },
-        fields: [
-          defineField({ name: 'alt', title: 'Alt text', type: 'string' }),
-        ],
+        fields: [defineField({ name: 'alt', title: 'Alt text', type: 'string' })],
       }),
       defineField({
         name: 'heroEyebrow',

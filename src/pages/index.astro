@@ -20,8 +20,14 @@ const [siteSettings, page, categories, galleryItems] = await Promise.all([
   getFeaturedGalleryItems(9),
 ]);
 
-const title       = page?.seoTitle       ?? siteSettings?.seoTitle ?? 'MAS Monograms — Custom Embroidery in St. Matthews, SC';
-const description = page?.seoDescription ?? siteSettings?.seoDescription ?? 'Hand-embroidered monograms and personalized gifts by Mary Ann Stone. Quality custom embroidery on towels, bags, shirts, baby items, and more.';
+const title =
+  page?.seoTitle ??
+  siteSettings?.seoTitle ??
+  'MAS Monograms — Custom Embroidery in St. Matthews, SC';
+const description =
+  page?.seoDescription ??
+  siteSettings?.seoDescription ??
+  'Hand-embroidered monograms and personalized gifts by Mary Ann Stone. Quality custom embroidery on towels, bags, shirts, baby items, and more.';
 
 // Hero images for carousel/slideshow.
 // No dedicated hero images are set on homePage (and none are coming), so the
@@ -39,8 +45,12 @@ const galleryHeroImages = (galleryItems ?? [])
 const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryHeroImages;
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage ?? siteSettings?.seoImage} {siteSettings}>
-
+<BaseLayout
+  {title}
+  {description}
+  seoImage={page?.seoImage ?? siteSettings?.seoImage}
+  {siteSettings}
+>
   {/* ── Hero ──────────────────────────────────────────────────────────────── */}
   <Hero
     eyebrow={page?.heroEyebrow}
@@ -48,196 +58,244 @@ const heroImages = authoredHeroImages.length > 0 ? authoredHeroImages : galleryH
     headlineItalicSuffix={page?.heroItalicWord}
     subhead={page?.heroSubhead}
     backgroundImages={heroImages}
-    primaryCta={page?.heroPrimaryCtaLabel ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' } : null}
-    secondaryCta={page?.heroSecondaryCtaLabel ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/how-it-works' } : null}
+    primaryCta={page?.heroPrimaryCtaLabel
+      ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' }
+      : null}
+    secondaryCta={page?.heroSecondaryCtaLabel
+      ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/how-it-works' }
+      : null}
     headingId="hero-heading"
     layout="split"
   />
 
-  {/* ── Trust Bar ─────────────────────────────────────────────────────────
+  {
+    /* ── Trust Bar ─────────────────────────────────────────────────────────
       Sage, not indigo: the hero above is now the indigo drench (Direction C),
-      so the strip flips to the light band or the two surfaces would merge. */}
-  {(page?.trustItems ?? []).length > 0 && (
-    <section class="bg-bg-soft py-m">
-      <div class="mx-auto max-w-content px-m">
-        {page?.trustHeadline && (
-          <p class="text-xs uppercase tracking-eyebrow text-[var(--color-brass-text)] text-center mb-s">{page.trustHeadline}</p>
-        )}
-        <ul class="flex flex-wrap justify-center gap-l list-none">
-          {(page.trustItems as string[]).map((item: string) => (
-            <li class="text-sm text-[var(--color-text-secondary)] flex items-center gap-xs">
-              <span class="text-[#B98A3E]" aria-hidden="true">✦</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  )}
+      so the strip flips to the light band or the two surfaces would merge. */
+  }
+  {
+    (page?.trustItems ?? []).length > 0 && (
+      <section class="bg-bg-soft py-m">
+        <div class="mx-auto max-w-content px-m">
+          {page?.trustHeadline && (
+            <p class="mb-s text-center text-xs tracking-eyebrow text-[var(--color-brass-text)] uppercase">
+              {page.trustHeadline}
+            </p>
+          )}
+          <ul class="flex list-none flex-wrap justify-center gap-l">
+            {(page.trustItems as string[]).map((item: string) => (
+              <li class="flex items-center gap-xs text-sm text-[var(--color-text-secondary)]">
+                <span class="text-[#B98A3E]" aria-hidden="true">
+                  ✦
+                </span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
 
-  {/* Stats strip removed 2026-07-03 at Nate's request — the trust bar above
+  {
+    /* Stats strip removed 2026-07-03 at Nate's request — the trust bar above
       already carries the reassurance line; the stat counters read as filler
-      for a one-woman studio. */}
+      for a one-woman studio. */
+  }
 
   {/* ── Category Grid ─────────────────────────────────────────────────────── */}
-  {categories.length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l">
-          {page?.categoriesEyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.categoriesEyebrow}</p>
-          )}
-          <h2 class="font-display text-h2 text-foreground">{page?.categoriesHeadline ?? 'Shop by Item'}</h2>
-          {page?.categoriesSubhead && (
-            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.categoriesSubhead}</p>
-          )}
+  {
+    categories.length > 0 && (
+      <section class="py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          <div class="mb-l text-center">
+            {page?.categoriesEyebrow && (
+              <p class="mb-s text-xs tracking-eyebrow text-link uppercase">
+                {page.categoriesEyebrow}
+              </p>
+            )}
+            <h2 class="font-display text-h2 text-foreground">
+              {page?.categoriesHeadline ?? 'Shop by Item'}
+            </h2>
+            {page?.categoriesSubhead && (
+              <p class="mx-auto mt-s max-w-xl text-[var(--color-text-secondary)]">
+                {page.categoriesSubhead}
+              </p>
+            )}
+          </div>
+          <div class="grid grid-cols-2 gap-m sm:grid-cols-3 lg:grid-cols-4">
+            {categories.slice(0, 8).map((cat: any) => (
+              <CategoryCard
+                name={cat.name}
+                slug={cat.slug?.current ?? ''}
+                cardImage={cat.cardImage}
+              />
+            ))}
+          </div>
+          <div class="mt-l text-center">
+            <a
+              href="/shop-by-item"
+              class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+            >
+              View all items <span aria-hidden="true">→</span>
+            </a>
+          </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-m">
-          {categories.slice(0, 8).map((cat: any) => (
-            <CategoryCard name={cat.name} slug={cat.slug?.current ?? ''} cardImage={cat.cardImage} />
-          ))}
-        </div>
-        <div class="text-center mt-l">
-          <a href="/shop-by-item" class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors">
-            View all items <span aria-hidden="true">→</span>
-          </a>
-        </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   {/* ── About / Maker ─────────────────────────────────────────────────────── */}
-  {(page?.aboutHeadline || page?.aboutBody) && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m grid grid-cols-1 lg:grid-cols-2 gap-section-md items-center">
-        {page?.aboutPhoto?.asset && (
-          <div class="relative rounded-2xl overflow-hidden shadow-xl order-last lg:order-first">
-            <SanityImage
-              source={page.aboutPhoto}
-              width={700}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              class="w-full h-auto object-cover"
-            />
-          </div>
-        )}
-        <div>
-          {page?.aboutEyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.aboutEyebrow}</p>
-          )}
-          <h2 class="font-display text-h2 text-foreground mb-m leading-headline-tight">
-            {page.aboutHeadline}
-          </h2>
-          {page?.aboutBody && (
-            <div class="text-[var(--color-text-secondary)] mb-l">
-              <PortableText client:idle value={page.aboutBody} />
+  {
+    (page?.aboutHeadline || page?.aboutBody) && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto grid max-w-content grid-cols-1 items-center gap-section-md px-m lg:grid-cols-2">
+          {page?.aboutPhoto?.asset && (
+            <div class="relative order-last overflow-hidden rounded-2xl shadow-xl lg:order-first">
+              <SanityImage
+                source={page.aboutPhoto}
+                width={700}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                class="h-auto w-full object-cover"
+              />
             </div>
           )}
-          {page?.aboutCtaLabel && (
-            <a
-              href={page.aboutCtaHref ?? '/about'}
-              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
-            >
-              {page.aboutCtaLabel} <span aria-hidden="true">→</span>
-            </a>
-          )}
+          <div>
+            {page?.aboutEyebrow && (
+              <p class="mb-s text-xs tracking-eyebrow text-link uppercase">{page.aboutEyebrow}</p>
+            )}
+            <h2 class="mb-m font-display text-h2 leading-headline-tight text-foreground">
+              {page.aboutHeadline}
+            </h2>
+            {page?.aboutBody && (
+              <div class="mb-l text-[var(--color-text-secondary)]">
+                <PortableText client:idle value={page.aboutBody} />
+              </div>
+            )}
+            {page?.aboutCtaLabel && (
+              <a
+                href={page.aboutCtaHref ?? '/about'}
+                class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+              >
+                {page.aboutCtaLabel} <span aria-hidden="true">→</span>
+              </a>
+            )}
+          </div>
         </div>
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
   {/* ── Process ───────────────────────────────────────────────────────────── */}
-  {(page?.processSteps ?? []).length > 0 && (
-    <section class="py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l">
-          {page?.processEyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.processEyebrow}</p>
-          )}
-          <h2 class="font-display text-h2 text-foreground">{page?.processHeadline ?? 'How It Works'}</h2>
-          {page?.processSubhead && (
-            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.processSubhead}</p>
+  {
+    (page?.processSteps ?? []).length > 0 && (
+      <section class="py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          <div class="mb-l text-center">
+            {page?.processEyebrow && (
+              <p class="mb-s text-xs tracking-eyebrow text-link uppercase">{page.processEyebrow}</p>
+            )}
+            <h2 class="font-display text-h2 text-foreground">
+              {page?.processHeadline ?? 'How It Works'}
+            </h2>
+            {page?.processSubhead && (
+              <p class="mx-auto mt-s max-w-xl text-[var(--color-text-secondary)]">
+                {page.processSubhead}
+              </p>
+            )}
+          </div>
+          <ol class="mt-l grid list-none grid-cols-2 gap-l lg:grid-cols-4">
+            {(page.processSteps as any[]).map((step: any, i: number) => (
+              <li class="h-full">
+                <ProcessStep
+                  step={{
+                    stepNumber: parseInt(step.number, 10) || i + 1,
+                    title: step.label,
+                    shortDescription: step.body,
+                  }}
+                  variant="preview"
+                  isLast={i === (page.processSteps as any[]).length - 1}
+                />
+              </li>
+            ))}
+          </ol>
+          {page?.processCtaLabel && (
+            <div class="mt-l text-center">
+              <a
+                href={page.processCtaHref ?? '/how-it-works'}
+                class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+              >
+                {page.processCtaLabel} <span aria-hidden="true">→</span>
+              </a>
+            </div>
           )}
         </div>
-        <ol class="grid grid-cols-2 lg:grid-cols-4 gap-l mt-l list-none">
-          {(page.processSteps as any[]).map((step: any, i: number) => (
-            <li class="h-full">
-              <ProcessStep
-                step={{
-                  stepNumber: parseInt(step.number, 10) || i + 1,
-                  title: step.label,
-                  shortDescription: step.body,
-                }}
-                variant="preview"
-                isLast={i === (page.processSteps as any[]).length - 1}
-              />
-            </li>
-          ))}
-        </ol>
-        {page?.processCtaLabel && (
-          <div class="text-center mt-l">
-            <a
-              href={page.processCtaHref ?? '/how-it-works'}
-              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
-            >
-              {page.processCtaLabel} <span aria-hidden="true">→</span>
-            </a>
-          </div>
-        )}
-      </div>
-    </section>
-  )}
+      </section>
+    )
+  }
 
-  {/* Popular Combinations + interactive "Preview Your Combination" removed
+  {
+    /* Popular Combinations + interactive "Preview Your Combination" removed
       2026-07-03 at Nate's request — neither landed (embroidery fonts can't be
       rendered live and the specimen/colour treatments never matched). The Font
-      Guide + Thread Color Chart pages cover browsing fonts/colours for real. */}
+      Guide + Thread Color Chart pages cover browsing fonts/colours for real. */
+  }
 
-  {/* Testimonials section removed 2026-07-02 — Mary Ann has no real reviews to
-      publish yet, and we don't invent them. Re-add when genuine ones exist. */}
+  {
+    /* Testimonials section removed 2026-07-02 — Mary Ann has no real reviews to
+      publish yet, and we don't invent them. Re-add when genuine ones exist. */
+  }
 
   {/* ── Gallery Preview ───────────────────────────────────────────────────── */}
-  {galleryItems.length > 0 && (
-    <section class="bg-tertiary py-section-lg">
-      <div class="mx-auto max-w-content px-m">
-        <div class="text-center mb-l">
-          {page?.galleryEyebrow && (
-            <p class="text-xs uppercase tracking-eyebrow text-link mb-s">{page.galleryEyebrow}</p>
-          )}
-          <h2 class="font-display text-h2 text-foreground">{page?.galleryHeadline ?? 'From the Studio'}</h2>
-          {page?.gallerySubhead && (
-            <p class="text-[var(--color-text-secondary)] mt-s max-w-xl mx-auto">{page.gallerySubhead}</p>
-          )}
-        </div>
-        <div class="columns-2 sm:columns-3 lg:columns-4 gap-m space-y-m">
-          {galleryItems.map((item: any) => (
-            item.image?.asset && (
-              <div class="group break-inside-avoid">
-                <div class="relative overflow-hidden rounded-xl img-zoom">
-                  <SanityImage
-                    source={item.image}
-                    width={400}
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    class="w-full h-auto"
-                  />
-                  <div class="img-tint" aria-hidden="true"></div>
-                </div>
-              </div>
-            )
-          ))}
-        </div>
-        {page?.galleryCtaLabel && (
-          <div class="text-center mt-l">
-            <a
-              href={page.galleryCtaHref ?? '/style-gallery'}
-              class="inline-flex items-center gap-xs text-xs uppercase tracking-eyebrow font-semibold text-link hover:text-primary-dark transition-colors"
-            >
-              {page.galleryCtaLabel} <span aria-hidden="true">→</span>
-            </a>
+  {
+    galleryItems.length > 0 && (
+      <section class="bg-tertiary py-section-lg">
+        <div class="mx-auto max-w-content px-m">
+          <div class="mb-l text-center">
+            {page?.galleryEyebrow && (
+              <p class="mb-s text-xs tracking-eyebrow text-link uppercase">{page.galleryEyebrow}</p>
+            )}
+            <h2 class="font-display text-h2 text-foreground">
+              {page?.galleryHeadline ?? 'From the Studio'}
+            </h2>
+            {page?.gallerySubhead && (
+              <p class="mx-auto mt-s max-w-xl text-[var(--color-text-secondary)]">
+                {page.gallerySubhead}
+              </p>
+            )}
           </div>
-        )}
-      </div>
-    </section>
-  )}
+          <div class="columns-2 gap-m space-y-m sm:columns-3 lg:columns-4">
+            {galleryItems.map(
+              (item: any) =>
+                item.image?.asset && (
+                  <div class="group break-inside-avoid">
+                    <div class="img-zoom relative overflow-hidden rounded-xl">
+                      <SanityImage
+                        source={item.image}
+                        width={400}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        class="h-auto w-full"
+                      />
+                      <div class="img-tint" aria-hidden="true" />
+                    </div>
+                  </div>
+                ),
+            )}
+          </div>
+          {page?.galleryCtaLabel && (
+            <div class="mt-l text-center">
+              <a
+                href={page.galleryCtaHref ?? '/style-gallery'}
+                class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase transition-colors hover:text-primary-dark"
+              >
+                {page.galleryCtaLabel} <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

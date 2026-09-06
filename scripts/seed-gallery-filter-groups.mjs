@@ -67,11 +67,35 @@ const filterGroups = [
     _type: 'filterGroup',
     groupLabel: 'Item',
     tags: [
-      'tote', 'towel', 'napkin', 'kitchen-towel', 'linen', 't-shirt', 'polo',
-      'pullover', 'sweatshirt', 'jacket', 'beanie', 'sun-hat', 'baby-blanket',
-      'baby-dress', 'baby-hat', 'baby-sweater', 'romper', 'infant-dress',
-      'bandana', 'key-fob', 'bag-tag', 'keychain', 'gift-bag', 'duffel-bag',
-      'fabric-bucket', 'kids-bag', 'wall-hanging', 'wreath-sash', 'greeting-card',
+      'tote',
+      'towel',
+      'napkin',
+      'kitchen-towel',
+      'linen',
+      't-shirt',
+      'polo',
+      'pullover',
+      'sweatshirt',
+      'jacket',
+      'beanie',
+      'sun-hat',
+      'baby-blanket',
+      'baby-dress',
+      'baby-hat',
+      'baby-sweater',
+      'romper',
+      'infant-dress',
+      'bandana',
+      'key-fob',
+      'bag-tag',
+      'keychain',
+      'gift-bag',
+      'duffel-bag',
+      'fabric-bucket',
+      'kids-bag',
+      'wall-hanging',
+      'wreath-sash',
+      'greeting-card',
     ],
   },
   {
@@ -79,9 +103,22 @@ const filterGroups = [
     _type: 'filterGroup',
     groupLabel: 'Theme & Occasion',
     tags: [
-      'christmas', 'christmas-stocking', 'easter', 'seasonal', 'wedding',
-      'birthday', 'faith', 'scripture', 'farmhouse', 'chinoiserie', 'palmetto',
-      'south-carolina', 'sports', 'collegiate', 'novelty', 'keepsake',
+      'christmas',
+      'christmas-stocking',
+      'easter',
+      'seasonal',
+      'wedding',
+      'birthday',
+      'faith',
+      'scripture',
+      'farmhouse',
+      'chinoiserie',
+      'palmetto',
+      'south-carolina',
+      'sports',
+      'collegiate',
+      'novelty',
+      'keepsake',
     ],
   },
   {
@@ -89,9 +126,22 @@ const filterGroups = [
     _type: 'filterGroup',
     groupLabel: 'Technique & Style',
     tags: [
-      'monogram', 'name', 'script', 'block', 'applique', 'logo', 'paw-print',
-      'pet-portrait', 'photo-stitch', 'line-art', 'heat-transfer', 'bow',
-      'topiary', 'wreath', 'polka-dot', 'multicolor',
+      'monogram',
+      'name',
+      'script',
+      'block',
+      'applique',
+      'logo',
+      'paw-print',
+      'pet-portrait',
+      'photo-stitch',
+      'line-art',
+      'heat-transfer',
+      'bow',
+      'topiary',
+      'wreath',
+      'polka-dot',
+      'multicolor',
     ],
   },
   {
@@ -109,10 +159,9 @@ async function setFilterGroups() {
 
 async function mergeDuplicateTag() {
   // Find every galleryItem that still carries the accented duplicate.
-  const affected = await client.fetch(
-    '*[_type == "galleryItem" && $from in tags]{ _id, tags }',
-    { from: DUP_FROM },
-  );
+  const affected = await client.fetch('*[_type == "galleryItem" && $from in tags]{ _id, tags }', {
+    from: DUP_FROM,
+  });
 
   if (affected.length === 0) {
     console.log(`No galleryItem carries "${DUP_FROM}" — nothing to merge.`);
@@ -129,9 +178,7 @@ async function mergeDuplicateTag() {
     tx.patch(item._id, (p) => p.set({ tags: rewritten }));
   }
   await tx.commit();
-  console.log(
-    `Merged "${DUP_FROM}" → "${DUP_TO}" on ${affected.length} galleryItem(s).`,
-  );
+  console.log(`Merged "${DUP_FROM}" → "${DUP_TO}" on ${affected.length} galleryItem(s).`);
 }
 
 async function main() {

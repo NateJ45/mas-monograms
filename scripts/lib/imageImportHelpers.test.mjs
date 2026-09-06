@@ -36,22 +36,27 @@ test('filenameFromUrl extracts and decodes the basename', () => {
     'monogram-32.jpg',
   );
   assert.equal(
-    filenameFromUrl('https://images.squarespace-cdn.com/content/69933a78/a7824a28/Pillow+%281%29.jpg?content-type=image%2Fjpeg'),
+    filenameFromUrl(
+      'https://images.squarespace-cdn.com/content/69933a78/a7824a28/Pillow+%281%29.jpg?content-type=image%2Fjpeg',
+    ),
     'Pillow (1).jpg',
   );
 });
 
 test('buildGalleryItemDoc shapes a complete document with a category reference', () => {
-  const doc = buildGalleryItemDoc({
-    sourceUrl: 'https://images.squarespace-cdn.com/content/v1/x/y/monogram-32.jpg',
-    alt: 'Navy block monogram on a white bath towel',
-    caption: null,
-    relatedCategorySlug: 'towels-linens',
-    relatedFontSlug: null,
-    tags: ['monogram', 'towel'],
-    featured: false,
-    displayOrder: 1,
-  }, 'sanity-asset-id-abc123');
+  const doc = buildGalleryItemDoc(
+    {
+      sourceUrl: 'https://images.squarespace-cdn.com/content/v1/x/y/monogram-32.jpg',
+      alt: 'Navy block monogram on a white bath towel',
+      caption: null,
+      relatedCategorySlug: 'towels-linens',
+      relatedFontSlug: null,
+      tags: ['monogram', 'towel'],
+      featured: false,
+      displayOrder: 1,
+    },
+    'sanity-asset-id-abc123',
+  );
 
   assert.equal(doc._id, 'galleryItem-monogram-32');
   assert.equal(doc._type, 'galleryItem');
@@ -65,36 +70,45 @@ test('buildGalleryItemDoc shapes a complete document with a category reference',
 });
 
 test('buildGalleryItemDoc omits relatedCategory/relatedFont when not provided', () => {
-  const doc = buildGalleryItemDoc({
-    sourceUrl: 'https://images.squarespace-cdn.com/content/v1/x/y/design-24.jpg',
-    alt: 'Floral appliqué design on a canvas tote',
-    caption: null,
-    relatedCategorySlug: null,
-    relatedFontSlug: null,
-    tags: ['appliqué'],
-    featured: true,
-    displayOrder: 2,
-  }, 'sanity-asset-id-xyz789');
+  const doc = buildGalleryItemDoc(
+    {
+      sourceUrl: 'https://images.squarespace-cdn.com/content/v1/x/y/design-24.jpg',
+      alt: 'Floral appliqué design on a canvas tote',
+      caption: null,
+      relatedCategorySlug: null,
+      relatedFontSlug: null,
+      tags: ['appliqué'],
+      featured: true,
+      displayOrder: 2,
+    },
+    'sanity-asset-id-xyz789',
+  );
 
   assert.equal('relatedCategory' in doc, false);
   assert.equal('relatedFont' in doc, false);
 });
 
 test('buildFontDoc shapes a complete font document', () => {
-  const doc = buildFontDoc({
-    sourceUrl: 'https://images.squarespace-cdn.com/content/69933a78/a7824a28/Pillow+%281%29.jpg',
-    name: 'Pillow',
-    styleTag: 'script',
-    alt: 'Pillow font sample — embroidered in cursive script on white fabric',
-    displayOrder: 1,
-  }, 'sanity-asset-id-font1');
+  const doc = buildFontDoc(
+    {
+      sourceUrl: 'https://images.squarespace-cdn.com/content/69933a78/a7824a28/Pillow+%281%29.jpg',
+      name: 'Pillow',
+      styleTag: 'script',
+      alt: 'Pillow font sample — embroidered in cursive script on white fabric',
+      displayOrder: 1,
+    },
+    'sanity-asset-id-font1',
+  );
 
   assert.equal(doc._id, 'font-pillow');
   assert.equal(doc._type, 'font');
   assert.equal(doc.name, 'Pillow');
   assert.equal(doc.slug.current, 'pillow');
   assert.equal(doc.previewImage.asset._ref, 'sanity-asset-id-font1');
-  assert.equal(doc.previewImage.alt, 'Pillow font sample — embroidered in cursive script on white fabric');
+  assert.equal(
+    doc.previewImage.alt,
+    'Pillow font sample — embroidered in cursive script on white fabric',
+  );
   assert.equal(doc.styleTag, 'script');
   assert.equal(doc.displayOrder, 1);
 });

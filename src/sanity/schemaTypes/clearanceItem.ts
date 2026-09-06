@@ -15,7 +15,8 @@ export const clearanceItem = defineType({
       name: 'name',
       title: 'Item name',
       type: 'string',
-      description: 'The product name shown on the clearance page. E.g. "Set of 4 Monogrammed Napkins — JKL".',
+      description:
+        'The product name shown on the clearance page. E.g. "Set of 4 Monogrammed Napkins — JKL".',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -36,7 +37,12 @@ export const clearanceItem = defineType({
           type: 'image',
           options: { hotspot: true },
           fields: [
-            defineField({ name: 'alt', title: 'Photo description (helps screen readers & Google)', type: 'string', validation: (R) => R.required() }),
+            defineField({
+              name: 'alt',
+              title: 'Photo description (helps screen readers & Google)',
+              type: 'string',
+              validation: (R) => R.required(),
+            }),
           ],
         }),
       ],
@@ -60,9 +66,12 @@ export const clearanceItem = defineType({
       name: 'stripePaymentLink',
       title: 'Stripe Payment Link',
       type: 'url',
-      description: 'The Stripe-hosted checkout URL for this item. Must start with https://buy.stripe.com/...',
+      description:
+        'The Stripe-hosted checkout URL for this item. Must start with https://buy.stripe.com/...',
       validation: (Rule) =>
-        Rule.required().uri({ scheme: ['https'] }).error('Must be a valid https:// Stripe payment link.'),
+        Rule.required()
+          .uri({ scheme: ['https'] })
+          .error('Must be a valid https:// Stripe payment link.'),
     }),
     defineField({
       name: 'quantityAvailable',
@@ -76,7 +85,8 @@ export const clearanceItem = defineType({
       name: 'sold',
       title: 'Mark as sold',
       type: 'boolean',
-      description: 'When checked, this item shows a "Sold" badge and the purchase button is disabled.',
+      description:
+        'When checked, this item shows a "Sold" badge and the purchase button is disabled.',
       initialValue: false,
     }),
     defineField({
@@ -104,7 +114,18 @@ export const clearanceItem = defineType({
     }),
   },
   orderings: [
-    { title: 'Featured first, then order', name: 'featuredOrder', by: [{ field: 'featured', direction: 'desc' }, { field: 'displayOrder', direction: 'asc' }] },
-    { title: 'Display order', name: 'displayOrder', by: [{ field: 'displayOrder', direction: 'asc' }] },
+    {
+      title: 'Featured first, then order',
+      name: 'featuredOrder',
+      by: [
+        { field: 'featured', direction: 'desc' },
+        { field: 'displayOrder', direction: 'asc' },
+      ],
+    },
+    {
+      title: 'Display order',
+      name: 'displayOrder',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
+    },
   ],
 });

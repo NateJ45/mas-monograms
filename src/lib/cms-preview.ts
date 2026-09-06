@@ -62,7 +62,9 @@ export function previewConfig(): { ok: boolean; missing: string[] } {
     missing.push('PUBLIC_SANITY_PROJECT_ID (build-time, .env)');
   }
   if (!previewToken()) {
-    missing.push('SANITY_TOKEN or SANITY_API_READ_TOKEN (Worker runtime secret, .dev.vars locally)');
+    missing.push(
+      'SANITY_TOKEN or SANITY_API_READ_TOKEN (Worker runtime secret, .dev.vars locally)',
+    );
   }
   return { ok: missing.length === 0, missing };
 }

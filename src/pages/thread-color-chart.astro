@@ -12,97 +12,114 @@ const [siteSettings, page, colors] = await Promise.all([
   getAllThreadColors(),
 ]);
 
-const title       = page?.seoTitle       ?? 'Thread Color Chart — MAS Monograms';
-const description = page?.seoDescription ?? 'Browse the full thread color chart for MAS Monograms embroidery. See all available colors with DMC numbers and photo swatches.';
+const title = page?.seoTitle ?? 'Thread Color Chart — MAS Monograms';
+const description =
+  page?.seoDescription ??
+  'Browse the full thread color chart for MAS Monograms embroidery. See all available colors with DMC numbers and photo swatches.';
 
 // Group colors by colorFamily
-const familyGroups = colors.reduce((acc: Record<string, any[]>, c: any) => {
-  const key = c.colorFamily ?? 'Other';
-  if (!acc[key]) acc[key] = [];
-  acc[key].push(c);
-  return acc;
-}, {} as Record<string, any[]>);
+const familyGroups = colors.reduce(
+  (acc: Record<string, any[]>, c: any) => {
+    const key = c.colorFamily ?? 'Other';
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(c);
+    return acc;
+  },
+  {} as Record<string, any[]>,
+);
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-
   {/* Hero */}
   <section class="bg-tertiary py-section-lg">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && (
-        <ScriptKicker text={page.heroEyebrow} class="mb-xs" />
-      )}
-      <h1 class="font-display text-h1 text-foreground leading-headline-tight mb-m">
+      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
+      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
         {page?.heroHeadline ?? 'Thread Color Chart'}
       </h1>
-      {page?.heroSubhead && (
-        <p class="text-[var(--color-text-secondary)] max-w-2xl mx-auto">{page.heroSubhead}</p>
-      )}
+      {
+        page?.heroSubhead && (
+          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        )
+      }
     </div>
   </section>
 
   {/* Intro */}
-  {page?.intro && (
-    <section class="py-section-md">
-      <div class="mx-auto max-w-3xl px-m">
-        <PortableText client:idle value={page.intro} />
-      </div>
-    </section>
-  )}
+  {
+    page?.intro && (
+      <section class="py-section-md">
+        <div class="mx-auto max-w-3xl px-m">
+          <PortableText client:idle value={page.intro} />
+        </div>
+      </section>
+    )
+  }
 
   {/* Color Chart */}
   <section class="py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {colors.length > 0 ? (
-        Object.entries(familyGroups).map(([family, familyColors]) => (
-          <div class="mb-section-lg">
-            <h2 class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-m border-b border-border-soft pb-s">
-              {family}
-            </h2>
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-s">
-              {(familyColors as any[]).map((color: any) => (
-                <div class="group flex flex-col items-center gap-xs text-center" title={`${color.name}${color.dmcNumber ? ` (DMC ${color.dmcNumber})` : ''}`}>
-                  {/* Color swatch — photo if available, hex fill as fallback */}
-                  {color.swatchImage?.asset ? (
-                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-border group-hover:scale-110 transition-transform">
-                      <SanityImage
-                        source={color.swatchImage}
-                        width={48}
-                        height={48}
-                        sizes="48px"
-                        class="w-full h-full object-cover"
+      {
+        colors.length > 0 ? (
+          Object.entries(familyGroups).map(([family, familyColors]) => (
+            <div class="mb-section-lg">
+              <h2 class="mb-m border-b border-border-soft pb-s text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                {family}
+              </h2>
+              <div class="grid grid-cols-3 gap-s sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
+                {(familyColors as any[]).map((color: any) => (
+                  <div
+                    class="group flex flex-col items-center gap-xs text-center"
+                    title={`${color.name}${color.dmcNumber ? ` (DMC ${color.dmcNumber})` : ''}`}
+                  >
+                    {/* Color swatch — photo if available, hex fill as fallback */}
+                    {color.swatchImage?.asset ? (
+                      <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-border transition-transform group-hover:scale-110">
+                        <SanityImage
+                          source={color.swatchImage}
+                          width={48}
+                          height={48}
+                          sizes="48px"
+                          class="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : color.hexColor ? (
+                      <div
+                        role="img"
+                        class="h-12 w-12 rounded-full border-2 border-border transition-transform group-hover:scale-110"
+                        style={`background-color: ${color.hexColor};`}
+                        aria-label={color.name}
                       />
-                    </div>
-                  ) : color.hexColor ? (
-                    <div
-                      role="img"
-                      class="w-12 h-12 rounded-full border-2 border-border group-hover:scale-110 transition-transform"
-                      style={`background-color: ${color.hexColor};`}
-                      aria-label={color.name}
-                    />
-                  ) : (
-                    <div class="w-12 h-12 rounded-full bg-border-soft border-2 border-border" />
-                  )}
-                  <p class="text-xs text-foreground leading-tight font-medium">{color.name}</p>
-                  {color.dmcNumber && (
-                    <p class="text-xs text-[var(--color-text-tertiary)]">DMC {color.dmcNumber}</p>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <div class="h-12 w-12 rounded-full border-2 border-border bg-border-soft" />
+                    )}
+                    <p class="text-xs leading-tight font-medium text-foreground">{color.name}</p>
+                    {color.dmcNumber && (
+                      <p class="text-xs text-[var(--color-text-tertiary)]">DMC {color.dmcNumber}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))
-      ) : (
-        <p class="text-center text-[var(--color-text-secondary)] py-l">Thread color chart coming soon.</p>
-      )}
+          ))
+        ) : (
+          <p class="py-l text-center text-[var(--color-text-secondary)]">
+            Thread color chart coming soon.
+          </p>
+        )
+      }
 
-      {/* One custom-color note only. `customColorNote` intentionally not rendered —
-          it duplicated `matchingNote`; keep the more detailed `matchingNote`. */}
-      {page?.matchingNote && (
-        <div class="mt-l bg-tertiary rounded-xl p-l border border-[var(--color-secondary,#B98A3E)]/20">
-          <p class="text-[var(--color-text-secondary)]">{page.matchingNote}</p>
-        </div>
-      )}
+      {
+        /* One custom-color note only. `customColorNote` intentionally not rendered —
+          it duplicated `matchingNote`; keep the more detailed `matchingNote`. */
+      }
+      {
+        page?.matchingNote && (
+          <div class="mt-l rounded-xl border border-[var(--color-secondary,#B98A3E)]/20 bg-tertiary p-l">
+            <p class="text-[var(--color-text-secondary)]">{page.matchingNote}</p>
+          </div>
+        )
+      }
     </div>
   </section>
 

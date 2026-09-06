@@ -24,7 +24,11 @@ interface SiteSettings {
   address?: { street?: string; city?: string; state?: string; zip?: string } | null;
   serviceArea?: string | null;
   geo?: { latitude?: number | null; longitude?: number | null } | null;
-  openingHours?: Array<{ days?: string[] | null; opens?: string | null; closes?: string | null }> | null;
+  openingHours?: Array<{
+    days?: string[] | null;
+    opens?: string | null;
+    closes?: string | null;
+  }> | null;
   socialLinks?: SocialLink[] | null;
   businessType?: string;
   priceRange?: string;
@@ -61,9 +65,7 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
     email: s.email ?? undefined,
     priceRange: s.priceRange ?? '$$',
     sameAs: Array.from(
-      new Set(
-        (s.socialLinks ?? []).map((l) => l.url).filter((u): u is string => Boolean(u)),
-      ),
+      new Set((s.socialLinks ?? []).map((l) => l.url).filter((u): u is string => Boolean(u))),
     ),
   };
 
@@ -73,9 +75,9 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
     schema.address = {
       '@type': 'PostalAddress',
       ...(addr.street ? { streetAddress: addr.street } : {}),
-      ...(addr.city   ? { addressLocality: addr.city } : {}),
-      ...(addr.state  ? { addressRegion: addr.state }  : {}),
-      ...(addr.zip    ? { postalCode: addr.zip }        : {}),
+      ...(addr.city ? { addressLocality: addr.city } : {}),
+      ...(addr.state ? { addressRegion: addr.state } : {}),
+      ...(addr.zip ? { postalCode: addr.zip } : {}),
       addressCountry: 'US',
     };
   }
@@ -199,9 +201,7 @@ export function projectSchema(project: Project, heroImageUrl: string | null): st
     url: project.slug?.current ? `${site.url}/portfolio/${project.slug.current}` : undefined,
     image: heroImageUrl ?? undefined,
     creator: { '@id': `${site.url}/#business` },
-    locationCreated: project.location
-      ? { '@type': 'Place', name: project.location }
-      : undefined,
+    locationCreated: project.location ? { '@type': 'Place', name: project.location } : undefined,
     dateCreated: project.year ? String(project.year) : undefined,
     datePublished: project.publishedAt,
   });
@@ -224,7 +224,9 @@ export function blogPostingSchema(
   entry: JournalEntryForSchema,
   coverImageUrl: string | null,
 ): string {
-  const url = entry.slug?.current ? `${site.url}/journal/${entry.slug.current}` : `${site.url}/journal`;
+  const url = entry.slug?.current
+    ? `${site.url}/journal/${entry.slug.current}`
+    : `${site.url}/journal`;
   return JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -239,7 +241,10 @@ export function blogPostingSchema(
       : { '@id': `${site.url}/#business` },
     publisher: { '@id': `${site.url}/#business` },
     keywords: Array.isArray(entry.categories)
-      ? entry.categories.map((c) => c?.title).filter(Boolean).join(', ')
+      ? entry.categories
+          .map((c) => c?.title)
+          .filter(Boolean)
+          .join(', ')
       : undefined,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   });

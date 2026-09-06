@@ -51,12 +51,21 @@ const howTo = (title, steps) => ({ _type: 'howTo', _key: key(), title, steps });
 const tip = (heading, tone, body) => ({ _type: 'tip', _key: key(), heading, tone, body });
 const link = (label, url) => ({ _type: 'playbookLink', _key: key(), label, url });
 const section = (heading, tone, { body, bullets, links } = {}) => ({
-  _type: 'playbookSection', _key: key(), heading, tone,
+  _type: 'playbookSection',
+  _key: key(),
+  heading,
+  tone,
   ...(body ? { body } : {}),
   ...(bullets ? { bullets } : {}),
   ...(links ? { links } : {}),
 });
-const guide = (title, summary, sections) => ({ _type: 'playbookGuide', _key: key(), title, summary, sections });
+const guide = (title, summary, sections) => ({
+  _type: 'playbookGuide',
+  _key: key(),
+  title,
+  summary,
+  sections,
+});
 
 const docs = [];
 
@@ -68,17 +77,28 @@ docs.push({
   _id: 'studioGuide',
   _type: 'studioGuide',
   guideTitle: 'How your website works',
-  guideIntro:
-    `Welcome to your control panel, Mary Ann. Everything on mas-monograms.com — every word, price, and photo — comes from right here. You edit the content; the design takes care of itself, so you cannot break how the site looks.
+  guideIntro: `Welcome to your control panel, Mary Ann. Everything on mas-monograms.com — every word, price, and photo — comes from right here. You edit the content; the design takes care of itself, so you cannot break how the site looks.
 
 When you click Publish, your change is live on the real website within a few seconds. There is no separate "upload" step.
 
 New here? Start with Business info & contact (your name, contact info, hours), then look through the Pages. This guide explains where everything lives and walks you through the tasks you will do most often.`,
   studioMap: [
-    mapRow('Start Here', 'The four guides you are reading now: how the site works, your business at a glance, your brand kit (colors and fonts), and ways to grow your studio.'),
-    mapRow('Business info & contact', 'Your business name, email, phone, address, service area, opening hours, social links, and Google Business link. This feeds the footer of every page and your Google listing. Update it first.'),
-    mapRow('Website pages', 'One document per page of the site — Home, How It Works, Pricing, About, Request a Quote, Shop by Item, Style Gallery, Font & Lettering Guide, Thread Color Chart, Clearance, Thank You, and the 404 page. Open any page to edit its words and images. Most pages have a "Preview" tab so you can see your change.'),
-    mapRow('Photos & products', 'The collections you add to most often — ordered with your two most common tasks up top: Style gallery photos and Clearance items, then Shop categories (Hats, Totes…), Prices, Embroidery fonts, Thread colors, and FAQ.'),
+    mapRow(
+      'Start Here',
+      'The four guides you are reading now: how the site works, your business at a glance, your brand kit (colors and fonts), and ways to grow your studio.',
+    ),
+    mapRow(
+      'Business info & contact',
+      'Your business name, email, phone, address, service area, opening hours, social links, and Google Business link. This feeds the footer of every page and your Google listing. Update it first.',
+    ),
+    mapRow(
+      'Website pages',
+      'One document per page of the site — Home, How It Works, Pricing, About, Request a Quote, Shop by Item, Style Gallery, Font & Lettering Guide, Thread Color Chart, Clearance, Thank You, and the 404 page. Open any page to edit its words and images. Most pages have a "Preview" tab so you can see your change.',
+    ),
+    mapRow(
+      'Photos & products',
+      'The collections you add to most often — ordered with your two most common tasks up top: Style gallery photos and Clearance items, then Shop categories (Hats, Totes…), Prices, Embroidery fonts, Thread colors, and FAQ.',
+    ),
   ],
   howTos: [
     howTo('Add a photo to the Style Gallery (most common task)', [
@@ -192,16 +212,13 @@ Anything that changes the layout, the design, the colors, or the fixed form drop
 docs.push({
   _id: 'studioNotes',
   _type: 'studioNotes',
-  businessSummary:
-    `MAS Monograms is a one-woman embroidery studio run by Mary Ann Stone from her home in St. Matthews, SC. Every piece is stitched by hand, to order — monograms, names, and appliqué on towels, totes, hats, shirts, baby gifts, and more.
+  businessSummary: `MAS Monograms is a one-woman embroidery studio run by Mary Ann Stone from her home in St. Matthews, SC. Every piece is stitched by hand, to order — monograms, names, and appliqué on towels, totes, hats, shirts, baby gifts, and more.
 
 The whole point is the personal touch: real attention on every order, made locally, and made just for the person receiving it.`,
-  idealClient:
-    `People who want something made just for them, from someone local they can trust. Parents ordering baby gifts and back-to-school gear. Brides and bridal parties. Sports teams, churches, and school groups needing a batch. Gift-givers who want it to feel personal.
+  idealClient: `People who want something made just for them, from someone local they can trust. Parents ordering baby gifts and back-to-school gear. Brides and bridal parties. Sports teams, churches, and school groups needing a batch. Gift-givers who want it to feel personal.
 
 They care more about it being handmade and right than about being the cheapest option.`,
-  voiceSummary:
-    `Warm, plain-spoken, and personal — the way Mary Ann would talk to a neighbor across the counter. Confident about the craft without being fussy or fancy. Written in the first person ("I stitch every piece myself"). Friendly and reassuring, never pushy or full of design jargon.`,
+  voiceSummary: `Warm, plain-spoken, and personal — the way Mary Ann would talk to a neighbor across the counter. Confident about the craft without being fussy or fancy. Written in the first person ("I stitch every piece myself"). Friendly and reassuring, never pushy or full of design jargon.`,
   wordsToAvoid: [
     'bespoke',
     'curated',
@@ -224,8 +241,7 @@ docs.push({
   _id: 'studioPlaybook',
   _type: 'studioPlaybook',
   title: 'Grow your studio',
-  intro:
-    `Practical, no-fluff ways to get more of the right customers — written for a handmade monogram business in a small South Carolina town. Each tab covers one area. You do not have to do all of it at once. Pick one, do it well, then add the next.`,
+  intro: `Practical, no-fluff ways to get more of the right customers — written for a handmade monogram business in a small South Carolina town. Each tab covers one area. You do not have to do all of it at once. Pick one, do it well, then add the next.`,
   guides: [
     // ── Tab 1 ────────────────────────────────────────────────────────────────
     guide(
@@ -398,8 +414,13 @@ async function seed() {
     try {
       const existing = await client.fetch('*[_id == $id][0]._id', { id: doc._id });
       await client.createOrReplace(doc);
-      if (existing) { replaced += 1; console.log(`  replaced  ${doc._type}  ${doc._id}`); }
-      else { created += 1; console.log(`  created   ${doc._type}  ${doc._id}`); }
+      if (existing) {
+        replaced += 1;
+        console.log(`  replaced  ${doc._type}  ${doc._id}`);
+      } else {
+        created += 1;
+        console.log(`  created   ${doc._type}  ${doc._id}`);
+      }
     } catch (err) {
       console.error(`  ERROR on ${doc._id}: ${err.message}`);
     }

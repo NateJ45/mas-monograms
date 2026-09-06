@@ -60,7 +60,10 @@ const NOTES_QUERY = `*[_type=="studioNotes"][0]{businessSummary, idealClient, vo
 
 /** Split a text field on blank lines into paragraphs. */
 function paragraphs(text?: string | null): string[] {
-  return (text ?? '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  return (text ?? '')
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -68,7 +71,9 @@ function paragraphs(text?: string | null): string[] {
 function LoadingCard({ label }: { label: string }) {
   return (
     <Card padding={4} radius={2} shadow={1} tone="transparent">
-      <Text size={1} muted>Loading {label}...</Text>
+      <Text size={1} muted>
+        Loading {label}...
+      </Text>
     </Card>
   );
 }
@@ -88,8 +93,12 @@ function Field({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
     <Box>
-      <Text size={1} weight="semibold">{label}</Text>
-      <Box marginTop={1}><Text size={1}>{value}</Text></Box>
+      <Text size={1} weight="semibold">
+        {label}
+      </Text>
+      <Box marginTop={1}>
+        <Text size={1}>{value}</Text>
+      </Box>
     </Box>
   );
 }
@@ -106,9 +115,20 @@ export default function BusinessOverview() {
   const [settingsError, setSettingsError] = useState(false);
 
   useEffect(() => {
-    client.fetch<PricingTier[]>(PRICING_QUERY).then((d) => setPricing(d ?? [])).catch(() => setPricingError(true));
-    client.fetch<SiteSettingsData | null>(SETTINGS_QUERY).then((d) => setSettings(d ?? null)).catch(() => setSettingsError(true));
-    client.fetch<NotesData | null>(NOTES_QUERY).then((d) => setNotes(d ?? null)).catch(() => { /* notes optional */ });
+    client
+      .fetch<PricingTier[]>(PRICING_QUERY)
+      .then((d) => setPricing(d ?? []))
+      .catch(() => setPricingError(true));
+    client
+      .fetch<SiteSettingsData | null>(SETTINGS_QUERY)
+      .then((d) => setSettings(d ?? null))
+      .catch(() => setSettingsError(true));
+    client
+      .fetch<NotesData | null>(NOTES_QUERY)
+      .then((d) => setNotes(d ?? null))
+      .catch(() => {
+        /* notes optional */
+      });
   }, [client]);
 
   const socials = (settings?.socialLinks ?? []).filter((s) => s?.url);
@@ -116,16 +136,16 @@ export default function BusinessOverview() {
   return (
     <Container width={1} padding={4}>
       <Stack space={6}>
-
         {/* Header */}
         <Box>
-          <Heading as="h1" size={3}>Your business at a glance</Heading>
+          <Heading as="h1" size={3}>
+            Your business at a glance
+          </Heading>
           <Box marginTop={3}>
             <Text muted size={1}>
-              The live sections below are pulled straight from your Pricing Tiers and Site
-              Settings, so they are always current. To change anything here, edit those
-              documents. The lower sections (who you are, ideal client, voice) are notes you
-              can edit under "Edit notes".
+              The live sections below are pulled straight from your Pricing Tiers and Site Settings,
+              so they are always current. To change anything here, edit those documents. The lower
+              sections (who you are, ideal client, voice) are notes you can edit under "Edit notes".
             </Text>
           </Box>
         </Box>
@@ -133,24 +153,46 @@ export default function BusinessOverview() {
         {/* ── LIVE: Pricing tiers ──────────────────────────────────────────── */}
         <Card padding={4} radius={2} shadow={1} tone="default">
           <Stack space={4}>
-            <Heading as="h2" size={1}>Your pricing tiers (live)</Heading>
+            <Heading as="h2" size={1}>
+              Your pricing tiers (live)
+            </Heading>
 
             {pricing === null && !pricingError && <LoadingCard label="pricing" />}
             {pricingError && <ErrorCard label="pricing" />}
 
             {pricing !== null && pricing.length === 0 && (
-              <Text size={1} muted>No pricing tiers yet. Add them under Content → Pricing Tiers.</Text>
+              <Text size={1} muted>
+                No pricing tiers yet. Add them under Content → Pricing Tiers.
+              </Text>
             )}
             {pricing !== null && pricing.length > 0 && (
               <Stack space={3}>
                 {pricing.map((tier, i) => (
                   <Card key={i} padding={3} radius={2} tone="transparent" shadow={1}>
                     <Stack space={2}>
-                      <Box style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '4px' }}>
-                        <Text size={1} weight="semibold">{tier.label ?? 'Unnamed tier'}</Text>
-                        <Text size={1}>{tier.pricePerPiece != null ? `$${tier.pricePerPiece.toFixed(2)} / piece` : '—'}</Text>
+                      <Box
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'baseline',
+                          flexWrap: 'wrap',
+                          gap: '4px',
+                        }}
+                      >
+                        <Text size={1} weight="semibold">
+                          {tier.label ?? 'Unnamed tier'}
+                        </Text>
+                        <Text size={1}>
+                          {tier.pricePerPiece != null
+                            ? `$${tier.pricePerPiece.toFixed(2)} / piece`
+                            : '—'}
+                        </Text>
                       </Box>
-                      {tier.note ? <Text size={1} muted>{tier.note}</Text> : null}
+                      {tier.note ? (
+                        <Text size={1} muted>
+                          {tier.note}
+                        </Text>
+                      ) : null}
                     </Stack>
                   </Card>
                 ))}
@@ -162,7 +204,9 @@ export default function BusinessOverview() {
         {/* ── LIVE: Contact, turnaround, reach ─────────────────────────────── */}
         <Card padding={4} radius={2} shadow={1} tone="default">
           <Stack space={4}>
-            <Heading as="h2" size={1}>Contact, turnaround, and reach (live)</Heading>
+            <Heading as="h2" size={1}>
+              Contact, turnaround, and reach (live)
+            </Heading>
 
             {settings === null && !settingsError && <LoadingCard label="site settings" />}
             {settingsError && <ErrorCard label="site settings" />}
@@ -181,7 +225,9 @@ export default function BusinessOverview() {
                   label="Rush orders"
                   value={
                     settings.rushOrdersAvailable
-                      ? (settings.rushTurnaround ? `Available — ${settings.rushTurnaround}` : 'Available')
+                      ? settings.rushTurnaround
+                        ? `Available — ${settings.rushTurnaround}`
+                        : 'Available'
                       : 'Not currently offered'
                   }
                 />
@@ -189,11 +235,15 @@ export default function BusinessOverview() {
                 <Field label="Google Business Profile" value={settings.googleBusinessUrl} />
                 {socials.length > 0 && (
                   <Box>
-                    <Text size={1} weight="semibold">Social</Text>
+                    <Text size={1} weight="semibold">
+                      Social
+                    </Text>
                     <Box marginTop={1}>
                       <Stack space={1}>
                         {socials.map((s, i) => (
-                          <Text key={i} size={1}>{s.platform}: {s.url}</Text>
+                          <Text key={i} size={1}>
+                            {s.platform}: {s.url}
+                          </Text>
                         ))}
                       </Stack>
                     </Box>
@@ -208,8 +258,14 @@ export default function BusinessOverview() {
         {notes?.businessSummary && (
           <Card padding={4} radius={2} shadow={1} tone="default">
             <Stack space={3}>
-              <Heading as="h2" size={1}>Who you are</Heading>
-              {paragraphs(notes.businessSummary).map((p, i) => (<Text key={i} size={1}>{p}</Text>))}
+              <Heading as="h2" size={1}>
+                Who you are
+              </Heading>
+              {paragraphs(notes.businessSummary).map((p, i) => (
+                <Text key={i} size={1}>
+                  {p}
+                </Text>
+              ))}
             </Stack>
           </Card>
         )}
@@ -218,8 +274,14 @@ export default function BusinessOverview() {
         {notes?.idealClient && (
           <Card padding={4} radius={2} shadow={1} tone="default">
             <Stack space={3}>
-              <Heading as="h2" size={1}>Your ideal customer</Heading>
-              {paragraphs(notes.idealClient).map((p, i) => (<Text key={i} size={1}>{p}</Text>))}
+              <Heading as="h2" size={1}>
+                Your ideal customer
+              </Heading>
+              {paragraphs(notes.idealClient).map((p, i) => (
+                <Text key={i} size={1}>
+                  {p}
+                </Text>
+              ))}
             </Stack>
           </Card>
         )}
@@ -228,18 +290,25 @@ export default function BusinessOverview() {
         {(notes?.voiceSummary || (notes?.wordsToAvoid && notes.wordsToAvoid.length > 0)) && (
           <Card padding={4} radius={2} shadow={1} tone="default">
             <Stack space={3}>
-              <Heading as="h2" size={1}>Your voice (how you sound in writing)</Heading>
-              {paragraphs(notes?.voiceSummary).map((p, i) => (<Text key={i} size={1}>{p}</Text>))}
+              <Heading as="h2" size={1}>
+                Your voice (how you sound in writing)
+              </Heading>
+              {paragraphs(notes?.voiceSummary).map((p, i) => (
+                <Text key={i} size={1}>
+                  {p}
+                </Text>
+              ))}
               {notes?.wordsToAvoid && notes.wordsToAvoid.length > 0 && (
                 <>
-                  <Text size={1} weight="semibold">Words to skip:</Text>
+                  <Text size={1} weight="semibold">
+                    Words to skip:
+                  </Text>
                   <Text size={1}>{notes.wordsToAvoid.join(', ')}.</Text>
                 </>
               )}
             </Stack>
           </Card>
         )}
-
       </Stack>
     </Container>
   );

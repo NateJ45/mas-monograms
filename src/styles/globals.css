@@ -3,18 +3,18 @@
    onto shadcn's semantic tokens (:root / .dark) so brand identity
    carries everywhere the design system is referenced. */
 
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 /* Fraunces opsz builds (not the default wght-only): the optical-size axis is
    what gives display sizes their high-contrast, elegant cut — the whole
    Direction C type voice depends on it (font-optical-sizing: auto picks the
    display grade at heading sizes). The italic file is the REAL italic cut;
    before 2026-07-03 the em'd headline suffix was browser-synthesized oblique. */
-@import "@fontsource-variable/fraunces/opsz.css";
-@import "@fontsource-variable/fraunces/opsz-italic.css";
-@import "@fontsource-variable/mulish";
-@import "@fontsource/petemoss";
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/fraunces/opsz-italic.css';
+@import '@fontsource-variable/mulish';
+@import '@fontsource/petemoss';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -22,26 +22,26 @@
 
 @theme {
   /* MAS Monograms palette — "Heirloom Coast": Linen / Ink / Heritage Indigo / Claret / Brass */
-  --color-primary:      #28486b; /* Heritage Indigo — links, nav, primary accent — 8.16:1 on Linen */
+  --color-primary: #28486b; /* Heritage Indigo — links, nav, primary accent — 8.16:1 on Linen */
   --color-primary-dark: #1c3550; /* Indigo Deep — link / secondary hover */
-  --color-accent:       #26312e; /* Heirloom Ink — see @theme inline note re: text-accent/bg-accent */
-  --color-accent-dark:  #1a1512; /* Ink Dark — HeroBackground scrim; kept genuinely dark on purpose */
-  --color-secondary:    #b98a3e; /* Brass Decorative — DECORATIVE ONLY, ~2.7:1 on Linen, never text
+  --color-accent: #26312e; /* Heirloom Ink — see @theme inline note re: text-accent/bg-accent */
+  --color-accent-dark: #1a1512; /* Ink Dark — HeroBackground scrim; kept genuinely dark on purpose */
+  --color-secondary: #b98a3e; /* Brass Decorative — DECORATIVE ONLY, ~2.7:1 on Linen, never text
                                      on a light surface (hoop-ring frames, hairline rules only) */
-  --color-tertiary:     #e4e2d3; /* Sage Linen Band — alt section band / chip */
-  --color-bg:           #f4eee3; /* Linen — primary surface (Ink on it = 11.65:1) */
-  --color-bg-soft:      #e4e2d3; /* Sage Linen Band — soft alternating surface */
-  --color-border-soft:  #d8cfbc; /* border soft — faint dividers on Linen */
-  --color-white-pure:   #ffffff;
-  --color-rust-cta:     #8c3a2e; /* Claret — CTA button background ONLY (white 7.61:1) */
+  --color-tertiary: #e4e2d3; /* Sage Linen Band — alt section band / chip */
+  --color-bg: #f4eee3; /* Linen — primary surface (Ink on it = 11.65:1) */
+  --color-bg-soft: #e4e2d3; /* Sage Linen Band — soft alternating surface */
+  --color-border-soft: #d8cfbc; /* border soft — faint dividers on Linen */
+  --color-white-pure: #ffffff;
+  --color-rust-cta: #8c3a2e; /* Claret — CTA button background ONLY (white 7.61:1) */
   --color-rust-cta-hover: #722c22; /* Claret Deep — CTA hover */
   --color-rust-decorative: #8c3a2e; /* Claret — large text / decorative strokes */
-  --color-muted-text:   #5a5148;   /* Secondary Taupe — 6.72:1 on Linen */
+  --color-muted-text: #5a5148; /* Secondary Taupe — 6.72:1 on Linen */
 
   /* AA-safe text tokens (Heirloom Coast) — exposed as text- and bg- utilities */
   --color-text-secondary: #5a5148; /* Secondary Taupe — secondary text, 6.72:1 on Linen */
-  --color-text-tertiary:  #67614f; /* Tertiary — caption text, 5.35:1 on Linen */
-  --color-brass-text:     #835a24; /* Brass Text — text-safe brass (pricing figures, meta), 5.27:1 on Linen */
+  --color-text-tertiary: #67614f; /* Tertiary — caption text, 5.35:1 on Linen */
+  --color-brass-text: #835a24; /* Brass Text — text-safe brass (pricing figures, meta), 5.27:1 on Linen */
 
   /* Direction C ("The Sampler", 2026-07-03) — gold script accent. ONLY for the
      large Petemoss kicker and decorative strokes ON INDIGO/DARK surfaces
@@ -59,9 +59,9 @@
      linen-tinted washes for the submit-failure alert.
      Ratio re-measured 2026-08-27 (was written as 5.35, which is text-tertiary's
      number); theme-tokens.test.ts now holds both to AA. */
-  --color-error-text:    #b91c1c; /* error copy + required asterisks, 5.60:1 on Linen */
+  --color-error-text: #b91c1c; /* error copy + required asterisks, 5.60:1 on Linen */
   --color-error-surface: #f9e8e6; /* alert wash */
-  --color-error-border:  #e0b4ac; /* alert hairline */
+  --color-error-border: #e0b4ac; /* alert hairline */
 
   /* Interactive-field border — darker than the decorative --border hairline
      because a form field's border is its only affordance (3.68:1 on Linen,
@@ -70,31 +70,31 @@
 
   /* Fonts — "Heirloom Coast": Fraunces headings, Mulish body, Petemoss monogram.
      --font-heading is mapped to --font-display in the @theme inline block below. */
-  --font-display:  "Fraunces Variable", serif;
-  --font-body:     "Mulish Variable", sans-serif;
-  --font-monogram: "Petemoss", cursive;
-  --font-mono:     ui-monospace, "SF Mono", Consolas, monospace;
+  --font-display: 'Fraunces Variable', serif;
+  --font-body: 'Mulish Variable', sans-serif;
+  --font-monogram: 'Petemoss', cursive;
+  --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
 
   /* Fluid heading sizes */
   --text-h6: 1rem;
   --text-h5: clamp(1.125rem, 1.5vw, 1.25rem);
-  --text-h4: clamp(1.25rem,  2vw,   1.5rem);
-  --text-h3: clamp(1.5rem,   2.5vw, 2rem);
-  --text-h2: clamp(2rem,     4vw,   3rem);
-  --text-h1: clamp(2.5rem,   6vw,   5rem);
+  --text-h4: clamp(1.25rem, 2vw, 1.5rem);
+  --text-h3: clamp(1.5rem, 2.5vw, 2rem);
+  --text-h2: clamp(2rem, 4vw, 3rem);
+  --text-h1: clamp(2.5rem, 6vw, 5rem);
 
-  --leading-headline-tight: 1.1;   /* Fraunces reads tight at display sizes */
-  --tracking-eyebrow:       0.08em; /* Uppercase eyebrow labels */
+  --leading-headline-tight: 1.1; /* Fraunces reads tight at display sizes */
+  --tracking-eyebrow: 0.08em; /* Uppercase eyebrow labels */
 
   /* Fluid spacing.
      Note: section-padding sizes use --spacing-section-* prefix (not --spacing-xl)
      to avoid silently breaking max-w-xl / max-w-2xl in Tailwind v4. */
-  --spacing-xs:           clamp(0.25rem, 0.5vw, 0.5rem);
-  --spacing-s:            clamp(0.5rem,  1vw,   1rem);
-  --spacing-m:            clamp(1rem,    2vw,   1.5rem);
-  --spacing-l:            clamp(2rem,    4vw,   3rem);
-  --spacing-section-md:   clamp(3rem,    6vw,   5rem);
-  --spacing-section-lg:   clamp(4rem,    8vw,   7rem);
+  --spacing-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --spacing-s: clamp(0.5rem, 1vw, 1rem);
+  --spacing-m: clamp(1rem, 2vw, 1.5rem);
+  --spacing-l: clamp(2rem, 4vw, 3rem);
+  --spacing-section-md: clamp(3rem, 6vw, 5rem);
+  --spacing-section-lg: clamp(4rem, 8vw, 7rem);
 
   --container-content: 82.5rem; /* ~1140px */
 
@@ -105,67 +105,81 @@
 /* ---------- shadcn semantic token map -------------------- */
 
 @theme inline {
-    --font-heading: var(--font-display);
-    --font-sans: var(--font-body);
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    /* ACCENT-TRAP DEFUSED (Heirloom Coast): --color-accent drives both text-accent
+  --font-heading: var(--font-display);
+  --font-sans: var(--font-body);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  /* ACCENT-TRAP DEFUSED (Heirloom Coast): --color-accent drives both text-accent
        and bg-accent, so it must be safe in BOTH roles. It resolves to var(--accent),
        which is now the dark Heirloom Ink (#26312E) — so text-accent is legible on the
        light page, and bg-accent hover surfaces (Header/dropdown) render as a dark chip
        paired with the light --accent-foreground (#FBF8F1). Never remap --accent to a
        near-white value again: that is what caused prior invisible-text regressions. */
-    --color-accent: var(--accent);
-    --color-link: var(--link);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
-    --animate-marquee:          marquee var(--duration) infinite linear;
-    --animate-marquee-vertical:  marquee-vertical var(--duration) linear infinite;
-    --animate-spotlight:         spotlight 2s ease 0.75s 1 forwards;
+  --color-accent: var(--accent);
+  --color-link: var(--link);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
 
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to   { transform: translateX(calc(-100% - var(--gap))); }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
     }
-    @keyframes marquee-vertical {
-      from { transform: translateY(0); }
-      to   { transform: translateY(calc(-100% - var(--gap))); }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
     }
-    @keyframes spotlight {
-      0%   { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
-      100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
     }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes spotlight {
+    0% {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
+  }
 }
 
 /* ---------- Typographic utilities -------------------------*/
@@ -188,74 +202,74 @@
 /* ---------- Light mode (MAS Monograms palette) ----------- */
 
 :root {
-    /* This site is light-only by design (no dark mode). Tell the browser so
+  /* This site is light-only by design (no dark mode). Tell the browser so
        native form controls (selects, scrollbars, date inputs) render with
        light chrome instead of inheriting the OS dark-mode preference. */
-    color-scheme: light;
+  color-scheme: light;
 
-    /* Surfaces — linen page, paper cards */
-    --background: #f4eee3; /* Linen */
-    --foreground: #26312e; /* Heirloom Ink */
-    --card: #fbf8f1; /* Paper — raised card/surface */
-    --card-foreground: #26312e;
-    --popover: #fbf8f1;
-    --popover-foreground: #26312e;
+  /* Surfaces — linen page, paper cards */
+  --background: #f4eee3; /* Linen */
+  --foreground: #26312e; /* Heirloom Ink */
+  --card: #fbf8f1; /* Paper — raised card/surface */
+  --card-foreground: #26312e;
+  --popover: #fbf8f1;
+  --popover-foreground: #26312e;
 
-    /* Brand — Heritage Indigo primary */
-    --primary: #28486b; /* Heritage Indigo */
-    --primary-foreground: #ffffff;
-    --secondary: #e4e2d3; /* Sage Linen Band */
-    --secondary-foreground: #26312e;
+  /* Brand — Heritage Indigo primary */
+  --primary: #28486b; /* Heritage Indigo */
+  --primary-foreground: #ffffff;
+  --secondary: #e4e2d3; /* Sage Linen Band */
+  --secondary-foreground: #26312e;
 
-    /* Muted — Sage Linen Band soft surface, taupe muted text */
-    --muted: #e4e2d3;
-    --muted-foreground: #5a5148; /* Secondary Taupe — 6.72:1 on Linen */
+  /* Muted — Sage Linen Band soft surface, taupe muted text */
+  --muted: #e4e2d3;
+  --muted-foreground: #5a5148; /* Secondary Taupe — 6.72:1 on Linen */
 
-    /* Accent — ACCENT-TRAP DEFUSED: this is dark Heirloom Ink so text-accent stays
+  /* Accent — ACCENT-TRAP DEFUSED: this is dark Heirloom Ink so text-accent stays
        legible and bg-accent hover surfaces render as a dark chip with light
        --accent-foreground. Do NOT set this to a near-white value (prior regressions). */
-    --accent: #26312e; /* Heirloom Ink */
-    --accent-foreground: #fbf8f1; /* Paper — light text on the dark accent chip */
+  --accent: #26312e; /* Heirloom Ink */
+  --accent-foreground: #fbf8f1; /* Paper — light text on the dark accent chip */
 
-    /* States */
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: #b7ad99; /* border hairline — visible on Linen */
-    --input: #d8cfbc; /* border soft */
-    --ring: #28486b; /* Heritage Indigo focus ring */
-    --link: #28486b; /* Heritage Indigo */
+  /* States */
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #b7ad99; /* border hairline — visible on Linen */
+  --input: #d8cfbc; /* border soft */
+  --ring: #28486b; /* Heritage Indigo focus ring */
+  --link: #28486b; /* Heritage Indigo */
 
-    /* Charts (neutral — not actively used) */
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+  /* Charts (neutral — not actively used) */
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
 
-    --radius: 0.25rem; /* ~4px */
+  --radius: 0.25rem; /* ~4px */
 
-    /* Sidebar (reserved for admin contexts) */
-    --sidebar: #f4eee3;
-    --sidebar-foreground: #26312e;
-    --sidebar-primary: #28486b;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #e4e2d3; /* Sage Linen Band — light surface (sidebar hover) */
-    --sidebar-accent-foreground: #26312e;
-    --sidebar-border: #b7ad99; /* matches --border above */
-    --sidebar-ring: #28486b;
+  /* Sidebar (reserved for admin contexts) */
+  --sidebar: #f4eee3;
+  --sidebar-foreground: #26312e;
+  --sidebar-primary: #28486b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e4e2d3; /* Sage Linen Band — light surface (sidebar hover) */
+  --sidebar-accent-foreground: #26312e;
+  --sidebar-border: #b7ad99; /* matches --border above */
+  --sidebar-ring: #28486b;
 
-    --tint-rgb: 40, 72, 107; /* Heritage Indigo in RGB for rgba() overlays */
+  --tint-rgb: 40, 72, 107; /* Heritage Indigo in RGB for rgba() overlays */
 
-    --primary-accent: #1c3550; /* Indigo Deep */
-    --secondary-accent: #26312e; /* Heirloom Ink */
-    --info: #93C5FD;
-    --info-foreground: #1E3A5F;
-    --success: #86EFAC;
-    --success-foreground: #14532D;
-    --warning: #FDE68A;
-    --warning-foreground: #713F12;
-    --error: oklch(0.577 0.245 27.325);
-    --error-foreground: #ffffff;
-    --outline: #28486b; /* Heritage Indigo */
+  --primary-accent: #1c3550; /* Indigo Deep */
+  --secondary-accent: #26312e; /* Heirloom Ink */
+  --info: #93c5fd;
+  --info-foreground: #1e3a5f;
+  --success: #86efac;
+  --success-foreground: #14532d;
+  --warning: #fde68a;
+  --warning-foreground: #713f12;
+  --error: oklch(0.577 0.245 27.325);
+  --error-foreground: #ffffff;
+  --outline: #28486b; /* Heritage Indigo */
 }
 
 /* ---------- Base resets and defaults ---------------------- */
@@ -273,7 +287,12 @@
   body {
     @apply bg-background text-foreground;
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
     /* Direction C (2026-07-03): display weight dropped from forced-700 to 440.
        Every premium reference ran its display serif at 300-400 — hierarchy
@@ -291,7 +310,9 @@
   }
   /* Small headings need more stem weight than display sizes to hold their own
      against Mulish body text (the opsz axis thins them at small sizes). */
-  h4, h5, h6 {
+  h4,
+  h5,
+  h6 {
     font-weight: 560;
   }
 }
@@ -329,7 +350,7 @@
   position: relative;
 }
 .nav-underline::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 50%;
   bottom: -0.35rem;
@@ -342,7 +363,7 @@
 }
 .nav-underline:hover::after,
 .nav-underline:focus-visible::after,
-.nav-underline[aria-current="page"]::after {
+.nav-underline[aria-current='page']::after {
   transform: translateX(-50%) scaleX(1);
 }
 
@@ -372,7 +393,7 @@
   transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
-.site-header[data-state="hidden"] {
+.site-header[data-state='hidden'] {
   transform: translateY(-100%);
 }
 
@@ -415,10 +436,11 @@
   input,
   select,
   textarea,
-  [role="button"],
-  [role="tab"] {
-    transition-property: color, background-color, border-color, outline-color,
-      text-decoration-color, fill, stroke, box-shadow, transform, opacity;
+  [role='button'],
+  [role='tab'] {
+    transition-property:
+      color, background-color, border-color, outline-color, text-decoration-color, fill, stroke,
+      box-shadow, transform, opacity;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     transition-duration: 440ms;
   }
@@ -436,23 +458,41 @@
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (prefers-reduced-motion: reduce) {
-  .is-filtered-out { transition: none; }
+  .is-filtered-out {
+    transition: none;
+  }
 }
 
 /* Hero entry stagger */
 @keyframes hero-fade-up {
-  from { opacity: 0; transform: translateY(0.5rem); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .hero-entry-stagger > * {
   opacity: 0;
   animation: hero-fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.hero-entry-stagger > *:nth-child(1) { animation-delay:   0ms; }
-.hero-entry-stagger > *:nth-child(2) { animation-delay: 120ms; }
-.hero-entry-stagger > *:nth-child(3) { animation-delay: 240ms; }
-.hero-entry-stagger > *:nth-child(4) { animation-delay: 360ms; }
-.hero-entry-stagger > *:nth-child(5) { animation-delay: 480ms; }
+.hero-entry-stagger > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.hero-entry-stagger > *:nth-child(2) {
+  animation-delay: 120ms;
+}
+.hero-entry-stagger > *:nth-child(3) {
+  animation-delay: 240ms;
+}
+.hero-entry-stagger > *:nth-child(4) {
+  animation-delay: 360ms;
+}
+.hero-entry-stagger > *:nth-child(5) {
+  animation-delay: 480ms;
+}
 @media (prefers-reduced-motion: reduce) {
   .hero-entry-stagger > * {
     opacity: 1 !important;
@@ -462,7 +502,10 @@
 }
 
 /* Hero background slideshow — Ken Burns + cross-fade */
-.hero-slideshow { position: absolute; inset: 0; }
+.hero-slideshow {
+  position: absolute;
+  inset: 0;
+}
 .hero-slide {
   position: absolute;
   inset: 0;
@@ -475,15 +518,31 @@
   animation: hero-kb 16s ease-in-out infinite alternate;
   will-change: opacity, transform;
 }
-.hero-slide.is-active { opacity: 1; }
-.hero-slide:nth-child(3n + 2) { transform-origin: top left; animation-duration: 18s; }
-.hero-slide:nth-child(3n + 3) { transform-origin: bottom right; animation-duration: 20s; }
+.hero-slide.is-active {
+  opacity: 1;
+}
+.hero-slide:nth-child(3n + 2) {
+  transform-origin: top left;
+  animation-duration: 18s;
+}
+.hero-slide:nth-child(3n + 3) {
+  transform-origin: bottom right;
+  animation-duration: 20s;
+}
 @keyframes hero-kb {
-  from { transform: scale(1); }
-  to   { transform: scale(1.07); }
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.07);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-slide { transition: none; animation: none; transform: none; }
+  .hero-slide {
+    transition: none;
+    animation: none;
+    transform: none;
+  }
 }
 
 /* Split-hero collage slides — cross-fade only. The per-frame Ken Burns zoom
@@ -500,9 +559,13 @@
   transition: opacity 0.6s ease;
   will-change: opacity;
 }
-.hero-tri-slide.is-active { opacity: 1; }
+.hero-tri-slide.is-active {
+  opacity: 1;
+}
 @media (prefers-reduced-motion: reduce) {
-  .hero-tri-slide { transition: none; }
+  .hero-tri-slide {
+    transition: none;
+  }
 }
 
 /* Split-hero collage frames: static tilt only. The idle-float bob was retired
@@ -537,9 +600,13 @@
   transform: scale(1.06);
 }
 .group:hover .img-zoom .img-tint,
-.img-zoom:hover .img-tint                { background: rgba(var(--tint-rgb), 0.15); }
+.img-zoom:hover .img-tint {
+  background: rgba(var(--tint-rgb), 0.15);
+}
 .group:hover .img-zoom .img-tint.img-tint-light,
-.img-zoom:hover .img-tint.img-tint-light { background: rgba(var(--tint-rgb), 0.08); }
+.img-zoom:hover .img-tint.img-tint-light {
+  background: rgba(var(--tint-rgb), 0.08);
+}
 
 /* Grid stagger entrance removed with the scroll reveals (Direction C motion
    pass) — grids render in place. The gallery filter fade (.is-filtered-out,
@@ -571,7 +638,7 @@
   margin: 0 auto;
 }
 .step-connector::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: var(--primary);
@@ -584,20 +651,38 @@
 }
 
 /* View transitions — cross-fade <main>, pin header + footer */
-main#main        { view-transition-name: main-content; }
-.site-header     { view-transition-name: site-header; }
-footer           { view-transition-name: site-footer; }
+main#main {
+  view-transition-name: main-content;
+}
+.site-header {
+  view-transition-name: site-header;
+}
+footer {
+  view-transition-name: site-footer;
+}
 
 @keyframes vt-fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 @keyframes vt-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-::view-transition-old(main-content) { animation: vt-fade-out 150ms ease forwards; }
-::view-transition-new(main-content) { animation: vt-fade-in  200ms ease forwards; }
+::view-transition-old(main-content) {
+  animation: vt-fade-out 150ms ease forwards;
+}
+::view-transition-new(main-content) {
+  animation: vt-fade-in 200ms ease forwards;
+}
 
 ::view-transition-old(site-header),
 ::view-transition-new(site-header),
@@ -608,7 +693,7 @@ footer           { view-transition-name: site-footer; }
 
 /* Paper grain texture on cream surface */
 body::before {
-  content: "";
+  content: '';
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -654,9 +739,16 @@ body::before {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  html { scroll-behavior: auto !important; }
-  .img-curtain { display: none !important; }
-  .step-connector::after { transform: scaleY(1) !important; transition: none !important; }
+  html {
+    scroll-behavior: auto !important;
+  }
+  .img-curtain {
+    display: none !important;
+  }
+  .step-connector::after {
+    transform: scaleY(1) !important;
+    transition: none !important;
+  }
 }
 
 /* ---------- Print ----------------------------------------- */
@@ -668,35 +760,63 @@ body::before {
     --muted: white;
     --border: #d4d4d4;
   }
-  html, body { background: white !important; color: black !important; font-size: 11pt; }
-  body::before { display: none !important; }
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+  body::before {
+    display: none !important;
+  }
 
   .site-header,
   footer,
   .reading-progress,
   [data-back-to-top],
-  .no-print { display: none !important; }
+  .no-print {
+    display: none !important;
+  }
 
-  [class*="fixed"] { display: none !important; }
+  [class*='fixed'] {
+    display: none !important;
+  }
 
-  a { color: black !important; text-decoration: underline; }
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
     font-size: 9pt;
     color: #666;
     text-decoration: none;
   }
-  a[href^="/"]::after,
-  a[href^="#"]::after,
-  a[href^="mailto:"]::after,
-  a[href^="tel:"]::after { content: ""; }
+  a[href^='/']::after,
+  a[href^='#']::after,
+  a[href^='mailto:']::after,
+  a[href^='tel:']::after {
+    content: '';
+  }
 
-  h1, h2, h3, h4 { page-break-after: avoid; }
-  figure, .card-lift { page-break-inside: avoid; }
-  img { max-width: 100%; max-height: 8in; height: auto; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    page-break-after: avoid;
+  }
+  figure,
+  .card-lift {
+    page-break-inside: avoid;
+  }
+  img {
+    max-width: 100%;
+    max-height: 8in;
+    height: auto;
+  }
 
   body::after {
-    content: "MAS Monograms · mas-monograms.com";
+    content: 'MAS Monograms · mas-monograms.com';
     display: block;
     margin-top: 0.5in;
     padding-top: 0.25in;

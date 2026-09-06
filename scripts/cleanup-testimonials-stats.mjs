@@ -51,9 +51,7 @@ const run = async () => {
   console.log(`\nDataset: ${projectId}/${dataset}\n`);
 
   // ── 1. Testimonial documents (published + drafts) ────────────────────────
-  const testimonials = await client.fetch(
-    `*[_type == "testimonial"]{ _id, attribution, quote }`,
-  );
+  const testimonials = await client.fetch(`*[_type == "testimonial"]{ _id, attribution, quote }`);
   console.log(`Testimonial documents found: ${testimonials.length}`);
   for (const t of testimonials) {
     console.log(`  · ${t._id}  —  ${t.attribution ?? '?'}: "${(t.quote ?? '').slice(0, 50)}…"`);
@@ -65,7 +63,9 @@ const run = async () => {
   );
   console.log(`\nhomePage documents: ${homeDocs.length}`);
   for (const h of homeDocs) {
-    console.log(`  · ${h._id}  —  statsItems:${h.hasStats}  testimonialCopy:${h.hasTestimonialCopy}`);
+    console.log(
+      `  · ${h._id}  —  statsItems:${h.hasStats}  testimonialCopy:${h.hasTestimonialCopy}`,
+    );
   }
 
   // ── Mutate ───────────────────────────────────────────────────────────────
@@ -92,10 +92,10 @@ const run = async () => {
 
   // ── Verify ───────────────────────────────────────────────────────────────
   const remaining = await client.fetch(`count(*[_type == "testimonial"])`);
-  const stillHasStats = await client.fetch(
-    `count(*[_type == "homePage" && defined(statsItems)])`,
+  const stillHasStats = await client.fetch(`count(*[_type == "homePage" && defined(statsItems)])`);
+  console.log(
+    `\nVerify → testimonial docs remaining: ${remaining}; homePage with statsItems: ${stillHasStats}`,
   );
-  console.log(`\nVerify → testimonial docs remaining: ${remaining}; homePage with statsItems: ${stillHasStats}`);
 };
 
 run().catch((err) => {
