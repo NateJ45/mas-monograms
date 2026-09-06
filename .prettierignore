@@ -2,6 +2,32 @@ dist
 node_modules
 .astro
 .wrangler
+.lighthouseci
+.studio-dist
 src/lib/sanity.types.ts
 package-lock.json
 public
+playwright-report
+test-results
+tests/**/__screenshots__
+
+# Sanity typegen intermediate (also gitignored). Machine-written JSON.
+schema.json
+
+# Generated idempotency cache from the seed scripts (also gitignored).
+scripts/.asset-map.json
+
+# Rendered-HTML parity baselines (scripts/page-parity.mjs). They are byte
+# snapshots of built pages; prettier must never rewrite them.
+scripts/.parity
+
+# Hand-drawn glyph path data for the OG generator; one long machine-shaped line.
+scripts/og-glyph-paths.json
+
+# Wrangler's generated runtime types.
+worker-configuration.d.ts
+
+# Historical brainstorm plans and specs. Their code fences are pseudo-code
+# excerpts (fragments of components, half a schema object) that prettier's
+# embedded formatter cannot parse, and the record is not meant to be rewritten.
+docs/superpowers

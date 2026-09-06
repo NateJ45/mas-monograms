@@ -7,11 +7,15 @@ of this file is that nobody writes a fourth check that duplicates the second.
 
 | Check | Command | Runtime | Covers |
 |---|---|---|---|
-| Unit tests | `npm test` | Node's built-in runner (`node --test`, type-stripped) | Pure functions in `src/lib/*.test.ts` and `scripts/lib/*.test.mjs`: slugify, reservedSlugs, scriptAccent, sectionVisibility, utils, reading-time, phone, image-import helpers, and **theme-tokens** (below) |
-| Everything green | `npm run check` | local | typegen, Astro build (which now includes the embedded Studio), unit tests — the one command to run before pushing |
-| Lint | `npm run lint` | eslint | `eslint src scripts` — eslint does its own globbing (the `files` patterns in `eslint.config.js` pick up ts/tsx/astro/mjs), so coverage is identical on Windows and Linux CI. Two pre-existing unused-var **warnings**; zero errors is the bar |
-| CI | push to `main` / any PR (`.github/workflows/ci.yml`) | GitHub Actions | install, typegen, the **stale-types guard**, lint, credential-less Astro build (Studio included), unit tests |
-| Lighthouse CI | `npm run lighthouse` (`.github/workflows/lighthouse.yml`) | Headless Chrome over `dist/client` | The 12 routes in `lighthouserc.json`. **Accessibility is a hard gate at minScore 1** |
+| Unit tests | `npm run test:unit` | Node's built-in runner (`node --test`, type-stripped) | Pure functions in `src/lib/*.test.ts` and `scripts/lib/*.test.mjs`: slugify, reservedSlugs, scriptAccent, sectionVisibility, utils, reading-time, phone, image-import helpers, the page-fields drift gate, and **theme-tokens** (below) |
+| Type check + lint | `npm run check` | `astro check` then eslint | The family-standard "is it clean" command: zero `astro check` errors, zero eslint errors. Run before pushing |
+| Everything green | `npm run check:full` | local | typegen, `npm run check`, unit tests, Astro build (which includes the embedded Studio) |
+| Lint | `npm run lint` | eslint | `eslint src scripts tests` — eslint does its own globbing (the `files` patterns in `eslint.config.js` pick up ts/tsx/astro/mjs), so coverage is identical on Windows and Linux CI. Three pre-existing unused-var **warnings**; zero errors is the bar |
+| Format | `npm run format:check` / `npm run format` | prettier + `prettier-plugin-astro` + `prettier-plugin-tailwindcss` | Every file prettier can parse, minus `.prettierignore` (generated files, parity baselines, `docs/superpowers`). The tailwind plugin also sorts class lists |
+| Browser suites | `npm test` (`npm run test:ui` for the inspector) | Playwright, chromium + WebKit iPhone 14, against a fresh `npm run build` served by `http-server` | `tests/smoke.spec.ts` (200 + brand in `<title>` per route), `tests/a11y.spec.ts` (axe default rule set, zero violations), `tests/reflow.spec.ts` (no horizontal overflow at 320 and 1440/1024/768). Routes come from `tests/routes.ts` |
+| Internal links | `npm run check:links` | linkinator over `dist/client` | Every internal link resolves. `/studio`, `/preview` and `/api` are skipped (SSR, or a bare React mount shell) |
+| CI | push to `main` / `staging`, any PR, or manual dispatch (`.github/workflows/ci.yml`) | GitHub Actions | `build` job: install, typegen (3-attempt retry), the **stale-types guard**, `astro check`, lint, format check, unit tests, credential-less Astro build (Studio included), link check. `test` job (parallel): the Playwright suites, report uploaded as an artifact |
+| Lighthouse CI | `npm run lighthouse` (`.github/workflows/lighthouse.yml`) | Headless Chrome over `dist/client` | The 12 routes in `lighthouserc.json`. **Accessibility is a hard gate at minScore 1**; LCP under 4.5s and CLS under 0.1 are also errors; performance / best-practices / SEO are warnings |
 | Render parity | `npm run parity capture` / `compare` | reads `dist/client` | 23 built pages, byte-compared against committed baselines (below). `dist/client/studio/` is deliberately skipped |
 | Library drift | `npm run sync-check` | node, dependency-free | Every `PORTABLE`-marked file, diffed against `ncs-astro-sanity-starter` |
 | Uptime | `.github/workflows/uptime.yml`, hourly | curl | 4 live routes return 200 (needs the `SITE_URL` repo variable — see docs/PENDING.md) |
@@ -59,11 +63,38 @@ all, because it is an array of plain strings and primitives have no `_key` (see
 And note gotcha 13 in CLAUDE.md: `/studio` returns 200 with real HTML while being
 completely broken at React mount. Open it in a real browser and read the console.
 
-There is **no Playwright suite in this repo.** The sibling repos have one
-(smoke + axe light/dark + a 320-1440 reflow sweep); here the accessibility floor
-is held by the Lighthouse hard gate plus the theme-token unit test. If a11y
-regressions ever slip through, porting that suite is the next move — not adding
-more Lighthouse URLs.
+## The Playwright suites
+
+Ported from WCP on 2026-09-05 (the family test standard). `npm test` builds the
+site, serves `dist/client` on port 4321 and runs three suites on two browser
+profiles (Desktop Chrome, and a WebKit iPhone 14 for smoke + a11y):
+
+| Suite | Asserts |
+|---|---|
+| `tests/smoke.spec.ts` | every route answers 200 and its `<title>` carries "MAS Monograms" |
+| `tests/a11y.spec.ts` | axe-core's DEFAULT rule set reports zero violations. Do not narrow it to `.withTags([...])`: the default set is what keeps this in step with (and slightly ahead of) the Lighthouse gate |
+| `tests/reflow.spec.ts` | `document.documentElement.scrollWidth` never exceeds the viewport at 320px, then at 1440, 1024 and 768 |
+
+`tests/helpers.ts` has `settle()`: wait for fonts, kill transitions, force the
+`.img-curtain` and `[data-reveal]` end-states, so axe never audits a half-drawn
+page and reflow never measures fallback font metrics.
+
+**Routes.** `tests/routes.ts` hard-codes the eleven fixed pages and then
+discovers whatever else the build emitted (`<dir>/index.html` in `dist/client`),
+so locally, with `.env`, the eight item categories and the three legal pages run
+too, and in credential-less CI the fixed pages still run. `/studio`, `/preview`
+and `/api` are excluded on purpose: the first is a React mount shell that proves
+nothing when curled (gotcha 13), the other two are SSR and not in `dist/client`
+at all. **`npm run preview` is still the only way to exercise those** (below).
+
+There is no dark-mode axe pass (the site has no dark theme, by decision) and no
+visual-regression layer (that needs a fixture-driven `/styleguide` route, which
+this site does not have; screenshotting CMS-driven pages would flake with
+content).
+
+Locally, `npx playwright test --project=chromium --workers=2` is the fast loop;
+`reuseExistingServer` means a running `npm run serve:dist` is picked up instead
+of rebuilding.
 
 ## The stale-types guard
 
@@ -127,9 +158,11 @@ Baselines live in `scripts/.parity/*.html` and **are committed** — git history
 the record of when a baseline legitimately moved. Re-capture only when you mean
 to move it, and say so in the commit message.
 
-Note for whoever adds a Playwright suite later: capture baselines from a plain
-`npm run build` only. A test-runner webServer build can inject different env
-(fake tracker ids), which shows up as a diff that is not a regression.
+Capture baselines from a plain `npm run build` only, never from the Playwright
+webServer build (a test-runner build can inject different env, which shows up
+as a diff that is not a regression). The baselines were re-captured on
+2026-09-05 after the prettier pass: `prettier-plugin-tailwindcss` sorts class
+lists, and class strings are byte-faithful in the snapshots.
 
 ## Library drift
 

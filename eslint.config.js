@@ -25,14 +25,15 @@ export default [
   // NOTE: Astro processor creates virtual .ts paths like src/Foo.astro/*.ts
   // These match src/**/*.ts, so we must account for them. The Astro override
   // block below corrects rule severity for those virtual paths.
+  // tests/** joined the set with the Playwright suite (family test standard).
   ...tseslint.configs.recommended.map((cfg) => ({
     ...cfg,
-    files: ['src/**/*.{ts,tsx}', 'scripts/**/*.mjs'],
+    files: ['src/**/*.{ts,tsx}', 'scripts/**/*.mjs', 'tests/**/*.ts', 'playwright.config.ts'],
   })),
 
   // ── Rule overrides for TS/mjs (non-Astro virtual paths) ─────────────────
   {
-    files: ['src/**/*.{ts,tsx}', 'scripts/**/*.mjs'],
+    files: ['src/**/*.{ts,tsx}', 'scripts/**/*.mjs', 'tests/**/*.ts', 'playwright.config.ts'],
     // Exclude Astro virtual paths — they are handled in the Astro override below
     ignores: ['**/*.astro/**'],
     // Re-register the plugin so rules resolve (the spread above scopes to files

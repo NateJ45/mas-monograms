@@ -285,11 +285,21 @@ Schema.org type comes from `siteSettings.businessType` field.
   harness), `npm run sync-check` (library-drift check), `npm run free-dist`
   (also wired as the `prebuild` hook). `scripts/with-workerd.mjs` became the
   `build` wrapper on 2026-08-28 with the Astro 7 upgrade — see gotcha 3.
-- Workflows: `ci.yml` (install + typegen + stale-types guard + lint + build +
-  tests; the separate studio install and studio build steps went away with the
-  fold), `lighthouse.yml` (accessibility hard-gated at 1.0),
+- Workflows: `ci.yml` (family test standard since 2026-09-05: a `build` job with
+  install + typegen + stale-types guard + `astro check` + lint + prettier check
+  + unit tests + build + link check, and a parallel `test` job running the
+  Playwright smoke/axe/reflow suites on chromium and a WebKit iPhone),
+  `lighthouse.yml` (accessibility hard-gated at 1.0, LCP/CLS errors),
   `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
   on a secret/variable that is not set yet — see `docs/PENDING.md`.
+  `npm run check` is now `astro check && npm run lint` (the family shape);
+  `npm run check:full` is the old typegen + build + unit-test sweep.
+- **Never put a `<script>` inside a JSX expression** (`{cond && (<script>...)}`).
+  `prettier-plugin-astro` hands the script body to the JSX parser, where every
+  `{` opens an expression, and `npm run format:check` fails on the file. Put the
+  script in its own tiny component and render THAT conditionally
+  (`HeroFillScript`, `HeroTriScript`, `HeroSlideshowScript` are the pattern);
+  the emitted markup is byte-identical.
 - Any new seed or patch script should import `scripts/lib/sanity-lib.mjs` rather
   than build its own client: it brings a **dry-run-by-default** gate (`--apply`
   to actually write), Portable Text builders, and an idempotent asset uploader.

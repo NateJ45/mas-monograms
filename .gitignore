@@ -40,6 +40,10 @@ scripts/.asset-map.json
 # Lighthouse CI report artifacts
 .lighthouseci/
 
+# Playwright artifacts (family test standard, 2026-09-05)
+playwright-report/
+test-results/
+
 # transient commit message files
 .git-commit-msg.tmp
 
