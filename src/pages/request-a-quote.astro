@@ -1022,6 +1022,34 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   textarea.form-input {
     resize: vertical;
   }
+  /* A <select> keeps the same box but draws its focus indicator as an OUTLINE.
+     Tailwind's focus:ring-* compiles to a box-shadow, and WebKit renders
+     natively drawn form controls itself and drops box-shadow on them, so on
+     Safari and iOS the ring above painted nothing on any of the seven selects
+     on this page. The focus:outline-none that pairs with the ring then removed
+     the only fallback, leaving those controls with NO visible focus indicator
+     at all on every Apple device: a WCAG 2.4.7 failure.
+
+     Measured in a real WebKit on 2026-09-06, not assumed: the select does
+     enter :focus and :focus-visible and document.activeElement is correct, but
+     its computed box-shadow stays `none` while focused, on the same class
+     every passing text field carries.
+
+     An outline paints on native controls in every engine and follows the
+     border radius. Full Indigo at 2px, detached by a 2px offset, is exactly
+     what the ring above draws (8.16:1 on Linen), so the indicator is
+     unchanged to look at and now actually exists. Do not swap it back. */
+  Written as plain CSS rather than `@apply focus:outline-2 ...` on purpose:
+     the utility form only sets `outline-style: var(--tw-outline-style)`, and
+     the `focus:outline-none` already on `.form-input` has pinned that variable
+     to `none`, so the outline would come out 2px wide and invisible. */
+  select.form-input {
+    @apply focus:ring-0 focus:ring-offset-0;
+  }
+  select.form-input:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
   .form-help {
     @apply mt-xs text-xs text-[var(--color-text-secondary)];
   }
