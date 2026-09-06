@@ -157,8 +157,11 @@ test('there is no accent word to pick: no page feeds splitScriptAccent', () => {
 test('heroItalicWord is APPENDED, not matched inside the headline', () => {
   // Why it gets a plain text card rather than a pick-a-word picker: Hero writes
   // the headline, then a space, then the word in italics. It is a suffix.
-  assert.ok(
-    HERO.includes('{headline}{headlineItalicSuffix && <>{\' \'}<em class="italic">'),
+  // Whitespace-tolerant: prettier lays the fragment out over several lines, and
+  // the explicit {' '} is what keeps the space in the rendered headline.
+  assert.match(
+    HERO,
+    /\{headline\}\s*\{headlineItalicSuffix && \(?\s*<>\s*\{' '\}\s*<em class="italic">/,
     'Hero no longer appends the italic word; re-decide what control it gets',
   );
 });

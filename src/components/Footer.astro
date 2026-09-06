@@ -21,14 +21,14 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 import Logo from './Logo.astro';
 import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
-import {
-  resolveChrome,
-  fallbackFooterColumns,
-  type RawFooterColumn,
-} from '@/lib/siteSettings';
+import { resolveChrome, fallbackFooterColumns, type RawFooterColumn } from '@/lib/siteSettings';
 import { isExternalHref, type RawNavLink } from '@/lib/nav-href';
 
-interface SocialLink { platform?: string; url?: string; label?: string; }
+interface SocialLink {
+  platform?: string;
+  url?: string;
+  label?: string;
+}
 
 interface Props {
   siteSettings?: {
@@ -55,22 +55,22 @@ interface Props {
 const { siteSettings, legalPages, hasClearance = true } = Astro.props as Props;
 const legal = (legalPages ?? []).filter((l) => l?.slug && l?.title);
 
-const brandName     = siteSettings?.title ?? site.name;
-const email         = siteSettings?.email ?? '';
-const phone         = siteSettings?.phone ?? '';
-const address       = siteSettings?.address;
-const location      = [address?.city, address?.state].filter(Boolean).join(', ');
+const brandName = siteSettings?.title ?? site.name;
+const email = siteSettings?.email ?? '';
+const phone = siteSettings?.phone ?? '';
+const address = siteSettings?.address;
+const location = [address?.city, address?.state].filter(Boolean).join(', ');
 // Everything Site Settings can change about the footer: the link columns, the
 // small-print row, and the switch for the social buttons. All opt-in, so an
 // untouched Site Settings gives back exactly what this footer always showed.
-const chrome        = resolveChrome(siteSettings);
-const socialLinks   = chrome.showFooterSocials
+const chrome = resolveChrome(siteSettings);
+const socialLinks = chrome.showFooterSocials
   ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
   : [];
-const customLogo    = siteSettings?.logo?.asset ? siteSettings.logo : null;
-const siteCredit    = siteSettings?.footerCredit;
+const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
+const siteCredit = siteSettings?.footerCredit;
 const siteCreditUrl = siteSettings?.footerCreditUrl;
-const currentYear   = new Date().getFullYear();
+const currentYear = new Date().getFullYear();
 
 // Navigation columns: editor-managed if present, otherwise the built-in ones
 // (both come from src/lib/siteSettings.ts, so the header and the footer share
@@ -87,10 +87,14 @@ const legalLinks = chrome.legalNav;
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
-    case 'Instagram': return IconBrandInstagram;
-    case 'Facebook':  return IconBrandFacebook;
-    case 'Pinterest': return IconBrandPinterest;
-    default:          return IconLink;
+    case 'Instagram':
+      return IconBrandInstagram;
+    case 'Facebook':
+      return IconBrandFacebook;
+    case 'Pinterest':
+      return IconBrandPinterest;
+    default:
+      return IconLink;
   }
 }
 ---
@@ -100,141 +104,190 @@ function socialIcon(platform: string | undefined) {
 
   <div class="mx-auto max-w-content px-m pt-section-md pb-l">
     <div class="grid grid-cols-1 gap-l gap-y-section-md lg:grid-cols-12">
-
       {/* ── Brand column ─────────────────────────────────────────────────── */}
-      <div class="lg:col-span-4 lg:pr-l text-center sm:text-left">
-        <a href="/" aria-label={`${brandName} home`} class="inline-block hover:opacity-80 transition-opacity">
-          {customLogo ? (
-            <SanityImage source={customLogo} width={360} alt={customLogo.alt || brandName} class="h-14 w-auto" />
-          ) : (
-            <Logo variant="ink" class="h-14 w-auto" />
-          )}
+      <div class="text-center sm:text-left lg:col-span-4 lg:pr-l">
+        <a
+          href="/"
+          aria-label={`${brandName} home`}
+          class="inline-block transition-opacity hover:opacity-80"
+        >
+          {
+            customLogo ? (
+              <SanityImage
+                source={customLogo}
+                width={360}
+                alt={customLogo.alt || brandName}
+                class="h-14 w-auto"
+              />
+            ) : (
+              <Logo variant="ink" class="h-14 w-auto" />
+            )
+          }
         </a>
 
-        {siteSettings?.tagline && (
-          <p class="mt-m max-w-[26rem] mx-auto sm:mx-0 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-            {siteSettings.tagline}
-          </p>
-        )}
-
-        <div class="mt-m flex flex-col items-center sm:items-start gap-xs text-sm">
-          {location && (
-            <p class="inline-flex items-center gap-xs text-[var(--color-text-secondary)]">
-              <MapPin size={14} aria-hidden="true" />
-              {location}
+        {
+          siteSettings?.tagline && (
+            <p class="mx-auto mt-m max-w-[26rem] text-sm leading-relaxed text-[var(--color-text-secondary)] sm:mx-0">
+              {siteSettings.tagline}
             </p>
-          )}
-          {email && (
-            <a href={`mailto:${email}`} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
-              <Mail size={14} aria-hidden="true" />
-              {email}
-            </a>
-          )}
-          {phone && (
-            <a href={telHref(phone)} class="inline-flex items-center gap-xs text-foreground/85 hover:text-link transition-colors">
-              <Phone size={14} aria-hidden="true" />
-              {phone}
-            </a>
-          )}
+          )
+        }
+
+        <div class="mt-m flex flex-col items-center gap-xs text-sm sm:items-start">
+          {
+            location && (
+              <p class="inline-flex items-center gap-xs text-[var(--color-text-secondary)]">
+                <MapPin size={14} aria-hidden="true" />
+                {location}
+              </p>
+            )
+          }
+          {
+            email && (
+              <a
+                href={`mailto:${email}`}
+                class="inline-flex items-center gap-xs text-foreground/85 transition-colors hover:text-link"
+              >
+                <Mail size={14} aria-hidden="true" />
+                {email}
+              </a>
+            )
+          }
+          {
+            phone && (
+              <a
+                href={telHref(phone)}
+                class="inline-flex items-center gap-xs text-foreground/85 transition-colors hover:text-link"
+              >
+                <Phone size={14} aria-hidden="true" />
+                {phone}
+              </a>
+            )
+          }
         </div>
 
-        {socialLinks.length > 0 && (
-          <ul class="mt-m flex justify-center sm:justify-start flex-wrap gap-s list-none p-0">
-            {socialLinks.map((link) => {
-              const Icon = socialIcon(link.platform);
-              const ariaLabel = link.label ?? link.platform ?? 'Social link';
-              return (
-                <li>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={ariaLabel}
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground hover:bg-primary hover:border-primary hover:text-white transition-colors"
-                  >
-                    <Icon size={18} stroke={1.5} />
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        {
+          socialLinks.length > 0 && (
+            <ul class="mt-m flex list-none flex-wrap justify-center gap-s p-0 sm:justify-start">
+              {socialLinks.map((link) => {
+                const Icon = socialIcon(link.platform);
+                const ariaLabel = link.label ?? link.platform ?? 'Social link';
+                return (
+                  <li>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={ariaLabel}
+                      class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                    >
+                      <Icon size={18} stroke={1.5} />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          )
+        }
       </div>
 
       {/* ── Navigation columns ───────────────────────────────────────────── */}
       <nav
         aria-label="Footer"
-        class="lg:col-span-8 grid grid-cols-2 gap-l sm:grid-cols-4 text-center sm:text-left"
+        class="grid grid-cols-2 gap-l text-center sm:grid-cols-4 sm:text-left lg:col-span-8"
       >
-        {columns.map((col) => (
-          <div>
-            <p class="text-xs uppercase tracking-eyebrow text-[var(--color-text-secondary)] mb-s font-semibold">
-              {col.title}
-            </p>
-            <ul class="text-sm space-y-2 list-none p-0">
-              {col.links.map((link) => (
-                <li>
-                  <a
-                    href={link.href}
-                    target={isExternalHref(link.href) ? '_blank' : undefined}
-                    rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-                    class="text-foreground/85 hover:text-link transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        {
+          columns.map((col) => (
+            <div>
+              <p class="mb-s text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                {col.title}
+              </p>
+              <ul class="list-none space-y-2 p-0 text-sm">
+                {col.links.map((link) => (
+                  <li>
+                    <a
+                      href={link.href}
+                      target={isExternalHref(link.href) ? '_blank' : undefined}
+                      rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                      class="text-foreground/85 transition-colors hover:text-link"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
       </nav>
     </div>
   </div>
 
-  {/* ── Bottom bar. The dashed top border is a running-stitch line — the one
+  {
+    /* ── Bottom bar. The dashed top border is a running-stitch line — the one
       decorative footer flourish, in decorative brass. On sm+ it's a 3-column
-      grid so the legal links sit at the true horizontal centre. ── */}
+      grid so the legal links sit at the true horizontal centre. ── */
+  }
   <div class="border-t border-dashed border-[#B98A3E]/45">
-    <div class="mx-auto max-w-content px-m py-m flex flex-col items-center gap-s text-center text-xs text-[var(--color-text-tertiary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m">
-      <p class="sm:justify-self-start">© {currentYear} {brandName} · {location || 'St. Matthews, SC'}</p>
-      {legalLinks ? (
-        /* Site Settings -> Small-print links, when she has set any. */
-        <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center">
-          {legalLinks.map((link) => (
-            <a
-              href={link.href}
-              target={isExternalHref(link.href) ? '_blank' : undefined}
-              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-              class="hover:text-link transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-      ) : legal.length > 0 ? (
-        <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center">
-          {legal.map((lp) => (
-            <a href={`/legal/${lp.slug}`} class="hover:text-link transition-colors">{lp.title}</a>
-          ))}
-        </nav>
-      ) : (
-        <span class="hidden sm:block" aria-hidden="true"></span>
-      )}
+    <div
+      class="mx-auto flex max-w-content flex-col items-center gap-s px-m py-m text-center text-xs text-[var(--color-text-tertiary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m"
+    >
+      {
+        /* One expression on purpose: split across lines, Astro drops the space
+           between two adjacent {expressions} and the footer reads "2026MAS". */
+      }
+      <p class="sm:justify-self-start">
+        {`© ${currentYear} ${brandName} · ${location || 'St. Matthews, SC'}`}
+      </p>
+      {
+        legalLinks ? (
+          /* Site Settings -> Small-print links, when she has set any. */
+          <nav
+            aria-label="Legal"
+            class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center"
+          >
+            {legalLinks.map((link) => (
+              <a
+                href={link.href}
+                target={isExternalHref(link.href) ? '_blank' : undefined}
+                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                class="transition-colors hover:text-link"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        ) : legal.length > 0 ? (
+          <nav
+            aria-label="Legal"
+            class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center"
+          >
+            {legal.map((lp) => (
+              <a href={`/legal/${lp.slug}`} class="transition-colors hover:text-link">
+                {lp.title}
+              </a>
+            ))}
+          </nav>
+        ) : (
+          <span class="hidden sm:block" aria-hidden="true" />
+        )
+      }
       <div class="flex items-center gap-m sm:justify-self-end">
-        {siteCredit && (
-          siteCreditUrl ? (
-            <a
-              href={siteCreditUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="underline underline-offset-2 hover:text-link transition-colors"
-            >
-              {siteCredit}
-            </a>
-          ) : (
-            <span>{siteCredit}</span>
-          )
-        )}
+        {
+          siteCredit &&
+            (siteCreditUrl ? (
+              <a
+                href={siteCreditUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="underline underline-offset-2 transition-colors hover:text-link"
+              >
+                {siteCredit}
+              </a>
+            ) : (
+              <span>{siteCredit}</span>
+            ))
+        }
       </div>
     </div>
   </div>
