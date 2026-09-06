@@ -35,7 +35,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "serve:dist": "http-server dist/client -p 4321 -s -c-1 --silent",
-    "check:links": "linkinator ./dist/client --recurse --skip \"^(?!http://localhost)\" --skip \"/studio\" --skip \"/preview\" --skip \"/api/\""
+    "check:links": "linkinator ./dist/client --recurse --skip \"^https?://(?!localhost|127\\.0\\.0\\.1)\" --skip \"client\\W(studio|preview|api)(\\W|$)\""
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.0",
