@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Manual runs so a staging branch can be audited before it reaches main
+  # (`gh workflow run lighthouse.yml --ref staging`).
+  workflow_dispatch:
 
 # A newer push to the same branch obsoletes the in-flight run; cancel it
 # instead of paying for both (private-repo Actions minutes are metered).
