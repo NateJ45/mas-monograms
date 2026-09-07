@@ -59,11 +59,21 @@ jobs:
           PUBLIC_SANITY_DATASET: ${{ vars.PUBLIC_SANITY_DATASET }}
         run: npm run build
 
+      # `--name` redirects the DEPLOYMENT, not the BINDINGS: the emitted config
+      # still carried production's R2 bucket, so this "staging" Worker wrote
+      # quote submissions into mas-monograms-quotes — Mary Ann's live enquiries.
+      # The note below saying production is never touched was half true.
+      # Ported from WCP 2026-09-07, where the same pattern had staging bound to
+      # the live family directory and the real photo bucket.
+      - name: Point staging at staging data
+        run: node scripts/stage-bindings.mjs
+
       # THE CONFIG FLAG IS LOAD-BEARING. This is a hybrid static+SSR build, and
       # a plain `wrangler deploy` reads the SOURCE wrangler.jsonc, which knows
       # nothing about the adapter's generated asset manifest — every sub-route
       # 404s. Deploy the adapter's own config, exactly as `npm run deploy`
-      # does, and override only the Worker name so production is never touched.
+      # does, and override the Worker name. The BINDINGS are handled by the step
+      # above — the name alone does not separate them.
       - name: Deploy to the staging Worker
         uses: cloudflare/wrangler-action@v4
         with:
