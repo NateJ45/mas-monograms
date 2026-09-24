@@ -99,12 +99,14 @@ const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 // Optional site-wide announcement banner (Announcement collection in Sanity).
 // Fetched here once so every page gets it without each page running its own
 // query. Returns null when no active announcement exists (graceful absence).
-// Evaluated at BUILD TIME — banner changes require a rebuild.
-const announcement = await getActiveAnnouncement().catch(() => null);
+// Evaluated at BUILD TIME — banner changes require a rebuild. No .catch on
+// these reads: sanityFetch throws on a failed read in a production build, and
+// swallowing that would ship every page with the banner and footer links gone.
+const announcement = await getActiveAnnouncement();
 // Legal/policy pages for the footer links (Sanity-managed collection).
-const legalPages = await getAllLegalPages().catch(() => []);
+const legalPages = await getAllLegalPages();
 // Hide the Clearance nav/footer link entirely when there's nothing on clearance.
-const clearanceItems = await getAllClearanceItems().catch(() => []);
+const clearanceItems = await getAllClearanceItems();
 const hasClearance = (clearanceItems?.length ?? 0) > 0;
 const showAnnouncement = !!announcement?.message;
 
