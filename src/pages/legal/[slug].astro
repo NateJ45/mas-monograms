@@ -13,6 +13,12 @@ const { slug } = Astro.params as { slug: string };
 
 const [siteSettings, page] = await Promise.all([getSiteSettings(), getLegalPageBySlug(slug)]);
 
+// Listed by getStaticPaths, so empty means a failed read: stop a production
+// build rather than publish a blank policy page (see [slug].astro).
+if (!page && import.meta.env.PROD) {
+  throw new Error(`[legal] "${slug}" was listed but came back empty; refusing to publish it blank`);
+}
+
 const title = page?.title ? `${page.title} — MAS Monograms` : 'MAS Monograms';
 const description = page?.seoDescription ?? `${page?.title ?? 'Policy'} for MAS Monograms.`;
 const updated = page?.lastUpdated

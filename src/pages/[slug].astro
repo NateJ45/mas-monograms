@@ -35,6 +35,14 @@ const [siteSettings, category, allGallery, allCategories] = await Promise.all([
   getAllItemCategories(),
 ]);
 
+// getStaticPaths listed this slug, so an empty answer here is a failed read,
+// not a missing category. A production build stops rather than publish the
+// page as a redirect to /404. In dev it still redirects.
+if (!category && import.meta.env.PROD) {
+  throw new Error(
+    `[slug] category "${slug}" was listed but came back empty; refusing to publish it as a 404`,
+  );
+}
 if (!category) {
   return Astro.redirect('/404', 307);
 }

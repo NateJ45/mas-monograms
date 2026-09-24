@@ -124,9 +124,9 @@ export const client: SanityClient = createClient({
  *
  * When Sanity is unconfigured (PUBLIC_SANITY_PROJECT_ID absent or placeholder),
  * returns `fallback` immediately without any network call so the build succeeds
- * with empty-state content. When configured, forwards to `client.fetch` and
- * catches any network error, logging a warning and returning `fallback` rather
- * than crashing the build.
+ * with empty-state content. When configured, forwards to `client.fetch` (with
+ * two retries). A read that still fails throws in a production build, so the
+ * deploy stops; in dev it logs a warning and returns `fallback`.
  *
  * All query helpers in queries.ts route through this function.
  */
@@ -139,7 +139,7 @@ export async function sanityFetch<T>(
     return fallback;
   }
   try {
-    return await client.fetch<T>(query, params);
+    return await fetchWithRetry<T>(query, params);
   } catch (err) {
     // A production build must not quietly ship placeholder content: if Sanity
     // is unreachable or refusing requests (a quota block, an outage), fail the
@@ -149,6 +149,22 @@ export async function sanityFetch<T>(
     }
     console.warn('[sanity] fetch error (returning empty fallback):', err);
     return fallback;
+  }
+}
+
+// A build makes many reads, and one of them failing on a network blip could
+// publish a page as a redirect to /404 (seen on a sibling site, 2026-09-24).
+// Two retries, 0.5 s then 1.5 s apart, ride out a blip; a real outage still
+// fails after about 2 s and the build stops.
+async function fetchWithRetry<T>(query: string, params: Record<string, unknown>): Promise<T> {
+  const waits = [500, 1500];
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await client.fetch<T>(query, params);
+    } catch (err) {
+      if (attempt >= waits.length) throw err;
+      await new Promise((r) => setTimeout(r, waits[attempt]));
+    }
   }
 }
 
