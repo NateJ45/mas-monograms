@@ -436,7 +436,8 @@ theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
      spec beside it) rewrites the bad alias; it is a no-op off Windows and in
      build. Do not remove it, and do not "fix" this with
      `SANITY_ASTRO_DISABLE_MODULE_DEDUPE=1`: the Studio then fails to hydrate
-     (two styled-components / react instances).
+     (`react-compiler-runtime ... does not provide an export named 'c'`: the
+     switch also drops the plugin's pre-bundling of packages the Studio needs).
    - **No `assets.not_found_handling` in `wrangler.jsonc`** (removed 2026-08-28).
      With `404-page` set, Cloudflare answers navigation requests that miss the
      asset store from the static 404 page **without invoking the Worker**, which
