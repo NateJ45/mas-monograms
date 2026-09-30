@@ -306,7 +306,7 @@ generate`), not from a `studio/` workspace.
 - Workflows: `ci.yml` (family test standard since 2026-09-05: a `build` job with
   install + typegen + stale-types guard + `astro check` + lint + prettier check
   - unit tests + build + link check, and a parallel `test` job running the
-    Playwright smoke/axe/reflow suites on chromium and a WebKit iPhone),
+    Playwright smoke/axe/reflow/reduced-motion suites on chromium and a WebKit iPhone),
     `lighthouse.yml` (accessibility hard-gated at 1.0, LCP/CLS errors),
     `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
     on a secret/variable that is not set yet — see `docs/PENDING.md`.
@@ -474,3 +474,11 @@ theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
     "Connect this Studio to your project" screen and CORS errors in the console,
     and **nothing else** — no styled-components error #18, no
     "Cannot read properties of undefined (reading 'v2')".
+14. **The reduced-motion reset zeroes transitions, it does not shorten them
+    (2026-09-30, starter PORTS.md card 61).** In `globals.css` the reset uses
+    `transition-duration: 0s` plus `transition-delay: 0s`, never `0.01ms`:
+    `transition-property` defaults to `all`, so 0.01ms gives every element a
+    transition and WebKit never finishes one, stranding properties at their old
+    values. Consequence: `transitionend` never fires under reduce (nothing here
+    listens for it). `animation-duration` stays 0.01ms so `animationend` still
+    fires. `tests/reduced-motion.spec.ts` runs on chromium and webkit-iphone.
