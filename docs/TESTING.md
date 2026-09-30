@@ -169,9 +169,11 @@ lists, and class strings are byte-faithful in the snapshots.
 `npm run sync-check` walks this repo for files whose first lines carry
 `PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record`
 and byte-diffs each against the starter's copy (line endings normalized).
-Currently marked (6, all SAME as of 2026-08-28): `scripts/free-dist.mjs`,
+Currently marked (31 as of 2026-09-29, all SAME; `npm run sync-check` prints the full set, the
+original six are named here): `scripts/free-dist.mjs`,
 `scripts/with-workerd.mjs`, `scripts/lib/loadEnv.mjs`, `scripts/lib/sanity-lib.mjs`,
-`scripts/sync-check.mjs`, `src/lib/contrast.ts`. `loadEnv.mjs` joined the set on
+`scripts/sync-check.mjs`, `src/lib/contrast.ts`. `src/lib/sanity-dedupe-alias.ts` and its spec
+`src/lib/sanity-dedupe-alias.test.ts` joined on 2026-09-29 (card 60). `loadEnv.mjs` joined the set on
 2026-08-28 by pulling the starter's marked copy forward; the file body was already
 identical, only the marker line was missing.
 
