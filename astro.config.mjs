@@ -7,6 +7,8 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sanity from '@sanity/astro';
 
+import { fixSanityDedupeAlias } from './src/lib/sanity-dedupe-alias.ts';
+
 // The Sanity project id is PUBLIC by design: it ships in every client bundle.
 // A build with no .env still succeeds; the Studio then shows a project-not-found
 // screen until PUBLIC_SANITY_PROJECT_ID is set (see .env.example).
@@ -56,7 +58,13 @@ export default defineConfig({
     react(),
   ],
   vite: {
-    plugins: [tailwindcss()],
+    // fixSanityDedupeAlias() repairs @sanity/astro's dev-only alias, which is
+    // broken on Windows (it points `sanity` at a package.json FILE, so `astro
+    // dev` dies with MISSING_EXPORT). It does nothing in `astro build` and on
+    // macOS/Linux. Do not delete it, and do not "fix" this with
+    // SANITY_ASTRO_DISABLE_MODULE_DEDUPE=1 (the Studio then fails to hydrate).
+    // Full story: src/lib/sanity-dedupe-alias.ts and starter PORTS.md card 60.
+    plugins: [tailwindcss(), fixSanityDedupeAlias()],
     // @sanity/ui ships an ESM build that Vite's dependency pre-bundler
     // mis-scans on this stack (MISSING_EXPORT errors for styled-components).
     // Excluding it from pre-bundling matches the starter's working config; it is

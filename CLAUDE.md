@@ -424,6 +424,20 @@ theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
      Cloudflare adapter auto-declares a `SESSION` KV binding in the generated
      config, and a KV binding with no namespace id fails the deploy. This site has
      no login.
+   - **`fixSanityDedupeAlias()` in the `vite.plugins` list of `astro.config.mjs` is
+     load-bearing on Windows (2026-09-29, starter PORTS.md card 60).**
+     `@sanity/astro`'s dev-only `sanity:module-dedupe` plugin aliases `sanity` to
+     `require.resolve('sanity/package.json')` with the trailing `/package.json`
+     stripped by a forward-slash regex, which a Windows backslash path defeats, so
+     `sanity` resolved to its package.json FILE and `npm run dev` died with
+     `Build failed with N errors: [MISSING_EXPORT] "X" is not exported by
+"node_modules/sanity/package.json"`. `astro build` never loads the plugin, so
+     CI and deploys never saw it. `src/lib/sanity-dedupe-alias.ts` (PORTABLE,
+     spec beside it) rewrites the bad alias; it is a no-op off Windows and in
+     build. Do not remove it, and do not "fix" this with
+     `SANITY_ASTRO_DISABLE_MODULE_DEDUPE=1`: the Studio then fails to hydrate
+     (`react-compiler-runtime ... does not provide an export named 'c'`: the
+     switch also drops the plugin's pre-bundling of packages the Studio needs).
    - **No `assets.not_found_handling` in `wrangler.jsonc`** (removed 2026-08-28).
      With `404-page` set, Cloudflare answers navigation requests that miss the
      asset store from the static 404 page **without invoking the Worker**, which
