@@ -21,6 +21,8 @@ Last updated: 2026-07-03.
 
 ## How a deploy happens
 
+2026-10-03: staging abandoned; `main` is the only branch. Work on a short-lived branch, PR into `main`, merge on green CI (`build` and `test`); the merge is the production deploy.
+
 The GitHub repo is connected to **Cloudflare Workers Builds**. Every push to `main` triggers
 `npm ci && npm run build` in Cloudflare's CI and auto-deploys the result. There is **no manual
 `wrangler deploy`** in the normal flow.

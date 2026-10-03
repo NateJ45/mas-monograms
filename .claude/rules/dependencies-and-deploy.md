@@ -5,7 +5,6 @@ paths:
   - 'astro.config.mjs'
   - 'wrangler.jsonc'
   - 'worker-configuration.d.ts'
-  - '.github/workflows/deploy-staging.yml'
 ---
 
 # Matched dependency set, adapter pins, deploy command
