@@ -4,6 +4,16 @@
    carries everywhere the design system is referenced. */
 
 @import 'tailwindcss';
+/* Keep Tailwind's automatic source detection off committed non-source files.
+   scripts/.parity/*.html (render-parity baselines) and Markdown (docs/, CLAUDE.md,
+   README.md, .claude/) name utility classes that no longer exist in src/, and each
+   keeps a rule alive in the shipped sheet; a parity compare can then pass because
+   the baselines fed the build. Vault gotcha: committed-parity-baselines-feed-tailwind. */
+@source not '../../scripts/.parity';
+@source not '../../docs';
+@source not '../../.claude';
+@source not '../../CLAUDE.md';
+@source not '../../README.md';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 /* Fraunces opsz builds (not the default wght-only): the optical-size axis is

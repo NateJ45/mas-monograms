@@ -28,6 +28,12 @@ Loads when you touch workflows, scripts or tests.
     `npm run check` is now `astro check && npm run lint` (the family shape);
     `npm run check:full` is the old typegen + build + unit-test sweep.
 
+- Parity and Tailwind: `src/styles/globals.css` carries `@source not` for
+  `scripts/.parity`, `docs`, `.claude`, `CLAUDE.md` and `README.md` so committed
+  baselines and Markdown cannot keep dead utility rules alive. Do not name utility
+  classes in new committed HTML fixtures without excluding them too. See the
+  "Render parity" section of `docs/TESTING.md`.
+
 ## Gotchas (build, CI, parity)
 
 <!-- prettier-ignore-start -->

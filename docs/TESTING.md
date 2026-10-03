@@ -93,6 +93,18 @@ visual-regression layer (that needs a fixture-driven `/styleguide` route, which
 this site does not have; screenshotting CMS-driven pages would flake with
 content).
 
+**Full-page screenshots for visual review** (no committed visual layer, but the
+rule holds for any ad-hoc capture, Playwright or otherwise). `fullPage` renders
+the document without scrolling it, so the IntersectionObserver behind
+`[data-reveal]` and `.img-curtain` never fires below the first viewport and every
+revealed band lands in the PNG blank (a grey hole that looks like a design
+decision). Before every full-page shutter: scroll through the page in
+viewport-sized steps to the bottom, wait a beat, scroll back to the top, wait for
+every `<img>` to be `complete && naturalWidth > 0` and for `document.fonts.ready`,
+then capture. Any review screenshot with a large uniform band is re-taken, not
+accepted. (Vault gotcha: fullpage-screenshot-skips-scroll-reveal. `tests/helpers.ts`
+`settle()` solves the same problem for the test suites by forcing the end-states.)
+
 Locally, `npx playwright test --project=chromium --workers=2` is the fast loop;
 `reuseExistingServer` means a running `npm run serve:dist` is picked up instead
 of rebuilding.
@@ -186,6 +198,18 @@ untouched.
 Baselines live in `scripts/.parity/*.html` and **are committed** — git history is
 the record of when a baseline legitimately moved. Re-capture only when you mean
 to move it, and say so in the commit message.
+
+**Tailwind must not scan the baselines.** Tailwind v4 skips only gitignored paths,
+and `scripts/.parity/*.html` is committed, so every class in an old baseline kept
+its CSS rule alive and a compare could pass because the baselines fed the build.
+`src/styles/globals.css` therefore has `@source not` for `scripts/.parity`, `docs`,
+`.claude`, `CLAUDE.md` and `README.md` (added and recaptured 2026-10-03; the
+shipped BaseLayout sheet dropped 101,489 to 98,195 bytes, 42 dead rules, and 16
+page/viewport full-page screenshots stayed pixel-identical). The proof of a clean
+loop is a fixpoint: two consecutive build + capture runs leave the stylesheet byte
+count unchanged. If you add another committed folder of HTML or Markdown that
+names utility classes, exclude it the same way. (Vault gotcha:
+committed-parity-baselines-feed-tailwind.)
 
 Capture baselines from a plain `npm run build` only, never from the Playwright
 webServer build (a test-runner build can inject different env, which shows up

@@ -34,6 +34,7 @@ Run from the repo root. Node scripts are in `package.json`.
 - `npm run typegen`: after ANY schema change, then commit `src/lib/sanity.types.ts`
 - `npm run test:unit` (node tests), `npm test` (Playwright smoke/axe/reflow), `npm run format:check`
 - `npm run parity` (render parity), `npm run sync-check` (PORTABLE drift)
+- Full-page screenshots for review: scroll through the page first or `[data-reveal]` bands capture blank (`docs/TESTING.md`)
 - `npm run deploy`: build + `wrangler deploy -c dist/server/wrangler.json`. Not the normal path.
 
 ## Stack
