@@ -59,9 +59,10 @@ scripts/with-workerd.mjs astro build"`, 2026-08-28). It works around a Windows
    run under a test runner or with different env (fake tracker ids, empty Sanity
    credentials) produces a diff that is not a regression. Re-capture only when a
    markup change is intended, and say so in the commit message.
-6. **`sanity-backup.yml` and `uptime.yml` are silently inert** until
-   `SANITY_AUTH_TOKEN` (secret) and `SITE_URL` (repo **variable**, not a secret)
-   exist. They warn-and-skip by design so they can be committed before launch —
-   which also means "the workflow is green" does not mean "the backup ran". Check
-   `gh secret list` / `gh variable list` before believing in either.
+6. **`sanity-backup.yml` is DISABLED in GitHub** (Nathan, 2026-10-03: no backups for
+   MAS), and **`uptime.yml` is silently inert** until the `SITE_URL` repo
+   **variable** (not a secret) exists. They warn-and-skip by design so they can be
+   committed before launch — which also means "the workflow is green" does not mean
+   "the check ran". Check `gh workflow list --all` and `gh variable list` before
+   believing in either. To re-enable the backup see `docs/PENDING.md`.
 <!-- prettier-ignore-end -->
