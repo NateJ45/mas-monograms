@@ -97,7 +97,7 @@ Locally, `npx playwright test --project=chromium --workers=2` is the fast loop;
 `reuseExistingServer` means a running `npm run serve:dist` is picked up instead
 of rebuilding.
 
-## CI shape (2026-10-03, starter PORTS.md card 62: deliberately NOT adopted)
+## CI shape (2026-10-03, starter PORTS.md card 70: deliberately NOT adopted)
 
 `ci.yml` stays two parallel jobs, `build` and `test`, which are the required
 checks (never rename them, never put a path filter on `ci.yml`: a required check

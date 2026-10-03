@@ -1,7 +1,7 @@
 # NOTE: the workflow `name:` below must stay "Lighthouse CI".
 # dependabot-auto-merge.yml listens for that exact workflow name.
 #
-# ── WHEN IT RUNS (starter PORTS.md card 62) ─────────────────────────────────
+# ── WHEN IT RUNS (starter PORTS.md card 70) ─────────────────────────────────
 # Lighthouse is the slowest gate here (about 9 minutes of a 3 minute CI) and it
 # ran on every PR, including ones that cannot move a score. It is NOT a
 # required status check (the ruleset requires only `build` and `test`), so it
