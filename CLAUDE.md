@@ -127,6 +127,7 @@ The numbered gotchas keep their original numbers because code comments cite them
 - `.claude/rules/dependencies-and-deploy.md`: matched version set and pins, gotchas 9, 10, 11 (read before ANY dependency or deploy change)
 - `.claude/rules/ci-and-scripts.md`: workflows, scripts, parity, gotchas 2, 3, 5, 6
 
+- **`PRODUCT.md`** (audience, purpose, tone, anti-references; open questions are `TODO(Nathan)` lines) and **`DESIGN.md`** (the visual system as built) sit at the repo root. Read them before any design work and update them in the same change when the system moves.
 - **`docs/PENDING.md`** — the authoritative registry of open patches and
   waiting-on-a-human items. Edit it in the same commit that opens or closes one.
 - **`docs/TESTING.md`** — which check covers what, and how to run each.
