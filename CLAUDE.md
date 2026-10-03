@@ -87,7 +87,7 @@ are set via `wrangler secret put`. Never write them into `.env` or commit them.
 ## Branch, CI and deploy
 
 - `main` is the only long-lived branch (2026-10-03: staging abandoned). Work on a short-lived branch, open a PR into `main`, and merge only when CI is green (required checks are named exactly `build` and `test`).
-- `ci.yml` runs on pushes to `main` and on PRs. Merging to `main` is the production deploy (Cloudflare Workers Builds).
+- `ci.yml` runs on pushes to `main` and on PRs (no path filter, ever: `build` and `test` are required checks, and they are aggregator jobs over `static`, `site` and `e2e`; see docs/TESTING.md "CI shape"). Merging to `main` is the production deploy (Cloudflare Workers Builds).
 - `npm run preview` runs `wrangler dev -c dist/server/wrangler.json` against the last build.
   That is the only way to exercise the SSR routes and the real response headers locally; a
   static file server proves nothing about them.
