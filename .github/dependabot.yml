@@ -39,6 +39,16 @@ updates:
       # rule is "never 7". Without this, Dependabot reopens the bump every week.
       - dependency-name: 'typescript'
         versions: ['>=7']
+      # Added to match the starter's dependabot.yml (PORTS.md card 62): the rest of the
+      # pinned React / styled-components set lives outside the @sanity/* namespace.
+      - dependency-name: 'react'
+      - dependency-name: 'react-dom'
+      - dependency-name: 'react-is'
+      - dependency-name: 'styled-components'
+      # Adapter and wrangler are pinned as a pair: a lone bump of either can pass
+      # `astro build` and still break `wrangler deploy` (starter dependabot.yml).
+      - dependency-name: '@astrojs/cloudflare'
+      - dependency-name: 'wrangler'
 
   # No separate /studio entry here: Studio is folded into the root package
   # (PORTS.md card 10), one package.json/lockfile, so the entry above already
