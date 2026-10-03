@@ -18,21 +18,15 @@ Loads when you touch workflows, scripts or tests.
   harness), `npm run sync-check` (library-drift check), `npm run free-dist`
   (also wired as the `prebuild` hook). `scripts/with-workerd.mjs` became the
   `build` wrapper on 2026-08-28 with the Astro 7 upgrade — see gotcha 3.
-- Workflows: `ci.yml` (family test standard since 2026-09-05, restructured
-  2026-10-03 for speed, starter PORTS.md card 62: `static` (drift check, audit,
-  typegen, stale-types guard, `astro check`, lint, prettier, unit tests) and
-  `site` (build once, link check, upload `dist/client`) run in parallel;
-  `e2e` runs the Playwright smoke/axe/reflow/reduced-motion suites on chromium
-  and a WebKit iPhone against the uploaded build with `PLAYWRIGHT_SKIP_BUILD=1`.
-  `build` and `test` are the REQUIRED checks and are aggregator jobs: keep the
-  names, keep `if: always()`, no path filter on `ci.yml`),
-  `lighthouse.yml` (workflow name stays `Lighthouse CI`, dependabot-auto-merge
-  listens for it; accessibility hard-gated at 1.0, LCP/CLS errors; PRs run a
-  6-URL sample and only when score-moving paths change, push/weekly run all 12),
-  `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
-  on a secret/variable that is not set yet — see `docs/PENDING.md`.
-  `npm run check` is now `astro check && npm run lint` (the family shape);
-  `npm run check:full` is the old typegen + build + unit-test sweep.
+- Workflows: `ci.yml` (family test standard since 2026-09-05: a `build` job with
+  install + typegen + stale-types guard + `astro check` + lint + prettier check
+  - unit tests + build + link check, and a parallel `test` job running the
+    Playwright smoke/axe/reflow/reduced-motion suites on chromium and a WebKit iPhone),
+    `lighthouse.yml` (workflow name stays `Lighthouse CI`, dependabot-auto-merge listens for it; accessibility hard-gated at 1.0, LCP/CLS errors; PRs run a 6-URL sample and only when score-moving paths change, push/weekly/manual run all 12),
+    `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
+    on a secret/variable that is not set yet — see `docs/PENDING.md`.
+    `npm run check` is now `astro check && npm run lint` (the family shape);
+    `npm run check:full` is the old typegen + build + unit-test sweep.
 
 ## Gotchas (build, CI, parity)
 

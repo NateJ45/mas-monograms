@@ -42,11 +42,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    // PLAYWRIGHT_SKIP_BUILD (set by the CI e2e job, starter PORTS.md card 62)
-    // serves a dist/client that an earlier job already built and uploaded,
-    // instead of building the same site a second time. Unset, every local run
-    // still builds fresh, which is what keeps a stale dist from passing.
-    command: `${process.env.PLAYWRIGHT_SKIP_BUILD ? '' : 'npm run build && '}npm run serve:dist`,
+    command: 'npm run build && npm run serve:dist',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
