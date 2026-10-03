@@ -22,7 +22,7 @@ Loads when you touch workflows, scripts or tests.
   install + typegen + stale-types guard + `astro check` + lint + prettier check
   - unit tests + build + link check, and a parallel `test` job running the
     Playwright smoke/axe/reflow/reduced-motion suites on chromium and a WebKit iPhone),
-    `lighthouse.yml` (accessibility hard-gated at 1.0, LCP/CLS errors),
+    `lighthouse.yml` (workflow name stays `Lighthouse CI`, dependabot-auto-merge listens for it; accessibility hard-gated at 1.0, LCP/CLS errors; PRs run a 6-URL sample and only when score-moving paths change, push/weekly/manual run all 12),
     `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
     on a secret/variable that is not set yet — see `docs/PENDING.md`.
     `npm run check` is now `astro check && npm run lint` (the family shape);
