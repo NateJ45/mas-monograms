@@ -89,14 +89,16 @@ This file tracks the things that have no other home.
   Presentation tool) is now wrong. Edit them in the Studio, or write a seed patch
   through `scripts/lib/sanity-lib.mjs` with its dry-run gate.
 
-- **Set the `SANITY_AUTH_TOKEN` repo secret** so the nightly dataset backup
-  actually runs. `.github/workflows/sanity-backup.yml` is committed and its
-  schedule is on, but it gates on that secret and currently logs a warning and
-  stops every night (`gh secret list --repo NateJ45/mas-monograms` was empty on
-  2026-08-27). A **read** token is enough. Create it at sanity.io/manage →
-  project `xp3elugr` → API → Tokens, then
-  `gh secret set SANITY_AUTH_TOKEN --repo NateJ45/mas-monograms`. Until this is
-  set there is no second copy of Mary Ann's content anywhere.
+- **Backups are deliberately OFF (Nathan, 2026-10-03).** The nightly
+  `.github/workflows/sanity-backup.yml` was only ever warn-and-skip (no
+  `SANITY_AUTH_TOKEN`), so it reported green without backing anything up. It is
+  now disabled in GitHub (`gh workflow disable 344134314 --repo NateJ45/mas-monograms`;
+  the file stays in the repo). There is no second copy of Mary Ann's content
+  anywhere and no restore drill. To turn backups on later: create a **read** token
+  at sanity.io/manage → project `xp3elugr` → API → Tokens, set
+  `SANITY_AUTH_TOKEN` and `BACKUP_PASSPHRASE` with `gh secret set`, run
+  `gh workflow enable 344134314 --repo NateJ45/mas-monograms`, confirm a real run,
+  then do `docs/RESTORE-DRILL.md`.
 - **Set the `SITE_URL` repo variable** to turn on the hourly uptime check
   (`.github/workflows/uptime.yml`, same warn-and-skip gate). A **variable**, not
   a secret — the origin is public. Today:
