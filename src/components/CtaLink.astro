@@ -14,7 +14,7 @@
 //
 // Two visual variants + a tone modifier:
 //   - "primary" — Rust CTA pill (bg-[var(--color-rust-cta)] + text-white,
-//     the one button-background color per CLAUDE.md's palette table)
+//     the one button-background color per .claude/rules/design-system.md palette table)
 //   - "secondary" — outlined link with pine-teal border + text-link
 //   - `onDark` toggle — for CTAs sitting over a dark surface (hero image
 //     overlay). Swaps the secondary variant from pine-teal-on-light to
@@ -107,7 +107,7 @@ const baseClasses = onDark
   : 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 // Primary on LIGHT surfaces is Claret (the one button-background color per
-// CLAUDE.md's palette table). Primary on DARK surfaces (indigo drench bands,
+// .claude/rules/design-system.md palette table). Primary on DARK surfaces (indigo drench bands,
 // photo scrims) flips to paper-with-ink — Direction C rule: claret sitting
 // on indigo vibrates (both are dark), and a light button on a dark ground is
 // the on-dark pattern across the premium reference set.

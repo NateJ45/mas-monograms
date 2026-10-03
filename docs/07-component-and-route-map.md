@@ -2,7 +2,7 @@
 
 > **As-built (updated 2026-07-03).** This doc originally proposed a layout before the build; it now
 > reflects what was actually shipped, through the "Heirloom Coast" rebrand and the "Direction C"
-> treatment. Route + redirect table is in `docs/01` and `CLAUDE.md`; design system in `docs/02`;
+> treatment. Route + redirect table is in `docs/01` and `.claude/rules/site-routes.md`; design system in `docs/02`;
 > deployment in `docs/08`.
 
 ---
