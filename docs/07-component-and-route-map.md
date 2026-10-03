@@ -2,7 +2,7 @@
 
 > **As-built (updated 2026-07-03).** This doc originally proposed a layout before the build; it now
 > reflects what was actually shipped, through the "Heirloom Coast" rebrand and the "Direction C"
-> treatment. Route + redirect table is in `docs/01` and `CLAUDE.md`; design system in `docs/02`;
+> treatment. Route + redirect table is in `docs/01` and `.claude/rules/site-routes.md`; design system in `docs/02`;
 > deployment in `docs/08`.
 
 ---
@@ -112,5 +112,5 @@ webhook → Cloudflare deploy hook). See `docs/08`.
 
 Keep components small and single-purpose; comment the non-obvious parts (the accent-word heading
 treatment, the form's progressive-enhancement and safe-DOM file rendering). Pull all colors, fonts,
-spacing, and radii from the tokens in `src/styles/`, never hardcode. Test on a Cloudflare preview
-deploy before promoting. After any Sanity schema change, run `npm run typegen`.
+spacing, and radii from the tokens in `src/styles/`, never hardcode. Test on a PR build
+before merging to `main`. After any Sanity schema change, run `npm run typegen`.

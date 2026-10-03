@@ -19,7 +19,7 @@ This file tracks the things that have no other home.
 
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
-- **Sign in to the staging Studio, then open Presentation.** The stack moved to
+- **Sign in to the live Studio, then open Presentation.** The stack moved to
   `sanity` 6.9.1 / `@sanity/ui` 3.5.4 / `@sanity/client` 7.26.2 /
   `@sanity/visual-editing` 5.7.3 / `@sanity/preview-url-secret` 4.1.5. Every
   automated gate is green and the single-instance invariant holds on disk and in
@@ -27,7 +27,7 @@ This file tracks the things that have no other home.
   styled-components `errors.md#` chunk). But the failure this pinning regime
   exists for shows up ONLY after sign-in: the login screen is core code and
   renders fine even when the theme context is broken. So open `/studio` on
-  staging, sign in, open a document with a custom component pane, then open
+  the live site, sign in, open a document with a custom component pane, then open
   **Presentation** and hover a headline so the in-canvas text popover draws and
   a bold or italic toggle writes back. If the desk throws styled-components
   error #18 or `Cannot read properties of undefined (reading 'v2')`, the bump is
@@ -56,7 +56,7 @@ This file tracks the things that have no other home.
   `.dev.vars` is already wired. Without it the preview routes fail closed with a
   503 naming what is missing, and the public site is unaffected.
 - **Change the Cloudflare Workers Builds deploy command.** With
-- **Activation step (after the staging merge is LIVE):** run
+- **Activation step (after the Studio rework is LIVE):** run
   `node scripts/patch-studio-guide-presentation.mjs --apply` to update
   Mary Ann's Start Here guide for the new Studio (the removed per-page
   Preview tab becomes the Presentation tool, plus a new how-to for

@@ -2,7 +2,7 @@
 // Quick-reference card for the MAS Monograms brand — colors and fonts — built so
 // Mary Ann can copy the exact values into Canva when she makes a social graphic,
 // flyer, or business card. Colors and fonts mirror the live site's "Heirloom
-// Coast" system (src/styles/globals.css + CLAUDE.md). Static content, no fetch.
+// Coast" system (src/styles/globals.css + .claude/rules/design-system.md). Static content, no fetch.
 // Safe to edit by hand.
 
 import React from 'react';

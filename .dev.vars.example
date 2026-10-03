@@ -17,7 +17,7 @@
 # comes up with no new secret to set.
 #
 # WRITE THE VALUE BARE. A quoted token yields a 401 that reads like a permissions
-# problem (see the gotchas in CLAUDE.md).
+# problem (see the gotchas in .claude/rules/sanity-studio.md).
 SANITY_TOKEN=
 
 # ── Quote form Worker (already required by POST /api/quote) ────────────────────
