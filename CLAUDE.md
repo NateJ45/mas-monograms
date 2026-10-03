@@ -148,3 +148,7 @@ Projects root (read its `## Current state` first). Work log: the note keeps a `#
 canonical in the starter and checked by `node scripts/sync-check.mjs`. A generalising
 fix gets a port card in the same commit. Cross-project lessons go to
 `_vault/gotchas/` with a "Ported to" checklist.
+
+`.claude/settings.json` is a PORTABLE deny-rules file (blocks `git reset --hard` and force
+pushes) copied byte-for-byte from the starter (port card 71) and covered by
+`sync-check`. The starter's shared conventions import was deliberately NOT adopted here.
