@@ -21,7 +21,7 @@ Loads when you touch workflows, scripts or tests.
 - Workflows: `ci.yml` (family test standard since 2026-09-05: a `build` job with
   install + typegen + stale-types guard + `astro check` + lint + prettier check
   - unit tests + build + link check, and a parallel `test` job running the
-    Playwright smoke/axe/reflow suites on chromium and a WebKit iPhone),
+    Playwright smoke/axe/reflow/reduced-motion suites on chromium and a WebKit iPhone),
     `lighthouse.yml` (accessibility hard-gated at 1.0, LCP/CLS errors),
     `sanity-backup.yml` (nightly), `uptime.yml` (hourly). The last two are gated
     on a secret/variable that is not set yet — see `docs/PENDING.md`.

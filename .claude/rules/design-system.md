@@ -97,4 +97,12 @@ theme-tokens.test.ts` now parses the real hex out of `globals.css` and asserts
    the pairs under `npm test`. **Any token that becomes a focus ring or the
    visible edge of a control must be added there** with `AA_NON_TEXT`, or the one
    bug class Lighthouse cannot see stays invisible.
+14. **The reduced-motion reset zeroes transitions, it does not shorten them
+    (2026-09-30, starter PORTS.md card 61).** In `globals.css` the reset uses
+    `transition-duration: 0s` plus `transition-delay: 0s`, never `0.01ms`:
+    `transition-property` defaults to `all`, so 0.01ms gives every element a
+    transition and WebKit never finishes one, stranding properties at their old
+    values. Consequence: `transitionend` never fires under reduce (nothing here
+    listens for it). `animation-duration` stays 0.01ms so `animationend` still
+    fires. `tests/reduced-motion.spec.ts` runs on chromium and webkit-iphone.
 <!-- prettier-ignore-end -->

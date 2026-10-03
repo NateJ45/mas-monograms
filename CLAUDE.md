@@ -119,7 +119,7 @@ are set via `wrangler secret put`. Never write them into `.env` or commit them.
 Path-scoped rules in `.claude/rules/` load only when you touch matching files.
 The numbered gotchas keep their original numbers because code comments cite them.
 
-- `.claude/rules/design-system.md`: Heirloom Coast design note, typography, palette, component authoring, gotcha 4
+- `.claude/rules/design-system.md`: Heirloom Coast design note, typography, palette, component authoring, gotchas 4, 14
 - `.claude/rules/live-preview.md`: `/preview/**`, stega, SSE proxy, in-canvas controls, "Edit here" card
 - `.claude/rules/site-routes.md`: route table, quote Worker, redirects, JSON-LD
 - `.claude/rules/sanity-studio.md`: query pattern, Studio notes, seed scripts, gotchas 1, 7, 8
