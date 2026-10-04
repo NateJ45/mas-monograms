@@ -66,3 +66,7 @@ scripts/with-workerd.mjs astro build"`, 2026-08-28). It works around a Windows
    "the check ran". Check `gh workflow list --all` and `gh variable list` before
    believing in either. To re-enable the backup see `docs/PENDING.md`.
 <!-- prettier-ignore-end -->
+
+- `.claude/settings.json` (deny rules for `git reset --hard` and force pushes) is PORTABLE
+  from the starter (card 71). Change it there and pull forward; `sync-check` reports drift.
+  `.claude/settings.local.json` stays per-machine and uncommitted.

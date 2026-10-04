@@ -98,6 +98,15 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
   keeps `min-h-[44px]` rows and `h-11 w-11` social buttons; the Marquee button is 44px; BackToTop 48px.
   Re-run `scripts/measure-tap-targets.mjs` after touching the footer, the gallery filter or the form.
 
+- **44px tap targets at 390px** (PORTS cards 82 and 83). Stacked rows get real
+  `min-h-[44px]`; a standalone small link gets `relative hit-44` (`globals.css`);
+  never pad an underlined text link; never use `hit-44` on rows closer than
+  44px minus their height (give them real height or space them). `.form-input`
+  carries `min-h-[44px]`. Radios and checkboxes use the hand-drawn `.choice-input`
+  class plus `hit-44` in `request-a-quote.astro` (a native control has no `::after`;
+  do not put `accent-primary` back). Re-run `scripts/measure-tap-targets.mjs`
+  after touching the footer, the gallery filter or the quote form.
+
 ## Gotcha (design tokens)
 
 <!-- prettier-ignore-start -->

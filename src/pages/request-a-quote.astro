@@ -306,7 +306,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
             </p>
             <div
               id="ownership"
-              class="mt-xs flex flex-col gap-s"
+              class="mt-xs flex flex-col"
               role="radiogroup"
               aria-labelledby="ownership-label"
               aria-required="true"
@@ -314,12 +314,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
             >
               {
                 ownershipOptions.map((opt: string) => (
-                  <label class="flex cursor-pointer items-center gap-s text-sm">
+                  <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
                     <input
                       type="radio"
                       name="ownership"
                       value={opt}
-                      class="accent-primary"
+                      class="choice-input hit-44"
                       data-required-radio
                     />
                     <span>{opt}</span>
@@ -533,8 +533,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
           {/* Rush turnaround */}
           <div class="form-field">
-            <label class="flex cursor-pointer items-start gap-s text-sm">
-              <input type="checkbox" name="rush" value="yes" class="mt-0.5 accent-primary" />
+            <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
+              <input type="checkbox" name="rush" value="yes" class="choice-input hit-44" />
               <span>{L.rushLabel}</span>
             </label>
             {L.rushHelp && <p class="form-help">{L.rushHelp}</p>}
@@ -543,12 +543,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           <div class="form-field">
             <p class="form-label">{L.giftLabel}</p>
             <div class="mt-xs flex items-center gap-l">
-              <label class="flex cursor-pointer items-center gap-s text-sm">
-                <input type="radio" name="isGift" value="yes" class="accent-primary" />
+              <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
+                <input type="radio" name="isGift" value="yes" class="choice-input hit-44" />
                 <span>{L.giftOptionYes}</span>
               </label>
-              <label class="flex cursor-pointer items-center gap-s text-sm">
-                <input type="radio" name="isGift" value="no" class="accent-primary" checked />
+              <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
+                <input type="radio" name="isGift" value="no" class="choice-input hit-44" checked />
                 <span>{L.giftOptionNo}</span>
               </label>
             </div>
@@ -1017,7 +1017,52 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
        is intentionally left alone; here we use --color-border-interactive
        (3.68:1 on Linen). Focus ring carries its own indicator: a full-Indigo ring
        detached by a 2px offset (8.16:1), not a faint /30 tint. */
-    @apply block w-full rounded-md border border-border-interactive bg-background px-m py-s text-sm text-foreground transition-colors focus:border-primary focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)] focus:outline-none;
+    @apply block min-h-[44px] w-full rounded-md border border-border-interactive bg-background px-m py-s text-sm text-foreground transition-colors focus:border-primary focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)] focus:outline-none;
+  }
+  /* Radios and checkboxes. The native glyph is 13px and cannot carry the
+     invisible 44px hit area (a native control has no ::after), so they are
+     drawn here, 18px, in the same Indigo the old accent-primary gave them. The
+     markup adds `hit-44` (globals.css, PORTS.md card 82) for the 44px area and
+     the surrounding <label> carries min-h-[44px]. High-contrast mode gets the
+     native control back. */
+  .choice-input {
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    cursor: pointer;
+    border: 1.5px solid var(--color-border-interactive);
+    background-color: var(--background);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+  .choice-input[type='radio'] {
+    border-radius: 9999px;
+  }
+  .choice-input[type='checkbox'] {
+    border-radius: 0.25rem;
+  }
+  .choice-input:checked {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+  }
+  .choice-input[type='radio']:checked {
+    box-shadow: inset 0 0 0 3px var(--background);
+  }
+  .choice-input[type='checkbox']:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-6.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  .choice-input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  @media (forced-colors: active) {
+    .choice-input {
+      appearance: auto;
+    }
   }
   textarea.form-input {
     resize: vertical;

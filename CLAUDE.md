@@ -127,6 +127,7 @@ The numbered gotchas keep their original numbers because code comments cite them
 - `.claude/rules/dependencies-and-deploy.md`: matched version set and pins, gotchas 9, 10, 11 (read before ANY dependency or deploy change)
 - `.claude/rules/ci-and-scripts.md`: workflows, scripts, parity, gotchas 2, 3, 5, 6
 
+- **`PRODUCT.md`** (audience, purpose, tone, anti-references; the customer and reference-site answers are proposed by Claude from repo evidence, unconfirmed by Nathan) and **`DESIGN.md`** (the visual system as built) sit at the repo root. Read them before any design work and update them in the same change when the system moves.
 - **`docs/PENDING.md`** — the authoritative registry of open patches and
   waiting-on-a-human items. Edit it in the same commit that opens or closes one.
 - **`docs/TESTING.md`** — which check covers what, and how to run each.
@@ -148,3 +149,7 @@ Projects root (read its `## Current state` first). Work log: the note keeps a `#
 canonical in the starter and checked by `node scripts/sync-check.mjs`. A generalising
 fix gets a port card in the same commit. Cross-project lessons go to
 `_vault/gotchas/` with a "Ported to" checklist.
+
+`.claude/settings.json` is a PORTABLE deny-rules file (blocks `git reset --hard` and force
+pushes) copied byte-for-byte from the starter (port card 71) and covered by
+`sync-check`. The starter's shared conventions import was deliberately NOT adopted here.

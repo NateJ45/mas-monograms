@@ -217,12 +217,35 @@ as a diff that is not a regression). The baselines were re-captured on
 2026-09-05 after the prettier pass: `prettier-plugin-tailwindcss` sorts class
 lists, and class strings are byte-faithful in the snapshots.
 
+## Tap-target scan (not a CI gate)
+
+`scripts/measure-tap-targets.mjs` (PORTABLE, PORTS.md card 83) counts the links, buttons and form controls under
+44px at 390px and hit-tests the ones that rely on a `hit-44` area. It needs a served build and Chromium:
+
+```bash
+npm run build
+node node_modules/http-server/bin/http-server dist/client -p 4321 -a 127.0.0.1 -s -c-1 --silent &
+MSYS_NO_PATHCONV=1 node scripts/measure-tap-targets.mjs http://127.0.0.1:4321 --paths /,/request-a-quote/,/style-gallery/
+```
+
+(Under Git Bash set `MSYS_NO_PATHCONV=1` or `/` becomes a Windows path. Use the live Worker URL instead of a local
+server to check production.) Measured 2026-10-04 over the 22 prebuilt routes: 23 to 149 under 44px per route
+before (27 on `/`, 42 on `/request-a-quote/`, 149 on `/style-gallery/`), 0 after, with 4 inline-in-sentence
+links exempt (the email address in the legal pages, "Font Guide →" and "Color Chart →" on the quote form).
+
+**Closed `<details>` (fixed 2026-10-04, starter PR #85).** The mobile filter panel on `/style-gallery/` is a closed
+`<details>` at load. Chrome still reports geometry for its chips, but they are not rendered or tappable, and the hit
+test lands on the gallery photos beneath, so the old scan printed 68 stolen-tap warnings there. The scan now skips
+content inside a closed `<details>` (other than its `<summary>`). Measured at 390px on `/style-gallery/`: 0 under
+44px, 0 stolen-tap warnings, 58 lifted by a hit-area; with `--include-closed-details` (the old behaviour) 0 under
+44px, 68 stolen-tap warnings, 126 lifted. Open the panel yourself, or pass the flag, if you want the chips measured.
+
 ## Library drift
 
 `npm run sync-check` walks this repo for files whose first lines carry
 `PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record`
 and byte-diffs each against the starter's copy (line endings normalized).
-Currently marked (31 as of 2026-09-29, all SAME; `npm run sync-check` prints the full set, the
+Currently marked (34 as of 2026-10-04, all SAME; `npm run sync-check` prints the full set, the
 original six are named here): `scripts/free-dist.mjs`,
 `scripts/with-workerd.mjs`, `scripts/lib/loadEnv.mjs`, `scripts/lib/sanity-lib.mjs`,
 `scripts/sync-check.mjs`, `src/lib/contrast.ts`. `src/lib/sanity-dedupe-alias.ts` and its spec
@@ -233,6 +256,9 @@ identical, only the marker line was missing.
 Since 2026-09-06 this is a CI gate, not only a hand-run check: the build job
 checks the starter out at `.ncs-starter` and runs `node scripts/sync-check.mjs`
 against it on every push and PR (see the starter's PORTS.md card 36).
+
+It skips `node_modules`, `dist`, `.git`, `worktrees` and `_worktrees` folders, so live git worktrees
+under `_worktrees/` do not double the count (PORTS.md card 80).
 
 Point it at the library with `NCS_STARTER_DIR`, or leave it to find a sibling
 `ncs-astro-sanity-starter` directory. Drift means: either fold this repo's
