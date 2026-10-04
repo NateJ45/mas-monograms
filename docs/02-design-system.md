@@ -107,6 +107,15 @@ tracking. On light: Claret bg + white text (hover Claret Deep). On dark (indigo 
 Paper bg + Ink text. Secondary: indigo outline + link text on light, white outline on dark. The primary
 "Request a Quote" button is the one place Claret appears — keep it sparing. See `CtaLink.astro`.
 
+**Touch targets (2026-10-04, PORTS cards 82 and 83).** Every link, button and form control is at least
+44 by 44px at phone width (scan: `node scripts/measure-tap-targets.mjs`, see `docs/TESTING.md`). Three shapes:
+stacked rows (footer column links, contact links, legal links, credit) take real `min-h-[44px]`
+(`min-w-[44px]` for short words), because a hit area on rows closer than 44px would overlap; a standalone small
+link (the "View all items →" arrows, "Request this →", "Browse what I make →") takes the invisible `relative hit-44`
+area from `globals.css`, so nothing visible moves; the gallery filter chips use `hit-44` with `gap-y-5` between
+rows so neighbouring areas never overlap. Links inside a sentence (the email address in legal copy, "Font Guide →",
+"Color Chart →") are exempt under WCAG 2.5.8 and are left alone. Footer social icons are `h-11 w-11`.
+
 **Form inputs.** Paper/linen field background, an interactive-weight border (`--color-border-interactive`,
 darker than the decorative hairline because the border is the field's only affordance), full-Indigo focus
 ring at a 2px offset. Validation uses the token error set (`--color-error-text/surface/border`), not

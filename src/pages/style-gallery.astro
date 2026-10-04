@@ -135,7 +135,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
       {
         hasFilters && (
           <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
-            <summary class="mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-link uppercase select-none sm:hidden">
+            <summary class="hit-44 relative mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-link uppercase select-none sm:hidden">
               <span>{filterAllLabel === 'All' ? 'Filter' : filterAllLabel}</span>
               <svg
                 class="h-3 w-3 transition-transform group-open:rotate-180"
@@ -159,7 +159,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                 <button
                   type="button"
                   data-filter="all"
-                  class="gallery-filter active-filter rounded-full border border-primary bg-primary px-m py-xs text-xs tracking-eyebrow text-white uppercase transition-colors"
+                  class="gallery-filter active-filter hit-44 relative rounded-full border border-primary bg-primary px-m py-xs text-xs tracking-eyebrow text-white uppercase transition-colors"
                   aria-pressed="true"
                 >
                   {filterAllLabel}
@@ -176,12 +176,12 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                       <p class="mb-s text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase">
                         {grp.label}
                       </p>
-                      <div class="flex flex-wrap justify-center gap-s">
+                      <div class="flex flex-wrap justify-center gap-x-s gap-y-5">
                         {visible.map((tag) => (
                           <button
                             type="button"
                             data-filter={tag}
-                            class="gallery-filter rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
+                            class="gallery-filter hit-44 relative rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
                             aria-pressed="false"
                           >
                             {titleCase(tag)}
@@ -189,7 +189,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                         ))}
                         {overflow.length > 0 && (
                           <details class="more-tags group/more inline">
-                            <summary class="gallery-more-toggle inline-flex cursor-pointer list-none items-center rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase transition-colors select-none hover:border-primary hover:text-link">
+                            <summary class="gallery-more-toggle hit-44 relative inline-flex cursor-pointer list-none items-center rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase transition-colors select-none hover:border-primary hover:text-link">
                               <span class="group-open/more:hidden">+ {overflow.length} more</span>
                               <span class="hidden group-open/more:inline">Less</span>
                             </summary>
@@ -198,7 +198,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                                 <button
                                   type="button"
                                   data-filter={tag}
-                                  class="gallery-filter ml-s rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
+                                  class="gallery-filter hit-44 relative my-[9px] ml-s rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
                                   aria-pressed="false"
                                 >
                                   {titleCase(tag)}
@@ -257,7 +257,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                     {item.relatedCategory?.slug?.current && (
                       <a
                         href={`/request-a-quote?item=${item.relatedCategory.slug.current}`}
-                        class="mt-xs inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase hover:underline"
+                        class="hit-44 relative mt-xs inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase hover:underline"
                       >
                         Request this <span aria-hidden="true">→</span>
                       </a>

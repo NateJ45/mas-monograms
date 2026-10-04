@@ -156,6 +156,14 @@ This file tracks the things that have no other home.
 
 ## Recently closed
 
+- 2026-10-04: **44px tap targets at 390px (PORTS cards 82 and 83).** Footer rows, contact and
+  legal links, the arrow links, gallery filter chips, `.form-input` and the quote form's radios and
+  checkbox now meet the floor: 0 under 44px on all 22 routes (was 23 to 149), inline-in-sentence
+  links exempt. Footer is taller (about 300px on a phone, 160px on desktop). Parity baselines were
+  not recaptured: they were already stale against the live content before this change.
+  `measure-tap-targets.mjs` is now a marked file (34). Open follow-up: the scan reports false
+  stolen taps for closed `<details>` content (see `docs/TESTING.md`).
+
 - 2026-08-28 — **Card 10 + 17 upgrade: Astro 7, Sanity 6.4, embedded Studio, live
   preview.** Astro 6.3 → 7.2.9 with `@astrojs/cloudflare` exactly 14.2.4 and
   wrangler `~4.110.0`; `with-workerd.mjs` wired as the build wrapper;

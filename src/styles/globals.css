@@ -439,6 +439,23 @@
   transition-duration: 60ms;
 }
 
+/* ---- Invisible 44px hit area for a small standalone link or control (PORTS.md
+   card 82; block copied from the starter's globals.css). Grows the TAPPABLE box,
+   not the visible one, so nothing moves and an underline stays on its baseline.
+   The element must be positioned: put `relative` beside this class. This class
+   owns the element's ::after. Not for links inside a sentence (WCAG 2.5.8
+   exempt) and not for stacked rows closer than 44px (give those real
+   min-height, or space them at least 44px minus their height apart). ---- */
+.hit-44::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
 @layer base {
   a,
   button,
