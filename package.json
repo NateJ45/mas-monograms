@@ -15,7 +15,7 @@
     "deploy": "npm run build && wrangler deploy -c dist/server/wrangler.json",
     "generate-types": "wrangler types",
     "typegen": "sanity schema extract --force && sanity typegen generate",
-    "og": "node scripts/generate-og-default.mjs",
+    "og": "node scripts/generate-og.mjs",
     "og:pages": "node scripts/generate-og-pages.mjs",
     "apply-brand": "node scripts/apply-brand.mjs",
     "llms:full": "node scripts/generate-llms-full.mjs",

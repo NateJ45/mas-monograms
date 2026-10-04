@@ -1,4 +1,41 @@
-# MAS Monograms — logo concepts (2026-07-02)
+# MAS Monograms logo system
+
+Status: **chosen 2026-10-04 and in production code** (branch `redesign/header-logo`). It replaced the
+2026-07-02 hybrid (Flourished Initial lockup + Shopkeeper's Badge), which is kept below as history.
+
+## The system (blue and gold)
+
+- **The Hoop Seal** is the primary brand mark: a threaded MAS cypher (a high-contrast Fraunces roman M
+  and A sharing a shoulder, and a long script S, outlined from Great Vibes, sewn through them over and
+  under like a thread, in a gold satin stitch) inside a pair of embroidery hoops with their tension
+  clasp at 12 o'clock. Light grounds: Indigo hoops, Midnight letters, a brass-to-gold S. Dark grounds:
+  gold hoops, Linen letters, a gold S. The full seal adds ring lettering (MAS MONOGRAMS / ST.
+  MATTHEWS, SOUTH CAROLINA) and a running-stitch border. Claret is never in the logo.
+- **The Signature Thread** wordmark is the horizontal lockup: "MAS" in Fraunces roman caps beside
+  "Monograms" in the site's soft, wonky Fraunces italic, joined by one gold thread that runs as a
+  running stitch under MAS, comes up through the cloth, makes a single loop and becomes the underline,
+  ending in a French knot. Used in the scrolled header pill, the phone menu, the footer lockup, email
+  and documents.
+- **Cuts.** Cypher weights: `regular` (the full seal, 160px and up), `bold` (the compact mark, 32 to
+  160px), `heavy` (the 16 to 32px tab icon: a Midnight disc, one heavy gold hoop, no clasp). Wordmark:
+  `display` (60px and up), `header` (heavier, below 40px).
+
+## Where it lives
+
+- Geometry: `src/lib/brand/brandPaths.js` (GENERATED, svgo-optimised, about 30 KB of path data).
+- Drawing: `src/lib/brand/brandSvg.js` (`sealSvg`, `wordmarkSvg`, `tabIconSvg`, palettes `LIGHT`/`DARK`).
+  One drawing shared by `src/components/Logo.astro` (adaptive, per-instance id prefixes),
+  `MobileNav.tsx`, the Studio logo, `scripts/generate-favicons.mjs` (favicon.svg/.ico, apple-touch,
+  icon-192/512, manifest, and the standalone `public/brand/{seal,mark,wordmark}-{light,dark}.svg`), and
+  `scripts/lib/og-card.mjs` (the OG cards).
+- Regenerate the geometry (only if the name or the art changes):
+  `node docs/logo-concepts/2026-10-04-atelier/generator/brand.mjs` (needs Python with fontTools; it
+  instances Fraunces and outlines with GPOS kerning), then `npx prettier --write src/lib/brand/brandPaths.js`,
+  `node scripts/generate-favicons.mjs`, `npm run og` and `npm run og:pages`.
+- Concepts and the review that chose it: `2026-10-04-atelier/` (four concepts as SVGs; the seal there
+  still has the concept-stage Claret S).
+
+## History: the 2026-07-02 system (replaced)
 
 Status: **decided and implemented 2026-07-02.** Five directions were designed against real-brand
 research; Nate shortlisted #2 and #3 (flagging the wide-tracked "M A S" deck, removed in the refined

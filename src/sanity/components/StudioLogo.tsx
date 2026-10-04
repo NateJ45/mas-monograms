@@ -1,34 +1,23 @@
-// StudioLogo.tsx — Wordmark for the Sanity Studio header (top-left, in place of
-// the default Sanity logo). Echoes the live site logo: an italic-serif "Mas" in
-// Claret next to "MONOGRAMS" in tracked caps, on the Indigo navbar.
-//
-// Font note: this uses a serif stack (Fraunces if the browser has it, else
-// Georgia). The Studio UI itself intentionally keeps its default legible sans —
-// the site uses a sans (Mulish) for all UI chrome too; the display serif is for
-// headings and this wordmark only, never dense editor text.
+// StudioLogo.tsx: the brand in the Sanity Studio header (top-left, in place of the default
+// Sanity logo). Since 2026-10-04 it is the live site's own Signature Thread wordmark (the
+// outlined SVG from src/lib/brand/brandSvg.js, dark-ground colours for the Indigo navbar), so
+// the Studio and the site always show the same logo.
 // Safe to edit by hand.
 
-import React from 'react';
+import { wordmarkSvg, DARK } from '@/lib/brand/brandSvg.js';
+
+const svg = wordmarkSvg({ idp: 'studio-wm', cut: 'header', palette: DARK });
 
 export default function StudioLogo() {
   return (
     <span
-      style={{
-        fontFamily: "'Fraunces', 'Fraunces Variable', Georgia, 'Times New Roman', serif",
-        fontSize: '1.05rem',
-        letterSpacing: '0.02em',
-        whiteSpace: 'nowrap',
-        display: 'inline-flex',
-        alignItems: 'baseline',
-        gap: '0.28em',
+      role="img"
+      aria-label="MAS Monograms"
+      style={{ display: 'inline-flex', alignItems: 'center', height: '1.35rem' }}
+      // The SVG is our own static markup (no user content), drawn once at module load.
+      dangerouslySetInnerHTML={{
+        __html: svg.replace('<svg ', '<svg style="height:100%;width:auto" '),
       }}
-    >
-      <span style={{ fontStyle: 'italic', fontWeight: 500, color: '#E7B980' }}>Mas</span>
-      <span
-        style={{ fontWeight: 600, letterSpacing: '0.14em', color: '#FBF8F1', fontSize: '0.82em' }}
-      >
-        MONOGRAMS
-      </span>
-    </span>
+    />
   );
 }

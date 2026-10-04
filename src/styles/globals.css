@@ -335,10 +335,11 @@
     #d9b15f 70%,
     #a9772a 100%
   );
-  /* The sticky header's reserved height. The bars are fixed-height rows, so
-     these are exact: mobile row 4.25rem; desktop strip 2.25rem + row 5rem.
-     BaseLayout's overlay mode pulls <main> up by this much. */
-  --header-h: 4.25rem;
+  /* The sticky header's reserved height: one fixed-height row, 4.5rem below 75rem
+     (1200px) and 6.5rem from there (the centred seal). The scrolled pill condenses
+     inside this box, so the reservation never changes. BaseLayout's overlay mode
+     pulls <main> up by this much. */
+  --header-h: 4.5rem;
 
   /* Context tokens: what "light ground" means for the adaptive pieces (the
      buttons, stitch strokes, the logo). .surface-midnight / .on-dark swap
@@ -347,8 +348,22 @@
   --accent-stitch: #8c3a2e; /* claret: the nav underline and active marks */
   --swash-color: #8c3a2e; /* italic swash words on light grounds */
   --eyebrow-color: #835a24; /* brass text, 5.27:1 on Linen */
-  --logo-word: #26312e;
-  --logo-script: #8c3a2e;
+  /* Logo (Logo.astro / src/lib/brand/brandSvg.js): blue and gold on a light ground. */
+  --logo-ring-a: #28486b;
+  --logo-ring-b: #28486b;
+  --logo-ring-c: #28486b;
+  --logo-clasp-a: #835a24;
+  --logo-clasp-b: #a9772a;
+  --logo-clasp-c: #d9b15f;
+  --logo-letters: #0f1b2d;
+  --logo-thread-a: #835a24;
+  --logo-thread-b: #a9772a;
+  --logo-thread-c: #d9b15f;
+  --logo-text: #0f1b2d;
+  --logo-stitch: #a9772a;
+  --logo-knot: #a9772a;
+  --logo-word: #0f1b2d;
+  --logo-swash: #28486b;
   --btn-primary-bg: #8c3a2e;
   --btn-primary-fg: #ffffff;
   --btn-primary-fill: #722c22;
@@ -407,9 +422,9 @@
     radial-gradient(ellipse 55% 45% at 100% 100%, rgba(169, 119, 42, 0.13), transparent 70%),
     var(--tex-weave-light);
 }
-@media (min-width: 64rem) {
+@media (min-width: 75rem) {
   :root {
-    --header-h: 7.25rem;
+    --header-h: 6.5rem;
   }
 }
 
@@ -542,7 +557,7 @@
   transition: transform 80ms linear;
 }
 
-/* Site header: see "Site header (Direction D)" in the Atelier layer below. */
+/* Site header: see "Site header (2026-10-04 ...)" further down. */
 
 .card-lift {
   transition-property: box-shadow, transform, border-color, color, background-color;
@@ -913,7 +928,6 @@ body::before {
   .on-dark,
   .surface-midnight,
   .surface-indigo,
-  .site-header__strip,
   .site-header[data-tone='overlay']:not([data-scrolled]) {
     --background: var(--color-midnight);
     --foreground: #f4eee3;
@@ -938,8 +952,22 @@ body::before {
     --accent-stitch: var(--color-gold-light);
     --swash-color: var(--color-gold-light);
     --eyebrow-color: var(--color-gold);
+    /* Logo on a dark ground: gold hoops and thread, Linen letters. */
+    --logo-ring-a: #a9772a;
+    --logo-ring-b: #d9b15f;
+    --logo-ring-c: #f0d58a;
+    --logo-clasp-a: #a9772a;
+    --logo-clasp-b: #d9b15f;
+    --logo-clasp-c: #f0d58a;
+    --logo-letters: #f4eee3;
+    --logo-thread-a: #a9772a;
+    --logo-thread-b: #d9b15f;
+    --logo-thread-c: #f0d58a;
+    --logo-text: #f4eee3;
+    --logo-stitch: #d9b15f;
+    --logo-knot: #f0d58a;
     --logo-word: #f4eee3;
-    --logo-script: var(--color-gold-light);
+    --logo-swash: #f0d58a;
     --btn-primary-bg: var(--color-paper);
     --btn-primary-fg: #26312e;
     --btn-primary-fill: var(--color-gold-light);
@@ -986,8 +1014,22 @@ body::before {
     --accent-stitch: #8c3a2e;
     --swash-color: #8c3a2e;
     --eyebrow-color: #835a24;
-    --logo-word: #26312e;
-    --logo-script: #8c3a2e;
+    /* Logo (Logo.astro / src/lib/brand/brandSvg.js): blue and gold on a light ground. */
+    --logo-ring-a: #28486b;
+    --logo-ring-b: #28486b;
+    --logo-ring-c: #28486b;
+    --logo-clasp-a: #835a24;
+    --logo-clasp-b: #a9772a;
+    --logo-clasp-c: #d9b15f;
+    --logo-letters: #0f1b2d;
+    --logo-thread-a: #835a24;
+    --logo-thread-b: #a9772a;
+    --logo-thread-c: #d9b15f;
+    --logo-text: #0f1b2d;
+    --logo-stitch: #a9772a;
+    --logo-knot: #a9772a;
+    --logo-word: #0f1b2d;
+    --logo-swash: #28486b;
     --btn-primary-bg: #8c3a2e;
     --btn-primary-fg: #ffffff;
     --btn-primary-fill: #722c22;
@@ -1128,7 +1170,7 @@ body::before {
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-  :is(.on-dark, .surface-midnight, .surface-indigo, .site-header__strip) .swash,
+  :is(.on-dark, .surface-midnight, .surface-indigo) .swash,
   .swash-gold {
     color: var(--color-gold-light);
     background-image: var(--thread-gold);
@@ -1420,16 +1462,20 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
   }
 }
 
-/* ---------- Site header (Direction D) -----------------------------------
-   The outer <header> is sticky and reserves --header-h, so condensing never
-   shifts the page. It is pointer-events:none; the visible .site-header__bar
-   takes the clicks. States (set by the Header script, rAF-throttled):
-     data-tone="solid"   linen bar under a midnight contact strip (default)
-     data-tone="overlay" transparent over a dark hero, dark-context tokens
-     data-scrolled       paper glass, strip folded away, stitched hem
-   With no JS an overlay header is painted solid midnight, so it can never
-   end up as light text over a light section. */
+/* ---------- Site header (2026-10-04: centred editorial, glass pill on scroll) ----------
+   The outer <header> is sticky and reserves --header-h in every state, so the bar can
+   condense into the pill INSIDE it without moving the page (no layout shift). It is
+   pointer-events:none; only the bar takes the pointer. States (the Header script toggles
+   data-scrolled, rAF-throttled, past 24px):
+     data-tone="solid"    a Linen row at rest
+     data-tone="overlay"  transparent over a dark hero, dark-context tokens at rest
+     data-scrolled        a floating, inset, rounded paper-glass pill (light context)
+   With no JS an overlay header is painted solid Midnight and stays a full-width row.
+   Reduced motion: same states, no transitions (the global reset zeroes them). */
 .site-header {
+  --hdr-ease: var(--ease-thread);
+  --hdr-seal: 2.9rem;
+  --hdr-word: 1.3rem;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -1438,14 +1484,30 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
 }
 .site-header__bar {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  height: var(--header-h);
+  margin-inline: auto;
+  padding-inline: var(--spacing-m);
   pointer-events: auto;
   background-color: var(--color-bg);
+  border-radius: 0;
   transition:
-    background-color 480ms var(--ease-thread),
-    box-shadow 480ms var(--ease-thread),
-    -webkit-backdrop-filter 480ms var(--ease-thread),
-    backdrop-filter 480ms var(--ease-thread);
+    max-width 600ms var(--hdr-ease),
+    height 600ms var(--hdr-ease),
+    margin 600ms var(--hdr-ease),
+    padding 600ms var(--hdr-ease),
+    border-radius 600ms var(--hdr-ease),
+    background-color 420ms var(--hdr-ease),
+    box-shadow 600ms var(--hdr-ease),
+    -webkit-backdrop-filter 420ms var(--hdr-ease),
+    backdrop-filter 420ms var(--hdr-ease);
 }
+/* The hem at rest: a running stitch along the bottom of the row. On desktop it breaks
+   where the seal sits on it, like a label sewn onto the seam. */
 .site-header__bar::after {
   content: '';
   position: absolute;
@@ -1459,73 +1521,329 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
     transparent 9px 15px
   );
   opacity: 0.55;
-  transition: opacity 480ms var(--ease-thread);
+  pointer-events: none;
+  transition: opacity 420ms var(--hdr-ease);
+}
+/* The pill's stitched inner edge, only drawn once scrolled. */
+.site-header__bar::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1.5px dashed var(--stitch-color);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--hdr-ease);
 }
 .site-header[data-tone='overlay'] .site-header__bar {
   background-color: transparent;
 }
 .site-header[data-tone='overlay']:not([data-scrolled]) .site-header__bar::after {
-  opacity: 0.35;
+  opacity: 0.4;
 }
 html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
   background-color: var(--color-midnight);
 }
+
+/* The brand: the seal and the wordmark share one box. On phones both show side by side;
+   on desktop the seal is centred alone at rest and the wordmark waits, clipped away. */
+.site-header__brand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  flex: none;
+  border-radius: 2px;
+  transition: opacity 300ms;
+}
+.site-header__brand:hover {
+  opacity: 0.85;
+}
+.site-header__seal,
+.site-header__word {
+  display: block;
+}
+.site-header__seal svg {
+  display: block;
+  height: var(--hdr-seal);
+  width: auto;
+  transition:
+    height 600ms var(--hdr-ease),
+    opacity 300ms,
+    transform 600ms var(--hdr-ease);
+}
+.site-header__word svg {
+  display: block;
+  height: var(--hdr-word);
+  width: auto;
+  transition: height 600ms var(--hdr-ease);
+}
+.site-header__custom-logo {
+  height: var(--hdr-seal);
+  width: auto;
+}
+
+.site-header__nav {
+  display: none;
+  align-items: center;
+  gap: clamp(0.75rem, 1.6vw, 1.6rem);
+}
+.site-header__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 44px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  color: var(--foreground);
+  cursor: pointer;
+  list-style: none;
+  transition: color 300ms;
+}
+.site-header__link::-webkit-details-marker,
+.site-header__link::marker {
+  display: none;
+  content: '';
+}
+.site-header__link:hover,
+.site-header__link:focus-visible,
+.site-nav__group[open] > .site-header__link,
+.site-header__link[aria-current='page'] {
+  color: var(--link);
+}
+.site-header__link .site-nav__chevron {
+  transition: transform 200ms;
+}
+.site-nav__group[open] > .site-header__link .site-nav__chevron {
+  transform: rotate(180deg);
+}
+.site-header__end {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.6vw, 1.6rem);
+  margin-left: auto;
+}
+.site-header__cta {
+  display: none;
+  min-height: 2.75rem;
+  padding: 0.65rem 1.3rem;
+}
+.site-header__menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--foreground);
+  transition: background-color 200ms;
+}
+.site-header__menu-btn:hover {
+  background-color: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+/* Dropdown panels: paper cards under their label, with a stitched inner edge. They stay
+   laid out while closed (visibility:hidden, so out of the tab order) and fade in. */
+.site-nav__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: -0.75rem;
+  z-index: 60;
+  display: grid;
+  min-width: 15rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  box-shadow:
+    0 0 0 1px rgba(38, 49, 46, 0.1),
+    0 28px 48px -28px rgba(15, 27, 45, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 -0.4rem;
+  pointer-events: none;
+  transition:
+    opacity 420ms var(--hdr-ease),
+    translate 420ms var(--hdr-ease),
+    visibility 0s linear 420ms;
+}
+.site-nav__menu--end {
+  left: auto;
+  right: -0.75rem;
+}
+.site-nav__menu::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1.5px dashed rgba(169, 119, 42, 0.45);
+  border-radius: 2px;
+  pointer-events: none;
+}
+details:not([open]) > .site-nav__menu {
+  display: grid;
+}
+.site-nav__group[open] > .site-nav__menu {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  pointer-events: auto;
+  transition:
+    opacity 420ms var(--hdr-ease),
+    translate 420ms var(--hdr-ease),
+    visibility 0s linear 0s;
+}
+.site-nav__menu a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border-radius: 2px;
+  font-size: 0.9rem;
+  color: var(--foreground);
+  transition:
+    background-color 200ms,
+    color 200ms;
+}
+.site-nav__menu a:hover,
+.site-nav__menu a:focus-visible {
+  background-color: var(--color-linen);
+  color: var(--link);
+  outline: none;
+}
+.site-nav__menu a:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ring);
+}
+.site-nav__menu a[aria-current='page'] {
+  font-weight: 700;
+  color: var(--link);
+}
+
+/* ---- Scrolled: the floating glass pill (every width) ---- */
+.site-header[data-scrolled] {
+  --hdr-seal: 2.35rem;
+  --hdr-word: 1.15rem;
+}
 .site-header[data-scrolled] .site-header__bar {
+  max-width: min(72rem, calc(100% - 1rem));
+  height: 3.6rem;
+  margin-top: 0.45rem;
+  padding-inline: 1rem 0.4rem;
+  border-radius: 999px;
   background-color: rgba(251, 248, 241, 0.9);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-  backdrop-filter: blur(14px) saturate(1.15);
-  box-shadow: 0 18px 36px -28px rgba(15, 27, 45, 0.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  backdrop-filter: blur(16px) saturate(1.2);
+  box-shadow:
+    0 0 0 1px rgba(38, 49, 46, 0.1),
+    0 22px 44px -26px rgba(15, 27, 45, 0.6);
 }
 .site-header[data-scrolled] .site-header__bar::after {
-  opacity: 0.75;
+  opacity: 0;
 }
-.site-header__strip {
-  display: none;
+.site-header[data-scrolled] .site-header__bar::before {
+  opacity: 0.5;
 }
-.site-header__row {
-  height: 4.25rem;
-  transition: height 480ms var(--ease-thread);
+.site-header[data-scrolled] .site-header__cta {
+  border-radius: 999px;
 }
-.site-header__logo {
-  height: 2.6rem;
-  width: auto;
-  transition: height 480ms var(--ease-thread);
-}
-@media (min-width: 64rem) {
-  .site-header__strip {
+
+@media (min-width: 75rem) {
+  .site-header {
+    --hdr-seal: 5.1rem;
+    --hdr-word: 2rem;
+  }
+  .site-header__bar {
     display: grid;
-    grid-template-rows: 1fr;
-    background-color: var(--color-midnight);
+    grid-template-columns: 1fr 15rem 1fr;
+    gap: 1.5rem;
+    padding-inline: clamp(1.25rem, 3vw, 2.5rem);
+  }
+  .site-header__bar::after {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      #000 calc(50% - 4.25rem),
+      transparent calc(50% - 4.25rem),
+      transparent calc(50% + 4.25rem),
+      #000 calc(50% + 4.25rem)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      #000 calc(50% - 4.25rem),
+      transparent calc(50% - 4.25rem),
+      transparent calc(50% + 4.25rem),
+      #000 calc(50% + 4.25rem)
+    );
+  }
+  .site-header__nav {
+    display: flex;
+  }
+  .site-header__nav--left {
+    justify-self: start;
+  }
+  .site-header__end {
+    justify-self: end;
+    margin-left: 0;
+  }
+  .site-header__cta {
+    display: inline-flex;
+  }
+  .site-header__menu {
+    display: none;
+  }
+  /* The seal and the wordmark stack in one centred cell. */
+  .site-header__brand {
+    display: grid;
+    justify-self: center;
+    justify-items: center;
+    align-items: center;
+  }
+  .site-header__seal,
+  .site-header__word {
+    grid-area: 1 / 1;
+  }
+  .site-header__word {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
     transition:
-      grid-template-rows 480ms var(--ease-thread),
-      visibility 0s linear 0s;
+      clip-path 320ms var(--hdr-ease),
+      opacity 200ms;
   }
-  .site-header[data-tone='overlay'] .site-header__strip {
-    background-color: transparent;
-    box-shadow: inset 0 -1px 0 rgba(240, 213, 138, 0.18);
+  .site-header[data-scrolled] {
+    --hdr-seal: 3rem;
+    --hdr-word: 2rem;
   }
-  .site-header[data-scrolled] .site-header__strip {
-    grid-template-rows: 0fr;
-    visibility: hidden;
-    transition:
-      grid-template-rows 480ms var(--ease-thread),
-      visibility 0s linear 480ms;
-  }
-  .site-header__strip > div {
-    min-height: 0;
-    overflow: hidden;
-  }
-  .site-header__row {
-    height: 5rem;
-  }
-  .site-header[data-scrolled] .site-header__row {
+  .site-header[data-scrolled] .site-header__bar {
+    max-width: min(78rem, calc(100% - 2.5rem));
     height: 4rem;
+    margin-top: 0.75rem;
+    padding-inline: 1.75rem 0.55rem;
   }
-  .site-header__logo {
-    height: 3.1rem;
+  .site-header[data-scrolled] .site-header__seal svg {
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+      height 600ms var(--hdr-ease),
+      opacity 250ms,
+      transform 600ms var(--hdr-ease);
   }
-  .site-header[data-scrolled] .site-header__logo {
-    height: 2.5rem;
+  .site-header[data-scrolled] .site-header__word {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transition:
+      clip-path 700ms cubic-bezier(0.45, 0.05, 0.3, 1) 160ms,
+      opacity 200ms 160ms;
+  }
+}
+/* Just past the breakpoint: tighten the menu so the quote button keeps its room. */
+@media (min-width: 75rem) and (max-width: 84rem) {
+  .site-header__link {
+    font-size: 0.8125rem;
+    letter-spacing: 0.01em;
+  }
+  .site-header__nav,
+  .site-header__end {
+    gap: 0.9rem;
   }
 }
 /* Overlay pages: <main> slides up under the header; the first section (the

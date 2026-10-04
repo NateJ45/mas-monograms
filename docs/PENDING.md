@@ -117,6 +117,22 @@ This file tracks the things that have no other home.
 
 ## Open — code/content work queued
 
+### From the 2026-10-04 logo, header and footer rework (branch `redesign/header-logo`)
+
+- **Land the branch** and check the live header at the top and scrolled, the footer, and a shared link
+  preview (the OG card) after merge.
+- **The 16px favicon** is a gold ring with the cypher reduced to a texture: recognisable, not legible.
+  It is a known limit of a three-letter cypher at 16px; revisit only if Nathan wants a single-letter cut.
+- **Text in the logo is outlined**, so the brand name inside the drawing cannot come from Sanity; the
+  accessible name does (`siteSettings.title`). If the business name ever changes, regenerate with
+  `docs/logo-concepts/2026-10-04-atelier/generator/brand.mjs` (needs Python fontTools).
+- **Hard-coded words added with the rework:** the phone menu's "At the bench" eyebrow (the old "Get in
+  touch" was hard-coded too) and the Brand kit panel's logo paragraph (Studio handbook copy). Move the
+  eyebrow to Site Settings when the next Sanity field pass happens.
+- **`scripts/measure-tap-targets.mjs` reports 8 "stolen-tap" warnings at 390px** on /request-a-quote and
+  /style-gallery. They are the sticky header covering an element at one of the scan's scroll stops, not
+  a real overlap: hit-testing the same links scrolled to mid-screen finds nothing on top (2026-10-04).
+
 ### From the 2026-10-04 Direction D redesign ("The Atelier", branch `redesign/atelier`)
 
 - **Land the branch.** 8 commits ahead of `main`, no PR as of 2026-10-04. Needs a PR with green `build`
@@ -220,6 +236,16 @@ This file tracks the things that have no other home.
   included. Write tokens bare. (Also carried from WCP.)
 
 ## Recently closed
+
+- 2026-10-04: **Logo, header and footer rework** (branch `redesign/header-logo`). The Hoop Seal and the
+  Signature Thread wordmark replace the Flourished Initial and the Shopkeeper's Badge everywhere (header,
+  phone menu, footer, favicons and app icons, `public/brand/*.svg`, OG cards, the Studio logo and the
+  Brand kit panel). The header's contact strip is gone (contact lives in the phone menu's "At the
+  bench" and the footer); the header is a centred editorial row that becomes a glass pill on scroll.
+  Footer about half as tall. Per-page OG cards now exist (`npm run og:pages`, `src/lib/brand/ogPages.json`).
+  Gates: `check:full` green (338 unit tests), Playwright 218/218, parity re-captured (23/23 on two
+  rebuilds), Lighthouse mobile accessibility 1.0 on /, /about, /pricing, /request-a-quote,
+  /thread-color-chart, tap targets 0 under 44px at 390 and 320.
 
 - 2026-10-04: **Render-parity baselines regenerated for Direction D.** Compare against the old
   baselines was 0/23 (expected: every page was rebuilt). Re-captured from a plain `npm run build`, then

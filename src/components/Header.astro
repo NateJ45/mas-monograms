@@ -1,26 +1,33 @@
 ---
-// MAS Monograms site header (Direction D, "The Atelier", 2026-10-04).
-// Two rows on desktop, one on mobile:
-//   ┌─ midnight contact strip (desktop only; folds away on scroll)
-//   │   [tagline]              email · phone · IG · FB
-//   ├─ main row
-//   │   [logo]      How It Works · Pricing · Shop · Gallery · About   [Request a Quote]
-//   └─ a running-stitch hem
-// Mobile: logo left, menu button right, contact info in the full-screen menu.
+// MAS Monograms site header (2026-10-04 rework: centred editorial, glass pill on scroll).
 //
-// States (CSS in globals.css, "Site header (Direction D)"):
-//   tone="solid"   (default) linen row under the midnight strip
-//   tone="overlay" transparent over a dark hero, light-on-dark tokens
-//   [data-scrolled] (set below on scroll) paper glass, strip folded, row 4rem
-// The outer <header> reserves --header-h, so none of this shifts the page.
+//   At rest (desktop)   one full-width row, no top rail: the menu split either side of the
+//                       Hoop Seal in the centre, the quote button at the right, and a
+//                       running-stitch hem along the bottom with a gap where the seal sits.
+//   Scrolled            the same row detaches into a floating, inset, rounded glass pill
+//                       (blur, hairline, a stitched inner edge, soft shadow). The seal shrinks
+//                       and fades as the Signature Thread wordmark draws in, left to right.
+//                       Back at the top it returns to the full row.
+//   Phone and tablet    a compact row (seal + wordmark, menu button) that also becomes a pill.
+//                       Contact details live in the phone menu ("At the bench") and the
+//                       footer; the old contact strip is gone.
+//
+// Tones (CSS in globals.css, "Site header"):
+//   tone="solid"    a Linen row at rest (pages that open light)
+//   tone="overlay"  transparent over the page's dark hero, light-on-dark tokens; with no JS
+//                   it is painted solid Midnight, so it can never be light text on a light page
+// The outer <header> is sticky and reserves --header-h in both states, so the pill condenses
+// INSIDE a fixed box and the page never reflows (no layout shift). Reduced motion keeps the
+// same states with no transitions (the global reset zeroes them).
+//
+// The menu comes from Site Settings (resolveChrome); the dropdown script below is the
+// accessible one this header has always used (native <details>, hover intent, Escape,
+// outside click).
 
 import { site } from '@/data/site';
-import { Mail, Phone } from 'lucide-react';
-import { IconBrandInstagram, IconBrandFacebook, IconBrandPinterest } from '@tabler/icons-react';
 import { ChevronDown, Menu } from 'lucide-react';
 import Logo from './Logo.astro';
 import SanityImage from './SanityImage.astro';
-import { telHref } from '@/lib/phone';
 import { resolveChrome, type NavItem, type RawNavItem } from '@/lib/siteSettings';
 import type { RawNavLink } from '@/lib/nav-href';
 
@@ -57,48 +64,26 @@ interface Props {
 
 const { siteSettings, hasClearance = true, tone = 'solid' } = Astro.props as Props;
 
-// Everything Site Settings can change about the header: the menu, the quote
-// button, and the switches for the contact details in the top strip. Every one
-// of them is opt-in, so a Site Settings nobody has touched gives back exactly
-// the built-ins this file has always used.
 const chrome = resolveChrome(siteSettings);
 
 const brandName = siteSettings?.title ?? site.name;
-const email = chrome.showEmail ? (siteSettings?.email ?? '') : '';
-const phone = siteSettings?.phone ?? '';
 const ctaLabel = chrome.headerCta.label;
 const ctaHref = chrome.headerCta.href;
-const socialLinks = chrome.showSocials
-  ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
-  : [];
-// A logo picture from Site Settings stands in for the drawn Logo component.
+// A logo picture from Site Settings stands in for the drawn logo.
 const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
 
-function socialIcon(platform: string | undefined) {
-  switch (platform) {
-    case 'Instagram':
-      return IconBrandInstagram;
-    case 'Facebook':
-      return IconBrandFacebook;
-    case 'Pinterest':
-      return IconBrandPinterest;
-    default:
-      return null;
-  }
-}
-
-// The menu itself: Site Settings -> Top menu links when it has anything in it,
-// otherwise the built-in menu. Both come back from resolveChrome already in the
-// shape below, so the mapping lives in one file (src/lib/siteSettings.ts) and
-// the phone menu can never disagree with this one.
 const NAV_ITEMS: NavItem[] = chrome.navItems
-  // Drop a redundant top-level "Home" link — the logo already links home, and
-  // it was crowding the wordmark. (Sub-links inside groups are untouched.)
+  // Drop a redundant top-level "Home" link: the logo already links home.
   .filter(
     (item) =>
       !(item.kind === 'flat' && (item.href === '/' || item.label.trim().toLowerCase() === 'home')),
   )
   .filter((it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance'));
+
+// The menu is split either side of the centred seal: the first half on the left.
+const split = Math.ceil(NAV_ITEMS.length / 2);
+const NAV_LEFT = NAV_ITEMS.slice(0, split);
+const NAV_RIGHT = NAV_ITEMS.slice(split);
 
 const pathname = Astro.url.pathname;
 function isActive(href: string) {
@@ -118,12 +103,8 @@ const mobileNavSettings = siteSettings
     }
   : null;
 
-// MobileNav's props are WRITTEN INTO THE PAGE (the data-props attribute on its
-// slot, read by mobileNavMount.tsx). Give it only the switches that are
-// actually turned off, so a Site
-// Settings nobody has touched produces the very same page it always did — the
-// same "nothing changes until you change it" promise the rest of these settings
-// make, kept all the way down to the phone menu's props.
+// MobileNav's props are written into the page (data-props, read by mobileNavMount.tsx). Only
+// the switches that are actually turned off are passed.
 const mobileChrome = {
   ...(chrome.headerCta.show ? {} : { showCta: false }),
   ...(chrome.showEmail ? {} : { showEmail: false }),
@@ -134,248 +115,134 @@ const mobileNavProps = {
   siteSettings: mobileNavSettings,
   ctaLabel,
   ctaHref,
+  brandName,
   ...mobileChrome,
 };
 ---
 
 <header class="site-header" data-tone={tone}>
   <div class="site-header__bar">
-    {
-      /* Contact strip, desktop only. A dark context in every state (midnight on
-        solid pages, transparent over a dark hero). It folds to zero height on
-        scroll and goes visibility:hidden, so its links leave the tab order
-        while folded. */
-    }
-    <div class="site-header__strip">
-      <div>
-        <div class="mx-auto flex h-9 max-w-content items-center justify-between px-m">
-          <p
-            class="text-[0.7rem] font-semibold tracking-[0.2em] text-[var(--color-text-secondary)] uppercase"
-          >
-            {siteSettings?.tagline ?? site.name}
-          </p>
-          <div class="flex items-center gap-m">
-            {
-              email && (
-                <a
-                  href={`mailto:${email}`}
-                  class="inline-flex items-center gap-xs text-xs text-foreground/90 transition-colors hover:text-link"
-                >
-                  <Mail size={12} aria-hidden="true" />
-                  {email}
-                </a>
-              )
-            }
-            {
-              phone && (
-                <a
-                  href={telHref(phone)}
-                  class="inline-flex items-center gap-xs text-xs text-foreground/90 transition-colors hover:text-link"
-                >
-                  <Phone size={12} aria-hidden="true" />
-                  {phone}
-                </a>
-              )
-            }
-            {
-              socialLinks.length > 0 && (
-                <div class="flex items-center gap-1">
-                  {socialLinks.map((link) => {
-                    const Icon = socialIcon(link.platform);
-                    if (!Icon) return null;
-                    return (
-                      <a
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.label ?? link.platform}
-                        class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground/90 transition-colors hover:bg-white/10 hover:text-link"
-                      >
-                        <Icon size={14} stroke={1.5} />
-                      </a>
-                    );
-                  })}
-                </div>
-              )
-            }
-          </div>
-        </div>
-      </div>
-    </div>
+    <nav class="site-header__nav site-header__nav--left site-nav" aria-label="Primary">
+      {
+        NAV_LEFT.map((item) =>
+          item.kind === 'flat' ? (
+            <a
+              href={item.href}
+              class="site-header__link nav-underline"
+              aria-current={isActive(item.href) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ) : (
+            <details class="site-nav__group relative">
+              <summary
+                class="site-header__link nav-underline"
+                aria-current={isGroupActive(item.items) ? 'page' : undefined}
+              >
+                {item.label}
+                <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+              </summary>
+              <div class="site-nav__menu on-light texture-paper">
+                {item.items.map((sub) => (
+                  <a href={sub.href} aria-current={isActive(sub.href) ? 'page' : undefined}>
+                    {sub.label}
+                  </a>
+                ))}
+              </div>
+            </details>
+          ),
+        )
+      }
+    </nav>
 
-    <div class="site-header__row mx-auto max-w-content px-m">
-      <div class="relative flex h-full items-center justify-between gap-m">
-        <a
-          href="/"
-          class="inline-flex min-h-[44px] items-center transition-opacity hover:opacity-80"
-          aria-label={`${brandName} home`}
-        >
-          {
-            customLogo ? (
-              <SanityImage
-                source={customLogo}
-                width={320}
-                alt={customLogo.alt || brandName}
-                loading="eager"
-                class="site-header__logo"
-              />
-            ) : (
-              <Logo variant="adaptive" class="site-header__logo" />
-            )
-          }
-        </a>
+    <a href="/" class="site-header__brand" aria-label={`${brandName} home`}>
+      {
+        customLogo ? (
+          <SanityImage
+            source={customLogo}
+            width={320}
+            alt=""
+            loading="eager"
+            class="site-header__custom-logo"
+          />
+        ) : (
+          <>
+            <span class="site-header__seal">
+              <Logo mark />
+            </span>
+            <span class="site-header__word">
+              <Logo cut="header" />
+            </span>
+          </>
+        )
+      }
+    </a>
 
-        {/* Desktop nav + CTA */}
-        <div class="hidden items-center gap-l lg:flex">
-          <nav class="site-nav flex items-center gap-m" aria-label="Primary">
-            {
-              NAV_ITEMS.map((item) =>
-                item.kind === 'flat' ? (
-                  <a
-                    href={item.href}
-                    class:list={[
-                      'nav-underline text-sm tracking-wide transition-colors',
-                      isActive(item.href)
-                        ? 'font-semibold text-link'
-                        : 'text-foreground hover:text-link',
-                    ]}
-                    aria-current={isActive(item.href) ? 'page' : undefined}
+    <div class="site-header__end">
+      {
+        NAV_RIGHT.length > 0 && (
+          <nav class="site-header__nav site-nav" aria-label="Primary, continued">
+            {NAV_RIGHT.map((item) =>
+              item.kind === 'flat' ? (
+                <a
+                  href={item.href}
+                  class="site-header__link nav-underline"
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <details class="site-nav__group relative">
+                  <summary
+                    class="site-header__link nav-underline"
+                    aria-current={isGroupActive(item.items) ? 'page' : undefined}
                   >
                     {item.label}
-                  </a>
-                ) : (
-                  <details class="site-nav__group relative">
-                    <summary
-                      class:list={[
-                        'nav-underline text-sm tracking-wide transition-colors',
-                        'inline-flex cursor-pointer list-none items-center gap-0.5 select-none',
-                        'rounded-sm',
-                        isGroupActive(item.items)
-                          ? 'font-semibold text-link'
-                          : 'text-foreground hover:text-link',
-                      ]}
-                      aria-current={isGroupActive(item.items) ? 'page' : undefined}
-                    >
-                      {item.label}
-                      <ChevronDown
-                        size={14}
-                        className="site-nav__chevron mt-px transition-transform duration-150"
-                        aria-hidden="true"
-                      />
-                    </summary>
-                    {/* .on-light: the panel is always paper, even when the
-                        header above it is in its dark overlay state. */}
-                    <div class="site-nav__menu on-light texture-paper absolute top-full left-0 z-50 mt-3 min-w-[220px] rounded-sm p-1.5 shadow-[0_24px_40px_-24px_rgba(15,27,45,0.45)] ring-1 ring-foreground/10">
-                      {item.items.map((sub) => (
-                        <a
-                          href={sub.href}
-                          class:list={[
-                            'block rounded-sm px-3 py-2 text-sm transition-colors',
-                            'outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground',
-                            isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
-                          ]}
-                          aria-current={isActive(sub.href) ? 'page' : undefined}
-                        >
-                          {sub.label}
-                        </a>
-                      ))}
-                    </div>
-                  </details>
-                ),
-              )
-            }
+                    <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+                  </summary>
+                  <div class="site-nav__menu site-nav__menu--end on-light texture-paper">
+                    {item.items.map((sub) => (
+                      <a href={sub.href} aria-current={isActive(sub.href) ? 'page' : undefined}>
+                        {sub.label}
+                      </a>
+                    ))}
+                  </div>
+                </details>
+              ),
+            )}
           </nav>
-          {
-            chrome.headerCta.show && (
-              <a href={ctaHref} class="btn btn-primary site-header__cta">
-                {ctaLabel}
-              </a>
-            )
-          }
-        </div>
+        )
+      }
+      {
+        chrome.headerCta.show && (
+          <a href={ctaHref} class="btn btn-primary site-header__cta">
+            {ctaLabel}
+          </a>
+        )
+      }
 
-        {
-          /* The phone menu. Not an Astro island: the slot carries MobileNav's
-            props, the placeholder below is a server-rendered copy of its menu
-            button, and the script at the bottom mounts the React menu after
-            the load event (or on the first tap). See mobileNavMount.tsx. */
-        }
-        <div class="contents" data-mobile-nav data-props={JSON.stringify(mobileNavProps)}>
-          <div
-            class="absolute top-1/2 right-m -translate-y-1/2 lg:hidden"
-            data-mobile-nav-placeholder
+      {
+        /* The phone menu. Not an Astro island: the slot carries MobileNav's props, the
+          placeholder below is a server-rendered copy of its menu button, and the script at
+          the bottom mounts the React menu after the load event (or on the first tap). See
+          mobileNavMount.tsx. */
+      }
+      <div class="site-header__menu" data-mobile-nav data-props={JSON.stringify(mobileNavProps)}>
+        <div data-mobile-nav-placeholder>
+          <button
+            type="button"
+            aria-label="Open menu"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            class="site-header__menu-btn"
           >
-            <button
-              type="button"
-              aria-label="Open menu"
-              aria-haspopup="dialog"
-              aria-expanded="false"
-              class="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/10"
-            >
-              <Menu size={22} />
-            </button>
-          </div>
+            <Menu size={22} />
+          </button>
         </div>
       </div>
     </div>
   </div>
 </header>
-
-<style>
-  .site-header__cta {
-    min-height: 2.75rem;
-    padding: 0.7rem 1.3rem;
-  }
-  .site-nav__group > summary {
-    list-style: none;
-  }
-  .site-nav__group > summary::-webkit-details-marker,
-  .site-nav__group > summary::marker {
-    display: none;
-    content: '';
-  }
-  .site-nav__group[open] > summary .site-nav__chevron {
-    transform: rotate(180deg);
-  }
-
-  /* Dropdown panel fades + slides in on the brand easing instead of hard-popping
-     from display:none. It stays in the DOM (so its layout is stable) but is
-     visibility:hidden + non-interactive while closed, so it never intercepts
-     pointer/tab focus until the group is [open]. */
-  .site-nav__menu {
-    /* Override the UA `details:not([open]) > :not(summary) { display:none }`
-       rule so the closed panel stays laid out and can transition. Use the
-       standalone `translate` property (not `transform`) for the slide — Tailwind
-       v4 composes `transform` from its own custom properties, which was zeroing
-       out a `transform: translateY(...)` set here. */
-    display: block;
-    opacity: 0;
-    visibility: hidden;
-    translate: 0 -0.4rem;
-    pointer-events: none;
-    transition:
-      opacity 440ms cubic-bezier(0.16, 1, 0.3, 1),
-      translate 440ms cubic-bezier(0.16, 1, 0.3, 1),
-      visibility 0s linear 440ms;
-  }
-  .site-nav__group[open] > .site-nav__menu {
-    opacity: 1;
-    visibility: visible;
-    translate: 0 0;
-    pointer-events: auto;
-    transition:
-      opacity 440ms cubic-bezier(0.16, 1, 0.3, 1),
-      translate 440ms cubic-bezier(0.16, 1, 0.3, 1),
-      visibility 0s linear 0s;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .site-nav__menu,
-    .site-nav__group[open] > .site-nav__menu {
-      transition: none;
-      translate: none;
-    }
-  }
-</style>
 
 <script>
   function currentGroups() {
@@ -471,10 +338,6 @@ const mobileNavProps = {
       slot.dataset.mnavOpen = '1';
       mountMobileNav(slot);
     });
-    // No tap yet: mount on the first interaction anywhere, or a quiet moment
-    // after load (late enough to stay clear of a photo LCP and its decode).
-    // (A press on the placeholder itself is left to its click handler, so the
-    // button is still in the page when its click lands.)
     const WAKE = ['pointerdown', 'keydown', 'touchstart'] as const;
     const wake = (e?: Event) => {
       if (e?.target instanceof Node && button.contains(e.target)) return;
@@ -497,14 +360,14 @@ const mobileNavProps = {
   initMobileNav();
   document.addEventListener('astro:page-load', initMobileNav);
 
-  // Condense + solidify on scroll (Direction D). One passive, rAF-throttled
-  // listener; it only toggles an attribute, CSS does the rest. Bound once
-  // (window survives View Transitions); it re-queries the header each frame
-  // because the router swaps the <header> element on navigation.
+  // Rest <-> pill. One passive, rAF-throttled listener that only toggles an attribute; CSS
+  // does the rest. Bound once (window survives View Transitions); it re-queries the header
+  // each frame because the router swaps the <header> element on navigation. A small
+  // threshold, like Reid Design's header, so the pill arrives as soon as the page moves.
   const hw = window as typeof window & { __headerScrollBound?: boolean };
   function syncHeaderScrolled() {
     const header = document.querySelector<HTMLElement>('.site-header');
-    if (header) header.toggleAttribute('data-scrolled', window.scrollY > 16);
+    if (header) header.toggleAttribute('data-scrolled', window.scrollY > 24);
   }
   if (!hw.__headerScrollBound) {
     hw.__headerScrollBound = true;

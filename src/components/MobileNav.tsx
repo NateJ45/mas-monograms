@@ -19,7 +19,8 @@
 
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronRight, ChevronDown, Mail, Phone } from 'lucide-react';
+import { wordmarkSvg, DARK } from '@/lib/brand/brandSvg.js';
 import {
   IconBrandInstagram,
   IconBrandFacebook,
@@ -70,6 +71,8 @@ interface Props {
   showEmail?: boolean;
   /** Site Settings switch: show the social buttons. Default yes. */
   showSocials?: boolean;
+  /** The brand name, for the dialog's accessible name. */
+  brandName?: string;
 }
 
 // Short, honest descriptor under each big nav label, keyed by exact href. A
@@ -101,6 +104,9 @@ function socialIcon(platform: string | undefined) {
 
 const normalise = (p: string) => p.replace(/\/+$/, '');
 
+// The Signature Thread wordmark in its dark-ground colours, drawn once for the menu's top bar.
+const wordmark = wordmarkSvg({ idp: 'mnav-wm', cut: 'header', palette: DARK });
+
 export default function MobileNav({
   links,
   siteSettings,
@@ -109,6 +115,7 @@ export default function MobileNav({
   showCta = true,
   showEmail = true,
   showSocials = true,
+  brandName = 'MAS Monograms',
 }: Props) {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -157,14 +164,10 @@ export default function MobileNav({
   const delay = (ms: number): CSSProperties => ({ '--mnav-delay': `${ms}ms` }) as CSSProperties;
 
   return (
-    <div className="absolute top-1/2 right-m -translate-y-1/2 lg:hidden">
+    <div>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/10"
-          >
+          <button type="button" aria-label="Open menu" className="site-header__menu-btn">
             <Menu size={22} />
           </button>
         </SheetTrigger>
@@ -224,8 +227,15 @@ export default function MobileNav({
             </svg>
             {/* Top bar: wordmark (doubles as the dialog's accessible name) + close. */}
             <div className="flex items-center justify-between gap-m">
-              <SheetTitle className="font-display text-2xl leading-none tracking-[-0.01em] text-foreground italic">
-                MAS Monograms
+              {/* The dialog's accessible name is the brand name; the wordmark beside it is
+                  the same words drawn (decorative). */}
+              <SheetTitle className="flex items-center">
+                <span className="sr-only">{brandName}</span>
+                <span
+                  aria-hidden="true"
+                  className="block h-8 [&>svg]:h-full [&>svg]:w-auto"
+                  dangerouslySetInnerHTML={{ __html: wordmark }}
+                />
               </SheetTitle>
               <SheetDescription className="sr-only">
                 Site navigation and contact details.
@@ -394,25 +404,29 @@ export default function MobileNav({
               </div>
             )}
 
-            {/* Get in touch — pinned to the bottom via mt-auto when the menu is
-                shorter than the viewport; scrolls naturally when it isn't. */}
+            {/* At the bench: the studio's phone and email from Site Settings (they left
+                the header with the old contact strip on 2026-10-04). Pinned to the bottom
+                via mt-auto when the menu is shorter than the viewport. No hours: none are
+                published. */}
             <div className="mnav-item mt-auto pt-l" style={delay(140 + links.length * 45 + 100)}>
-              <p className="eyebrow">Get in touch</p>
+              <p className="eyebrow">At the bench</p>
               <div className="mt-s flex flex-col gap-1">
-                {email && (
-                  <a
-                    href={`mailto:${email}`}
-                    className="inline-flex min-h-11 w-fit items-center text-sm text-link transition-colors hover:underline hover:underline-offset-2"
-                  >
-                    {email}
-                  </a>
-                )}
                 {phone && (
                   <a
                     href={telHref(phone)}
-                    className="inline-flex min-h-11 w-fit items-center text-sm text-link transition-colors hover:underline hover:underline-offset-2"
+                    className="inline-flex min-h-11 w-fit items-center gap-2 text-sm text-link transition-colors hover:underline hover:underline-offset-2"
                   >
+                    <Phone size={15} aria-hidden="true" />
                     {phone}
+                  </a>
+                )}
+                {email && (
+                  <a
+                    href={`mailto:${email}`}
+                    className="inline-flex min-h-11 w-fit items-center gap-2 text-sm text-link transition-colors hover:underline hover:underline-offset-2"
+                  >
+                    <Mail size={15} aria-hidden="true" />
+                    {email}
                   </a>
                 )}
               </div>

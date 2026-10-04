@@ -1,100 +1,66 @@
 ---
 // Foundation, edit with care.
-// The Heirloom Coast logo system (hybrid, chosen 2026-07-02 — see docs/logo-concepts/):
-//   default        the "Flourished Initial" lockup — "Mas" set in the Petemoss script (Claret)
-//                  with a smooth drawn thread-swash, beside "MONOGRAMS" in Fraunces caps.
-//   <Logo mark />  the "Shopkeeper's Badge" mark — double indigo hoop-ring + Fraunces M.
-//                  Same art as public/favicon.svg and the social/stamp assets.
-// No runtime theme switching: pick the variant that matches the surface at the call site.
-//   <Logo variant="ink" />        on light surfaces (header, footer — every current surface)
-//   <Logo variant="parchment" />  on a dark-ink surface, if one is ever introduced
-//   <Logo variant="adaptive" />   (Direction D, 2026-10-04) colours from the ground's context
-//                                 tokens --logo-word / --logo-script (ink + claret on light,
-//                                 linen + gold-light on dark). The header uses this so the
-//                                 lockup follows it from overlay (dark) to scrolled (light).
+// The MAS Monograms logo system (chosen 2026-10-04; docs/logo-concepts/README.md):
+//   <Logo />          the Signature Thread wordmark: "MAS" roman caps, "Monograms" in the soft
+//                     italic, one thread (running stitch, a loop, the underline, a knot).
+//                     For horizontal places: the condensed header pill, the footer lockup.
+//   <Logo mark />     the Hoop Seal, compact: the threaded MAS cypher (a script S sewn over
+//                     and under a roman M and A) in a pair of embroidery hoops with their
+//                     tension clasp. The primary brand mark.
+//   <Logo seal />     the full Hoop Seal: the mark plus ring lettering and a running-stitch
+//                     border. For large, standalone use.
+// Colour (blue and gold):
+//   variant="ink"        light grounds: Indigo hoops, Midnight letters, a gold satin S
+//   variant="parchment"  dark grounds: gold hoops, Linen letters, a gold S
+//   variant="adaptive"   (default) paints through the --logo-* context tokens in globals.css,
+//                        so one instance follows its ground (the header's overlay and pill).
+// Every <svg> id is prefixed per instance (motifId), so several logos on a page never share
+// a mask. The drawing itself is src/lib/brand/brandSvg.js, shared with the icon and OG scripts.
+// Decorative by default (aria-hidden): the link around it carries the name. Pass `title` for a
+// standalone, named logo.
+import { sealSvg, wordmarkSvg, LIGHT, DARK } from '@/lib/brand/brandSvg.js';
+import { motifId } from '@/components/motifs/uid';
 
 interface Props {
-  /** "ink" (default) recolors the wordmark for light/linen surfaces;
-   *  "parchment" for a dark-ink surface, if one is ever introduced. */
   variant?: 'ink' | 'parchment' | 'adaptive';
-  /** Render only the compact badge mark (hoop rings + M), no wordmark text.
-   *  Square; source of truth for favicon/social-avatar contexts. */
+  /** The compact Hoop Seal. */
   mark?: boolean;
+  /** The full Hoop Seal with ring lettering. */
+  seal?: boolean;
+  /** Wordmark cut: 'header' (heavier, for 40px and under) or 'display'. */
+  cut?: 'header' | 'display';
+  /** Cypher weight for the mark: 'bold' (default, 32 to 160px) or 'regular' (larger). */
+  weight?: 'bold' | 'regular';
+  title?: string;
   class?: string;
 }
 
-const { variant = 'ink', mark = false, class: className } = Astro.props as Props;
+const {
+  variant = 'adaptive',
+  mark = false,
+  seal = false,
+  cut = 'header',
+  weight = 'bold',
+  title,
+  class: className,
+} = Astro.props as Props;
 
-// Heirloom Coast — mirrors globals.css: Linen / Heirloom Ink / Claret / Heritage Indigo.
-// Hardcoded because SVG presentation attributes can't consume CSS custom properties.
-const wordmarkColor = variant === 'parchment' ? '#F4EEE3' : '#26312E';
-const claret = '#8C3A2E';
-// The adaptive variant colours through CSS (presentation attributes cannot read
-// custom properties, a style attribute can); the attributes stay as fallbacks.
 const adaptive = variant === 'adaptive';
-const scriptStyle = adaptive ? 'fill: var(--logo-script, #8C3A2E)' : undefined;
-const wordStyle = adaptive ? 'fill: var(--logo-word, #26312E)' : undefined;
-const swashStyle = adaptive ? 'stroke: var(--logo-script, #8C3A2E)' : undefined;
-const indigo = '#28486B';
+const palette = variant === 'parchment' ? DARK : LIGHT;
+const idp = motifId('lg');
 
-// Fraunces 700 (opsz 60, WONK off) capital M, outlined to a path so the mark has no
-// font dependency (it doubles as the favicon). 44-unit cap height centered in 100x100;
-// scaled down via transform where used. Regenerate with scripts/generate-favicons.mjs.
-const frauncesM =
-  'M52.15 56.79L49.29 57.79L59.29 30.77Q59.85 29.16 60.61 28.58Q61.36 28.00 62.71 28.00L73.93 28.00Q74.75 28.00 75.16 28.35Q75.57 28.69 75.57 29.29Q75.57 29.82 75.28 30.14Q75.00 30.45 74.44 30.67L72.80 31.08Q71.89 31.33 71.54 31.87Q71.20 32.40 71.29 33.47L73.68 66.81Q73.74 67.88 74.06 68.29Q74.37 68.70 75.19 68.92L76.79 69.33Q77.33 69.52 77.59 69.83Q77.86 70.15 77.86 70.65Q77.86 71.21 77.45 71.61Q77.04 72.00 76.23 72.00L59.32 72.00Q58.44 72.00 58.01 71.65Q57.59 71.31 57.59 70.71Q57.59 70.21 57.86 69.86Q58.12 69.52 58.75 69.33L60.39 68.92Q61.36 68.64 61.68 68.18Q61.99 67.73 61.93 66.81L59.44 33.22L61.96 32.84L49.23 67.91Q48.70 69.45 48.11 69.86Q47.53 70.27 46.78 70.27Q46.24 70.27 45.77 70.11Q45.30 69.96 44.89 69.45Q44.48 68.95 44.04 67.82L30.69 33.81L33.14 32.90L30.56 65.24Q30.44 66.69 31.32 67.57Q32.20 68.45 33.58 68.98L34.93 69.49Q35.34 69.67 35.57 69.96Q35.81 70.24 35.81 70.68Q35.81 71.28 35.40 71.64Q34.99 72.00 34.14 72.00L23.80 72.00Q22.96 72.00 22.55 71.65Q22.14 71.31 22.14 70.71Q22.14 70.11 22.48 69.82Q22.83 69.52 23.36 69.27L24.43 68.92Q25.66 68.45 26.48 67.58Q27.29 66.72 27.45 65.21L29.87 35.17Q30.03 33.28 29.70 32.32Q29.37 31.36 28.36 31.08L26.76 30.70Q26.16 30.51 25.85 30.18Q25.53 29.85 25.53 29.29Q25.53 28.00 27.26 28.00L38.54 28.00Q39.74 28.00 40.51 28.52Q41.28 29.04 41.88 30.58Z';
+const svg =
+  mark || seal
+    ? sealSvg({
+        idp,
+        ring: seal,
+        cut: seal ? 'regular' : weight,
+        palette,
+        adaptive,
+        title,
+        className,
+      })
+    : wordmarkSvg({ idp, cut, palette, adaptive, title, className });
 ---
 
-{
-  mark ? (
-    <svg viewBox="0 0 100 100" class={className} aria-hidden="true" focusable="false">
-      <circle cx="50" cy="50" r="50" fill="#F4EEE3" />
-      <circle cx="50" cy="50" r="42.5" fill="none" stroke={indigo} stroke-width="6" />
-      <circle cx="50" cy="50" r="31.5" fill="none" stroke={indigo} stroke-width="4" />
-      <path
-        d={frauncesM}
-        fill={claret}
-        transform="translate(50 50) scale(0.7) translate(-50 -50)"
-      />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 302 80" class={className} aria-hidden="true" focusable="false">
-      {/* One text run, two faces: "Mas" in the Petemoss script, "MONOGRAMS" in Fraunces caps.
-        The tspans auto-advance, so the serif word always butts up against the script no
-        matter how the webfont measures. The script face is loaded globally via @fontsource
-        in globals.css; until it arrives "Mas" falls back to system cursive for one paint. */}
-      <text y="52">
-        <tspan
-          x="6"
-          font-family="'Petemoss', cursive"
-          font-size="62"
-          fill={claret}
-          style={scriptStyle}
-        >
-          Mas
-        </tspan>
-        <tspan
-          dx="14"
-          dy="-4"
-          font-family="'Fraunces Variable', Fraunces, serif"
-          font-weight="600"
-          font-size="27"
-          letter-spacing="1"
-          fill={wordmarkColor}
-          style={wordStyle}
-        >
-          MONOGRAMS
-        </tspan>
-      </text>
-      {/* A single smooth cubic — the thread-swash running the full width, from under
-        "Mas" out to the end of "MONOGRAMS". */}
-      <path
-        d="M 8 62 C 90 71, 208 71, 296 63"
-        fill="none"
-        stroke={claret}
-        stroke-width="2.4"
-        stroke-linecap="round"
-        style={swashStyle}
-      />
-    </svg>
-  )
-}
+<Fragment set:html={svg} />

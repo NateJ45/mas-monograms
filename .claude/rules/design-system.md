@@ -41,8 +41,14 @@ artifacts and ONE kicker per page.**
   labels (led by a short running stitch; brass on light, gold on dark).
 - **Petemoss**: monogram artifacts and one script kicker per page (`ScriptKicker.astro`, 2.75rem
   floor). `.font-script` is the utility. Never for prose, buttons, nav or small text.
-- **Logo** (`Logo.astro`): lockup + badge mark unchanged since 2026-07-02. `variant="adaptive"`
-  colours through `--logo-word` / `--logo-script`, so the header and footer lockups follow their ground.
+- **Logo** (`Logo.astro`, redrawn 2026-10-04, blue and gold): `<Logo mark />` the Hoop Seal (primary
+  mark), `<Logo />` the Signature Thread wordmark (horizontal lockup, `cut="header"` below 40px,
+  `"display"` above), `<Logo seal />` with ring lettering. `variant="adaptive"` (default) paints through
+  the `--logo-*` tokens (`--logo-ring-a/b/c`, `--logo-letters`, `--logo-thread-a/b/c`, `--logo-word`,
+  `--logo-swash`...), set light in `:root` and dark in the dark-context list, so one instance follows
+  the header from overlay to pill. Every instance gets its own id prefix (`motifId`). The drawing lives
+  in `src/lib/brand/brandSvg.js` (geometry `brandPaths.js`, generated; see `docs/logo-concepts/README.md`)
+  and is shared by the favicon, `public/brand/*.svg` and OG scripts. Never put Claret in the logo.
 - Embroidery fonts are NOT web fonts (each `font` document has a `previewImage`).
 
 ## Color palette
@@ -51,7 +57,7 @@ Heirloom Coast tokens are unchanged (table in `docs/02-design-system.md`). Direc
 
 | Token                                | Hex       | Use                                                            |
 | ------------------------------------ | --------- | -------------------------------------------------------------- |
-| `--color-midnight`                   | `#0F1B2D` | drench surface (dark sections, header strip, menu, footer)     |
+| `--color-midnight`                   | `#0F1B2D` | drench surface (dark sections, menu, footer, theme-color)      |
 | `--color-midnight-raised`            | `#172A42` | a panel lifted off Midnight                                    |
 | `--color-paper`                      | `#FBF8F1` | Paper as a named token                                         |
 | `--color-on-dark-muted`              | `#C8C0B0` | secondary text on any dark ground                              |
@@ -129,4 +135,9 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
     server per project root (a lock in `.astro/`). With several agents in one tree, run
     `ASTRO_DEV_BACKGROUND=1 node node_modules/astro/bin/astro.mjs dev --port <n> --ignore-lock`
     to get a foreground server of your own (2026-10-04).
+16. **The header's reserved height is a contract** (2026-10-04). `--header-h` is 4.5rem below 75rem
+    and 6.5rem from it, the same at rest and as the scrolled pill (the pill condenses INSIDE the
+    sticky box). Overlay pages pull `<main>` up by it and their first section clears it with
+    `.pt-header`. Change the row height and `--header-h` together, then run `tests/header.spec.ts`
+    (it asserts the box height is equal in both states and the hero heading clears the header).
 <!-- prettier-ignore-end -->
