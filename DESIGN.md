@@ -78,7 +78,7 @@ Tokens live in `src/styles/globals.css` (`@theme`); there is no `tokens.css` or 
 - **Mostly flat.** Paper cards on a linen page, sage bands alternating full width, one committed hover shadow. Tight `0.25rem` radius.
 - **Indigo drench.** The home hero, the bottom CTA band, the desktop header strip and a 4px stripe above the footer are Heritage Indigo with linen type.
 - **Motion is subtractive** (2026-07-03): no scroll reveals, no grid stagger, no floating or zoom on the hero collage.
-- Open reference-site and anti-reference questions are tracked in `PRODUCT.md`; this file records only what the code does.
+- Reference sites and anti-references (proposed, unconfirmed) are in `PRODUCT.md`; this file records only what the code does.
 
 ## 2. Colors
 
