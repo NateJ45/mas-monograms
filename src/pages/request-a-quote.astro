@@ -165,7 +165,7 @@ const L = {
   emailLabel: page?.emailLabel ?? 'Email Address',
   emailPlaceholder: page?.emailPlaceholder ?? 'you@example.com',
   emailError: page?.emailError ?? 'Please enter a valid email.',
-  phoneLabel: page?.phoneLabel ?? 'Phone Number',
+  phoneLabel: page?.phoneLabel ?? 'Phone Number (Optional)',
   phonePlaceholder: page?.phonePlaceholder ?? '(843) 555-0100',
   phoneError: page?.phoneError ?? 'Please enter a phone number.',
   referralLabel: page?.referralLabel ?? 'How did you hear about us?',
@@ -697,8 +697,6 @@ const hLead = hWords.join(' ');
               <div class="form-field">
                 <label for="phone" class="form-label">
                   {L.phoneLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
                 </label>
                 <input
                   id="phone"
@@ -706,8 +704,6 @@ const hLead = hWords.join(' ');
                   type="tel"
                   autocomplete="tel"
                   placeholder={L.phonePlaceholder}
-                  required
-                  aria-required="true"
                   aria-describedby="phone-error"
                   class="form-input"
                 />

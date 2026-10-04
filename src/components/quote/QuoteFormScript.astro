@@ -103,7 +103,6 @@
       { id: 'personalization', check: nonEmpty },
       { id: 'name', check: nonEmpty },
       { id: 'email', check: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
-      { id: 'phone', check: nonEmpty },
     ];
     required.forEach(({ id, check }) => {
       const el = document.getElementById(id) as
