@@ -3,6 +3,11 @@
 // content from Sanity: faqItem.answer, service.longDescription, processStep.fullDescription,
 // philosophyPoint.description, page singleton story/intro blocks, project.introStory.
 //
+// Direction D (2026-10-04), typography only: the blockquote is a Fraunces
+// italic pull with a dashed (stitched) rule; list markers are brass; links
+// keep a plain underline (thicker on hover) in the ground's --link colour,
+// so they read on Linen and on Midnight alike.
+//
 // Style discipline: this component picks the right semantic + brand tokens so
 // Portable Text content inherits theme-aware colors automatically. Body text
 // uses text-foreground (dark-mode-aware). Links use text-link with
@@ -64,17 +69,21 @@ function makeComponents(): PortableTextComponents {
         </h4>
       ),
       blockquote: ({ children }) => (
-        <blockquote className="my-l border-l-4 border-primary pl-m text-foreground/90 italic">
+        <blockquote className="my-l border-l-2 border-dashed border-[var(--stitch-color)] pl-l font-display text-[1.35em] leading-snug font-light text-foreground italic">
           {children}
         </blockquote>
       ),
     },
     list: {
       bullet: ({ children }) => (
-        <ul className="my-m list-disc space-y-1 pl-l text-foreground">{children}</ul>
+        <ul className="my-m list-disc space-y-1.5 pl-l text-foreground marker:text-[var(--color-brass-text)]">
+          {children}
+        </ul>
       ),
       number: ({ children }) => (
-        <ol className="my-m list-decimal space-y-1 pl-l text-foreground">{children}</ol>
+        <ol className="my-m list-decimal space-y-1.5 pl-l text-foreground marker:font-display marker:text-[var(--color-brass-text)] marker:italic">
+          {children}
+        </ol>
       ),
     },
     listItem: {
@@ -91,7 +100,7 @@ function makeComponents(): PortableTextComponents {
         return (
           <a
             href={href}
-            className="text-link underline underline-offset-2 transition-colors hover:text-primary"
+            className="text-link underline decoration-1 underline-offset-[3px] transition-colors hover:decoration-2"
             target={newTab ? '_blank' : undefined}
             rel={newTab ? 'noopener noreferrer' : undefined}
           >

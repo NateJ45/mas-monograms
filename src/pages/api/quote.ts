@@ -79,8 +79,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     !size ||
     !threadCount ||
     !name ||
-    !email ||
-    !phone
+    !email
   ) {
     return jsonError('Required fields are missing', 400);
   }

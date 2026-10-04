@@ -82,7 +82,7 @@ const padNum = (n?: number) => (typeof n === 'number' ? String(n).padStart(2, '0
 
         {step.fullDescription && (
           <div class="mt-s max-w-2xl">
-            <PortableText client:visible value={step.fullDescription} />
+            <PortableText value={step.fullDescription} />
           </div>
         )}
 

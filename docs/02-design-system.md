@@ -1,146 +1,225 @@
 # 02: Design System
 
-> **Status: current as of 2026-07-03.** The live system is **"Heirloom Coast"** (rebranded 2026-07-01)
-> wearing the **"Direction C — The Sampler"** treatment (applied 2026-07-03). Tokens live in
-> `src/styles/globals.css` (Tailwind v4 `@theme` block — there is no `tokens.css`). Full rationale and
-> contrast math: `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
+> **Status: current as of 2026-10-04.** The live system is **"Heirloom Coast"** (rebranded 2026-07-01)
+> wearing **Direction D, "The Atelier"** (2026-10-04), which replaced Direction C, "The Sampler"
+> (2026-07-03). Tokens live in `src/styles/globals.css` (Tailwind v4 `@theme` block; there is no
+> `tokens.css`). Brief and hard rules: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
+> Earlier rationale and contrast math: `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
 >
-> Two earlier systems are dead and should never be referenced as current: the original cream/sage/blush
-> system, and "Thread Ledger" (Parchment/Pine-Teal/Rust, Bricolage Grotesque + Work Sans). If you see
-> those names anywhere, they're history.
+> Dead systems, never current: the original cream/sage/blush, and "Thread Ledger"
+> (Parchment/Pine-Teal/Rust, Bricolage Grotesque + Work Sans).
 
-The feel: a hand-stitched heirloom shop on the South Carolina coast. Warm linen paper, deep ink text,
-a heritage indigo that also drenches whole bands, claret reserved for the one action that matters, and
-a gold script flourish that nods at the monogram craft. "Expensive through restraint" — space and
-editing do the work, not effects.
+The feel: an embroidery atelier. Deep Midnight sections alternate with linen and paper that carry a
+real weave; huge, light Fraunces type with one italic swash word per headline; a gold thread sewn
+down the page as you scroll; photos stretched in wooden hoops; prices on hang tags; running stitches
+for every rule. Persuasion comes from craft and clarity, never from invented proof.
 
 ---
 
-## Color palette (Heirloom Coast)
+## Color palette
 
-| Token              | Hex       | Use                                                                                           |
-| ------------------ | --------- | --------------------------------------------------------------------------------------------- |
-| Linen              | `#F4EEE3` | Default page background                                                                       |
-| Paper              | `#FBF8F1` | Cards, raised surfaces, and the button that sits on a dark band                               |
-| Sage Band          | `#E4E2D3` | Alternating section band                                                                      |
-| Heirloom Ink       | `#26312E` | Default text and headings                                                                     |
-| Heritage Indigo    | `#28486B` | Primary / links / focus ring — **and a drench surface** (home hero band + bottom CTA band)    |
-| Indigo Deep        | `#1C3550` | Link / primary hover                                                                          |
-| Claret — CTA       | `#8C3A2E` | CTA button background on light surfaces; the running-stitch borders on hero photo mats        |
-| Claret Deep        | `#722C22` | CTA hover                                                                                     |
-| Brass — text       | `#835A24` | Small brass-toned text (pricing figures, meta) — AA-safe on Linen                             |
-| Brass — decorative | `#B98A3E` | Decorative strokes / hairlines ONLY — never text on a light surface                           |
-| Gold — script      | `#D9B15F` | The Petemoss script kicker + hairlines, **on indigo/dark backgrounds only** (≈1.6:1 on Linen) |
-| Secondary Taupe    | `#5A5148` | Secondary text                                                                                |
-| Tertiary           | `#67614F` | Captions / muted text                                                                         |
+### Heirloom Coast (unchanged)
 
-**Two decisions worth protecting:**
+| Token              | Hex       | Use                                                                  |
+| ------------------ | --------- | -------------------------------------------------------------------- |
+| Linen              | `#F4EEE3` | Default page background, `.surface-linen`                            |
+| Paper              | `#FBF8F1` | Cards, `.surface-paper`, the primary button on a dark ground         |
+| Sage Band          | `#E4E2D3` | `.surface-sage` alternating band                                     |
+| Heirloom Ink       | `#26312E` | Default text and headings                                            |
+| Heritage Indigo    | `#28486B` | Links, the focus ring on light, `.surface-indigo`                    |
+| Indigo Deep        | `#1C3550` | Link hover                                                           |
+| Claret (CTA)       | `#8C3A2E` | The primary button on light; `.swash` on light; nav stitch underline |
+| Claret Deep        | `#722C22` | The primary button's hover/focus fill                                |
+| Brass (text)       | `#835A24` | `.eyebrow` and small brass text on light (AA on Linen, Sage, Paper)  |
+| Brass (decorative) | `#B98A3E` | Running stitches on light grounds ONLY (never text)                  |
+| Gold (script)      | `#D9B15F` | Script kicker on dark                                                |
+| Secondary Taupe    | `#5A5148` | Secondary text                                                       |
+| Tertiary           | `#67614F` | Captions                                                             |
 
-- Claret is split so it only ever backs a button on a _light_ ground. On the indigo drench, buttons flip
-  to **Paper background + Ink text** (`CtaLink` handles this via its `onDark` prop) — claret-on-indigo
-  vibrates and fails contrast.
-- Gold is a _dark-surface-only_ accent. It disappears on Linen. Use it for the script kicker and hairlines
-  when they sit on indigo, never on the light page.
+### Direction D additions
 
-No dark mode anywhere. There is no `.dark` CSS, no theme toggle, and no theme-bootstrap script — a
-considered decision, not an oversight.
+| Token                     | Hex       | Use                                                                         |
+| ------------------------- | --------- | --------------------------------------------------------------------------- |
+| `--color-midnight`        | `#0F1B2D` | The drench: dark sections, header strip, mobile menu, footer, BackToTop     |
+| `--color-midnight-raised` | `#172A42` | A panel on Midnight (`--card` in a dark context)                            |
+| `--color-paper`           | `#FBF8F1` | Paper as a named token                                                      |
+| `--color-on-dark-muted`   | `#C8C0B0` | Secondary text on any dark ground (9.57:1 Midnight, 5.21:1 Indigo)          |
+| `--color-gold-light`      | `#F0D58A` | On dark only: links, the swash colour, the focus ring, the button fill      |
+| `--color-gold`            | `#D9B15F` | On dark only: eyebrows, running stitches, the thread body                   |
+| `--color-gold-deep`       | `#A9772A` | Decorative only: the gradient's shadow stop and thread strokes (never text) |
+| `--color-kraft`           | `#E2CFA9` | HangTag card stock (Ink, Claret and Secondary text; not Brass)              |
+| `--color-blush`           | `#F1DFD7` | SwatchCard blush cotton                                                     |
+| `--color-sage`            | `#DDE2D0` | SwatchCard sage linen                                                       |
+| `--color-border-on-dark`  | `#8A96A8` | A form field's edge on a dark ground (5.77:1)                               |
+| `--thread-gold` (`:root`) | gradient  | gold-deep, gold, gold-light, gold, gold-deep                                |
+
+Every pair above is asserted in `src/lib/theme-tokens.test.ts` (`npm run test:unit`).
+
+### Ground contexts (how one component works on both)
+
+`.surface-midnight`, `.surface-indigo` and `.on-dark` re-point the semantic tokens: `--foreground`
+becomes Linen, `--link` and `--ring` gold-light, `--color-text-secondary/-tertiary/-muted-text` the
+on-dark muted, `--color-brass-text` gold, `--color-rust-decorative` gold-light, `--stitch-color`
+gold, and the `--btn-*` tokens flip the buttons to paper. `.on-light` and the light surfaces restore
+the light set. So `text-foreground`, `text-link`, `text-[var(--color-text-secondary)]`, borders,
+the focus ring, `SectionHeading`, `CtaLink`, `FaqAccordion` and the motifs all read correctly on
+either ground with no extra props. There is still **no dark mode**: these are dark SECTIONS.
 
 ---
 
 ## Typography
 
-Three families, self-hosted via `@fontsource` (no Google Fonts runtime dependency). The rule:
-**serif display (light, optical-sized) + humanist-sans body + a script face for monogram artifacts and
-one kicker per page.**
+| Role      | Family / class                    | Notes                                                                                                                                        |
+| --------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Statement | `.display` / `.display-sm`        | Fraunces at `--text-display` (to 9.5rem) / `--text-display-sm` (to 6.25rem), weight 340/360, tight leading, negative tracking, balanced wrap |
+| Headings  | Fraunces Variable                 | h1 to h3 at weight 440, h4 to h6 at 560; `text-h1`...`text-h6` fluid sizes                                                                   |
+| Swash     | `.swash` (an `<em>`)              | Fraunces full italic at SOFT 100, WONK 1. Claret on light; thread-gold gradient on dark                                                      |
+| Eyebrow   | `.eyebrow` (+ `.eyebrow--center`) | 0.75rem tracked caps led by a short running stitch; brass on light, gold on dark                                                             |
+| Body / UI | Mulish Variable; `.lede`          | `.lede` is the large opening paragraph (secondary ink, 42ch)                                                                                 |
+| Script    | Petemoss; `.font-script`          | Monogram artifacts and ONE `ScriptKicker` per page (2.75rem floor)                                                                           |
 
-| Role               | Family                | Notes                                                                                                                                                                                                                                              |
-| ------------------ | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Display / headings | **Fraunces Variable** | Loaded via the **opsz builds** (`opsz.css` + `opsz-italic.css` — the real italic cut, never synthetic oblique). Weight **440** at display sizes, **560** for h4–h6. Do NOT force 700 — hierarchy comes from size + the optical axis, not boldness. |
-| Body / UI          | **Mulish Variable**   | Everything that isn't a heading — body copy, labels, buttons.                                                                                                                                                                                      |
-| Script accent      | **Petemoss**          | Two uses only: (1) on-screen monogram artifacts (combo preview, the logo's script M) and (2) **one "script kicker" per page** at ≥2.75rem, via `src/components/ScriptKicker.astro`. Never for prose, buttons, nav, or small text.                  |
+The roman Fraunces is the opsz build; the italic is the **full** build (adds SOFT and WONK, about
+68KB, `font-display: swap`, downloaded only when a page sets italic).
 
-**Script kicker** (`ScriptKicker.astro`) is the opening-hero eyebrow rendered in Petemoss: **Claret on
-light grounds, Gold on dark grounds**, tilted −2°, one per page. Section-level eyebrows stay tracked
-caps — only the top-of-page kicker is script.
-
-**Embroidery fonts are a different thing entirely** — each `font` document carries a `previewImage`
-(a photo of the lettering stitched on fabric). Those are content, not web fonts. See `docs/04`.
+**Embroidery fonts are different**: each `font` document carries a `previewImage`. See `docs/04`.
 
 ---
 
-## Logo
+## Textures (generated, no image files)
 
-Hybrid system (chosen 2026-07-02 — see `docs/logo-concepts/`). Built in `src/components/Logo.astro`.
+- **Linen weave** `--tex-linen` (`.surface-linen`, `.surface-sage`, `.texture-linen`): a 1px warp
+  and weft at 3px pitch, slub threads at prime pitches (11, 13, 17, 23px) so no grid repeats show,
+  plus an isotropic grain. Seamless by construction.
+- **Paper grain** `--tex-paper` (`.surface-paper`, `.texture-paper`).
+- **Midnight twill** `--tex-midnight` (`.surface-midnight`, `.texture-midnight`): an indigo glow top
+  left, a faint gold warmth bottom right, a light weave and grain.
+- Sizes travel with the stacks: `--tex-linen-size`, `--tex-paper-size`, `--tex-midnight-size`.
 
-- **Lockup ("Flourished Initial")** — an oversized Petemoss script _M_ in Claret with a drawn
-  thread-swash beneath a Fraunces "MAS MONOGRAMS". Used in the header and footer.
-- **Compact mark ("Shopkeeper's Badge")** — a double indigo hoop-ring around an outlined Fraunces-700 _M_
-  in Claret. Used for `<Logo mark />`, `public/favicon.svg`, and social/stamp placements. The favicon
-  set is generated by `scripts/generate-favicons.mjs` (the _M_ is an outlined path — favicons can't load
-  webfonts).
-
-The old needle-and-thread cross (from the Thread Ledger era) is retired.
-
----
-
-## Direction C treatment (what "The Sampler" added, 2026-07-03)
-
-- **Indigo drench.** The home hero is a full Heritage Indigo surface with linen/paper type; the
-  bottom-of-page CTA band is the same indigo. The old near-black `#1A1512` slab is retired from bands
-  (still the base of the photo scrim in `HeroBackground`).
-- **Gold script kicker** replaces the tracked-caps eyebrow on the opening hero (see Typography).
-- **Frameless photography.** The brass photo frames and solid brass caption bars are retired everywhere
-  (galleries, category cards). Photos sit frameless with a quiet label; the paper-mat + claret
-  running-stitch treatment survives only on the hero's pinned "snapshot" collage.
-- **Motion is subtractive.** Scroll-triggered reveals and grid-stagger animations were removed (no
-  premium reference site animates content in on scroll — it was the site's clearest "template" tell). The
-  hero collage no longer floats or Ken-Burns-zooms; the cross-fade is its one motion moment. What
-  survives: hover responses, the gallery filter fade, the hero entry stagger, and view-transition
-  cross-fades. `prefers-reduced-motion` is honored throughout.
+`.surface-*` paint their ground on `::before` (see "Surfaces and the thread"); `.texture-*` paint
+on the element itself (cards, panels).
 
 ---
 
-## Component styling notes
+## Surfaces and the golden thread
 
-**Buttons — one recipe.** `min-h-[44px] px-l py-s rounded-sm`, 12px uppercase Mulish at `0.18em`
-tracking. On light: Claret bg + white text (hover Claret Deep). On dark (indigo band, photo scrim):
-Paper bg + Ink text. Secondary: indigo outline + link text on light, white outline on dark. The primary
-"Request a Quote" button is the one place Claret appears — keep it sparing. See `CtaLink.astro`.
+`<main>` is `relative isolate`. `ThreadLine` sits in it at z-index -1. A **top-level** surface
+(a direct child of `<main>`, or anything with `.thread-through`) paints its ground at -2, so the
+thread runs over the cloth and under every word, card and photo. Rules for page authors:
 
-**Touch targets (2026-10-04, PORTS cards 82 and 83).** Every link, button and form control is at least
-44 by 44px at phone width (scan: `node scripts/measure-tap-targets.mjs`, see `docs/TESTING.md`). Three shapes:
-stacked rows (footer column links, contact links, legal links, credit) take real `min-h-[44px]`
-(`min-w-[44px]` for short words), because a hit area on rows closer than 44px would overlap; a standalone small
-link (the "View all items →" arrows, "Request this →", "Browse what I make →") takes the invisible `relative hit-44`
-area from `globals.css`, so nothing visible moves; the gallery filter chips use `hit-44` with `gap-y-5` between
-rows so neighbouring areas never overlap. Links inside a sentence (the email address in legal copy, "Font Guide →",
-"Color Chart →") are exempt under WCAG 2.5.8 and are left alone. Footer social icons are `h-11 w-11`.
+1. Full-width bands use `.surface-midnight | -indigo | -linen | -paper | -sage`, not a `bg-*`
+   utility (a plain background hides the thread). Alternate dark and light; never two flat light
+   sections in a row.
+2. Never put `data-reveal`, a transform, opacity or a filter ON a top-level surface section; put
+   them on the content inside.
+3. Inside a top-level surface, avoid negative z-index children (they land below the ground).
+4. Mark the element the thread should finish at with `data-thread-end` (CtaBanner does).
+5. `BaseLayout thread={false}` turns it off for a page.
 
-**Form inputs.** Paper/linen field background, an interactive-weight border (`--color-border-interactive`,
-darker than the decorative hairline because the border is the field's only affordance), full-Indigo focus
-ring at a 2px offset. Validation uses the token error set (`--color-error-text/surface/border`), not
-Tailwind reds.
+---
 
-**Cards & bands.** Paper cards on the Linen page; Sage bands alternate full-width sections. Base radius is
-a tight `0.25rem`. Essentially one committed shadow (`.card-lift` hover); Tailwind's semantic shadows
-elsewhere.
+## Motion
 
-**Spacing, radius, motion.** One fluid spacing scale (`--spacing-xs…l`, `--spacing-section-md/lg`), one
-radius base, one house easing (`cubic-bezier(0.16, 1, 0.3, 1)` at 440ms). Pull everything from the
-`@theme` tokens in `globals.css`; never hardcode.
+Purposeful, slow-settling easing (`--ease-thread`, `cubic-bezier(0.22, 1, 0.36, 1)`), never scroll
+hijacking, all vanilla CSS/TS.
+
+- **Scroll reveals are back** (Direction C removed them), gated and opt-in: `data-reveal` (rise),
+  `data-reveal="fade"`, `data-reveal="stitch"` (a left-to-right wipe), `data-reveal-stagger="90"` on
+  a parent, `--reveal-delay` inline. Nothing is hidden until `motifs/RevealScript.astro` has run
+  (`html.reveal-ready`); elements already on screen show without animating; no JS, a failed bundle,
+  the preview shell and reduced motion all show everything. End state is `.is-visible`.
+- **ThreadLine**: one rAF-throttled passive scroll listener; reveals with a rectangular clip-path
+  and moves the needle with a transform (no per-frame layout reads). ResizeObserver rebuilds the
+  path. Reduced motion: drawn in full, no needle, no listener. No JS: the server path, drawn in full.
+  Legibility (desktop): after each build the script measures every line of text the thread passes
+  behind (Range client rects, reveal translate undone) and writes two dim zones per line into an SVG
+  luminance mask on the thread group (wide soft ring, tighter darker core, no blur filter), so the
+  thread stays bright in the gaps and recedes behind copy.
+- **Header**: condenses and solidifies on scroll (it no longer hides on scroll-down).
+- **Marquee**: CSS animation, pauses on hover/focus and via its button; still under reduced motion.
+- Hover/focus: the button fill sweep, the stitched link sewing solid, card lifts.
+- `prefers-reduced-motion` honoured everywhere (see gotcha 14 in `.claude/rules/design-system.md`).
+
+---
+
+## Component catalog
+
+All strings come from Sanity through props; short neutral fallbacks only where noted.
+
+### Layout and chrome
+
+- **`BaseLayout.astro`** adds: `header?: 'solid' | 'overlay'` (default `'solid'`; overlay pages pull
+  `<main>` up under a transparent header and give their first, dark section `.pt-header`),
+  `thread?: boolean` (default `true`). Sets `html.js` before first paint; renders `ThreadLine` and
+  `RevealScript`.
+- **`Header.astro`**: `tone?: 'solid' | 'overlay'` (BaseLayout passes it). Midnight contact strip
+  (desktop, folds away on scroll), linen row, stitched hem; `[data-scrolled]` = paper glass, 4rem row.
+  The sticky outer box reserves `--header-h` (4.25rem mobile, 7.25rem desktop), so nothing shifts.
+- **`MobileNav.tsx`**: same props and behaviour; a full-screen Midnight panel, running-stitch
+  dividers, the active page in the swash, the paper `.btn` CTA.
+- **`Footer.astro`**: same props; Midnight statement footer with the brand name as a giant outline
+  sewn in a gold running stitch; all 44px rows kept.
+- **`BackToTop.tsx`**: 48px Midnight button with a gold thread ring that winds with scroll progress.
+
+### Typography and actions
+
+- **`SectionHeading.astro`**: `eyebrow?`, `headline?`, `swash?` (word/phrase from the headline),
+  `headlineItalicSuffix?`, `subhead?`, `headingId`, `level?: 'h1'|'h2'|'h3'`, `align?: 'left'|'center'`,
+  `size?: 'md'|'lg'|'display'` (default `'md'`), `tone?: 'default'|'inverse'`, `scriptAccent?`, `class?`.
+- **`CtaLink.astro`**: `cta`, `variant?: 'primary'|'secondary'`, `onDark?` (forces the dark
+  treatment over a photo or non-surface dark), `arrow?`, `fallbackHref?`, `fallbackLabel?`, `class?`.
+- **`CtaBanner.astro`**: `eyebrow?`, `headline?`, `swash?`, `subhead?`, `ctaLabel?`, `ctaHref?`,
+  `secondaryLabel?`, `secondaryHref?`. The `subhead` fallback is a neutral line with no response-time
+  promise (the page supplies any real claim from Sanity). Midnight band, stitched frame, `data-thread-end` on the
+  buttons. Keep it a direct child of `<main>`.
+- **Classes**: `.btn` + `.btn-primary` / `.btn-secondary` (+ `.btn__arrow`), `.link-stitch`,
+  `.display`, `.display-sm`, `.swash`, `.swash-gold`, `.eyebrow`, `.lede`, `.stitch-x`,
+  `.stitch-frame`, `.cross-corners`, `.hit-44`, `.pt-header`.
+- **`FaqAccordion.tsx`**: same props; stitched dividers, italic index numerals, a cross-stitch toggle.
+
+### Motifs (`src/components/motifs/`)
+
+- **`ThreadLine.astro`** (+ `ThreadLineScript.astro`): no props; BaseLayout renders it.
+- **`RevealScript.astro`**: no props; BaseLayout renders it once.
+- **`HoopFrame.astro`**: `image` (Sanity image or null for an empty linen hoop), `alt?`,
+  `size?: 'sm'|'md'|'lg'|'xl'|number` (200/300/420/560px; shrinks to fit), `focal?: {x,y}` (0..1, for
+  photos without a Sanity hotspot), `tone?: boolean` (the shared warm grade, default on), `tilt?`,
+  `caption?` (renders a `<figure>` with a stitched caption), `loading?`, `fetchpriority?`, `class?`,
+  `style?`, any other attribute (data-_, aria-_) passes through to the wrapper. Default slot: content
+  centred inside an EMPTY hoop's fabric (ignored when a photo is set). Tilt is the CSS variable
+  `--hoop-tilt` (falls back to the prop's `--hoop-tilt-base`), so a parent can straighten it on hover.
+- **`SwatchCard.astro`**: slots `media` (edge to edge) and default (padded body);
+  `tone?: 'paper'|'linen'|'blush'|'sage'|'kraft'|'midnight'`, `stitched?` (default true),
+  `pinked?` (default true), `tilt?`, `interactive?` (lift on hover/focus-within),
+  `as?: 'div'|'article'|'li'|'figure'`, `bodyClass?`, `class?` (merged), `style?`, and any other
+  attribute (data-_, aria-_, id) passes through to the wrapper. Tilt: `--swatch-tilt` overrides the
+  prop's `--swatch-tilt-base`.
+- **`HangTag.astro`**: `eyebrow?`, `title?`, `titleTag?: 'h2'|'h3'|'h4'|'p'`, `value?`, `note?`,
+  `tone?: 'kraft'|'paper'|'midnight'`, `tilt?`, `string?` (twine loop, default true),
+  `size?: 'sm'|'md'`, default slot for extra details, `class?` (merged), `style?`, and any other
+  attribute (data-_, aria-_, id) passes through to the outer element. Tilt: `--tag-tilt` overrides
+  the prop's `--tag-tilt-base`.
+- **`Spool.astro`**: `color` (hex), `label?`, `sublabel?`, `size?: 'sm'|'md'|'lg'|number`
+  (56/84/120px), `title?` (accessible name when there is no visible label; otherwise decorative),
+  `tail?` (default true), `tilt?`, `class?`.
+- **`RunningStitch.astro`**: `tone?: 'ground'|'gold'|'brass'|'claret'|'linen'|'ink'|'current'`
+  (`ground` follows the surface), `orientation?: 'horizontal'|'vertical'`, `length?` (CSS length),
+  `stitch?`, `gap?`, `weight?` (px), `ornament?: 'none'|'cross'|'knot'|'needle'`, `class?`.
+- **`Marquee.astro`** (+ `MarqueeScript.astro`): `items: string[]`, `label?` (region name),
+  `pauseLabel?`, `playLabel?` (fallbacks "Pause"/"Play"), `separator?: 'cross'|'needle'|'dot'`,
+  `speed?` (seconds per loop, default 70), `direction?: 'forward'|'reverse'`, `size?: 'md'|'lg'`, `class?`.
+- **`Needle.astro`**: `length?`, `angle?`, `thread?` (colour through the eye), `class?`.
+- **`uid.ts`**: `motifId(prefix)`, deterministic SVG ids (render-parity stays stable).
 
 ---
 
 ## Accessibility quick checks
 
-- Ink on Linen ≈ 11.65:1; Ink on Paper is comfortably AAA.
-- Heritage Indigo on Linen ≈ 8.16:1 — safe for links and accent text.
-- Linen/Paper text on the Indigo drench ≈ 7.6:1; the `/85` and `/90` opacity variants stay AA.
-- Gold script on Indigo ≈ 4.84:1 — AA at the 44px+ kicker size; **never** on a light ground, and never
-  for small text.
-- Claret CTA under white labels ≈ 7.61:1; the Paper-on-indigo button pairs Ink text on Paper (AAA).
-- Brass **text** (`#835A24`) is AA on Linen; Brass **decorative** (`#B98A3E`) is ~2.7:1 — strokes only,
-  never text.
-- Every interactive element has a visible Indigo focus ring, not just a hover state.
-- CI requires a **perfect Lighthouse accessibility score on all routes** — treat it as a gate.
-- No dark mode — a considered decision. See the redesign spec for the reasoning.
+- Ink on Linen 11.65:1; Linen on Midnight 14.97:1; on-dark muted on Indigo 5.21:1 (the tightest
+  dark pair); gold-light focus ring on Indigo 6.54:1.
+- Gold, gold-light and gold-deep are dark-ground colours. Claret is never text on dark (2.27:1).
+- Every interactive element shows a 2px ring in the ground's `--ring` (global `:focus-visible` rule
+  in `@layer base`; component focus utilities still win).
+- **Touch targets (PORTS cards 82 and 83).** Everything is at least 44 by 44px at phone width
+  (`node scripts/measure-tap-targets.mjs`). Stacked rows take real `min-h-[44px]`; a standalone
+  small link takes the invisible `relative hit-44` area; links inside a sentence are exempt.
+- CI requires a **perfect Lighthouse accessibility score on all routes**; axe runs in Playwright.

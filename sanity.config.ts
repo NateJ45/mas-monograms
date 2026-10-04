@@ -192,6 +192,7 @@ const SINGLETON_TYPES = new Set<string>([
   'clearancePage',
   'thankYouPage',
   'notFoundPage',
+  'atelierSettings',
   'studioGuide',
   'studioNotes',
   'studioPlaybook',

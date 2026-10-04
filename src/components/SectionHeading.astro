@@ -4,40 +4,42 @@
 // Pass `headingId` so the parent <section> can use aria-labelledby={headingId}
 // for an accessible name (per CLAUDE.md a11y guidance).
 //
+// Direction D ("The Atelier", 2026-10-04):
+//   - The eyebrow is the .eyebrow treatment: tracked caps led by a short
+//     running stitch (brass on light grounds, gold on dark).
+//   - `size` scales the headline: 'md' (the old h2/h3 scale, default), 'lg'
+//     (display-sm) or 'display' (the huge hero scale).
+//   - `swash`: a word or phrase from the headline set in the italic swash
+//     (Fraunces full italic, SOFT/WONK; claret on light, thread-gold on dark).
+//     Must match the headline text exactly; first occurrence only.
+//   - Colours follow the ground: on a .surface-midnight/.surface-indigo (or any
+//     .on-dark) the default tone is already light-on-dark. `tone="inverse"`
+//     is kept for dark grounds that are not surfaces.
+//
 // Variants:
 //   - level: which heading tag (h1 for hero, h2 for sections, h3 for sub-sections). Default h2.
-//   - align: "left" (default) or "center" for centered section heads
-//   - tone: "default" (foreground on light surfaces) or "inverse" (bg/light on dark CTA banners)
-//
-// Script accent:
-//   - scriptAccent?: optional single word/phrase from the headline to render
-//     in the script accent font via the `.font-script` utility. The first occurrence is
-//     wrapped. Falls back to plain rendering when undefined, empty, or not
-//     found — so no existing heading is affected unless the prop is explicitly
-//     passed with a matching string.
-//   - Logic is shared with Hero.astro via splitScriptAccent() in src/lib/scriptAccent.ts.
-//   - At most one script accent per heading (editorial discipline, per CLAUDE.md).
+//   - align: "left" (default) or "center"
+//   - scriptAccent: one word in the Petemoss script (rare; one per page at most).
+//   - headlineItalicSuffix: an editable italic phrase appended after the headline.
+// Logic for the accents is shared with Hero.astro via splitScriptAccent().
 
 import { splitScriptAccent } from '@/lib/scriptAccent';
 
 interface Props {
   eyebrow?: string;
   headline?: string;
-  /** Optional word/phrase rendered in italics immediately after the headline
-      (e.g. Home's "Custom monogramming, made just for you." pattern where the
-      completing phrase is a Sanity-editable accent). Mirrors the same-named
-      prop on Hero.astro so the no-image hero renders the full headline. */
+  /** Optional word/phrase rendered in the italic swash immediately after the headline. */
   headlineItalicSuffix?: string;
   subhead?: string;
   headingId: string;
   level?: 'h1' | 'h2' | 'h3';
   align?: 'left' | 'center';
   tone?: 'default' | 'inverse';
-  /**
-   * Optional single word/phrase from the headline to render in handwritten
-   * the script accent font. Must match the headline text exactly (case-sensitive).
-   * Leave undefined or blank to skip. Use sparingly — one accent per heading.
-   */
+  /** Headline scale. 'md' keeps the h-level scale; 'lg' and 'display' are the Atelier statement sizes. */
+  size?: 'md' | 'lg' | 'display';
+  /** A word/phrase from the headline to set in the italic swash. */
+  swash?: string;
+  /** A word/phrase from the headline to set in the Petemoss script. Use sparingly. */
   scriptAccent?: string;
   class?: string;
 }
@@ -51,108 +53,85 @@ const {
   level = 'h2',
   align = 'left',
   tone = 'default',
+  size = 'md',
+  swash,
   scriptAccent,
   class: extraClass = '',
 } = Astro.props as Props;
 
-// Split the headline around the script-accent word when provided.
-// When not found or not set, `found` is false and we render `headline` plain.
-const {
-  found: scriptFound,
-  before: scriptBefore,
-  word: scriptWord,
-  after: scriptAfter,
-} = splitScriptAccent(headline ?? '', scriptAccent);
+// Accent split: the swash wins if both are passed and both match.
+const swashSplit = splitScriptAccent(headline ?? '', swash);
+const scriptSplit = swashSplit.found
+  ? { found: false, before: '', word: '', after: '' }
+  : splitScriptAccent(headline ?? '', scriptAccent);
 
-const headingClass =
+const levelClass =
   level === 'h1'
     ? 'font-display text-h1 leading-headline-tight tracking-[-0.02em]'
     : level === 'h2'
       ? 'font-display text-h2 leading-tight'
       : 'font-display text-h3 leading-tight';
+const headingClass = size === 'display' ? 'display' : size === 'lg' ? 'display-sm' : levelClass;
 
-const wrapperAlign = align === 'center' ? 'text-center mx-auto' : 'text-left';
+const centered = align === 'center';
+const wrapperAlign = centered ? 'text-center mx-auto' : 'text-left';
 const toneHeadline = tone === 'inverse' ? 'text-bg' : 'text-foreground';
-// Default tone uses the AA-safe secondary text token (Secondary Taupe, #5A5148,
-// 6.72:1 on Linen) instead of opacity-dimmed ink, which fails AA at small sizes.
-// Inverse tone (used on FinalCta's dark Ink panel) keeps cream-on-dark.
-const toneEyebrow = tone === 'inverse' ? 'text-bg/75' : 'text-[var(--color-text-secondary)]';
-const toneSub = tone === 'inverse' ? 'text-bg/80' : 'text-[var(--color-text-secondary)]';
-
-// Bronze hairline accent beneath the eyebrow. Matches the brand-stripe
-// signature now repeating on every marketing card so section headings read
-// with the same editorial vocabulary. On inverse tone (dark FinalCta panel)
-// the hairline switches to lifted cream so it stays visible.
-const accentColor = tone === 'inverse' ? 'bg-bg/40' : 'bg-primary/60';
-const accentAlign = align === 'center' ? 'mx-auto' : '';
+const toneSub = tone === 'inverse' ? 'text-bg/85' : 'text-[var(--color-text-secondary)]';
+const Tag = level;
 ---
 
-<div class:list={[wrapperAlign, 'max-w-3xl', extraClass]}>
+<div
+  class:list={[
+    wrapperAlign,
+    size === 'md' ? 'max-w-3xl' : 'max-w-5xl',
+    tone === 'inverse' && 'on-dark',
+    extraClass,
+  ]}
+>
   {
     eyebrow && (
-      <>
-        <p class:list={['text-xs tracking-eyebrow uppercase', toneEyebrow]}>{eyebrow}</p>
-        <div class:list={['mt-s mb-m h-px w-12', accentAlign, accentColor]} aria-hidden="true" />
-      </>
+      <p class:list={['eyebrow mb-m', centered && 'eyebrow--center justify-center']}>{eyebrow}</p>
     )
   }
   {
-    headline &&
-      (level === 'h1' ? (
-        <h1 id={headingId} class:list={[headingClass, toneHeadline]}>
-          {scriptFound ? (
-            <>
-              {scriptBefore}
-              <span class="font-script">{scriptWord}</span>
-              {scriptAfter}
-            </>
-          ) : (
-            headline
-          )}
-          {headlineItalicSuffix && (
-            <>
-              {' '}
-              <em class="font-display italic">{headlineItalicSuffix}</em>
-            </>
-          )}
-        </h1>
-      ) : level === 'h2' ? (
-        <h2 id={headingId} class:list={[headingClass, toneHeadline]}>
-          {scriptFound ? (
-            <>
-              {scriptBefore}
-              <span class="font-script">{scriptWord}</span>
-              {scriptAfter}
-            </>
-          ) : (
-            headline
-          )}
-          {headlineItalicSuffix && (
-            <>
-              {' '}
-              <em class="font-display italic">{headlineItalicSuffix}</em>
-            </>
-          )}
-        </h2>
-      ) : (
-        <h3 id={headingId} class:list={[headingClass, toneHeadline]}>
-          {scriptFound ? (
-            <>
-              {scriptBefore}
-              <span class="font-script">{scriptWord}</span>
-              {scriptAfter}
-            </>
-          ) : (
-            headline
-          )}
-          {headlineItalicSuffix && (
-            <>
-              {' '}
-              <em class="font-display italic">{headlineItalicSuffix}</em>
-            </>
-          )}
-        </h3>
-      ))
+    headline && (
+      <Tag id={headingId} class:list={[headingClass, toneHeadline]}>
+        {swashSplit.found ? (
+          <>
+            {swashSplit.before}
+            <em class="swash">{swashSplit.word}</em>
+            {swashSplit.after}
+          </>
+        ) : scriptSplit.found ? (
+          <>
+            {scriptSplit.before}
+            <span class="font-script">{scriptSplit.word}</span>
+            {scriptSplit.after}
+          </>
+        ) : (
+          headline
+        )}
+        {headlineItalicSuffix && (
+          <>
+            {' '}
+            <em class="swash">{headlineItalicSuffix}</em>
+          </>
+        )}
+      </Tag>
+    )
   }
-  {subhead && <p class:list={['mt-m text-lg', toneSub]}>{subhead}</p>}
+  {
+    subhead && (
+      <p
+        class:list={[
+          'mt-m text-lg leading-relaxed text-pretty',
+          size !== 'md' && 'lede',
+          centered && 'mx-auto',
+          toneSub,
+        ]}
+      >
+        {subhead}
+      </p>
+    )
+  }
 </div>

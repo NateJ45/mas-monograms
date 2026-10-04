@@ -1,11 +1,12 @@
 ---
 // MAS Monograms site footer.
-// Layout (Direction C — "The Sampler"):
-//   1. Slim indigo brand stripe (seamless under the indigo CTA band above)
-//   2. Two-part main block — a brand column (logo + tagline + contact + social)
+// Layout (Direction D, "The Atelier", 2026-10-04), a Midnight statement footer:
+//   1. Two-part main block: a brand column (logo + tagline + contact + social)
 //      on the left, the navigation link columns on the right
-//   3. A running-stitch (dashed brass) divider — the one decorative footer flourish
-//   4. Bottom bar: copyright · legal links · site credit
+//   2. The brand name as a giant outline sewn in a gold running stitch
+//   3. A full-width running stitch, then the bottom bar:
+//      copyright · legal links · site credit
+// Every row link keeps the 44px tap floor from PR #72 (PORTS cards 82, 83).
 // Link columns are editor-managed via siteSettings.footerColumns (with a
 // sensible fallback). Contact + social live in the brand column, so they show
 // whether or not custom columns are set.
@@ -19,6 +20,7 @@ import {
 } from '@tabler/icons-react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import Logo from './Logo.astro';
+import RunningStitch from './motifs/RunningStitch.astro';
 import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
 import { resolveChrome, fallbackFooterColumns, type RawFooterColumn } from '@/lib/siteSettings';
@@ -99,10 +101,8 @@ function socialIcon(platform: string | undefined) {
 }
 ---
 
-<footer class="bg-muted text-foreground">
-  <div class="h-1 bg-primary" aria-hidden="true"></div>
-
-  <div class="mx-auto max-w-content px-m pt-section-md pb-l">
+<footer class="site-footer surface-midnight">
+  <div class="mx-auto max-w-content px-m pt-section-lg pb-l">
     <div class="grid grid-cols-1 gap-l gap-y-section-md lg:grid-cols-12">
       {/* ── Brand column ─────────────────────────────────────────────────── */}
       <div class="text-center sm:text-left lg:col-span-4 lg:pr-l">
@@ -120,23 +120,23 @@ function socialIcon(platform: string | undefined) {
                 class="h-14 w-auto"
               />
             ) : (
-              <Logo variant="ink" class="h-14 w-auto" />
+              <Logo variant="adaptive" class="h-14 w-auto" />
             )
           }
         </a>
 
         {
           siteSettings?.tagline && (
-            <p class="mx-auto mt-m max-w-[26rem] text-sm leading-relaxed text-[var(--color-text-secondary)] sm:mx-0">
+            <p class="mx-auto mt-m max-w-[26rem] font-display text-lg leading-snug text-foreground/90 italic sm:mx-0">
               {siteSettings.tagline}
             </p>
           )
         }
 
-        <div class="mt-m flex flex-col items-center gap-xs text-sm sm:items-start">
+        <div class="mt-m flex flex-col items-center gap-0 text-sm sm:items-start">
           {
             location && (
-              <p class="inline-flex items-center gap-xs text-[var(--color-text-secondary)]">
+              <p class="inline-flex min-h-[44px] items-center gap-xs text-[var(--color-text-secondary)]">
                 <MapPin size={14} aria-hidden="true" />
                 {location}
               </p>
@@ -146,7 +146,7 @@ function socialIcon(platform: string | undefined) {
             email && (
               <a
                 href={`mailto:${email}`}
-                class="inline-flex min-h-[44px] items-center gap-xs text-foreground/85 transition-colors hover:text-link"
+                class="inline-flex min-h-[44px] items-center gap-xs text-foreground/90 transition-colors hover:text-link"
               >
                 <Mail size={14} aria-hidden="true" />
                 {email}
@@ -157,7 +157,7 @@ function socialIcon(platform: string | undefined) {
             phone && (
               <a
                 href={telHref(phone)}
-                class="inline-flex min-h-[44px] items-center gap-xs text-foreground/85 transition-colors hover:text-link"
+                class="inline-flex min-h-[44px] items-center gap-xs text-foreground/90 transition-colors hover:text-link"
               >
                 <Phone size={14} aria-hidden="true" />
                 {phone}
@@ -179,7 +179,7 @@ function socialIcon(platform: string | undefined) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={ariaLabel}
-                      class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                      class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[var(--color-gold)]/60 text-foreground transition-colors hover:border-solid hover:border-[var(--color-gold-light)] hover:bg-[var(--color-gold-light)] hover:text-[var(--color-midnight)]"
                     >
                       <Icon size={18} stroke={1.5} />
                     </a>
@@ -199,9 +199,7 @@ function socialIcon(platform: string | undefined) {
         {
           columns.map((col) => (
             <div>
-              <p class="mb-s text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
-                {col.title}
-              </p>
+              <p class="eyebrow site-footer__coltitle mb-s">{col.title}</p>
               <ul class="list-none p-0 text-sm">
                 {col.links.map((link) => (
                   <li>
@@ -209,7 +207,7 @@ function socialIcon(platform: string | undefined) {
                       href={link.href}
                       target={isExternalHref(link.href) ? '_blank' : undefined}
                       rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-                      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center text-foreground/85 transition-colors hover:text-link sm:justify-start"
+                      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center text-foreground/90 transition-colors hover:text-link sm:justify-start"
                     >
                       {link.label}
                     </a>
@@ -224,74 +222,156 @@ function socialIcon(platform: string | undefined) {
   </div>
 
   {
-    /* ── Bottom bar. The dashed top border is a running-stitch line — the one
-      decorative footer flourish, in decorative brass. On sm+ it's a 3-column
-      grid so the legal links sit at the true horizontal centre. ── */
+    /* ── The statement: the brand name as a giant stitched outline, sewn in
+      with a running stitch of gold thread (decorative; the logo link above
+      carries the name for assistive tech). The wipe-in is the shared
+      data-reveal="stitch" treatment, so it never hides content without JS. ── */
   }
-  <div class="border-t border-dashed border-[#B98A3E]/45">
-    <div
-      class="mx-auto flex max-w-content flex-col items-center gap-s px-m py-m text-center text-xs text-[var(--color-text-tertiary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m"
-    >
+  <div
+    class="site-footer__wordmark mx-auto max-w-content px-m"
+    aria-hidden="true"
+    data-reveal="stitch"
+  >
+    <svg viewBox="0 0 1200 230" focusable="false">
+      <text
+        x="600"
+        y="178"
+        text-anchor="middle"
+        textLength="1150"
+        lengthAdjust="spacingAndGlyphs"
+        class="site-footer__wordmark-fill">{brandName}</text
+      >
+      <text
+        x="600"
+        y="178"
+        text-anchor="middle"
+        textLength="1150"
+        lengthAdjust="spacingAndGlyphs"
+        class="site-footer__wordmark-stitch">{brandName}</text
+      >
+    </svg>
+  </div>
+
+  {
+    /* ── Bottom bar, under a full-width running stitch. On sm+ it's a
+      3-column grid so the legal links sit at the true horizontal centre. ── */
+  }
+  <RunningStitch class="mt-m" />
+  <div
+    class="mx-auto flex max-w-content flex-col items-center gap-0 px-m py-m text-center text-xs text-[var(--color-text-secondary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m"
+  >
+    {
+      /* One expression on purpose: split across lines, Astro drops the space
+         between two adjacent {expressions} and the footer reads "2026MAS". */
+    }
+    <p class="inline-flex min-h-[44px] items-center sm:justify-self-start">
+      {`© ${currentYear} ${brandName} · ${location || 'St. Matthews, SC'}`}
+    </p>
+    {
+      legalLinks ? (
+        /* Site Settings -> Small-print links, when she has set any. */
+        <nav
+          aria-label="Legal"
+          class="flex flex-wrap items-center justify-center gap-x-m gap-y-0 sm:justify-self-center"
+        >
+          {legalLinks.map((link) => (
+            <a
+              href={link.href}
+              target={isExternalHref(link.href) ? '_blank' : undefined}
+              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+              class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors hover:text-link"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      ) : legal.length > 0 ? (
+        <nav
+          aria-label="Legal"
+          class="flex flex-wrap items-center justify-center gap-x-m gap-y-0 sm:justify-self-center"
+        >
+          {legal.map((lp) => (
+            <a
+              href={`/legal/${lp.slug}`}
+              class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors hover:text-link"
+            >
+              {lp.title}
+            </a>
+          ))}
+        </nav>
+      ) : (
+        <span class="hidden sm:block" aria-hidden="true" />
+      )
+    }
+    <div class="flex items-center gap-m sm:justify-self-end">
       {
-        /* One expression on purpose: split across lines, Astro drops the space
-           between two adjacent {expressions} and the footer reads "2026MAS". */
+        siteCredit &&
+          (siteCreditUrl ? (
+            <a
+              href={siteCreditUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex min-h-[44px] items-center underline decoration-dashed underline-offset-4 transition-colors hover:text-link"
+            >
+              {siteCredit}
+            </a>
+          ) : (
+            <span>{siteCredit}</span>
+          ))
       }
-      <p class="sm:justify-self-start">
-        {`© ${currentYear} ${brandName} · ${location || 'St. Matthews, SC'}`}
-      </p>
-      {
-        legalLinks ? (
-          /* Site Settings -> Small-print links, when she has set any. */
-          <nav
-            aria-label="Legal"
-            class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center"
-          >
-            {legalLinks.map((link) => (
-              <a
-                href={link.href}
-                target={isExternalHref(link.href) ? '_blank' : undefined}
-                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-                class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors hover:text-link"
-              >
-                {link.label}
-              </a>
-            ))}
-          </nav>
-        ) : legal.length > 0 ? (
-          <nav
-            aria-label="Legal"
-            class="flex flex-wrap items-center justify-center gap-x-m gap-y-xs sm:justify-self-center"
-          >
-            {legal.map((lp) => (
-              <a
-                href={`/legal/${lp.slug}`}
-                class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors hover:text-link"
-              >
-                {lp.title}
-              </a>
-            ))}
-          </nav>
-        ) : (
-          <span class="hidden sm:block" aria-hidden="true" />
-        )
-      }
-      <div class="flex items-center gap-m sm:justify-self-end">
-        {
-          siteCredit &&
-            (siteCreditUrl ? (
-              <a
-                href={siteCreditUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex min-h-[44px] items-center underline underline-offset-2 transition-colors hover:text-link"
-              >
-                {siteCredit}
-              </a>
-            ) : (
-              <span>{siteCredit}</span>
-            ))
-        }
-      </div>
     </div>
   </div>
 </footer>
+
+<style>
+  /* Column titles: under sm the two-up grid gives each column ~130px, narrower
+     than the dash + tracked caps on one line (333px page at 320px, 2026-10-04).
+     So the dash stacks above the title, centred, and the title may wrap. From sm
+     up it is the usual dash-then-title row. */
+  .site-footer__coltitle {
+    flex-direction: column;
+    gap: 0.4rem;
+    max-width: 100%;
+    min-width: 0;
+    text-align: center;
+    letter-spacing: 0.2em;
+    overflow-wrap: anywhere;
+  }
+  @media (min-width: 40rem) {
+    .site-footer__coltitle {
+      flex-direction: row;
+      gap: 0.75rem;
+      text-align: left;
+      letter-spacing: 0.24em;
+      justify-content: flex-start;
+    }
+  }
+  .site-footer__wordmark svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .site-footer__wordmark text {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 196px;
+    font-weight: 300;
+    font-variation-settings:
+      'SOFT' 100,
+      'WONK' 1;
+    letter-spacing: -2px;
+  }
+  .site-footer__wordmark-fill {
+    fill: rgba(240, 213, 138, 0.045);
+  }
+  .site-footer__wordmark-stitch {
+    fill: none;
+    stroke: var(--color-gold);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 7 5;
+    opacity: 0.85;
+  }
+</style>

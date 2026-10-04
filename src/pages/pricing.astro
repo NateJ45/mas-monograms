@@ -1,9 +1,19 @@
 ---
+// /pricing (Direction D, "The Atelier", 2026-10-04).
+// Midnight intro; the starting prices as hang tags strung on a twine garland
+// (each tag pulls the line down where it hangs, brass pins where the line is
+// tacked); the add-ons as a tailor's price list on Midnight with dotted
+// leaders; rush and the FAQ on Linen; the closing CTA. Copy is all Sanity
+// (pricingPage + pricingTier + faqItem); the FAQPage JSON-LD is unchanged.
+// Tags reflow 4 / 2 / 1 per row; each row gets its own stretch of garland.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ScriptKicker from '@/components/ScriptKicker.astro';
 import FaqAccordion from '@/components/FaqAccordion';
 import CtaBanner from '@/components/CtaBanner.astro';
 import PortableText from '@/components/PortableText';
+import SectionHeading from '@/components/SectionHeading.astro';
+import HangTag from '@/components/motifs/HangTag.astro';
+import Needle from '@/components/motifs/Needle.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { faqPageSchema } from '@/lib/schemas';
 import {
   getSiteSettings,
@@ -26,127 +36,159 @@ const description =
 
 // FAQPage rich-result schema — only emit when there are FAQs to describe.
 const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
+
+const money = (v: unknown) => {
+  if (typeof v === 'number') return `$${Number.isInteger(v) ? v : v.toFixed(2)}`;
+  if (typeof v === 'string' && v.trim()) return v.trim().startsWith('$') ? v.trim() : `$${v}`;
+  return null;
+};
+// Rendering logic only: the swash falls on a word already in the Sanity headline.
+const pickSwash = (text: string | undefined, candidates: string[]) =>
+  candidates.find((c) => text?.includes(c));
+const heroSwash = pickSwash(page?.heroHeadline, ['no surprises', 'surprises', 'Simple']);
+let heroBefore = page?.heroHeadline ?? 'Pricing';
+let heroAfter = '';
+if (heroSwash) {
+  const i = heroBefore.indexOf(heroSwash);
+  heroAfter = heroBefore.slice(i + heroSwash.length);
+  heroBefore = heroBefore.slice(0, i);
+}
+// Tags hang a little crooked, never in a pattern you can spot.
+const TILTS = [-3, 2.5, -1.5, 3.5, -2.5, 1.5];
+const TONES = ['kraft', 'paper', 'kraft', 'paper'] as const;
+const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
+  {/* Intro */}
+  <section class="surface-midnight py-section-lg" aria-labelledby="pricing-heading">
     <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-        {page?.heroHeadline ?? 'Pricing'}
+      {
+        page?.heroEyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {page.heroEyebrow}
+          </p>
+        )
+      }
+      <h1 id="pricing-heading" class="display mx-auto max-w-5xl" data-reveal>
+        {heroBefore}
+        {heroSwash && <em class="swash">{heroSwash}</em>}
+        {heroAfter}
       </h1>
       {
         page?.heroSubhead && (
-          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+          <p
+            class="lede mx-auto mt-l max-w-[46ch] text-center"
+            data-reveal
+            style="--reveal-delay: 120ms"
+          >
+            {page.heroSubhead}
+          </p>
         )
       }
+      <RunningStitch ornament="cross" class="mx-auto mt-section-md" length="min(16rem, 60%)" />
     </div>
   </section>
 
-  {/* Pricing Tiers */}
+  {/* Starting prices: hang tags on a garland. */}
   {
     tiers.length > 0 && (
-      <section class="py-section-lg">
+      <section class="surface-linen py-section-lg" aria-labelledby="tiers-heading">
         <div class="mx-auto max-w-content px-m">
-          {page?.tiersHeadline && (
-            <h2 class="mb-s text-center font-display text-h2 text-foreground">
-              {page.tiersHeadline}
-            </h2>
-          )}
-          {page?.tiersSubhead && (
-            <p class="mx-auto mb-l max-w-2xl text-center text-[var(--color-text-secondary)]">
-              {page.tiersSubhead}
-            </p>
-          )}
-          {/* 2×2 → 4-up (not 3-col): there are four tiers, and a 3-col grid
-            stranded the fourth card alone on its own row. */}
-          <div class="grid grid-cols-1 gap-m sm:grid-cols-2 xl:grid-cols-4">
-            {tiers.map((tier: any) => (
-              <div
-                class:list={[
-                  'flex flex-col gap-s rounded-xl border p-l transition-shadow',
-                  tier.highlighted
-                    ? 'border-primary bg-tertiary shadow-md ring-2 ring-primary'
-                    : 'border-border bg-background hover:shadow-sm',
-                ]}
-              >
-                {tier.highlighted && (
-                  <span class="self-start rounded-full bg-primary px-s py-0.5 text-xs font-semibold tracking-eyebrow text-white uppercase">
-                    Most Popular
-                  </span>
-                )}
-                <p class="text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
-                  {tier.label}
-                </p>
-                <p class="font-display text-h2 leading-none text-foreground">
-                  <span class="font-body text-base text-[var(--color-text-secondary)]">from </span>$
-                  {typeof tier.pricePerPiece === 'number'
-                    ? tier.pricePerPiece.toFixed(2)
-                    : tier.pricePerPiece}
-                </p>
-                {tier.note && <p class="text-sm text-[var(--color-text-secondary)]">{tier.note}</p>}
+          <SectionHeading
+            headingId="tiers-heading"
+            headline={page?.tiersHeadline ?? undefined}
+            swash={pickSwash(page?.tiersHeadline, ['prices'])}
+            subhead={page?.tiersSubhead ?? undefined}
+            size="lg"
+            align="center"
+          />
+          <ul class="tag-line mt-section-md" role="list" data-reveal-stagger="110">
+            {tiers.map((tier: any, i: number) => (
+              <li class="tag-line__item">
+                <span class="tag-line__twine" aria-hidden="true" />
+                <HangTag
+                  title={tier.label}
+                  titleTag="h3"
+                  eyebrow="from"
+                  value={money(tier.pricePerPiece)}
+                  note={tier.note}
+                  tone={tier.highlighted ? 'midnight' : TONES[i % TONES.length]}
+                  tilt={TILTS[i % TILTS.length]}
+                  class="tag-line__tag"
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {/* Add-ons: a tailor's price list. */}
+  {
+    addons.length > 0 && (
+      <section class="surface-midnight py-section-lg" aria-labelledby="addons-heading">
+        <div class="mx-auto max-w-content px-m">
+          <SectionHeading
+            headingId="addons-heading"
+            headline={page?.addonsHeadline ?? undefined}
+            swash={pickSwash(page?.addonsHeadline, ['modifiers', 'Add-ons'])}
+            size="lg"
+            align="center"
+          />
+          <dl class="price-list mx-auto mt-section-md" data-reveal-stagger="70">
+            {addons.map((addon: any) => (
+              <div class="price-list__row">
+                <dt class="price-list__label">{addon.label}</dt>
+                <dd class="price-list__price">{addon.price}</dd>
+                {addon.note && <dd class="price-list__note">{addon.note}</dd>}
               </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
     )
   }
 
-  {/* Add-ons */}
+  {/* Rush and the FAQ, on Linen. */}
   {
-    (page?.addons ?? []).length > 0 && (
-      <section class="bg-tertiary py-section-lg">
+    (page?.rushHeadline || page?.rushBody || faqs.length > 0) && (
+      <section class="surface-linen py-section-lg" aria-labelledby="pricing-faq-heading">
         <div class="mx-auto max-w-content px-m">
-          {page?.addonsHeadline && (
-            <h2 class="mb-l text-center font-display text-h2 text-foreground">
-              {page.addonsHeadline}
-            </h2>
-          )}
-          <div class="grid grid-cols-1 gap-m sm:grid-cols-2 lg:grid-cols-3">
-            {(page.addons as any[]).map((addon: any) => (
-              <div class="rounded-xl border border-border bg-background p-l">
-                <p class="mb-xs font-semibold text-foreground">{addon.label}</p>
-                {addon.price && <p class="font-display text-h4 text-link">{addon.price}</p>}
-                {addon.note && (
-                  <p class="mt-xs text-sm text-[var(--color-text-secondary)]">{addon.note}</p>
+          {(page?.rushHeadline || page?.rushBody) && (
+            <div class="rush mx-auto" data-reveal>
+              <div class="rush__needle" aria-hidden="true">
+                <Needle length={150} angle={28} thread="#8c3a2e" />
+              </div>
+              <div class="rush__text">
+                {page?.rushHeadline && (
+                  <h2 class="font-display text-h2 leading-tight text-foreground">
+                    {page.rushHeadline}
+                  </h2>
+                )}
+                {page?.rushBody && (
+                  <div class="rush__body">
+                    <PortableText value={page.rushBody} />
+                  </div>
                 )}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {/* Rush Orders */}
-  {
-    (page?.rushHeadline || page?.rushBody) && (
-      <section class="py-section-lg">
-        <div class="mx-auto max-w-3xl max-w-content px-m">
-          {page?.rushHeadline && (
-            <h2 class="mb-m font-display text-h2 text-foreground">{page.rushHeadline}</h2>
+            </div>
           )}
-          {page?.rushBody && <PortableText client:visible value={page.rushBody} />}
-        </div>
-      </section>
-    )
-  }
 
-  {/* FAQ */}
-  {
-    faqs.length > 0 && (
-      <section class="bg-tertiary py-section-lg">
-        <div class="mx-auto max-w-content px-m">
-          {page?.faqHeadline && (
-            <h2 class="mb-l text-center font-display text-h2 text-foreground">
-              {page.faqHeadline}
-            </h2>
+          {faqs.length > 0 && (
+            <div class="mx-auto mt-section-lg max-w-3xl">
+              <SectionHeading
+                headingId="pricing-faq-heading"
+                headline={page?.faqHeadline ?? undefined}
+                swash={pickSwash(page?.faqHeadline, ['questions'])}
+                size="md"
+                align="center"
+                class="mb-l"
+              />
+              <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
+            </div>
           )}
-          <div>
-            <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
-          </div>
         </div>
       </section>
     )
@@ -155,8 +197,192 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
   <CtaBanner
     eyebrow={page?.ctaEyebrow}
     headline={page?.ctaHeadline}
+    swash={pickSwash(page?.ctaHeadline, ['custom price', 'price'])}
     subhead={page?.ctaSubhead}
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
+
+<style>
+  /* ---------- The garland ---------- */
+  .tag-line {
+    --gap: clamp(1rem, 2.5vw, 2rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    column-gap: var(--gap);
+    row-gap: clamp(2.5rem, 5vw, 4rem);
+    list-style: none;
+    padding: 0;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+  .tag-line__item {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 1.1rem;
+  }
+  /* One scallop of twine per tag, extended half a gap each side so the
+     scallops meet: a continuous garland across each row. The ends are tacked
+     with brass pins. */
+  .tag-line__twine {
+    position: absolute;
+    top: 0;
+    left: calc(var(--gap) / -2);
+    right: calc(var(--gap) / -2);
+    height: 1.5rem;
+    pointer-events: none;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 24' preserveAspectRatio='none'><path d='M0 3 Q50 34 100 3' fill='none' stroke='%23a98a5f' stroke-width='1.8' vector-effect='non-scaling-stroke'/></svg>")
+      center / 100% 100% no-repeat;
+  }
+  .tag-line__twine::before,
+  .tag-line__twine::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f3e1b0, #c49a4a 45%, #6b4c1c);
+    box-shadow: 0 2px 3px rgba(15, 27, 45, 0.35);
+  }
+  .tag-line__twine::before {
+    left: -5px;
+  }
+  .tag-line__twine::after {
+    right: -5px;
+  }
+  /* Pull the tag's own twine loop up to the garland's lowest point. */
+  .tag-line__item :global(.tag-line__tag) {
+    margin-top: -0.4rem;
+    --tag-w: 16rem;
+  }
+  .tag-line__item :global(.hangtag__note) {
+    text-wrap: pretty;
+  }
+  .tag-line__item :global(.hangtag__eyebrow) {
+    margin-top: 0.75rem;
+  }
+  .tag-line__item :global(.hangtag__title) {
+    margin-top: 0;
+    order: -1;
+  }
+  .tag-line__item :global(.hangtag__card) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 19rem;
+  }
+  /* A tag lifts on hover like it was just picked up. */
+  @media (hover: hover) {
+    .tag-line__item :global(.hangtag) {
+      transition: transform 700ms var(--ease-thread);
+    }
+    .tag-line__item:hover :global(.hangtag) {
+      transform: rotate(0deg) translateY(-6px);
+    }
+  }
+
+  /* ---------- The price list ---------- */
+  .price-list {
+    max-width: 52rem;
+    display: grid;
+  }
+  .price-list__row {
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr auto;
+    grid-template-areas:
+      'label leader price'
+      'note note note';
+    align-items: baseline;
+    column-gap: 0.75rem;
+    padding-block: 1.35rem;
+    border-bottom: 1.5px dashed rgba(217, 177, 95, 0.32);
+  }
+  .price-list__row:first-child {
+    border-top: 1.5px dashed rgba(217, 177, 95, 0.32);
+  }
+  .price-list__row::before {
+    content: '';
+    grid-area: leader;
+    align-self: end;
+    margin-bottom: 0.45em;
+    height: 2px;
+    background-image: radial-gradient(circle, var(--color-gold) 1px, transparent 1.4px);
+    background-size: 8px 2px;
+    background-repeat: repeat-x;
+    opacity: 0.6;
+  }
+  .price-list__label {
+    grid-area: label;
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--foreground);
+  }
+  .price-list__price {
+    grid-area: price;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(1.15rem, 1rem + 0.5vw, 1.45rem);
+    color: var(--color-gold-light);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .price-list__note {
+    grid-area: note;
+    margin-top: 0.4rem;
+    max-width: 44rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+  }
+  @media (max-width: 30rem) {
+    .price-list__row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        'label price'
+        'note note';
+    }
+    .price-list__row::before {
+      display: none;
+    }
+  }
+
+  /* ---------- Rush ---------- */
+  .rush {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1.25rem, 4vw, 3rem);
+    max-width: 52rem;
+    padding: clamp(1.75rem, 4vw, 3rem);
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    box-shadow: 0 30px 50px -36px rgba(15, 27, 45, 0.55);
+    outline: 1.5px dashed var(--stitch-color);
+    outline-offset: -10px;
+  }
+  .rush__needle {
+    display: grid;
+    place-items: center;
+    width: 5rem;
+  }
+  .rush__body :global(p) {
+    color: var(--color-text-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+  @media (max-width: 30rem) {
+    .rush {
+      grid-template-columns: 1fr;
+    }
+    .rush__needle {
+      display: none;
+    }
+  }
+</style>

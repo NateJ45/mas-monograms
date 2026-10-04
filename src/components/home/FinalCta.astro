@@ -1,0 +1,90 @@
+---
+// The closing band (home): the golden thread is tied off here. A spool on the
+// Indigo ground trails its thread to the button, the headline sets its last
+// word in the gold swash, and the button row carries data-thread-end so the
+// page's ThreadLine finishes at the call to action. Must stay a direct child
+// of <main> (it is a top-level surface). Copy from homePage (final*).
+import Spool from '@/components/motifs/Spool.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import { swashSplit } from './swashSplit';
+
+interface Props {
+  page: any;
+  headingId?: string;
+}
+const { page, headingId = 'final-cta-heading' } = Astro.props as Props;
+const head = swashSplit(page?.finalHeadline ?? page?.ctaHeadline);
+const eyebrow = page?.finalEyebrow ?? page?.ctaEyebrow;
+const subhead = page?.finalSubhead ?? page?.ctaSubhead;
+const label = page?.finalCtaLabel ?? page?.ctaLabel;
+const href = page?.finalCtaHref ?? page?.ctaHref ?? '/request-a-quote';
+---
+
+<section class="final-cta surface-indigo py-section-lg" aria-labelledby={headingId}>
+  <div class="final-cta__inner mx-auto max-w-content px-m text-center">
+    <div class="final-cta__spools" aria-hidden="true">
+      <Spool color="#8c3a2e" size={58} tilt={-8} tail={false} />
+      <Spool color="#d9b15f" size={76} tail={false} />
+      <Spool color="#f4eee3" size={58} tilt={7} tail={false} />
+    </div>
+    {
+      eyebrow && (
+        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+          {eyebrow}
+        </p>
+      )
+    }
+    {
+      (head.before || head.swash) && (
+        <h2 id={headingId} class="display final-cta__title mx-auto" data-reveal>
+          {head.before}
+          <em class="swash">{head.swash}</em>
+        </h2>
+      )
+    }
+    {
+      subhead && (
+        <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+          {subhead}
+        </p>
+      )
+    }
+    {
+      label && (
+        <div
+          class="mt-l flex justify-center"
+          data-thread-end
+          data-reveal
+          style="--reveal-delay: 200ms"
+        >
+          <a href={href} class="btn btn-primary final-cta__btn">
+            <span>{label}</span>
+            <span class="btn__arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+        </div>
+      )
+    }
+    <RunningStitch ornament="knot" class="mx-auto mt-section-md" length="min(20rem, 70%)" />
+  </div>
+</section>
+
+<style>
+  .final-cta__spools {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: var(--spacing-l);
+  }
+  .final-cta__title {
+    font-size: clamp(2.75rem, 1.2rem + 5vw, 6.5rem);
+    max-width: 16ch;
+  }
+  .final-cta__btn {
+    min-height: 3.75rem;
+    padding: 1.1rem 2.5rem;
+    font-size: 0.875rem;
+  }
+</style>

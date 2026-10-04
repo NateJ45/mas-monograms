@@ -1,0 +1,492 @@
+---
+// Home hero (Direction D, "The Atelier"): a huge Fraunces headline on the
+// Midnight drench, and on the right the LIVE stitching: the Atelier engine
+// (quality "hero") on a HeroAtelierStage stretched in a turned-wood hoop,
+// cycling the sample monograms from atelierSettings. Visitors can type their
+// own initials under the hoop and watch them sewn. HomeHeroScript starts the
+// engine on the first interaction or shortly after load, never during the
+// first paint (see HeroAtelierStage).
+//
+// LCP is the headline: the hero paints fully with no JS, no web font and no
+// photo (the stage shows a fabric block with the initials until the engine
+// draws). Every string comes from Sanity (homePage + atelierSettings).
+import HeroAtelierStage from '@/components/atelier/HeroAtelierStage.astro';
+import HomeHeroScript from './HomeHeroScript.astro';
+import { motifId } from '@/components/motifs/uid';
+import {
+  describeDesign,
+  heroSamples,
+  type FabricOption,
+  type StyleKey,
+  type ThreadOption,
+} from '@/components/atelier/atelierStudioData';
+import type { AtelierSettings } from '@/lib/queries';
+
+interface Props {
+  page: any;
+  atelier: AtelierSettings | null;
+  threads: ThreadOption[];
+}
+
+const { page, atelier, threads } = Astro.props as Props;
+
+const styleLabels = new Map((atelier?.styles ?? []).map((s) => [s.key, s.label]));
+const styleKeys = (atelier?.styles ?? []).map((s) => s.key as StyleKey);
+const samples = heroSamples(
+  atelier?.sampleMonograms,
+  (atelier?.fabrics ?? []) as FabricOption[],
+  threads,
+  styleKeys.length ? styleKeys : ['classic'],
+).map((s) => ({
+  ...s,
+  styleLabel: styleLabels.get(s.style) ?? '',
+  label: describeDesign(s.text, s.style, styleLabels.get(s.style), s.threadName, s.fabricLabel),
+}));
+const first = samples[0];
+
+const headline: string = page?.heroHeadline ?? 'Custom Embroidery';
+const swash: string | undefined = page?.heroItalicWord;
+const trust: string[] = (page?.trustItems ?? []).filter(Boolean);
+const primary = page?.heroPrimaryCtaLabel
+  ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' }
+  : null;
+const secondary = page?.heroSecondaryCtaLabel
+  ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/shop-by-item' }
+  : null;
+const brass = motifId('hh');
+const tryId = 'hero-try-input';
+const hintId = 'hero-try-hint';
+---
+
+<section
+  class="home-hero surface-midnight pt-header"
+  aria-labelledby="hero-heading"
+  data-home-hero
+  data-samples={JSON.stringify(samples)}
+>
+  <div
+    class="mx-auto grid max-w-content items-center gap-x-l gap-y-section-md px-m pb-section-lg lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]"
+  >
+    <div class="home-hero__copy">
+      {page?.heroEyebrow && <p class="eyebrow mb-m">{page.heroEyebrow}</p>}
+      <h1 id="hero-heading" class="display home-hero__title">
+        {headline}
+        {
+          swash && (
+            <>
+              {' '}
+              <em class="swash home-hero__swash">{swash}</em>
+            </>
+          )
+        }
+      </h1>
+      {page?.heroSubhead && <p class="lede mt-l">{page.heroSubhead}</p>}
+      {
+        (primary || secondary) && (
+          <div class="mt-l flex flex-wrap items-center gap-m">
+            {primary && (
+              <a href={primary.href} class="btn btn-primary">
+                <span>{primary.label}</span>
+                <span class="btn__arrow" aria-hidden="true">
+                  &rarr;
+                </span>
+              </a>
+            )}
+            {secondary && (
+              <a href={secondary.href} class="btn btn-secondary">
+                {secondary.label}
+              </a>
+            )}
+          </div>
+        )
+      }
+      {
+        trust.length > 0 && (
+          <ul class="home-hero__trust mt-l" role="list">
+            {trust.map((item) => (
+              <li>
+                <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                  <path
+                    d="M2.5 2.5l7 7M9.5 2.5l-7 7"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    {
+      first && (
+        <div class="home-hero__studio" data-hero-studio>
+          <div class="home-hero__halo" aria-hidden="true" />
+          <div class="home-hero__hoop" style={`--hero-thread:${first.thread}`} data-hero-hoop>
+            <div class="home-hero__float">
+              <div class="home-hero__ring" aria-hidden="true" />
+              <div class="home-hero__cloth">
+                <HeroAtelierStage
+                  text={first.text}
+                  style={first.style}
+                  thread={first.thread}
+                  fabric={first.fabric}
+                  fabricTexture={first.texture}
+                  label={first.label}
+                  class="home-hero__stage"
+                />
+                <span class="home-hero__vignette" aria-hidden="true" />
+              </div>
+              <svg
+                class="home-hero__clasp"
+                viewBox="0 0 48 34"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <defs>
+                  <linearGradient id={brass} x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0" stop-color="#7a5a22" />
+                    <stop offset="0.3" stop-color="#e8cf8f" />
+                    <stop offset="0.55" stop-color="#c49a4a" />
+                    <stop offset="1" stop-color="#6b4c1c" />
+                  </linearGradient>
+                </defs>
+                <rect x="9" y="12" width="12" height="20" rx="2" fill={`url(#${brass})`} />
+                <rect x="27" y="12" width="12" height="20" rx="2" fill={`url(#${brass})`} />
+                <rect x="4" y="17" width="40" height="5" rx="2.5" fill={`url(#${brass})`} />
+                <circle
+                  cx="24"
+                  cy="8"
+                  r="7"
+                  fill={`url(#${brass})`}
+                  stroke="#5c4117"
+                  stroke-width="0.8"
+                />
+                <path d="M19.5 8h9" stroke="#4a3412" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+              <svg
+                class="home-hero__tail"
+                viewBox="0 0 220 180"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  class="home-hero__tail-thread"
+                  d="M18 4 C 30 52, 96 40, 112 84 C 126 122, 70 140, 96 166 C 112 182, 160 172, 214 150"
+                />
+                <path
+                  class="home-hero__tail-sheen"
+                  d="M18 4 C 30 52, 96 40, 112 84 C 126 122, 70 140, 96 166 C 112 182, 160 172, 214 150"
+                />
+              </svg>
+            </div>
+            <div class="home-hero__shadow" aria-hidden="true" />
+          </div>
+
+          {(atelier?.heroTryLabel || atelier?.eyebrow) && (
+            <div class="home-hero__try">
+              {atelier?.heroTryLabel && (
+                <>
+                  <label for={tryId} class="home-hero__try-label">
+                    {atelier.heroTryLabel}
+                  </label>
+                  <div class="home-hero__try-row">
+                    <input
+                      id={tryId}
+                      class="home-hero__input"
+                      type="text"
+                      inputmode="text"
+                      autocomplete="off"
+                      autocapitalize="characters"
+                      spellcheck="false"
+                      maxlength="3"
+                      placeholder={atelier.heroPlaceholder ?? undefined}
+                      aria-describedby={atelier.initialsHint ? hintId : undefined}
+                      data-hero-input
+                    />
+                    {atelier?.eyebrow && (
+                      <a
+                        href="#atelier"
+                        class="home-hero__to-studio link-stitch"
+                        data-hero-to-studio
+                      >
+                        <span>{atelier.eyebrow}</span>
+                        <span aria-hidden="true">&darr;</span>
+                      </a>
+                    )}
+                  </div>
+                  {atelier.initialsHint && (
+                    <p id={hintId} class="home-hero__hint">
+                      {atelier.initialsHint}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )
+    }
+  </div>
+</section>
+<HomeHeroScript />
+
+<style>
+  .home-hero {
+    overflow: hidden;
+  }
+  .home-hero__title {
+    font-size: clamp(3rem, 1.1rem + 5.6vw, 7.25rem);
+    line-height: 0.95;
+    max-width: 12ch;
+  }
+  .home-hero__swash {
+    display: inline;
+  }
+  .home-hero__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+  .home-hero__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .home-hero__trust svg {
+    width: 0.7rem;
+    height: 0.7rem;
+    flex: none;
+    color: var(--color-gold);
+  }
+
+  /* ---- the hoop ---- */
+  .home-hero__studio {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .home-hero__halo {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: min(40rem, 120%);
+    aspect-ratio: 1;
+    translate: -50% -6%;
+    border-radius: 50%;
+    border: 1.5px dashed rgb(217 177 95 / 0.22);
+    background: radial-gradient(circle, rgb(240 213 138 / 0.09), transparent 62%);
+    pointer-events: none;
+  }
+  .home-hero__hoop {
+    position: relative;
+    width: min(31rem, 84vw);
+    margin-top: 1.5rem;
+    isolation: isolate;
+  }
+  .home-hero__float {
+    position: relative;
+    aspect-ratio: 1;
+    animation: hero-float 11s ease-in-out infinite;
+    transform-origin: 50% 0%;
+  }
+  @keyframes hero-float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-2.2deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(0.6deg);
+    }
+  }
+  .home-hero__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 200deg,
+      #f0d3a2,
+      #d2a46a 14%,
+      #a8743d 34%,
+      #7b4f27 50%,
+      #a46f3a 64%,
+      #d9b27a 82%,
+      #f0d3a2
+    );
+    box-shadow:
+      inset 0 0 0 1px rgb(78 48 20 / 0.4),
+      inset 0 2px 2px rgb(255 240 214 / 0.55);
+  }
+  .home-hero__ring::before {
+    content: '';
+    position: absolute;
+    inset: 3%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 20deg,
+      #e7c18a,
+      #b98450 22%,
+      #8d5c2e 46%,
+      #c69660 70%,
+      #efd2a3 88%,
+      #e7c18a
+    );
+    box-shadow:
+      0 0 0 1px rgb(60 35 14 / 0.55),
+      inset 0 0 0 1px rgb(255 236 205 / 0.35);
+  }
+  .home-hero__cloth {
+    position: absolute;
+    inset: 5.6%;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgb(60 35 14 / 0.5);
+    /* Safari: keep the canvas clipped to the circle */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+  }
+  .home-hero__cloth :global(.home-hero__stage) {
+    width: 100%;
+    height: 100%;
+  }
+  .home-hero__vignette {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow:
+      inset 0 12px 28px rgb(28 16 6 / 0.38),
+      inset 0 -8px 16px rgb(255 238 212 / 0.1);
+    background: radial-gradient(circle at 50% 46%, transparent 60%, rgb(30 18 8 / 0.26) 100%);
+  }
+  .home-hero__clasp {
+    position: absolute;
+    left: 50%;
+    top: -5.8%;
+    width: 13%;
+    translate: -50% 0;
+    filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.4));
+  }
+  .home-hero__tail {
+    position: absolute;
+    right: -15%;
+    bottom: -8%;
+    width: 34%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .home-hero__tail path {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .home-hero__tail-thread {
+    stroke: var(--hero-thread, var(--color-gold));
+    stroke-width: 2.6;
+    transition: stroke 900ms var(--ease-thread);
+  }
+  .home-hero__tail-sheen {
+    stroke: rgb(255 255 255 / 0.35);
+    stroke-width: 0.9;
+  }
+  .home-hero__shadow {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: -7%;
+    height: 9%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgb(0 0 0 / 0.5), transparent 70%);
+    filter: blur(6px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* ---- try your own ---- */
+  .home-hero__try {
+    position: relative;
+    margin-top: 3.25rem;
+    width: min(31rem, 100%);
+    display: grid;
+    gap: 0.6rem;
+    justify-items: center;
+    text-align: center;
+  }
+  .home-hero__try-label {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--foreground);
+  }
+  .home-hero__try-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1.5rem;
+  }
+  .home-hero__input {
+    width: 8.5rem;
+    min-height: 3.25rem;
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    border: 1px solid var(--color-border-on-dark);
+    background: rgb(15 27 45 / 0.6);
+    color: var(--color-gold-light);
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    letter-spacing: 0.32em;
+    text-align: center;
+    text-transform: uppercase;
+    outline: 1px dashed rgb(217 177 95 / 0.45);
+    outline-offset: -6px;
+    transition:
+      border-color 400ms var(--ease-thread),
+      outline-color 400ms var(--ease-thread);
+  }
+  .home-hero__input::placeholder {
+    color: var(--color-on-dark-muted);
+    opacity: 0.75;
+  }
+  .home-hero__input:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  .home-hero__to-studio {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    background-position:
+      0 calc(100% - 10px),
+      0 calc(100% - 10px);
+  }
+  .home-hero__hint {
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+  }
+  /* No JS: the hero field cannot stitch anything, so only the link down to the
+     studio (a real GET form) stays. */
+  :global(html:not(.js)) .home-hero__try-label,
+  :global(html:not(.js)) .home-hero__input,
+  :global(html:not(.js)) .home-hero__hint {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-hero__float {
+      animation: none;
+      transform: rotate(-1.5deg);
+    }
+  }
+</style>

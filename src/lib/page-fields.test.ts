@@ -81,7 +81,7 @@ test('PAGE_TYPES lists exactly the page singletons the Studio registers', () => 
   );
   const registered = [...block.matchAll(/^ {2}(\w+),$/gm)]
     .map((m) => m[1])
-    .filter((name) => name !== 'siteSettings');
+    .filter((name) => name !== 'siteSettings' && name !== 'atelierSettings');
   assert.deepEqual([...PAGE_TYPES], registered);
 });
 

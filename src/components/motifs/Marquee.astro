@@ -1,0 +1,206 @@
+---
+// Safe to edit by hand
+// A slow drifting ribbon of words (Direction D): large Fraunces italic items
+// separated by cross-stitches, sliding by on a CSS animation (no JS for the
+// motion). WCAG 2.2.2: it moves for more than five seconds, so it pauses on
+// hover and keyboard focus and has a real Pause/Play button. Under reduced
+// motion it stands still as one wrapped, centred line and the button is gone.
+//
+//   <Marquee items={home.marqueeItems} label={home.marqueeLabel}
+//            pauseLabel={home.marqueePause} playLabel={home.marqueePlay} />
+//
+// The first track is the readable list; the second is an aria-hidden copy that
+// makes the loop seamless. Every string comes from Sanity.
+
+import MarqueeScript from './MarqueeScript.astro';
+
+interface Props {
+  items: string[];
+  /** Accessible name for the region (e.g. "Things I stitch"). */
+  label?: string | null;
+  /** Button text while moving. Short neutral fallback only. */
+  pauseLabel?: string | null;
+  /** Button text while paused. */
+  playLabel?: string | null;
+  separator?: 'cross' | 'needle' | 'dot';
+  /** Seconds for one full loop. Bigger is slower. */
+  speed?: number;
+  direction?: 'forward' | 'reverse';
+  size?: 'md' | 'lg';
+  class?: string;
+}
+
+const {
+  items,
+  label,
+  pauseLabel,
+  playLabel,
+  separator = 'cross',
+  speed = 70,
+  direction = 'forward',
+  size = 'lg',
+  class: className = '',
+} = Astro.props as Props;
+
+const list = (items ?? []).filter((s) => typeof s === 'string' && s.trim());
+const pauseText = pauseLabel || 'Pause';
+const playText = playLabel || 'Play';
+---
+
+{
+  list.length > 0 && (
+    <div
+      class:list={['marquee-wrap', `marquee-wrap--${size}`, className]}
+      role="region"
+      aria-label={label || undefined}
+    >
+      <div
+        class="marquee"
+        data-marquee
+        data-direction={direction}
+        style={`--marquee-duration:${speed}s`}
+      >
+        {[0, 1].map((copy) => (
+          <ul class="marquee__track" aria-hidden={copy === 1 ? 'true' : undefined}>
+            {list.map((item) => (
+              <li class="marquee__item">
+                <span class="marquee__word">{item}</span>
+                <svg class="marquee__sep" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  {separator === 'cross' && (
+                    <path
+                      d="M6 6l12 12M18 6L6 18"
+                      stroke="currentColor"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      fill="none"
+                    />
+                  )}
+                  {separator === 'dot' && <circle cx="12" cy="12" r="3.2" fill="currentColor" />}
+                  {separator === 'needle' && (
+                    <g transform="rotate(50 12 12)">
+                      <path d="M12 1.5 L13.1 18 Q12 22.5 10.9 18 Z" fill="currentColor" />
+                    </g>
+                  )}
+                </svg>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+      <button
+        type="button"
+        class="marquee__controls"
+        data-marquee-toggle
+        data-label-pause={pauseText}
+        data-label-play={playText}
+        aria-label={pauseText}
+      >
+        <svg class="marquee__icon-pause" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <rect x="3.5" y="3" width="3" height="10" rx="1" fill="currentColor" />
+          <rect x="9.5" y="3" width="3" height="10" rx="1" fill="currentColor" />
+        </svg>
+        <svg class="marquee__icon-play" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path
+            d="M5 3.2v9.6a.6.6 0 0 0 .9.5l7.4-4.8a.6.6 0 0 0 0-1L5.9 2.7a.6.6 0 0 0-.9.5z"
+            fill="currentColor"
+          />
+        </svg>
+      </button>
+      <MarqueeScript />
+    </div>
+  )
+}
+
+<style>
+  .marquee-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.5rem;
+  }
+  .marquee-wrap .marquee {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .marquee__item {
+    display: flex;
+    align-items: center;
+    gap: var(--marquee-gap);
+    flex: none;
+    white-space: nowrap;
+  }
+  .marquee__word {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 340;
+    font-variation-settings:
+      'SOFT' 100,
+      'WONK' 1;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--foreground);
+  }
+  .marquee-wrap--lg .marquee__word {
+    font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.75rem);
+  }
+  .marquee-wrap--md .marquee__word {
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 2rem);
+  }
+  .marquee__sep {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: none;
+    color: var(--stitch-color);
+  }
+  .marquee-wrap--lg .marquee__sep {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .marquee__controls {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--foreground);
+    box-shadow: inset 0 0 0 1px var(--color-border-interactive);
+    background: transparent;
+    cursor: pointer;
+  }
+  .marquee__controls:hover {
+    color: var(--link);
+    box-shadow: inset 0 0 0 1px var(--link);
+  }
+  .marquee__controls svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .marquee__icon-play {
+    display: none;
+  }
+  .marquee-wrap:has(.marquee[data-paused]) .marquee__icon-play {
+    display: block;
+  }
+  .marquee-wrap:has(.marquee[data-paused]) .marquee__icon-pause {
+    display: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__controls {
+      display: none;
+    }
+    .marquee__item {
+      white-space: normal;
+    }
+  }
+  /* No JS: the button would do nothing, and the track stands still
+     (globals.css), so it goes. */
+  :global(html:not(.js)) .marquee__controls {
+    display: none;
+  }
+  :global(html:not(.js)) .marquee__item {
+    white-space: normal;
+  }
+</style>

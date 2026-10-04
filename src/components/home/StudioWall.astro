@@ -1,0 +1,183 @@
+---
+// The studio wall (home): recent pieces from the gallery pinned to a framed
+// linen board on the Midnight ground, as pinked swatch cards with brass pins,
+// each a little crooked. Copy from homePage (wall*); photos and alt text from
+// galleryItem. Links on to /style-gallery.
+import SwatchCard from '@/components/motifs/SwatchCard.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import { swashSplit } from './swashSplit';
+
+interface Props {
+  page: any;
+  items: any[];
+  headingId?: string;
+}
+const { page, items, headingId = 'studio-wall-heading' } = Astro.props as Props;
+const pieces = (items ?? []).filter((it) => it?.image?.asset).slice(0, 12);
+const head = swashSplit(page?.wallHeadline, 2);
+const TILTS = [-2.5, 1.8, -1, 2.6, -1.8, 1.2, -2.8, 2, -1.4, 1.6];
+const PINS = ['#8c3a2e', '#d9b15f', '#28486b', '#8c3a2e', '#b98a3e'];
+
+// Focal crop for photos without a hotspot: the centre.
+function focus(img: any): string {
+  const h = img?.hotspot;
+  return h ? `object-position:${Math.round(h.x * 100)}% ${Math.round(h.y * 100)}%` : '';
+}
+---
+
+{
+  pieces.length > 0 && (
+    <section class="studio-wall surface-midnight py-section-lg" aria-labelledby={headingId}>
+      <div class="mx-auto max-w-content px-m">
+        <header class="mx-auto mb-section-md max-w-3xl text-center">
+          {page?.wallEyebrow && (
+            <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+              {page.wallEyebrow}
+            </p>
+          )}
+          {(head.before || head.swash) && (
+            <h2 id={headingId} class="display-sm" data-reveal>
+              {head.before}
+              <em class="swash">{head.swash}</em>
+            </h2>
+          )}
+          {page?.wallSubhead && (
+            <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+              {page.wallSubhead}
+            </p>
+          )}
+        </header>
+
+        <div class="studio-wall__frame">
+          <div class="studio-wall__board texture-linen on-light">
+            <ul class="studio-wall__grid" role="list" data-reveal-stagger="70">
+              {pieces.map((it: any, i: number) => (
+                <li class="studio-wall__piece" data-reveal style={`--pin:${PINS[i % PINS.length]}`}>
+                  <span class="studio-wall__pin" aria-hidden="true" />
+                  {it.image?.caption || it.relatedCategory?.name ? (
+                    <SwatchCard
+                      tone={i % 3 === 1 ? 'linen' : 'paper'}
+                      tilt={TILTS[i % TILTS.length]}
+                      interactive
+                      as="figure"
+                      bodyClass="px-m pb-m pt-s"
+                    >
+                      <SanityImage
+                        slot="media"
+                        source={it.image}
+                        width={520}
+                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
+                        class="studio-wall__img"
+                        style={focus(it.image)}
+                      />
+                      <figcaption class="studio-wall__caption">
+                        {it.image?.caption || it.relatedCategory?.name}
+                      </figcaption>
+                    </SwatchCard>
+                  ) : (
+                    <SwatchCard
+                      tone={i % 3 === 1 ? 'linen' : 'paper'}
+                      tilt={TILTS[i % TILTS.length]}
+                      interactive
+                      as="figure"
+                    >
+                      <SanityImage
+                        slot="media"
+                        source={it.image}
+                        width={520}
+                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
+                        class="studio-wall__img"
+                        style={focus(it.image)}
+                      />
+                    </SwatchCard>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {page?.wallCtaLabel && (
+          <p class="mt-section-md text-center" data-reveal>
+            <a href="/style-gallery" class="btn btn-primary">
+              <span>{page.wallCtaLabel}</span>
+              <span class="btn__arrow" aria-hidden="true">
+                &rarr;
+              </span>
+            </a>
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* the board: linen stretched in a turned-wood frame */
+  .studio-wall__frame {
+    padding: clamp(10px, 1.6vw, 18px);
+    border-radius: 6px;
+    background: linear-gradient(135deg, #c69660, #8d5c2e 30%, #b98450 55%, #7b4f27 80%, #a8743d);
+    box-shadow:
+      0 50px 80px -40px rgb(0 0 0 / 0.75),
+      inset 0 1px 1px rgb(255 236 205 / 0.45),
+      inset 0 -2px 3px rgb(40 20 6 / 0.4);
+  }
+  .studio-wall__board {
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 3vw, 3rem);
+    border-radius: 2px;
+    box-shadow:
+      inset 0 8px 24px rgb(60 35 14 / 0.28),
+      inset 0 0 0 1px rgb(60 35 14 / 0.35);
+  }
+  .studio-wall__grid {
+    columns: 2;
+    column-gap: clamp(1rem, 2.4vw, 2.25rem);
+  }
+  @media (min-width: 768px) {
+    .studio-wall__grid {
+      columns: 3;
+    }
+  }
+  @media (min-width: 1100px) {
+    .studio-wall__grid {
+      columns: 4;
+    }
+  }
+  .studio-wall__piece {
+    position: relative;
+    break-inside: avoid;
+    padding-top: 0.75rem;
+    margin-bottom: clamp(1.25rem, 2.6vw, 2.5rem);
+  }
+  .studio-wall__pin {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 2;
+    width: 16px;
+    height: 16px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 35% 30%,
+      rgb(255 255 255 / 0.75),
+      var(--pin) 38%,
+      rgb(0 0 0 / 0.55) 100%
+    );
+    background-color: var(--pin);
+    box-shadow: 2px 5px 5px rgb(15 27 45 / 0.35);
+  }
+  .studio-wall__piece :global(.studio-wall__img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .studio-wall__caption {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--foreground);
+  }
+</style>

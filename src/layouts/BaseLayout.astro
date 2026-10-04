@@ -6,8 +6,10 @@
 //   - Cloudflare Web Analytics beacon (conditional)
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
-//   - Lenis smooth scroll init (prefers-reduced-motion-aware)
 //   - BackToTop React island
+//   - Direction D (2026-10-04): the early `.js` class on <html>, the golden
+//     ThreadLine inside <main>, the scroll-reveal script, and the header
+//     overlay mode (header="overlay" for pages that open on a dark hero)
 
 import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
@@ -17,7 +19,11 @@ import { getActiveAnnouncement, getAllLegalPages, getAllClearanceItems } from '@
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
+import ThreadLine from '@/components/motifs/ThreadLine.astro';
+import RevealScript from '@/components/motifs/RevealScript.astro';
 import '@/styles/globals.css';
+import frauncesRomanUrl from '@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
+import mulishUrl from '@fontsource-variable/mulish/files/mulish-latin-wght-normal.woff2?url';
 // Starwind UI CSS — accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
 // the cascade over starwind.css's fallback :root defaults.
@@ -40,6 +46,16 @@ interface Props {
   ogType?: 'website' | 'article';
   /** Article metadata. Only used when ogType is 'article'. */
   ogArticle?: { publishedAt?: string; author?: string };
+  /**
+   * Header treatment. 'solid' (default): linen bar under a midnight contact
+   * strip, page content starts below it. 'overlay': the header sits
+   * transparent over the page's first section (a dark hero), <main> slides up
+   * under it, and that first section must clear it with the `pt-header` class.
+   * The header solidifies on scroll in both modes.
+   */
+  header?: 'solid' | 'overlay';
+  /** The golden ThreadLine sewn down the page. Default true. */
+  thread?: boolean;
 }
 
 const {
@@ -52,6 +68,8 @@ const {
   noindex = false,
   ogType = 'website',
   ogArticle,
+  header = 'solid',
+  thread = true,
 } = Astro.props as Props;
 
 const canonical = new URL(Astro.url.pathname, site.url).toString();
@@ -138,6 +156,20 @@ const announcementStyle =
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {
+      /* Direction D: mark JS as available before first paint, so CSS can tell a
+        scripted page from a no-JS one (header overlay fallback, ThreadLine).
+        ClientRouter swaps <html> attributes on navigation, so re-add it then. */
+    }
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      if (!window.__jsClassBound) {
+        window.__jsClassBound = true;
+        document.addEventListener('astro:after-swap', function () {
+          document.documentElement.classList.add('js');
+        });
+      }
+    </script>
     <meta name="generator" content={Astro.generator} />
 
     <title>{fullTitle}</title>
@@ -163,12 +195,16 @@ const announcementStyle =
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     {
-      /* Note: fonts (Fraunces display, Mulish body, Petemoss monogram) are loaded
-        via @fontsource @import in globals.css. Vite hashes the woff2 filename at
-        build time so a static preload here would 404. If hero h1 LCP needs faster
-        fonts, switch to font-display: optional or generate the preload tag from
-        the built CSS manifest. */
+      /* Fonts (Fraunces display, Mulish body, Petemoss monogram) are declared by
+        the @fontsource @imports in globals.css. The two faces every page paints
+        above the fold (Fraunces roman: the headline, the LCP element; Mulish:
+        body and nav) are preloaded so they download alongside the CSS instead
+        of after it, which also removes the headline's swap shift. The ?url
+        imports resolve to the same hashed files the CSS references. Latin
+        subset only: the other subsets are unicode-range gated and rarely used. */
     }
+    <link rel="preload" href={frauncesRomanUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={mulishUrl} as="font" type="font/woff2" crossorigin />
 
     {/* Open Graph */}
     <meta property="og:type" content={ogType} />
@@ -214,7 +250,7 @@ const announcementStyle =
 
     <ClientRouter />
   </head>
-  <body class="flex min-h-screen flex-col">
+  <body class="flex min-h-screen flex-col" data-header={header}>
     <a href="#main" class="skip-link">Skip to main content</a>
 
     {
@@ -244,9 +280,15 @@ const announcementStyle =
       )
     }
 
-    <Header siteSettings={siteSettings} hasClearance={hasClearance} />
+    <Header siteSettings={siteSettings} hasClearance={hasClearance} tone={header} />
 
-    <main id="main" class="flex-1">
+    {
+      /* `relative isolate`: <main> is the stacking context the golden thread
+        lives in (z-index -1), between the surface grounds (-2) and the
+        content. See "Surfaces" in globals.css. */
+    }
+    <main id="main" class="relative isolate flex-1">
+      {thread && <ThreadLine />}
       <slot />
     </main>
 
@@ -264,69 +306,12 @@ const announcementStyle =
     }
     <BackToTop client:idle />
 
-    {
-      /* Lenis smooth scroll. The reduced-motion guard in globals.css already
-        kills smooth-scroll behavior; we also bail out here so we don't pay
-        for the Lenis runtime when the user prefers reduced motion.
-
-        Wrapped in requestIdleCallback so the ~10KB Lenis chunk isn't
-        fetched until the browser is genuinely idle — keeps it out of the
-        critical-path race with hero LCP. setTimeout fallback for browsers
-        without rIC support. */
-    }
-    <script>
-      function startLenis() {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        import('lenis').then(({ default: Lenis }) => {
-          const lenis = new Lenis({ smoothWheel: true, lerp: 0.1 });
-          // Expose the instance so in-page controls (e.g. the homepage hero
-          // scroll cue) can trigger a smooth programmatic scroll through Lenis
-          // instead of fighting it with a native scrollTo.
-          (window as unknown as { lenis?: typeof lenis }).lenis = lenis;
-          function raf(time: number) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-          }
-          requestAnimationFrame(raf);
-
-          // Astro View Transitions reuse this single Lenis instance across
-          // navigations. If a link is clicked mid-scroll, Lenis is still
-          // smoothing toward the PREVIOUS page's scroll target and, while it is
-          // smoothing, it ignores the router's scroll-to-top reset. The new
-          // (often shorter) page then inherits that stale target, clamped to
-          // its own maximum, so it opens at the bottom.
-          //
-          // Fix: on a forward navigation (a link/button click, navigationType
-          // "push" or "replace") snap Lenis to the top instantly, which kills
-          // the in-flight momentum and cancels any active scrollTo animation.
-          // On history traversal (browser back/forward, navigationType
-          // "traverse") leave the scroll position alone so the browser's scroll
-          // restoration still works. navigationType is only carried on the
-          // before-swap event, so capture it there and read it in after-swap.
-          // resize() re-reads the new page's scroll height either way.
-          let lastNavType = 'push';
-          document.addEventListener('astro:before-swap', (e) => {
-            lastNavType = (e as any).navigationType;
-          });
-          document.addEventListener('astro:after-swap', () => {
-            if (lastNavType !== 'traverse') {
-              lenis.scrollTo(0, { immediate: true, force: true });
-            }
-            lenis.resize();
-          });
-        });
-      }
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(startLenis, { timeout: 2000 });
-      } else {
-        setTimeout(startLenis, 1500);
-      }
-    </script>
+    <RevealScript />
 
     {
-      /* Polish layer: scroll-triggered reveal observer + sticky-header
-        hide-on-scroll-down behavior. Both honor prefers-reduced-motion.
-        Re-init on astro:page-load so they survive View Transitions. */
+      /* Polish layer: the image-curtain and step-connector observers. Both
+        honor prefers-reduced-motion. Re-init on astro:page-load so they
+        survive View Transitions. Scroll reveals are motifs/RevealScript. */
     }
     <script>
       function initPolish() {
@@ -386,39 +371,8 @@ const announcementStyle =
           }
         }
 
-        // ---- Sticky-header hide on scroll-down --------------------------
-        // The header is position:sticky via .site-header. We swap a data-state
-        // attribute that the CSS translates into a translateY(-100%) when the
-        // user scrolls downward past the hero band.
-        const header = document.querySelector<HTMLElement>('.site-header');
-        if (header && !(header as any).__polishWired) {
-          (header as any).__polishWired = true;
-          let lastY = window.scrollY;
-          let ticking = false;
-          const SHOW_THRESHOLD = 80; // small jitter buffer
-          const HIDE_AFTER = 120; // don't hide until past hero band
-
-          const onScroll = () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-              const y = window.scrollY;
-              const dy = y - lastY;
-              if (reduceMotion) {
-                header.removeAttribute('data-state');
-              } else if (y < HIDE_AFTER) {
-                header.removeAttribute('data-state');
-              } else if (dy > 4) {
-                header.setAttribute('data-state', 'hidden');
-              } else if (dy < -4) {
-                header.removeAttribute('data-state');
-              }
-              lastY = y;
-              ticking = false;
-            });
-          };
-          window.addEventListener('scroll', onScroll, { passive: true });
-        }
+        // The sticky header's scroll behaviour (condense + solidify) lives in
+        // Header.astro since Direction D; it no longer hides on scroll-down.
       }
 
       // Run on first load and after every View Transitions navigation.

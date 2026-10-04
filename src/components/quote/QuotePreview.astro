@@ -1,0 +1,126 @@
+---
+// The Atelier hand-off preview on /request-a-quote. Rendered hidden; the
+// prefill script (QuotePrefillScript.astro) fills it from the query string and
+// reveals it only when valid initials arrived (?initials=ABC from the Monogram
+// Atelier, the thread chart or a category page). One hero-quality
+// AtelierStage, a small spec list built from atelierSettings labels, and the
+// atelierSettings disclaimer so nobody mistakes it for a proof.
+//
+// `data` is the whitelist the script validates the query against (thread
+// slugs, fabric keys, style keys with their Sanity labels). It travels as a
+// JSON data attribute, which Astro escapes, so nothing from Sanity or the URL
+// is ever parsed as HTML.
+import AtelierStage from '@/components/atelier/AtelierStage.astro';
+
+interface Props {
+  data: {
+    threads: Array<{ slug: string; name: string; hex: string }>;
+    fabrics: Array<{ key: string; label: string; color: string; texture: string }>;
+    styles: Array<{ key: string; label: string }>;
+    labels: { initials: string; style: string; thread: string; fabric: string };
+  };
+  heading?: string | null;
+  disclaimer?: string | null;
+}
+
+const { data, heading, disclaimer } = Astro.props as Props;
+---
+
+<aside
+  class="qp"
+  data-quote-preview
+  data-prefill={JSON.stringify(data)}
+  hidden
+  aria-labelledby="qp-heading"
+>
+  <p id="qp-heading" class="qp__heading">{heading}</p>
+  <div class="qp__frame">
+    <AtelierStage
+      id="quote-stage"
+      text=""
+      quality="hero"
+      aspect="5 / 3"
+      label={heading ?? ''}
+      class="qp__stage"
+    />
+  </div>
+  <dl class="qp__spec" data-qp-spec></dl>
+  {disclaimer && <p class="qp__note">{disclaimer}</p>}
+</aside>
+
+<style>
+  .qp {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    box-shadow:
+      0 24px 48px -32px rgb(15 27 45 / 0.5),
+      0 0 0 1px rgb(38 49 46 / 0.08);
+  }
+  .qp[hidden] {
+    display: none;
+  }
+  .qp__heading {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-brass-text);
+  }
+  .qp__frame {
+    position: relative;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background:
+      linear-gradient(145deg, rgb(255 255 255 / 0.18), transparent 40%),
+      linear-gradient(180deg, #c79a63, #8a5a2f);
+    box-shadow: 0 16px 28px -20px rgb(15 27 45 / 0.6);
+  }
+  .qp__frame::after {
+    content: '';
+    position: absolute;
+    inset: 0.95rem;
+    border: 1.5px dashed rgb(255 255 255 / 0.32);
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .qp__frame :global(.qp__stage) {
+    border-radius: 4px;
+  }
+  .qp__spec {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.3rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .qp__spec :global(dt) {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    align-self: center;
+  }
+  .qp__spec :global(dd) {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.0625rem;
+    color: var(--foreground);
+  }
+  .qp__note {
+    margin: 0;
+    padding-top: 0.75rem;
+    border-top: 1.5px dashed var(--color-border-soft);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+</style>

@@ -1,9 +1,21 @@
 ---
+// Clearance (Direction D, "The Atelier", 2026-10-04): a Midnight opening band
+// with the payment and pickup notes hung beside the headline as hang tags,
+// then the clearance pieces on linen as swatch cards, each with a kraft price
+// tag strung from its corner. When the rail is empty (the usual state), an
+// empty hoop with a half-sewn heart and the empty-state message on a tag.
+// No cart, no checkout code: the buy button is a plain <a href> to the
+// item's Stripe Payment Link (CLAUDE.md, "Clearance items").
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
+import HangTag from '@/components/motifs/HangTag.astro';
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import SwatchCard from '@/components/motifs/SwatchCard.astro';
+import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
+import { splitSwash } from '@/components/gallery/swash';
 import { getSiteSettings, getClearancePage, getAllClearanceItems } from '@/lib/queries';
 
 const [siteSettings, page, items] = await Promise.all([
@@ -21,46 +33,57 @@ const inStockItems = items.filter((item: any) => !item.sold);
 const soldOutItems = items.filter((item: any) => item.sold);
 const buyLabel = page?.buyButtonLabel ?? 'Buy Now';
 const soldLabel = page?.soldOutLabel ?? 'Sold Out';
+const headline = splitSwash(page?.heroHeadline ?? 'Clearance');
+const hasNotes = !!(page?.paymentNote || page?.pickupNote);
+
+const money = (v: unknown) =>
+  v === null || v === undefined || v === ''
+    ? null
+    : `$${typeof v === 'number' ? v.toFixed(2) : String(v)}`;
+
+const TONES = ['paper', 'linen', 'blush', 'sage'] as const;
+const TILTS = [-1.2, 1, -0.6, 1.4];
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-        {page?.heroHeadline ?? 'Clearance'}
-      </h1>
+  <section class="clr-intro surface-midnight py-section-lg" aria-labelledby="clearance-heading">
+    <div
+      class:list={[
+        'gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m',
+        hasNotes && 'lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]',
+      ]}
+    >
+      <div>
+        {
+          page?.heroEyebrow && (
+            <div data-reveal="fade">
+              <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
+            </div>
+          )
+        }
+        <h1 id="clearance-heading" class="display-sm max-w-[14ch]" data-reveal>
+          {headline.before}<em class="swash">{headline.word}</em>{headline.after}
+        </h1>
+        {
+          page?.heroSubhead && (
+            <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
+              {page.heroSubhead}
+            </p>
+          )
+        }
+      </div>
       {
-        page?.heroSubhead && (
-          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
-        )
-      }
-    </div>
-  </section>
-
-  {/* Intro + notes */}
-  <section class="py-section-md">
-    <div class="mx-auto max-w-3xl px-m">
-      {
-        page?.intro && (
-          <div>
-            <PortableText client:idle value={page.intro} />
-          </div>
-        )
-      }
-      {
-        (page?.paymentNote || page?.pickupNote) && (
-          <div class="mt-l grid grid-cols-1 gap-m sm:grid-cols-2">
+        hasNotes && (
+          <div class="clr-notes" data-reveal="fade" style="--reveal-delay: 160ms">
             {page?.paymentNote && (
-              <div class="rounded-xl border border-border-soft bg-tertiary p-m">
-                <p class="text-sm text-[var(--color-text-secondary)]">{page.paymentNote}</p>
-              </div>
+              <HangTag tone="kraft" tilt={-4} size="sm" class="clr-notes__tag">
+                <p>{page.paymentNote}</p>
+              </HangTag>
             )}
             {page?.pickupNote && (
-              <div class="rounded-xl border border-border-soft bg-tertiary p-m">
-                <p class="text-sm text-[var(--color-text-secondary)]">{page.pickupNote}</p>
-              </div>
+              <HangTag tone="paper" tilt={5} size="sm" class="clr-notes__tag clr-notes__tag--b">
+                <p>{page.pickupNote}</p>
+              </HangTag>
             )}
           </div>
         )
@@ -68,131 +91,121 @@ const soldLabel = page?.soldOutLabel ?? 'Sold Out';
     </div>
   </section>
 
-  {/* Items Grid */}
-  <section class="py-section-lg">
+  <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {
+        page?.intro && (
+          <div class="mx-auto mb-l max-w-3xl">
+            <PortableText value={page.intro} />
+          </div>
+        )
+      }
+      {
         items.length === 0 ? (
-          <div class="py-l text-center">
-            <p class="text-[var(--color-text-secondary)]">
-              {page?.emptyStateMessage ??
-                'No clearance items available at this time. Check back soon!'}
-            </p>
-            <div class="mt-l flex flex-col items-center justify-center gap-m sm:flex-row">
-              <a
-                href={page?.emptyStateCtaHref ?? '/request-a-quote'}
-                class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)]"
-              >
-                {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
-              </a>
-              {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
-                <a
-                  href={page?.emptyStateSecondaryHref ?? '/shop-by-item'}
-                  class="hit-44 relative text-sm font-semibold text-link underline transition-colors hover:text-primary-dark"
-                >
-                  {page?.emptyStateSecondaryLabel ?? 'Browse what I make'} →
+          <div class="clr-empty">
+            <div class="clr-empty__hoop" aria-hidden="true">
+              <HoopFrame image={null} size={300} tilt={-3} />
+              <EmptyHoopOrnament class="clr-empty__ornament" />
+            </div>
+            <div class="clr-empty__text">
+              <p class="clr-empty__msg">
+                {page?.emptyStateMessage ??
+                  'No clearance items available at this time. Check back soon!'}
+              </p>
+              <div class="mt-l flex flex-col items-start gap-m sm:flex-row sm:items-center">
+                <a href={page?.emptyStateCtaHref ?? '/request-a-quote'} class="btn btn-primary">
+                  {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
                 </a>
-              )}
+                {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
+                  <a
+                    href={page?.emptyStateSecondaryHref ?? '/shop-by-item'}
+                    class="link-stitch hit-44 relative text-sm font-semibold"
+                  >
+                    {page?.emptyStateSecondaryLabel ?? 'Browse what I make'}{' '}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         ) : (
-          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 lg:grid-cols-3">
-            {[...inStockItems, ...soldOutItems].map((item: any) => {
+          <ul class="clr-grid" role="list" data-reveal-stagger="90">
+            {[...inStockItems, ...soldOutItems].map((item: any, i: number) => {
               const isSold = item.sold;
               const primaryImage = item.images?.[0];
+              const sale = money(item.salePrice);
+              const original = money(item.originalPrice);
               return (
-                <div
-                  class:list={[
-                    'flex flex-col overflow-hidden rounded-xl border bg-background',
-                    isSold
-                      ? 'border-border opacity-70'
-                      : 'border-border transition-shadow hover:shadow-md',
-                  ]}
-                >
-                  {/* Image */}
-                  {primaryImage?.asset ? (
-                    <div class="aspect-[4/3]">
-                      <div class="relative h-full w-full overflow-hidden">
+                <li class:list={['clr-item', isSold && 'clr-item--sold']} data-reveal>
+                  <SwatchCard
+                    as="article"
+                    tone={TONES[i % TONES.length]}
+                    tilt={TILTS[i % TILTS.length]}
+                    interactive={!isSold}
+                    bodyClass="clr-item__body"
+                  >
+                    <div slot="media" class="clr-item__media">
+                      {primaryImage?.asset ? (
                         <SanityImage
                           source={primaryImage}
                           width={600}
                           height={450}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          class="h-full w-full object-cover"
+                          class="clr-item__img"
                         />
-                        {isSold && (
-                          <div class="absolute inset-0 flex items-center justify-center bg-background/50">
-                            <span class="rounded-full bg-foreground px-m py-xs text-xs font-semibold tracking-eyebrow text-background uppercase">
-                              {soldLabel}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                      ) : (
+                        <div class="clr-item__nophoto texture-linen" aria-hidden="true">
+                          <EmptyHoopOrnament class="clr-item__nophoto-orn" />
+                        </div>
+                      )}
+                      {isSold && (
+                        <span class="clr-item__stamp">
+                          <span>{soldLabel}</span>
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <div class="flex aspect-[4/3] items-center justify-center bg-tertiary">
-                      <span class="text-sm text-[var(--color-text-secondary)]">No photo</span>
-                    </div>
-                  )}
-
-                  {/* Info */}
-                  <div class="flex flex-1 flex-col gap-s p-m">
                     <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
                     {item.description && (
-                      <p class="line-clamp-3 text-sm text-[var(--color-text-secondary)]">
+                      <p class="mt-xs line-clamp-3 text-sm text-[var(--color-text-secondary)]">
                         {item.description}
                       </p>
                     )}
-
-                    {/* Pricing */}
-                    <div class="mt-auto flex items-baseline gap-s pt-s">
-                      {item.originalPrice && (
-                        <span class="text-sm text-[var(--color-text-tertiary)] line-through">
-                          $
-                          {typeof item.originalPrice === 'number'
-                            ? item.originalPrice.toFixed(2)
-                            : item.originalPrice}
-                        </span>
-                      )}
-                      {item.salePrice && (
-                        <span class="font-display text-h4 text-[var(--color-rust-decorative,#8C3A2E)]">
-                          $
-                          {typeof item.salePrice === 'number'
-                            ? item.salePrice.toFixed(2)
-                            : item.salePrice}
-                        </span>
-                      )}
-                      {item.quantityAvailable && !isSold && (
-                        <span class="ml-auto text-xs text-[var(--color-text-tertiary)]">
-                          {item.quantityAvailable} left
-                        </span>
-                      )}
-                    </div>
-
+                    {item.quantityAvailable && !isSold && (
+                      <p class="mt-xs text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                        {item.quantityAvailable} left
+                      </p>
+                    )}
                     {/* Buy button — Stripe Payment Link, no cart needed */}
-                    {isSold ? (
-                      <button
-                        type="button"
-                        disabled
-                        class="mt-s w-full cursor-not-allowed rounded-md bg-tertiary py-m text-xs font-semibold tracking-eyebrow text-foreground/40 uppercase"
-                      >
-                        {soldLabel}
-                      </button>
-                    ) : item.stripePaymentLink ? (
+                    {!isSold && item.stripePaymentLink && (
                       <a
                         href={item.stripePaymentLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="press-tactile mt-s block min-h-[44px] w-full rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] py-s text-center text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)]"
+                        class="btn btn-primary mt-m w-full"
                       >
                         {buyLabel}
                       </a>
-                    ) : null}
-                  </div>
-                </div>
+                    )}
+                  </SwatchCard>
+                  {sale && (
+                    <HangTag
+                      size="sm"
+                      tone="kraft"
+                      tilt={i % 2 ? 7 : -6}
+                      value={sale}
+                      class="clr-item__price"
+                    >
+                      {original && (
+                        <p class="clr-item__was">
+                          <s>{original}</s>
+                        </p>
+                      )}
+                    </HangTag>
+                  )}
+                </li>
               );
             })}
-          </div>
+          </ul>
         )
       }
     </div>
@@ -201,8 +214,151 @@ const soldLabel = page?.soldOutLabel ?? 'Sold Out';
   <CtaBanner
     eyebrow={page?.ctaEyebrow}
     headline={page?.ctaHeadline}
+    swash={page?.ctaHeadline ? splitSwash(page.ctaHeadline).word : undefined}
     subhead={page?.ctaSubhead}
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
+
+<style>
+  /* The two notes hang off the band like tags on a rail. */
+  .clr-notes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  .clr-notes :global(.clr-notes__tag) {
+    width: min(15rem, 100%);
+  }
+  .clr-notes :global(.clr-notes__tag--b) {
+    margin-top: 2.5rem;
+  }
+  .clr-notes :global(.hangtag__extra) {
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+  }
+
+  /* Empty state: the hoop on the wall, the message beside it. */
+  .clr-empty {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: center;
+    gap: 2.5rem;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding-block: 1rem;
+  }
+  @media (min-width: 768px) {
+    .clr-empty {
+      grid-template-columns: auto minmax(0, 1fr);
+      justify-items: start;
+      gap: 4rem;
+    }
+  }
+  .clr-empty__hoop {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: min(300px, 80vw);
+  }
+  .clr-empty__hoop :global(.clr-empty__ornament) {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 62%;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    margin-top: 24%;
+  }
+  .clr-empty__msg {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2.15rem);
+    line-height: 1.3;
+    font-weight: 360;
+    color: var(--foreground);
+    max-width: 24ch;
+    text-wrap: pretty;
+  }
+
+  /* Items: swatch cards, each with a kraft price tag strung from its corner. */
+  .clr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: 3.5rem 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 1.5rem 0 0;
+  }
+  .clr-item {
+    position: relative;
+  }
+  .clr-item :global(.clr-item__body) {
+    padding: 1.25rem 1.5rem 1.6rem;
+  }
+  .clr-item__media {
+    position: relative;
+  }
+  .clr-item__media :global(.clr-item__img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+  .clr-item__nophoto {
+    position: relative;
+    aspect-ratio: 4 / 3;
+  }
+  .clr-item__nophoto :global(.clr-item__nophoto-orn) {
+    position: absolute;
+    inset: 12% 30%;
+  }
+  .clr-item :global(.clr-item__price) {
+    position: absolute;
+    top: -2.25rem;
+    right: -1.6rem;
+    z-index: 2;
+    width: 7.25rem;
+  }
+  @media (max-width: 639px) {
+    .clr-item :global(.clr-item__price) {
+      right: 0.5rem;
+    }
+  }
+  .clr-item :global(.clr-item__price .hangtag__value) {
+    font-size: 1.6rem;
+  }
+  .clr-item__was {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+  }
+  /* SOLD: a claret stamp pressed over the photo; the card goes quiet. */
+  .clr-item__stamp {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center start;
+    padding-left: 1.5rem;
+    background: rgba(244, 238, 227, 0.55);
+  }
+  .clr-item__stamp span {
+    padding: 0.4rem 1.2rem;
+    border: 3px double var(--color-rust-cta, #8c3a2e);
+    border-radius: 4px;
+    background: rgba(251, 248, 241, 0.92);
+    color: var(--color-rust-cta, #8c3a2e);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.6rem;
+    letter-spacing: 0.04em;
+    transform: rotate(-10deg);
+  }
+  .clr-item--sold :global(.swatch) {
+    filter: saturate(0.6) drop-shadow(0 10px 10px rgba(15, 27, 45, 0.12));
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+// Safe to edit by hand
+// The Marquee's Pause/Play button. Lives in its own component so the script
+// never sits inside a JSX expression (prettier-plugin-astro gotcha, see
+// .claude/rules/design-system.md). Bundled once by Astro however many marquees
+// a page has; one delegated listener handles all of them.
+---
+
+<script>
+  const w = window as typeof window & { __marqueeBound?: boolean };
+  if (!w.__marqueeBound) {
+    w.__marqueeBound = true;
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as Element | null)?.closest<HTMLButtonElement>('[data-marquee-toggle]');
+      if (!btn) return;
+      const marquee = btn.parentElement?.querySelector<HTMLElement>('[data-marquee]');
+      if (!marquee) return;
+      const paused = marquee.toggleAttribute('data-paused');
+      btn.setAttribute(
+        'aria-label',
+        (paused ? btn.dataset.labelPlay : btn.dataset.labelPause) ?? (paused ? 'Play' : 'Pause'),
+      );
+    });
+  }
+</script>

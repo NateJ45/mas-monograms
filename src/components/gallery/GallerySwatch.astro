@@ -1,0 +1,194 @@
+---
+// Safe to edit by hand
+// One gallery photo as a fabric swatch (Direction D): SwatchCard with pinked
+// edges and a running stitch, a fabric tone and a slight tilt picked from the
+// photo's position (so the wall varies without random reflows), the shared
+// warm grade, and the photo itself as a button that opens the Lightbox.
+// Below it, the item and font it shows (from the galleryItem references) and
+// a "Request this" bridge to the quote form with the item pre-filled.
+//
+//   <GallerySwatch item={item} index={i} tags={cleanTags(item.tags)} />
+//
+// The outer element is .gallery-item (the style-gallery filter script hides
+// and shows these); `tags` lands in data-tags when given.
+
+import SwatchCard from '@/components/motifs/SwatchCard.astro';
+import SanityImage from '@/components/SanityImage.astro';
+import { lightboxAttrs } from './lightboxData';
+
+interface Props {
+  item: any;
+  index: number;
+  tags?: string[];
+  /** Label for the per-photo quote link. */
+  requestLabel?: string | null;
+  /** Skip the "Request this" link (e.g. a category page with its own CTA). */
+  showRequest?: boolean;
+  /** Skip the category line (a category page, where every photo shares it). */
+  showCategory?: boolean;
+  sizes?: string;
+}
+
+const {
+  item,
+  index,
+  tags,
+  requestLabel = null,
+  showRequest = true,
+  showCategory = true,
+  sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+} = Astro.props as Props;
+
+const TONES = ['paper', 'linen', 'blush', 'sage', 'kraft', 'paper', 'sage', 'blush'] as const;
+const TILTS = [-1.2, 0.9, -0.5, 1.4, -0.9, 0.4, 1.1, -1.4];
+const tone = TONES[index % TONES.length];
+const tilt = TILTS[index % TILTS.length];
+
+const categoryName: string | undefined = showCategory ? item?.relatedCategory?.name : undefined;
+const fontName: string | undefined = item?.relatedFont?.name;
+const categorySlug: string | undefined = item?.relatedCategory?.slug?.current;
+const caption = [item?.relatedCategory?.name, fontName ? `${fontName} font` : null]
+  .filter(Boolean)
+  .join(' · ');
+const hasBody = !!(categoryName || fontName);
+---
+
+<div class="gallery-item" data-tags={tags ? JSON.stringify(tags) : undefined}>
+  {
+    item?.image?.asset && (
+      <SwatchCard tone={tone} tilt={tilt} interactive bodyClass="px-m pt-xs pb-m">
+        <button
+          slot="media"
+          type="button"
+          class="gallery-swatch__open"
+          aria-haspopup="dialog"
+          {...lightboxAttrs(item.image, caption)}
+        >
+          <SanityImage source={item.image} width={500} sizes={sizes} class="gallery-swatch__img" />
+          <span class="gallery-swatch__zoom" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="10.5" cy="10.5" r="6" />
+              <path d="M15 15l5 5M8 10.5h5M10.5 8v5" />
+            </svg>
+          </span>
+        </button>
+        {hasBody && (
+          <div class="gallery-swatch__body">
+            {categoryName && <p class="gallery-swatch__cat">{categoryName}</p>}
+            {fontName && <p class="gallery-swatch__font">{fontName} font</p>}
+            {showRequest && categorySlug && (
+              <a
+                href={`/request-a-quote?item=${categorySlug}`}
+                class="gallery-swatch__req link-stitch hit-44 relative"
+              >
+                {requestLabel ?? 'Request this'} <span aria-hidden="true">→</span>
+              </a>
+            )}
+          </div>
+        )}
+      </SwatchCard>
+    )
+  }
+</div>
+
+<style>
+  .gallery-item {
+    break-inside: avoid;
+    padding-block: 0.6rem;
+  }
+  .gallery-swatch__open {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .gallery-swatch__open:focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: -6px;
+  }
+  .gallery-swatch__open :global(.gallery-swatch__img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 900ms var(--ease-thread);
+  }
+  .gallery-swatch__open:hover :global(.gallery-swatch__img),
+  .gallery-swatch__open:focus-visible :global(.gallery-swatch__img) {
+    transform: scale(1.035);
+  }
+  .gallery-swatch__zoom {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: rgba(251, 248, 241, 0.92);
+    color: var(--color-midnight);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 400ms var(--ease-thread),
+      transform 400ms var(--ease-thread);
+  }
+  .gallery-swatch__zoom svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+  .gallery-swatch__open:hover .gallery-swatch__zoom,
+  .gallery-swatch__open:focus-visible .gallery-swatch__zoom {
+    opacity: 1;
+    transform: none;
+  }
+  .gallery-swatch__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-top: 0.35rem;
+  }
+  .gallery-swatch__cat {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+  .gallery-swatch__font {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.35;
+    color: var(--foreground);
+  }
+  .gallery-swatch__req {
+    align-self: flex-start;
+    margin-top: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-rust-cta, #8c3a2e);
+    white-space: nowrap;
+  }
+  @media (max-width: 639px) {
+    .gallery-item :global(.swatch__cloth--stitched .swatch__body.swatch__body) {
+      padding-inline: 1.1rem;
+    }
+    .gallery-swatch__cat {
+      letter-spacing: 0.12em;
+    }
+    .gallery-swatch__req {
+      letter-spacing: 0.1em;
+      font-size: 0.68rem;
+    }
+  }
+</style>

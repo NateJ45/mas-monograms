@@ -1,0 +1,254 @@
+---
+// The process (home): the four homePage.processSteps joined by a claret
+// running stitch that sews itself along as the section scrolls through the
+// viewport. Each step sits in a small paper hoop with its pattern-sheet
+// illustration and an italic display numeral. The stitch is fully drawn with
+// no JS and under reduced motion. Copy from homePage (process*).
+import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
+import ProcessPathScript from './ProcessPathScript.astro';
+import { swashSplit } from './swashSplit';
+import { motifId } from '@/components/motifs/uid';
+
+interface Props {
+  page: any;
+  headingId?: string;
+}
+const { page, headingId = 'process-heading' } = Astro.props as Props;
+const steps: any[] = (page?.processSteps ?? []).filter((s: any) => s?.label);
+const head = swashSplit(page?.processHeadline, 2);
+const maskH = motifId('pph');
+const maskV = motifId('ppv');
+const H_PATH =
+  'M0 60 C 90 10, 160 10, 250 60 S 410 110, 500 60 S 660 10, 750 60 S 910 110, 1000 60';
+const V_PATH = 'M30 0 C 54 80, 6 170, 30 250 S 54 420, 30 500 S 6 670, 30 750 S 54 920, 30 1000';
+---
+
+{
+  steps.length > 0 && (
+    <section class="process surface-paper py-section-lg" aria-labelledby={headingId} data-process>
+      <div class="mx-auto max-w-content px-m">
+        <header class="mx-auto mb-section-md max-w-3xl text-center">
+          {page?.processEyebrow && (
+            <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+              {page.processEyebrow}
+            </p>
+          )}
+          <h2 id={headingId} class="display-sm" data-reveal>
+            {head.before}
+            <em class="swash">{head.swash}</em>
+          </h2>
+          {page?.processSubhead && (
+            <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+              {page.processSubhead}
+            </p>
+          )}
+        </header>
+
+        <div class="process__track">
+          <svg
+            class="process__path process__path--h"
+            viewBox="0 0 1000 120"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <mask id={maskH} maskUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="160">
+                <path
+                  d={H_PATH}
+                  pathLength="1"
+                  class="process__draw"
+                  stroke="#fff"
+                  stroke-width="14"
+                  fill="none"
+                />
+              </mask>
+            </defs>
+            <path d={H_PATH} class="process__ghost" />
+            <path d={H_PATH} class="process__stitch" mask={`url(#${maskH})`} />
+          </svg>
+          <svg
+            class="process__path process__path--v"
+            viewBox="0 0 60 1000"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <mask id={maskV} maskUnits="userSpaceOnUse" x="-20" y="-20" width="100" height="1040">
+                <path
+                  d={V_PATH}
+                  pathLength="1"
+                  class="process__draw"
+                  stroke="#fff"
+                  stroke-width="14"
+                  fill="none"
+                />
+              </mask>
+            </defs>
+            <path d={V_PATH} class="process__ghost" />
+            <path d={V_PATH} class="process__stitch" mask={`url(#${maskV})`} />
+          </svg>
+
+          <ol class="process__steps" role="list" data-reveal-stagger="120">
+            {steps.map((step: any, i: number) => (
+              <li class="process__step" data-reveal>
+                <div class="process__hoop">
+                  <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={92} />
+                </div>
+                <div class="process__text">
+                  <p class="process__num" aria-hidden="true">
+                    {step.number ?? String(i + 1).padStart(2, '0')}
+                  </p>
+                  <h3 class="process__title">{step.label}</h3>
+                  {step.body && <p class="process__body">{step.body}</p>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {page?.processCtaLabel && (
+          <p class="mt-section-md text-center" data-reveal>
+            <a href={page.processCtaHref ?? '/how-it-works'} class="btn btn-secondary">
+              <span>{page.processCtaLabel}</span>
+              <span class="btn__arrow" aria-hidden="true">
+                &rarr;
+              </span>
+            </a>
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+<ProcessPathScript />
+
+<style>
+  .process__track {
+    position: relative;
+  }
+  .process__path {
+    position: absolute;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .process__path path {
+    vector-effect: non-scaling-stroke;
+  }
+  .process__ghost {
+    fill: none;
+    stroke: rgb(185 138 62 / 0.28);
+    stroke-width: 1.5;
+    stroke-dasharray: 2 7;
+    stroke-linecap: round;
+  }
+  .process__stitch {
+    fill: none;
+    stroke: var(--color-rust-cta);
+    stroke-width: 2.5;
+    stroke-dasharray: 11 8;
+    stroke-linecap: round;
+  }
+  /* drawn by default (no JS, reduced motion); the script sets --draw */
+  .process__draw {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: calc(1 - var(--draw, 1));
+  }
+  .process__path--h {
+    display: none;
+  }
+  .process__path--v {
+    left: 2.6rem;
+    top: 2.5rem;
+    bottom: 2.5rem;
+    width: 60px;
+    height: calc(100% - 5rem);
+    translate: -30px 0;
+  }
+  .process__steps {
+    position: relative;
+    display: grid;
+    gap: 2.5rem;
+  }
+  .process__step {
+    display: grid;
+    grid-template-columns: 5.2rem minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: center;
+  }
+  .process__hoop {
+    display: grid;
+    place-items: center;
+    width: 5.2rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: var(--color-paper);
+    box-shadow:
+      0 0 0 6px var(--color-paper),
+      0 0 0 7.5px rgb(185 138 62 / 0.6),
+      0 18px 30px -18px rgb(15 27 45 / 0.45);
+  }
+  .process__hoop :global(svg) {
+    width: 78%;
+    height: 78%;
+  }
+  .process__num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 330;
+    font-variation-settings:
+      'SOFT' 100,
+      'WONK' 1;
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--color-rust-cta);
+  }
+  .process__title {
+    margin-top: 0.25rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 440;
+    color: var(--foreground);
+  }
+  .process__body {
+    margin-top: 0.35rem;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+  }
+
+  @media (min-width: 900px) {
+    .process__path--v {
+      display: none;
+    }
+    .process__path--h {
+      display: block;
+      left: 12.5%;
+      right: 12.5%;
+      top: calc(5.75rem - 60px);
+      width: 75%;
+      height: 120px;
+    }
+    .process__steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2rem;
+    }
+    .process__step {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+      align-items: start;
+    }
+    .process__hoop {
+      width: 11.5rem;
+    }
+    .process__hoop :global(svg) {
+      width: 66%;
+      height: 66%;
+    }
+    .process__num {
+      margin-top: 0.75rem;
+      font-size: 3rem;
+    }
+  }
+</style>

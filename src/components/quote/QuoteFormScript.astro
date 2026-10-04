@@ -1,0 +1,190 @@
+---
+// Client behaviour of the quote form, moved out of request-a-quote.astro
+// unchanged (2026-10-04): Turnstile token capture, the attachment list and
+// size check, per-field errors that clear on edit, required-field validation
+// with focus on the first invalid field, and the POST to /api/quote with the
+// success redirect and error states. The ids, names and data-error-for hooks
+// it reads live in the page markup; keep them in step.
+---
+
+<script>
+  let turnstileToken = '';
+  (window as any).onTurnstileSuccess = (token: string) => {
+    turnstileToken = token;
+  };
+
+  const attachmentsInput = document.getElementById('attachments') as HTMLInputElement | null;
+  const fileList = document.getElementById('file-list') as HTMLUListElement | null;
+  const fileErrorEl = document.querySelector(
+    '[data-error-for="attachments"]',
+  ) as HTMLElement | null;
+  const MAX_FILE_BYTES = 5 * 1024 * 1024;
+
+  function renderFileList() {
+    if (!fileList || !attachmentsInput) return;
+    while (fileList.firstChild) fileList.removeChild(fileList.firstChild);
+
+    let hasOversized = false;
+    Array.from(attachmentsInput.files ?? []).forEach((file) => {
+      const oversized = file.size > MAX_FILE_BYTES;
+      if (oversized) hasOversized = true;
+
+      const li = document.createElement('li');
+      const nameSpan = document.createElement('span');
+      const sizeSpan = document.createElement('span');
+      nameSpan.textContent = file.name;
+      sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ' — TOO LARGE' : ''}`;
+      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-error-text' : 'text-[var(--color-text-secondary)]'}`;
+      li.appendChild(nameSpan);
+      li.appendChild(sizeSpan);
+      fileList.appendChild(li);
+    });
+
+    fileErrorEl?.classList.toggle('hidden', !hasOversized);
+  }
+
+  attachmentsInput?.addEventListener('change', renderFileList);
+
+  const form = document.getElementById('quote-form') as HTMLFormElement | null;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const submitLabel = document.getElementById('submit-label') as HTMLElement | null;
+  const successEl = document.getElementById('form-success') as HTMLElement | null;
+  const errorEl = document.getElementById('form-error') as HTMLElement | null;
+  const errorMsgEl = document.getElementById('form-error-msg') as HTMLElement | null;
+
+  function setFieldError(fieldId: string, visible: boolean) {
+    const field = document.getElementById(fieldId) as HTMLElement | null;
+    const errEl = document.querySelector(`[data-error-for="${fieldId}"]`) as HTMLElement | null;
+    errEl?.classList.toggle('hidden', !visible);
+    field?.classList.toggle('border-error-text', visible);
+    if (field) {
+      if (visible) field.setAttribute('aria-invalid', 'true');
+      else field.removeAttribute('aria-invalid');
+    }
+  }
+
+  // Clear a field's error as soon as the visitor edits it. Selects fire
+  // 'change'; text inputs/textarea fire 'input'. Attaching both is harmless.
+  [
+    'itemType',
+    'monogramStyle',
+    'placement',
+    'size',
+    'threadCount',
+    'personalization',
+    'name',
+    'email',
+    'phone',
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    el?.addEventListener('input', () => setFieldError(id, false));
+    el?.addEventListener('change', () => setFieldError(id, false));
+  });
+  // Ownership is a radio group — clear its error when any option is chosen.
+  document.querySelectorAll('input[name="ownership"]').forEach((el) => {
+    el.addEventListener('change', () => setFieldError('ownership', false));
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let valid = true;
+    let firstInvalidId: string | null = null;
+    // For selects, a non-empty value is valid — "Recommend for me" / "Not sure"
+    // are legitimate submitted values, only the "— Select one —" placeholder
+    // (value "") is treated as empty.
+    const nonEmpty = (v: string) => v.trim().length > 0;
+    const required: Array<{ id: string; check: (v: string) => boolean }> = [
+      { id: 'itemType', check: nonEmpty },
+      { id: 'monogramStyle', check: nonEmpty },
+      { id: 'placement', check: nonEmpty },
+      { id: 'size', check: nonEmpty },
+      { id: 'threadCount', check: nonEmpty },
+      { id: 'personalization', check: nonEmpty },
+      { id: 'name', check: nonEmpty },
+      { id: 'email', check: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+    ];
+    required.forEach(({ id, check }) => {
+      const el = document.getElementById(id) as
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+      const ok = el ? check(el.value) : false;
+      setFieldError(id, !ok);
+      if (!ok) {
+        valid = false;
+        if (!firstInvalidId) firstInvalidId = id;
+      }
+    });
+
+    // Ownership radio group — required. The radiogroup <div> now carries
+    // id="ownership", so setFieldError toggles both the error message and
+    // aria-invalid on the group itself (mirroring single-input fields).
+    const ownershipChecked = !!(form.querySelector(
+      'input[name="ownership"]:checked',
+    ) as HTMLInputElement | null);
+    setFieldError('ownership', !ownershipChecked);
+    if (!ownershipChecked) {
+      valid = false;
+      if (!firstInvalidId) firstInvalidId = 'ownership';
+    }
+
+    const files = Array.from(attachmentsInput?.files ?? []);
+    if (files.some((f) => f.size > MAX_FILE_BYTES)) {
+      valid = false;
+      if (!firstInvalidId) firstInvalidId = 'attachments';
+    }
+    if (!valid) {
+      if (firstInvalidId) {
+        // Ownership + attachments have no element with a matching id — fall back
+        // to the first radio / the file input respectively.
+        const target = (
+          firstInvalidId === 'ownership'
+            ? form.querySelector('input[name="ownership"]')
+            : document.getElementById(firstInvalidId)
+        ) as HTMLElement | null;
+        target?.focus();
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const data = new FormData(form);
+    if (turnstileToken) data.set('cf-turnstile-response', turnstileToken);
+
+    if (submitBtn) submitBtn.disabled = true;
+    if (submitLabel) submitLabel.textContent = submitBtn?.dataset.submitting ?? 'Sending…';
+    errorEl?.classList.add('hidden');
+
+    try {
+      const res = await fetch('/api/quote', { method: 'POST', body: data });
+      if (res.redirected || res.status === 303) {
+        const dest = res.redirected ? res.url : (res.headers.get('Location') ?? '/thank-you');
+        successEl?.classList.remove('hidden');
+        setTimeout(() => {
+          window.location.href = dest;
+        }, 1200);
+        return;
+      }
+      if (res.ok) {
+        successEl?.classList.remove('hidden');
+        setTimeout(() => {
+          window.location.href = '/thank-you';
+        }, 1200);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        if (errorMsgEl)
+          errorMsgEl.textContent =
+            (body as { error?: string }).error ?? 'An unexpected error occurred.';
+        errorEl?.classList.remove('hidden');
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitLabel)
+          submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
+      }
+    } catch {
+      if (errorMsgEl) errorMsgEl.textContent = 'Network error — please check your connection.';
+      errorEl?.classList.remove('hidden');
+      if (submitBtn) submitBtn.disabled = false;
+      if (submitLabel)
+        submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
+    }
+  });
+</script>

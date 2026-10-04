@@ -1,0 +1,253 @@
+---
+// Client wiring for HomeHero: owns the hero's Atelier engine (on the
+// HeroAtelierStage), cycles the sample monograms through it (stitch, hold,
+// next), lets visitors type their own initials, and hands those initials to
+// the full studio (#atelier).
+//
+// The engine is imported and started on the first interaction (pointer, key,
+// touch, wheel, scroll) or 2.6s after load and the fonts, whichever comes
+// first, so its heavy layout work never lands on the first paint or the
+// headline's LCP.
+//
+// The cycle runs ONCE through the samples and then rests on the last piece.
+// It holds (never advances) while the hoop or the input is hovered or focused,
+// while the hero is off-screen, and while the tab is hidden; typing takes it
+// over completely. Under reduced motion it never cycles: the stage shows one
+// finished piece. Its own component (never a <script> in a JSX expression).
+---
+
+<script>
+  import type { Atelier } from '@/lib/atelier/engine';
+
+  type StageEl = HTMLElement & { __atelier?: Atelier };
+  interface Sample {
+    text: string;
+    style: string;
+    thread: string;
+    threadName: string;
+    fabric: string;
+    fabricLabel: string;
+    texture: string;
+    styleLabel: string;
+    label: string;
+  }
+
+  const HOLD_MS = 2600;
+  const DEBOUNCE_MS = 250;
+
+  function cleanInitials(v: string): string {
+    return Array.from(v.normalize('NFC'))
+      .filter((c) => /\p{L}/u.test(c))
+      .map((c) => c.toLocaleUpperCase())
+      .slice(0, 3)
+      .join('');
+  }
+
+  function init(hero: HTMLElement) {
+    if (hero.dataset.heroInit) return;
+    hero.dataset.heroInit = '1';
+    const stage = hero.querySelector<StageEl>('[data-hero-stage]');
+    const hoop = hero.querySelector<HTMLElement>('[data-hero-hoop]');
+    const studio = hero.querySelector<HTMLElement>('[data-hero-studio]');
+    const input = hero.querySelector<HTMLInputElement>('[data-hero-input]');
+    const toStudio = hero.querySelector<HTMLAnchorElement>('[data-hero-to-studio]');
+    if (!stage || !hoop || !studio) return;
+    const canvas = stage.querySelector('canvas');
+
+    let samples: Sample[] = [];
+    try {
+      samples = JSON.parse(hero.dataset.samples ?? '[]');
+    } catch {
+      samples = [];
+    }
+    if (!samples.length) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let mode: 'cycle' | 'user' | 'done' = reduced || samples.length < 2 ? 'done' : 'cycle';
+    let idx = 0;
+    let current: Sample = samples[0];
+    let stitching = true; // sample 0 stitches as soon as the engine starts
+    let hovered = false;
+    let focused = false;
+    let offscreen = false;
+    let hidden = document.hidden;
+    let timer = 0;
+    let typeTimer = 0;
+
+    const held = () => hovered || focused || offscreen || hidden;
+
+    // ---- the engine: started late, so the headline (LCP) paints first ----
+    let atelier: Atelier | null = null;
+    let starting = false;
+    async function start() {
+      if (starting || !canvas) return;
+      starting = true;
+      const { createAtelier } = await import('@/lib/atelier/engine');
+      if (!stage!.isConnected) return;
+      atelier = createAtelier(canvas, {
+        quality: 'hero',
+        reducedMotion: reduced,
+        onProgress: (progress) => {
+          if (!stage!.dataset.ready) stage!.dataset.ready = '1';
+          stage!.dispatchEvent(new CustomEvent('atelier:progress', { detail: { progress } }));
+        },
+      });
+      stage!.__atelier = atelier;
+      if (offscreen || hidden) atelier.pause();
+      stage!.dispatchEvent(
+        new CustomEvent('atelier:ready', { detail: { atelier }, bubbles: true }),
+      );
+      const d = stage!.dataset;
+      void atelier.setDesign(
+        {
+          text: d.text ?? '',
+          style: d.style as never,
+          thread: d.thread,
+          fabric: d.fabric,
+          fabricTexture: d.texture as never,
+        },
+        { animate: !reduced },
+      );
+    }
+    const WAKE = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll'];
+    const wake = () => {
+      WAKE.forEach((t) => window.removeEventListener(t, wake));
+      void start();
+    };
+    WAKE.forEach((t) => window.addEventListener(t, wake, { passive: true, once: true }));
+    // no interaction yet: wait for load AND the web fonts (the headline's
+    // final paint is the LCP), then give the page a quiet moment
+    const later = () => {
+      const fonts = document.fonts?.ready ?? Promise.resolve();
+      void fonts.then(() => window.setTimeout(wake, 2600));
+    };
+    if (document.readyState === 'complete') later();
+    else window.addEventListener('load', later, { once: true });
+
+    function apply(s: Sample, text = s.text) {
+      // keep the data attributes in step: the stage reads them on first sight
+      stage!.dataset.text = text;
+      stage!.dataset.style = s.style;
+      stage!.dataset.thread = s.thread;
+      stage!.dataset.fabric = s.fabric;
+      stage!.dataset.texture = s.texture;
+      stage!.style.setProperty('--atelier-fabric', s.fabric);
+      stage!.style.setProperty('--atelier-thread', s.thread);
+      hoop!.style.setProperty('--hero-thread', s.thread);
+      const shown = s.style === 'single' ? Array.from(text).slice(0, 1).join('') : text;
+      canvas?.setAttribute(
+        'aria-label',
+        [shown, s.styleLabel, s.threadName, s.fabricLabel].filter(Boolean).join(', '),
+      );
+      const a = atelier;
+      if (!a) {
+        void start(); // reads the data attributes set above
+        return;
+      }
+      stitching = true;
+      void a.setDesign(
+        {
+          text,
+          style: s.style as never,
+          thread: s.thread,
+          fabric: s.fabric,
+          fabricTexture: s.texture as never,
+        },
+        { animate: true },
+      );
+    }
+
+    function clear() {
+      if (timer) window.clearTimeout(timer);
+      timer = 0;
+    }
+
+    function schedule() {
+      clear();
+      if (mode !== 'cycle' || stitching || held()) return;
+      if (idx >= samples.length - 1) {
+        mode = 'done';
+        return;
+      }
+      timer = window.setTimeout(() => {
+        timer = 0;
+        if (mode !== 'cycle' || held()) return;
+        idx += 1;
+        current = samples[idx];
+        apply(current);
+      }, HOLD_MS);
+    }
+
+    stage.addEventListener('atelier:progress', (e) => {
+      const p = (e as CustomEvent<{ progress: number }>).detail?.progress ?? 0;
+      if (p >= 1) {
+        stitching = false;
+        schedule();
+      }
+    });
+
+    // hold on hover and focus (the whole studio column: hoop, input, link)
+    studio.addEventListener('pointerenter', () => {
+      hovered = true;
+      clear();
+    });
+    studio.addEventListener('pointerleave', () => {
+      hovered = false;
+      schedule();
+    });
+    studio.addEventListener('focusin', () => {
+      focused = true;
+      clear();
+    });
+    studio.addEventListener('focusout', (e) => {
+      if (studio.contains(e.relatedTarget as Node | null)) return;
+      focused = false;
+      schedule();
+    });
+    document.addEventListener('visibilitychange', () => {
+      hidden = document.hidden;
+      if (hidden) clear();
+      else schedule();
+    });
+    new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        offscreen = !e.isIntersecting;
+        if (offscreen) {
+          clear();
+          atelier?.pause();
+        } else {
+          atelier?.resume();
+          schedule();
+        }
+      }
+    }).observe(hoop);
+
+    // typing takes over the hoop
+    input?.addEventListener('input', () => {
+      const clean = cleanInitials(input.value);
+      if (input.value !== clean) input.value = clean;
+      window.clearTimeout(typeTimer);
+      if (!clean) {
+        // emptied: let the samples carry on once focus leaves
+        if (!reduced && idx < samples.length - 1) mode = 'cycle';
+        return;
+      }
+      mode = 'user';
+      clear();
+      typeTimer = window.setTimeout(() => apply(current, clean), DEBOUNCE_MS);
+    });
+
+    // hand the typed initials to the full studio below
+    toStudio?.addEventListener('click', () => {
+      const text = cleanInitials(input?.value ?? '');
+      if (!text) return;
+      document.dispatchEvent(new CustomEvent('atelier:use-initials', { detail: { text } }));
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>('[data-home-hero]').forEach(init);
+  }
+  initAll();
+  document.addEventListener('astro:page-load', initAll);
+</script>

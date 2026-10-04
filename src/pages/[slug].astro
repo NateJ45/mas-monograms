@@ -2,14 +2,25 @@
 // Dynamic item category pages — one page per itemCategory document.
 // Route: /<slug> e.g. /towels, /bags, /shirts
 // Built-in routes take precedence over this catch-all.
+//
+// Direction D ("The Atelier", 2026-10-04): a Midnight opening band with a big
+// hoop (the first hero photo, two smaller hoops clustered behind it) and a
+// serif intro; the category's trust items as a stitched list; a swatch-card
+// gallery of related work (warm grade, lightbox); the "start from this item"
+// CTA carrying ?item=<slug> into the quote form; then the other categories as
+// hoops, and the closing CtaBanner.
 
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Hero from '@/components/Hero.astro';
 import CategoryCard from '@/components/CategoryCard.astro';
-import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
 import CtaLink from '@/components/CtaLink.astro';
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
+import GallerySwatch from '@/components/gallery/GallerySwatch.astro';
+import Lightbox from '@/components/gallery/Lightbox.astro';
+import { splitSwash } from '@/components/gallery/swash';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { site } from '@/data/site';
 import {
@@ -68,10 +79,16 @@ const description =
 
 // Filter gallery to items related to this category
 const relatedGallery = allGallery
-  .filter((item: any) => item.relatedCategory?.slug?.current === slug)
+  .filter((item: any) => item.relatedCategory?.slug?.current === slug && item.image?.asset)
   .slice(0, 8);
 
 const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset);
+const [leadImage, ...restImages] = heroImages;
+const name = splitSwash(category.name);
+const quoteHref = `/request-a-quote?item=${encodeURIComponent(slug)}`;
+const ctaLabel = category?.ctaLabel ?? 'Request a Quote';
+// Embroidery in these phone photos sits near the centre, a little high.
+const focalFor = (img: any) => (img?.hotspot ? null : { x: 0.5, y: 0.42 });
 
 // BreadcrumbList schema: Home > Shop by Item > <Category>. Helps Google render
 // a breadcrumb trail in the search result for each category page.
@@ -91,29 +108,151 @@ const pageSchemas = [
   {siteSettings}
   schemas={pageSchemas}
 >
-  {/* Hero */}
-  <Hero
-    backgroundImages={heroImages}
-    eyebrow={category?.eyebrow}
-    headline={category.name}
-    subhead={category?.description}
-    primaryCta={{ label: category?.ctaLabel ?? 'Request a Quote', href: '/request-a-quote' }}
-    headingId="category-heading"
-    size="short"
-  />
+  <section class="cat-intro surface-midnight py-section-lg" aria-labelledby="category-heading">
+    <div
+      class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]"
+    >
+      <div class="order-2 lg:order-1">
+        {
+          category?.eyebrow && (
+            <p class="eyebrow mb-m" data-reveal="fade">
+              {category.eyebrow}
+            </p>
+          )
+        }
+        <h1 id="category-heading" class="display-sm max-w-[12ch]" data-reveal>
+          {name.before}<em class="swash">{name.word}</em>{name.after}
+        </h1>
+        {
+          category?.description && (
+            <p class="cat-intro__lede mt-m" data-reveal style="--reveal-delay: 120ms">
+              {category.description}
+            </p>
+          )
+        }
+        {
+          (category?.trustItems ?? []).length > 0 && (
+            <ul class="cat-intro__trust mt-l" role="list" data-reveal style="--reveal-delay: 180ms">
+              {(category.trustItems as string[]).map((item: string) => (
+                <li>
+                  <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                    <path d="M2 2l8 8M10 2l-8 8" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+        <div class="mt-l" data-reveal style="--reveal-delay: 240ms">
+          <CtaLink cta={{ label: ctaLabel, href: quoteHref }} variant="primary" />
+        </div>
+      </div>
 
-  {/* Trust items */}
+      <div class="cat-intro__hoops order-1 lg:order-2" data-reveal="fade">
+        {
+          restImages[0] && (
+            <HoopFrame
+              image={restImages[0]}
+              alt=""
+              size={230}
+              tilt={-6}
+              focal={focalFor(restImages[0])}
+              class="cat-intro__hoop cat-intro__hoop--a"
+            />
+          )
+        }
+        {
+          restImages[1] && (
+            <HoopFrame
+              image={restImages[1]}
+              alt=""
+              size={190}
+              tilt={8}
+              focal={focalFor(restImages[1])}
+              class="cat-intro__hoop cat-intro__hoop--b"
+            />
+          )
+        }
+        <div class="cat-intro__lead">
+          <HoopFrame
+            image={leadImage ?? null}
+            size={460}
+            tilt={-2}
+            focal={focalFor(leadImage)}
+            loading="eager"
+            fetchpriority="high"
+          />
+          {!leadImage && <EmptyHoopOrnament class="cat-intro__ornament" />}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Gallery — items in this category, as swatches */}
   {
-    (category?.trustItems ?? []).length > 0 && (
-      <section class="bg-primary py-m">
+    relatedGallery.length > 0 && (
+      <section class="surface-linen py-section-lg" aria-labelledby="category-gallery-heading">
         <div class="mx-auto max-w-content px-m">
-          <ul class="flex list-none flex-wrap justify-center gap-l">
-            {(category.trustItems as string[]).map((item: string) => (
-              <li class="flex items-center gap-xs text-sm text-white/90">
-                <span class="text-white/50" aria-hidden="true">
-                  ✦
-                </span>
-                {item}
+          <div class="mb-l flex flex-col items-center text-center">
+            <h2
+              id="category-gallery-heading"
+              class="font-display text-h2 text-foreground"
+              data-reveal
+            >
+              {category.name} Gallery
+            </h2>
+            <div class="mt-m w-full max-w-[14rem]" data-reveal="stitch" aria-hidden="true">
+              <RunningStitch tone="brass" ornament="cross" />
+            </div>
+          </div>
+          <div class="columns-2 gap-m sm:columns-3 lg:columns-4">
+            {relatedGallery.map((item: any, i: number) => (
+              <GallerySwatch item={item} index={i + 1} showRequest={false} showCategory={false} />
+            ))}
+          </div>
+          {/* Photo → quote bridge: turn "I like this" into an action, with the
+            item type already pre-filled on the quote form. */}
+          <div class="mt-l flex justify-center">
+            <CtaLink
+              cta={{ label: `Request something like this`, href: quoteHref }}
+              variant="primary"
+              arrow
+            />
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  {/* Explore Other Items — cross-sell, as hoops */}
+  {
+    otherCategories.length > 0 && (
+      <section
+        class:list={[
+          'py-section-lg',
+          relatedGallery.length > 0 ? 'surface-indigo' : 'surface-linen',
+        ]}
+        aria-labelledby="other-items-heading"
+      >
+        <div class="mx-auto max-w-content px-m">
+          <h2
+            id="other-items-heading"
+            class="mb-l text-center font-display text-h2 text-foreground"
+            data-reveal
+          >
+            Explore Other Items
+          </h2>
+          <ul class="cat-others" role="list" data-reveal-stagger="90">
+            {otherCategories.map((cat: any, i: number) => (
+              <li data-reveal>
+                <CategoryCard
+                  name={cat.name}
+                  slug={cat.slug?.current ?? ''}
+                  cardImage={cat.cardImage}
+                  size={240}
+                  tilt={[-2, 1.5, -1][i % 3]}
+                />
               </li>
             ))}
           </ul>
@@ -122,67 +261,117 @@ const pageSchemas = [
     )
   }
 
-  {/* Gallery — items in this category */}
-  {
-    relatedGallery.length > 0 && (
-      <section class="py-section-lg">
-        <div class="mx-auto max-w-content px-m">
-          <h2 class="mb-l text-center font-display text-h2 text-foreground">
-            {category.name} Gallery
-          </h2>
-          {/* Aligned grid (not a ragged masonry): uniform square tiles, up to 4
-            across, so the gallery reads as tidy rows rather than uneven columns. */}
-          <div class="grid grid-cols-2 gap-m sm:grid-cols-3 lg:grid-cols-4">
-            {relatedGallery.map(
-              (item: any) =>
-                item.image?.asset && (
-                  <div class="group">
-                    <div class="img-zoom relative aspect-square overflow-hidden rounded-xl">
-                      <SanityImage
-                        source={item.image}
-                        width={500}
-                        height={500}
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        class="h-full w-full object-cover"
-                      />
-                      <div class="img-tint" aria-hidden="true" />
-                    </div>
-                  </div>
-                ),
-            )}
-          </div>
-          {/* Photo → quote bridge: turn "I like this" into an action, with the
-            item type already pre-filled on the quote form. */}
-          <div class="mt-l flex justify-center">
-            <CtaLink
-              cta={{ label: `Request something like this`, href: `/request-a-quote?item=${slug}` }}
-              variant="primary"
-            />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {/* Explore Other Items — cross-sell */}
-  {
-    otherCategories.length > 0 && (
-      <section class="bg-tertiary py-section-lg">
-        <div class="mx-auto max-w-content px-m">
-          <h2 class="mb-l text-center font-display text-h2 text-foreground">Explore Other Items</h2>
-          <div class="mx-auto grid max-w-3xl grid-cols-2 gap-m sm:grid-cols-3">
-            {otherCategories.map((cat: any) => (
-              <CategoryCard
-                name={cat.name}
-                slug={cat.slug?.current ?? ''}
-                cardImage={cat.cardImage}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  <CtaBanner ctaLabel={category?.ctaLabel ?? 'Request a Quote'} ctaHref="/request-a-quote" />
+  <CtaBanner ctaLabel={ctaLabel} ctaHref={quoteHref} />
+  {relatedGallery.length > 0 && <Lightbox />}
 </BaseLayout>
+
+<style>
+  .cat-intro__lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.65rem);
+    line-height: 1.45;
+    font-weight: 360;
+    color: var(--color-text-secondary);
+    max-width: 30ch;
+    text-wrap: pretty;
+  }
+  .cat-intro__trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    padding: 0.9rem 0;
+    border-block: 1.5px dashed var(--stitch-color);
+    list-style: none;
+    margin-inline: 0;
+    max-width: 34rem;
+  }
+  .cat-intro__trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--foreground);
+  }
+  .cat-intro__trust svg {
+    width: 0.7rem;
+    height: 0.7rem;
+    flex: none;
+    stroke: var(--color-gold);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  /* The hoop cluster: the lead photo in a big hoop, two smaller hoops tucked
+     behind it (top left, bottom right). */
+  .cat-intro__hoops {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem 0 2.5rem;
+  }
+  .cat-intro__lead {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    width: min(460px, 82%);
+  }
+  .cat-intro__lead :global(.hoop) {
+    width: 100%;
+  }
+  .cat-intro__hoops :global(.cat-intro__hoop) {
+    position: absolute;
+    width: min(var(--hoop), 38%);
+  }
+  .cat-intro__hoops :global(.cat-intro__hoop--a) {
+    top: 0;
+    left: 0;
+  }
+  .cat-intro__hoops :global(.cat-intro__hoop--b) {
+    right: 0;
+    bottom: 0;
+    width: min(var(--hoop), 32%);
+  }
+  .cat-intro__lead :global(.cat-intro__ornament) {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 62%;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    margin-top: 24%;
+    pointer-events: none;
+  }
+
+  .cat-others {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1rem;
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .cat-others > li:nth-child(3) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 50%;
+  }
+  @media (min-width: 768px) {
+    .cat-others {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem;
+    }
+    .cat-others > li:nth-child(2) {
+      margin-top: 3rem;
+    }
+    .cat-others > li:nth-child(3) {
+      grid-column: auto;
+      justify-self: stretch;
+      width: auto;
+    }
+  }
+</style>

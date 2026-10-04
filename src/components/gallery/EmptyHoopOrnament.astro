@@ -1,0 +1,70 @@
+---
+// Safe to edit by hand
+// The work-in-progress that sits in an EMPTY hoop (a category with no photo,
+// e.g. "Bring Your Own Item", or the clearance empty state): a cross-stitched
+// heart in claret, a brass running-stitch ring, and a needle still threaded,
+// as if the piece were half sewn. Decorative only (aria-hidden); the caller
+// positions it over HoopFrame's linen fabric (HoopFrame has no slot for it).
+
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props as Props;
+
+const HEART = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000'];
+const CELL = 5;
+const OX = 50 - (7 * CELL) / 2;
+const OY = 36;
+const crosses: Array<{ x: number; y: number }> = [];
+HEART.forEach((row, r) =>
+  row.split('').forEach((c, i) => {
+    if (c === '1') crosses.push({ x: OX + i * CELL, y: OY + r * CELL });
+  }),
+);
+---
+
+<svg
+  class:list={['hoop-ornament', className]}
+  viewBox="0 0 100 100"
+  aria-hidden="true"
+  focusable="false"
+>
+  <circle
+    cx="50"
+    cy="50"
+    r="38"
+    fill="none"
+    stroke="#B98A3E"
+    stroke-width="1.4"
+    stroke-dasharray="4 3"
+    stroke-linecap="round"></circle>
+  <g stroke="#8C3A2E" stroke-width="1.35" stroke-linecap="round">
+    {
+      crosses.map(({ x, y }) => (
+        <path
+          d={`M${x + 0.9} ${y + 0.9}L${x + CELL - 0.9} ${y + CELL - 0.9}M${x + CELL - 0.9} ${y + 0.9}L${x + 0.9} ${y + CELL - 0.9}`}
+        />
+      ))
+    }
+  </g>
+  <path
+    d="M52.5 64.5 C 58 74, 70 72, 72 64 S 66 52, 74 46"
+    fill="none"
+    stroke="#8C3A2E"
+    stroke-width="1"
+    stroke-linecap="round"
+    opacity="0.85"></path>
+  <g transform="rotate(38 76 40)">
+    <rect x="74.8" y="24" width="2.4" height="30" rx="1.2" fill="#9aa1a8"></rect>
+    <rect x="75.4" y="24" width="0.7" height="29" rx="0.35" fill="#f4f6f8"></rect>
+    <ellipse cx="76" cy="27.5" rx="0.6" ry="1.8" fill="#F4EEE3"></ellipse>
+    <path d="M74.8 53 L76 58 L77.2 53 Z" fill="#9aa1a8"></path>
+  </g>
+</svg>
+
+<style>
+  .hoop-ornament {
+    display: block;
+    overflow: visible;
+  }
+</style>

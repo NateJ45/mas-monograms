@@ -12,15 +12,19 @@
 //   - email: builds a mailto: link.
 //   - phone: builds a tel: link.
 //
-// Two visual variants + a tone modifier:
-//   - "primary" — Rust CTA pill (bg-[var(--color-rust-cta)] + text-white,
-//     the one button-background color per .claude/rules/design-system.md palette table)
-//   - "secondary" — outlined link with pine-teal border + text-link
-//   - `onDark` toggle — for CTAs sitting over a dark surface (hero image
-//     overlay). Swaps the secondary variant from pine-teal-on-light to
-//     white-on-transparent so it's actually legible against the dark scrim.
+// Two visual variants (Direction D, 2026-10-04: the .btn system in globals.css):
+//   - "primary"   .btn .btn-primary: Claret with white type on a light ground,
+//                 Paper with ink type on a dark ground, an inner running stitch,
+//                 and a fill that sews across on hover AND keyboard focus.
+//   - "secondary" .btn .btn-secondary: an outlined button in the ground's link
+//                 colour that fills solid on hover/focus.
+//   - `onDark`    forces the dark-ground treatment (adds .on-dark to the link)
+//                 for a button over a dark photo or band that is not a
+//                 .surface-midnight/.surface-indigo. Inside those surfaces the
+//                 button already adapts, so onDark is optional there.
+//   - `arrow`     appends a decorative arrow that nudges on hover.
 //
-// Both variants share generous padding, uppercase tracking, and a 44×44 minimum tap target.
+// 48px tall (the 44px floor with room), uppercase tracked Mulish.
 
 interface CtaBlock {
   label?: string;
@@ -37,8 +41,10 @@ interface CtaBlock {
 interface Props {
   cta?: CtaBlock | null;
   variant?: 'primary' | 'secondary';
-  /** When true, swap variant colors for legibility on a dark surface. */
+  /** When true, force the dark-ground treatment (paper button, light outline). */
   onDark?: boolean;
+  /** Append a decorative arrow that nudges right on hover/focus. */
+  arrow?: boolean;
   /** Fallback href if the CTA can't be resolved (e.g., siteSettings hasn't been populated). */
   fallbackHref?: string;
   /** Fallback label if cta.label is missing. */
@@ -50,6 +56,7 @@ const {
   cta,
   variant = 'primary',
   onDark = false,
+  arrow = false,
   fallbackHref = '/request-a-quote',
   fallbackLabel = 'Get in touch',
   class: extraClass = '',
@@ -102,33 +109,30 @@ const label = cta?.label ?? fallbackLabel;
 const isExternal = !cta?.href && cta?.linkType === 'external';
 const newTab = cta?.openInNewTab || isExternal;
 
-const baseClasses = onDark
-  ? 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-transparent'
-  : 'press-tactile inline-flex items-center justify-center min-h-[44px] px-l py-s text-xs font-semibold uppercase tracking-[0.18em] rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
-
-// Primary on LIGHT surfaces is Claret (the one button-background color per
-// .claude/rules/design-system.md palette table). Primary on DARK surfaces (indigo drench bands,
-// photo scrims) flips to paper-with-ink — Direction C rule: claret sitting
-// on indigo vibrates (both are dark), and a light button on a dark ground is
-// the on-dark pattern across the premium reference set.
-const variantClasses = (() => {
-  if (variant === 'primary') {
-    return onDark
-      ? 'bg-card text-foreground hover:bg-white'
-      : 'bg-[var(--color-rust-cta,#8C3A2E)] text-white hover:bg-[var(--color-rust-cta-hover,#722C22)]';
-  }
-  // secondary
-  return onDark
-    ? 'border border-white/70 text-white hover:bg-white/10 hover:border-white'
-    : 'border border-primary text-link hover:bg-accent';
-})();
+// The look lives in globals.css (.btn / .btn-primary / .btn-secondary) and
+// reads the ground's context tokens, so the same pair of classes is claret on
+// Linen and paper on Midnight. `on-dark` pins the dark treatment when the
+// ground is a photo or a plain dark utility rather than a surface class.
+const classes = [
+  'btn',
+  variant === 'primary' ? 'btn-primary' : 'btn-secondary',
+  onDark && 'on-dark',
+  extraClass,
+];
 ---
 
 <a
   href={href}
-  class:list={[baseClasses, variantClasses, extraClass]}
+  class:list={classes}
   target={newTab ? '_blank' : undefined}
   rel={newTab ? 'noopener noreferrer' : undefined}
 >
-  {label}
+  <span>{label}</span>
+  {
+    arrow && (
+      <span class="btn__arrow" aria-hidden="true">
+        &rarr;
+      </span>
+    )
+  }
 </a>

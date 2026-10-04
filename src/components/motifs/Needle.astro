@@ -1,0 +1,86 @@
+---
+// Safe to edit by hand
+// A steel embroidery needle in SVG (Direction D): a polished shaft with a
+// long highlight, a tapered point and an open eye, optionally threaded.
+// Decorative (aria-hidden). ThreadLine.astro draws its own copy at the tip of
+// the golden thread; use this one for set pieces (the 404, the thank-you tie-off).
+//
+//   <Needle />                                  64px, pointing down-right
+//   <Needle length={120} angle={-30} thread="#d9b15f" />
+
+import { motifId } from './uid';
+
+interface Props {
+  /** Length of the needle in px. */
+  length?: number;
+  /** Rotation in degrees; 0 points straight down. */
+  angle?: number;
+  /** Thread colour through the eye (hex or CSS colour). Omit for an empty eye. */
+  thread?: string | null;
+  class?: string;
+}
+
+const { length = 64, angle = -40, thread = null, class: className = '' } = Astro.props as Props;
+const uid = motifId('nd');
+const width = Math.round(length * 0.32);
+---
+
+<svg
+  class:list={['needle-motif', className]}
+  viewBox="0 0 32 100"
+  width={width}
+  height={length}
+  style={`transform:rotate(${angle}deg)`}
+  aria-hidden="true"
+  focusable="false"
+>
+  <defs>
+    <linearGradient id={`${uid}-steel`} x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#6d747c"></stop>
+      <stop offset="0.35" stop-color="#f4f6f8"></stop>
+      <stop offset="0.55" stop-color="#b9c0c7"></stop>
+      <stop offset="1" stop-color="#565c63"></stop>
+    </linearGradient>
+  </defs>
+  {
+    thread && (
+      <path
+        d="M16 14 C 4 22, 2 40, 9 58 S 22 86, 12 98"
+        fill="none"
+        stroke={thread}
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+    )
+  }
+  <path
+    d="M14.6 6 Q16 1.5 17.4 6 L17.6 70 Q17 86 16 98 Q15 86 14.4 70 Z"
+    fill={`url(#${uid}-steel)`}
+    stroke="rgba(30,36,42,0.35)"
+    stroke-width="0.4"></path>
+  <rect x="15.45" y="6" width="1.1" height="13" rx="0.55" fill="var(--background, #f4eee3)"></rect>
+  <path
+    d="M15.7 24 L15.9 74"
+    stroke="rgba(255,255,255,0.85)"
+    stroke-width="0.45"
+    stroke-linecap="round"></path>
+  {
+    thread && (
+      <path
+        d="M16 10 C 22 12, 25 18, 20 24"
+        fill="none"
+        stroke={thread}
+        stroke-width="1.6"
+        stroke-linecap="round"
+      />
+    )
+  }
+</svg>
+
+<style>
+  .needle-motif {
+    display: inline-block;
+    overflow: visible;
+    filter: drop-shadow(1px 2px 1.5px rgba(15, 27, 45, 0.28));
+  }
+</style>

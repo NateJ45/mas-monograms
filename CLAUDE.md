@@ -7,11 +7,30 @@ Built by Nixon Creative Studio (nathanjnixon86@gmail.com · nixoncreativestudio.
 this matches the live footer credit in `siteSettings.footerCredit`.
 Migrated from Squarespace 7.1 → Astro 7 + Sanity 6 + Cloudflare Workers.
 
-## Status (current — 2026-07-03)
+## Status (current — 2026-10-04)
 
-Built and **deployed**; all content seeded into Sanity and rendering live. Design system is Heirloom
-Coast wearing the "Direction C — The Sampler" treatment (see below); the Studio has been reworked for
-Mary Ann (Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first desk).
+Built and **deployed**; all content seeded into Sanity. On 2026-10-04 a full redesign, **Direction D,
+"The Atelier"**, landed on branch `redesign/atelier` (8 commits ahead of `main`, no PR yet as of this
+writing; production still shows the Direction C "Sampler" look until it merges). Nathan's brief: the site looked generic, so make it his best
+portfolio piece. Mary Ann's photos are weak, so the site makes its own product pictures: a live
+**Monogram Atelier** (canvas embroidery engine, `src/lib/atelier/`) where visitors type initials and watch
+them stitched in real thread colours on real fabrics, plus a golden thread sewn down the page on scroll,
+hoops, spools, swatch cards and hang tags. Heirloom Coast stays (logo, linen, indigo, claret) with a
+deeper Midnight and a thread-gold gradient added. Every page was rebuilt. Rules: `.claude/rules/atelier-engine.md`
+(engine), `design-system.md` (look), `site-routes.md` (routes and the quote query-string contract).
+Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
+
+- **New content:** `atelierSettings` singleton and 14 optional `homePage` fields, seeded by
+  `scripts/seed-atelier.mjs` (dry run by default; backup `tmp/backups/production-2026-10-04.tar.gz`,
+  gitignored). Confirm in the dataset that the seed has been applied before judging the live copy.
+- **Removed:** Lenis smooth scroll (2026-10-04). Native scroll only; do not reintroduce it.
+- **Merge-ready pass (2026-10-04):** `check:full` green (324 unit tests), Playwright 191/191 (incl. the
+  new `tests/features.spec.ts`), parity baselines regenerated (23/23 on two clean rebuilds), Lighthouse
+  accessibility 100 on all 12 audited URLs. `PortableText` renders at build time (no island).
+- **Open:** Sanity fields the page work wanted, the LCP/font perf pass, hotspots on the
+  69 gallery photos, seam polish on heavy block letters. All in `docs/PENDING.md`.
+- Studio for Mary Ann: Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first
+  desk; new desk entry "Monogram Preview (live stitching)".
 
 - Live site: https://mas-monograms.nathanjnixon86.workers.dev (custom domain `mas-monograms.com` pending)
 - Studio (Mary Ann's editor): **`<site>/studio`** — embedded in the site build since
@@ -51,6 +70,9 @@ Run from the repo root. Node scripts are in `package.json`.
   cannot recreate a hosted copy. **The versions are a matched set — see gotcha 9.**
 - **Live draft preview at `/preview/**`** through Sanity's Presentation tool: click-to-edit,
   live refresh over SSE, and in-canvas controls on the repeatable lists. See below.
+- **Monogram Atelier engine** — vanilla TS canvas renderer in `src/lib/atelier/`, heavy math in a module
+  worker (main-thread sliced fallback), lettering fonts lazy-loaded via `FontFace` from `@fontsource`
+  great-vibes / playfair-display / cinzel. No animation or smooth-scroll library.
 - **Tailwind CSS 4** via `@tailwindcss/vite`
 - **Resend** — transactional email from the quote form Worker
 - **Cloudflare R2** (`QUOTE_BACKUP` binding → `mas-monograms-quotes` bucket)
@@ -69,7 +91,15 @@ Mary Ann must be able to edit everything without touching code.
 The brand is warm linen/ink/indigo/claret ("Heirloom Coast"). There is no `.dark` CSS, no
 theme toggle, and no theme-bootstrap script anywhere in the codebase — this was a considered
 decision (not just an unused old rule), see `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
-Do NOT add a ThemeToggle component or reintroduce a `.dark` class.
+Do NOT add a ThemeToggle component or reintroduce a `.dark` class. Dark SECTIONS (Midnight, Indigo
+bands via `.surface-midnight`) are part of Direction D and are fine; the site itself stays light-first.
+
+### No fabrication
+
+No invented reviews, years in business, client names, prices, order counts, awards or claims. Use only
+facts already in Sanity or the docs (home-based, St. Matthews SC, started as a hobby about three years
+ago, orders go straight to Mary Ann, hand-stitched locally). `sampleMonograms` are made-up initials,
+never real people's names.
 
 ### No Web3Forms
 
@@ -120,14 +150,15 @@ are set via `wrangler secret put`. Never write them into `.env` or commit them.
 Path-scoped rules in `.claude/rules/` load only when you touch matching files.
 The numbered gotchas keep their original numbers because code comments cite them.
 
-- `.claude/rules/design-system.md`: Heirloom Coast design note, typography, palette, component authoring, gotchas 4, 14
+- `.claude/rules/atelier-engine.md`: the Monogram Atelier engine, stage components, API, perf numbers, tuning, dev-server and Lenis notes
+- `.claude/rules/design-system.md`: Heirloom Coast + Direction D design note, typography, palette, component authoring, gotchas 4, 14, 15
 - `.claude/rules/live-preview.md`: `/preview/**`, stega, SSE proxy, in-canvas controls, "Edit here" card
-- `.claude/rules/site-routes.md`: route table, quote Worker, redirects, JSON-LD
-- `.claude/rules/sanity-studio.md`: query pattern, Studio notes, seed scripts, gotchas 1, 7, 8
+- `.claude/rules/site-routes.md`: route table, quote query-string contract, quote Worker, redirects, JSON-LD
+- `.claude/rules/sanity-studio.md`: query pattern, Studio notes, atelierSettings and seed scripts, gotchas 1, 7, 8
 - `.claude/rules/dependencies-and-deploy.md`: matched version set and pins, gotchas 9, 10, 11 (read before ANY dependency or deploy change)
 - `.claude/rules/ci-and-scripts.md`: workflows, scripts, parity, gotchas 2, 3, 5, 6
 
-- **`PRODUCT.md`** (audience, purpose, tone, anti-references; the customer and reference-site answers are proposed by Claude from repo evidence, unconfirmed by Nathan) and **`DESIGN.md`** (the visual system as built) sit at the repo root. Read them before any design work and update them in the same change when the system moves.
+- **`PRODUCT.md`** (audience, purpose, tone, anti-references; the customer and reference-site answers are proposed by Claude from repo evidence, unconfirmed by Nathan) and **`DESIGN.md`** (the visual system as built, Direction D) sit at the repo root. Read them before any design work and update them in the same change when the system moves.
 - **`docs/PENDING.md`** — the authoritative registry of open patches and
   waiting-on-a-human items. Edit it in the same commit that opens or closes one.
 - **`docs/TESTING.md`** — which check covers what, and how to run each.

@@ -1,0 +1,315 @@
+---
+// Safe to edit by hand
+// Drives ThreadLine.astro. Per page (astro:page-load):
+//   build()  on load and on <main> resize: measure once, write the S-curve path
+//            in real pixels, and keep a lookup table of points along it.
+//   buildMask() after build(): dims the thread behind lines of text (see ThreadLine.astro).
+//   update() on scroll, rAF-throttled: clip the thread to the "tip" (62% down
+//            the viewport) and move the needle there. Reads only scrollY and
+//            innerHeight; writes only clip-path and transform.
+// Reduced motion: build() still runs (a static, fully drawn thread that fits
+// the page), but no clip, no needle and no scroll listener.
+---
+
+<script>
+  type Pt = { x: number; y: number };
+
+  function initThread() {
+    const host = document.querySelector<HTMLElement>('[data-thread-line]');
+    if (!host || host.dataset.bound) return;
+    host.dataset.bound = '1';
+    const main = host.parentElement as HTMLElement;
+    const svg = host.querySelector<SVGSVGElement>('.thread-line__svg');
+    const paths = Array.from(host.querySelectorAll<SVGPathElement>('[data-thread-path]'));
+    const stitch = host.querySelector<HTMLElement>('.thread-line__stitch');
+    const needle = host.querySelector<SVGSVGElement>('.thread-line__needle');
+    if (!svg || !stitch || !needle) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const wide = window.matchMedia('(min-width: 48rem)');
+
+    let W = 0;
+    let H = 0;
+    let hostTop = 0;
+    let endY = 0;
+    let lut: Pt[] = [];
+    let ticking = false;
+    let lastKey = '';
+
+    // Small seeded random so the same page always wanders the same way.
+    function rng(seed: number) {
+      let s = seed >>> 0;
+      return () => {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+      };
+    }
+
+    function build() {
+      W = host!.clientWidth;
+      H = host!.clientHeight;
+      hostTop = host!.getBoundingClientRect().top + window.scrollY;
+      const key = `${W}x${H}x${wide.matches}`;
+      if (key === lastKey) return;
+      lastKey = key;
+
+      if (!wide.matches || W === 0 || H === 0) {
+        lut = [];
+        endY = H;
+        return;
+      }
+
+      const endEl = main.querySelector<HTMLElement>('[data-thread-end]');
+      let endX = W * 0.5;
+      endY = Math.max(0, H - 48);
+      if (endEl) {
+        const r = endEl.getBoundingClientRect();
+        endX = r.left + r.width / 2 - host!.getBoundingClientRect().left;
+        endY = Math.min(H, r.top + window.scrollY - hostTop - 18);
+      }
+
+      // Overlay pages pull <main> up under the header, so a thread that starts
+      // at the top of <main> ran through the contact strip and the nav. Start
+      // it just below the (in-flow) outer <header> instead.
+      const header = document.querySelector<HTMLElement>('header.site-header');
+      const startY = header
+        ? Math.min(
+            endY * 0.5,
+            Math.max(0, header.getBoundingClientRect().bottom + window.scrollY - hostTop + 24),
+          )
+        : 0;
+
+      const segTarget = Math.min(1100, Math.max(640, window.innerHeight * 1.05));
+      const n = Math.max(2, Math.round((endY - startY) / segTarget));
+      const segH = (endY - startY) / n;
+      const rand = rng(Math.round(H / 97) + 7);
+      const xs: number[] = [];
+      for (let i = 0; i <= n; i++) {
+        if (i === n) {
+          xs.push(endX);
+          break;
+        }
+        const right = i % 2 === 0;
+        const band = 0.04 + rand() * 0.09;
+        xs.push(right ? W * (1 - band) : W * band);
+      }
+
+      let d = `M ${xs[0].toFixed(1)} ${startY.toFixed(1)}`;
+      const pts: Pt[] = [];
+      const STEPS = 48;
+      for (let i = 1; i <= n; i++) {
+        const x0 = xs[i - 1];
+        const x1 = xs[i];
+        const y0 = startY + (i - 1) * segH;
+        const y1 = startY + i * segH;
+        const c1y = y0 + segH * 0.55;
+        const c2y = y1 - segH * 0.55;
+        d += ` C ${x0.toFixed(1)} ${c1y.toFixed(1)} ${x1.toFixed(1)} ${c2y.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+        for (let s = i === 1 ? 0 : 1; s <= STEPS; s++) {
+          const t = s / STEPS;
+          const mt = 1 - t;
+          const a = mt * mt * mt;
+          const b = 3 * mt * mt * t;
+          const c = 3 * mt * t * t;
+          const e = t * t * t;
+          pts.push({
+            x: a * x0 + b * x0 + c * x1 + e * x1,
+            y: a * y0 + b * c1y + c * c2y + e * y1,
+          });
+        }
+      }
+      lut = pts;
+      svg!.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      for (const p of paths) p.setAttribute('d', d);
+    }
+
+    const maskEl = svg.querySelector<SVGMaskElement>('#thread-line-mask');
+    const maskOuter = svg.querySelector<SVGGElement>('[data-thread-mask-outer]');
+    const maskInner = svg.querySelector<SVGGElement>('[data-thread-mask-inner]');
+    const maskBase = maskEl?.querySelector<SVGRectElement>(':scope > rect');
+
+    /** Index of the first LUT point at or below y (the path only ever descends). */
+    function lutFrom(y: number) {
+      let lo = 0;
+      let hi = lut.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (lut[mid].y < y) lo = mid + 1;
+        else hi = mid;
+      }
+      return lo;
+    }
+
+    /** Dim the thread behind text. Reads layout once (Range rects), writes the mask once. */
+    function buildMask() {
+      if (!maskEl || !maskOuter || !maskInner || !maskBase) return;
+      maskOuter.replaceChildren();
+      maskInner.replaceChildren();
+      maskEl.setAttribute('width', String(W));
+      maskEl.setAttribute('height', String(H));
+      maskBase.setAttribute('width', String(W));
+      maskBase.setAttribute('height', String(H));
+      if (!wide.matches || lut.length < 2) return;
+
+      const hostRect = host!.getBoundingClientRect();
+      const range = document.createRange();
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const el = n.parentElement;
+          if (!el || host!.contains(el) || el.closest('script,style,noscript,svg,[hidden]')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      // Scroll reveals park their element 1.75rem low until visible; undo that
+      // so the zones sit where the text will be, not where it is waiting.
+      const shift = new Map<Element, number>();
+      const dyOf = (el: Element) => {
+        const r = el.closest('[data-reveal]');
+        if (!r) return 0;
+        if (!shift.has(r)) {
+          const t = getComputedStyle(r).translate;
+          const parts = t && t !== 'none' ? t.split(' ') : [];
+          shift.set(r, parts.length > 1 ? parseFloat(parts[1]) || 0 : 0);
+        }
+        return shift.get(r)!;
+      };
+
+      const PAD_IN = 5;
+      const PAD_OUT = 15;
+      const REACH = PAD_OUT + 6;
+      const outer: string[] = [];
+      const inner: string[] = [];
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        range.selectNodeContents(n);
+        const dy = dyOf(n.parentElement!);
+        for (const r of Array.from(range.getClientRects())) {
+          if (r.width < 2 || r.height < 2) continue;
+          const x = r.left - hostRect.left;
+          const y = r.top - hostRect.top - dy;
+          // Only the lines the thread actually passes behind.
+          let hit = false;
+          for (
+            let i = lutFrom(y - REACH);
+            i < lut.length && lut[i].y <= y + r.height + REACH;
+            i++
+          ) {
+            if (lut[i].x > x - REACH && lut[i].x < x + r.width + REACH) {
+              hit = true;
+              break;
+            }
+          }
+          if (!hit) continue;
+          const rect = (pad: number, rx: number) =>
+            `<rect x="${(x - pad).toFixed(1)}" y="${(y - pad).toFixed(1)}" width="${(r.width + pad * 2).toFixed(1)}" height="${(r.height + pad * 2).toFixed(1)}" rx="${rx}"/>`;
+          outer.push(rect(PAD_OUT, 16));
+          inner.push(rect(PAD_IN, 8));
+        }
+      }
+      // innerHTML on an SVG <g> parses in the SVG namespace in current engines.
+      maskOuter.innerHTML = outer.join('');
+      maskInner.innerHTML = inner.join('');
+    }
+
+    /** Point and heading on the thread at height y (the path only ever descends). */
+    function pointAt(y: number): { x: number; y: number; deg: number } | null {
+      if (lut.length < 2) return null;
+      let lo = 0;
+      let hi = lut.length - 1;
+      while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (lut[mid].y < y) lo = mid;
+        else hi = mid;
+      }
+      const a = lut[lo];
+      const b = lut[hi];
+      const t = b.y === a.y ? 0 : (y - a.y) / (b.y - a.y);
+      const deg = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI - 90;
+      return { x: a.x + (b.x - a.x) * t, y, deg };
+    }
+
+    function update() {
+      ticking = false;
+      const tip = Math.max(0, Math.min(H, window.scrollY + window.innerHeight * 0.62 - hostTop));
+      const cut = `inset(0 0 ${Math.max(0, H - tip).toFixed(1)}px 0)`;
+      const done = tip >= endY - 1;
+      if (wide.matches) {
+        svg!.style.clipPath = cut;
+        const p = pointAt(Math.min(tip, endY));
+        if (p && !done && tip > 2) {
+          needle!.style.opacity = '1';
+          needle!.style.transform = `translate3d(${(p.x - 6).toFixed(1)}px, ${(p.y - 4).toFixed(1)}px, 0) rotate(${p.deg.toFixed(1)}deg)`;
+        } else {
+          needle!.style.opacity = '0';
+        }
+      } else {
+        stitch!.style.clipPath = cut;
+        if (!done && tip > 2) {
+          needle!.style.opacity = '1';
+          needle!.style.transform = `translate3d(1px, ${(tip - 4).toFixed(1)}px, 0)`;
+        } else {
+          needle!.style.opacity = '0';
+        }
+      }
+    }
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    let resizeQueued = false;
+    const ro = new ResizeObserver(() => {
+      if (resizeQueued) return;
+      resizeQueued = true;
+      requestAnimationFrame(() => {
+        resizeQueued = false;
+        build();
+        buildMask();
+        if (!reduce) update();
+      });
+    });
+
+    build();
+    buildMask();
+    const rebuildAll = () => {
+      lastKey = '';
+      build();
+      buildMask();
+    };
+    window.addEventListener('load', rebuildAll, { once: true });
+    document.fonts?.ready.then(rebuildAll);
+    if (reduce) {
+      svg.style.clipPath = 'none';
+      stitch.style.clipPath = 'none';
+    } else {
+      update();
+      host.dataset.animated = '';
+      window.addEventListener('scroll', onScroll, { passive: true });
+      wide.addEventListener('change', () => {
+        lastKey = '';
+        svg.style.clipPath = '';
+        stitch.style.clipPath = '';
+        build();
+        buildMask();
+        update();
+      });
+    }
+    host.dataset.ready = '';
+    ro.observe(main);
+
+    document.addEventListener(
+      'astro:before-swap',
+      () => {
+        ro.disconnect();
+        window.removeEventListener('scroll', onScroll);
+      },
+      { once: true },
+    );
+  }
+
+  document.addEventListener('astro:page-load', initThread);
+</script>
