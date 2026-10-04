@@ -1,13 +1,18 @@
 ---
-// MAS Monograms site header.
+// MAS Monograms site header (Direction D, "The Atelier", 2026-10-04).
 // Two rows on desktop, one on mobile:
-//   ┌────────────────────────────────────── 4px accent stripe
-//   │ ─────────────────────────────────────── eyebrow strip (desktop only)
+//   ┌─ midnight contact strip (desktop only; folds away on scroll)
 //   │   [tagline]              email · phone · IG · FB
-//   ├────────────────────────────────────── main nav row
+//   ├─ main row
 //   │   [logo]      How It Works · Pricing · Shop · Gallery · About   [Request a Quote]
-//   └───────────────────────────────────────
-// Mobile: logo centered, hamburger absolute-right, eyebrow info in drawer.
+//   └─ a running-stitch hem
+// Mobile: logo left, menu button right, contact info in the full-screen menu.
+//
+// States (CSS in globals.css, "Site header (Direction D)"):
+//   tone="solid"   (default) linen row under the midnight strip
+//   tone="overlay" transparent over a dark hero, light-on-dark tokens
+//   [data-scrolled] (set below on scroll) paper glass, strip folded, row 4rem
+// The outer <header> reserves --header-h, so none of this shifts the page.
 
 import { site } from '@/data/site';
 import { Mail, Phone } from 'lucide-react';
@@ -47,9 +52,11 @@ interface Props {
   } | null;
   /** When false, the Clearance nav link is hidden (nothing on clearance). */
   hasClearance?: boolean;
+  /** 'overlay' = transparent over a dark first section (BaseLayout header="overlay"). */
+  tone?: 'solid' | 'overlay';
 }
 
-const { siteSettings, hasClearance = true } = Astro.props as Props;
+const { siteSettings, hasClearance = true, tone = 'solid' } = Astro.props as Props;
 
 // Everything Site Settings can change about the header: the menu, the quote
 // button, and the switches for the contact details in the top strip. Every one
@@ -124,187 +131,180 @@ const mobileChrome = {
 };
 ---
 
-<header class="site-header bg-background">
-  {
-    /* Eyebrow strip — desktop only. Direction C: the strip IS the indigo
-      announcement band (replacing sage-with-taupe), so the old 4px indigo
-      stripe above it is gone — it would read as a hairline of the same color.
-      Linen text on indigo = 7.6:1; /90 variants stay comfortably AA. */
-  }
-  <div class="hidden bg-primary lg:block">
-    <div class="mx-auto flex max-w-content items-center justify-between px-m py-2">
-      <p class="text-xs tracking-eyebrow text-bg/90 uppercase">
-        {siteSettings?.tagline ?? site.name}
-      </p>
-      <div class="flex items-center gap-m">
-        {
-          email && (
-            <a
-              href={`mailto:${email}`}
-              class="inline-flex items-center gap-xs text-xs text-bg transition-colors hover:text-white"
-            >
-              <Mail size={12} aria-hidden="true" />
-              {email}
-            </a>
-          )
-        }
-        {
-          phone && (
-            <a
-              href={telHref(phone)}
-              class="inline-flex items-center gap-xs text-xs text-bg transition-colors hover:text-white"
-            >
-              <Phone size={12} aria-hidden="true" />
-              {phone}
-            </a>
-          )
-        }
-        {
-          socialLinks.length > 0 && (
-            <div class="flex items-center gap-1">
-              {socialLinks.map((link) => {
-                const Icon = socialIcon(link.platform);
-                if (!Icon) return null;
-                return (
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={link.label ?? link.platform}
-                    class="inline-flex h-7 w-7 items-center justify-center rounded-full text-bg transition-colors hover:bg-white/10 hover:text-white"
-                  >
-                    <Icon size={14} stroke={1.5} />
-                  </a>
-                );
-              })}
-            </div>
-          )
-        }
+<header class="site-header" data-tone={tone}>
+  <div class="site-header__bar">
+    {
+      /* Contact strip, desktop only. A dark context in every state (midnight on
+        solid pages, transparent over a dark hero). It folds to zero height on
+        scroll and goes visibility:hidden, so its links leave the tab order
+        while folded. */
+    }
+    <div class="site-header__strip">
+      <div>
+        <div class="mx-auto flex h-9 max-w-content items-center justify-between px-m">
+          <p
+            class="text-[0.7rem] font-semibold tracking-[0.2em] text-[var(--color-text-secondary)] uppercase"
+          >
+            {siteSettings?.tagline ?? site.name}
+          </p>
+          <div class="flex items-center gap-m">
+            {
+              email && (
+                <a
+                  href={`mailto:${email}`}
+                  class="inline-flex items-center gap-xs text-xs text-foreground/90 transition-colors hover:text-link"
+                >
+                  <Mail size={12} aria-hidden="true" />
+                  {email}
+                </a>
+              )
+            }
+            {
+              phone && (
+                <a
+                  href={telHref(phone)}
+                  class="inline-flex items-center gap-xs text-xs text-foreground/90 transition-colors hover:text-link"
+                >
+                  <Phone size={12} aria-hidden="true" />
+                  {phone}
+                </a>
+              )
+            }
+            {
+              socialLinks.length > 0 && (
+                <div class="flex items-center gap-1">
+                  {socialLinks.map((link) => {
+                    const Icon = socialIcon(link.platform);
+                    if (!Icon) return null;
+                    return (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={link.label ?? link.platform}
+                        class="inline-flex h-7 w-7 items-center justify-center rounded-full text-foreground/90 transition-colors hover:bg-white/10 hover:text-link"
+                      >
+                        <Icon size={14} stroke={1.5} />
+                      </a>
+                    );
+                  })}
+                </div>
+              )
+            }
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  {/* Mobile keeps a slim indigo brand stripe since the eyebrow strip is hidden */}
-  <div class="h-1 bg-primary lg:hidden" aria-hidden="true"></div>
 
-  {
-    /* Main nav row. The bottom border lives on the inner flex (content width),
-      not the full-bleed wrapper, so the rule aligns with the logo/CTA edges. */
-  }
-  <div class="mx-auto max-w-content px-m">
-    <div
-      class="relative flex items-center justify-center border-b border-border py-m lg:justify-between"
-    >
-      <a
-        href="/"
-        class="inline-flex items-center transition-opacity hover:opacity-80"
-        aria-label={`${brandName} home`}
-      >
-        {
-          customLogo ? (
-            <SanityImage
-              source={customLogo}
-              width={320}
-              alt={customLogo.alt || brandName}
-              loading="eager"
-              class="h-12 w-auto"
-            />
-          ) : (
-            <Logo variant="ink" class="h-12 w-auto" />
-          )
-        }
-      </a>
-
-      {/* Desktop nav + CTA */}
-      <div class="hidden items-center gap-l lg:flex">
-        <nav class="site-nav flex items-center gap-m" aria-label="Primary">
+    <div class="site-header__row mx-auto max-w-content px-m">
+      <div class="relative flex h-full items-center justify-between gap-m">
+        <a
+          href="/"
+          class="inline-flex items-center transition-opacity hover:opacity-80"
+          aria-label={`${brandName} home`}
+        >
           {
-            NAV_ITEMS.map((item) =>
-              item.kind === 'flat' ? (
-                <a
-                  href={item.href}
-                  class:list={[
-                    'nav-underline text-sm tracking-wide transition-colors',
-                    isActive(item.href)
-                      ? 'font-semibold text-link'
-                      : 'text-foreground hover:text-link',
-                  ]}
-                  aria-current={isActive(item.href) ? 'page' : undefined}
-                >
-                  {item.label}
-                </a>
-              ) : (
-                <details class="site-nav__group relative">
-                  <summary
+            customLogo ? (
+              <SanityImage
+                source={customLogo}
+                width={320}
+                alt={customLogo.alt || brandName}
+                loading="eager"
+                class="site-header__logo"
+              />
+            ) : (
+              <Logo variant="adaptive" class="site-header__logo" />
+            )
+          }
+        </a>
+
+        {/* Desktop nav + CTA */}
+        <div class="hidden items-center gap-l lg:flex">
+          <nav class="site-nav flex items-center gap-m" aria-label="Primary">
+            {
+              NAV_ITEMS.map((item) =>
+                item.kind === 'flat' ? (
+                  <a
+                    href={item.href}
                     class:list={[
                       'nav-underline text-sm tracking-wide transition-colors',
-                      'inline-flex cursor-pointer list-none items-center gap-0.5 select-none',
-                      'rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-                      isGroupActive(item.items)
+                      isActive(item.href)
                         ? 'font-semibold text-link'
                         : 'text-foreground hover:text-link',
                     ]}
-                    aria-current={isGroupActive(item.items) ? 'page' : undefined}
+                    aria-current={isActive(item.href) ? 'page' : undefined}
                   >
                     {item.label}
-                    <ChevronDown
-                      size={14}
-                      className="site-nav__chevron mt-px transition-transform duration-150"
-                      aria-hidden="true"
-                    />
-                  </summary>
-                  <div class="site-nav__menu absolute top-full left-0 z-50 mt-2 min-w-[200px] rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10">
-                    {item.items.map((sub) => (
-                      <a
-                        href={sub.href}
-                        class:list={[
-                          'block rounded-md px-2.5 py-1.5 text-sm transition-colors',
-                          'outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground',
-                          isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
-                        ]}
-                        aria-current={isActive(sub.href) ? 'page' : undefined}
-                      >
-                        {sub.label}
-                      </a>
-                    ))}
-                  </div>
-                </details>
-              ),
-            )
-          }
-        </nav>
-        {
-          chrome.headerCta.show && (
-            <>
-              <span class="h-6 w-px bg-border-soft" aria-hidden="true" />
-              <a
-                href={ctaHref}
-                class:list={[
-                  'press-tactile inline-flex min-h-[44px] items-center rounded-sm px-m py-xs text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors',
-                  isActive(ctaHref)
-                    ? 'bg-[var(--color-rust-cta-hover,#722C22)]'
-                    : 'bg-[var(--color-rust-cta,#8C3A2E)] hover:bg-[var(--color-rust-cta-hover,#722C22)]',
-                ]}
-              >
+                  </a>
+                ) : (
+                  <details class="site-nav__group relative">
+                    <summary
+                      class:list={[
+                        'nav-underline text-sm tracking-wide transition-colors',
+                        'inline-flex cursor-pointer list-none items-center gap-0.5 select-none',
+                        'rounded-sm',
+                        isGroupActive(item.items)
+                          ? 'font-semibold text-link'
+                          : 'text-foreground hover:text-link',
+                      ]}
+                      aria-current={isGroupActive(item.items) ? 'page' : undefined}
+                    >
+                      {item.label}
+                      <ChevronDown
+                        size={14}
+                        className="site-nav__chevron mt-px transition-transform duration-150"
+                        aria-hidden="true"
+                      />
+                    </summary>
+                    {/* .on-light: the panel is always paper, even when the
+                        header above it is in its dark overlay state. */}
+                    <div class="site-nav__menu on-light texture-paper absolute top-full left-0 z-50 mt-3 min-w-[220px] rounded-sm p-1.5 shadow-[0_24px_40px_-24px_rgba(15,27,45,0.45)] ring-1 ring-foreground/10">
+                      {item.items.map((sub) => (
+                        <a
+                          href={sub.href}
+                          class:list={[
+                            'block rounded-sm px-3 py-2 text-sm transition-colors',
+                            'outline-none hover:bg-accent hover:text-accent-foreground focus-visible:bg-accent focus-visible:text-accent-foreground',
+                            isActive(sub.href) ? 'font-semibold text-link' : 'text-foreground',
+                          ]}
+                          aria-current={isActive(sub.href) ? 'page' : undefined}
+                        >
+                          {sub.label}
+                        </a>
+                      ))}
+                    </div>
+                  </details>
+                ),
+              )
+            }
+          </nav>
+          {
+            chrome.headerCta.show && (
+              <a href={ctaHref} class="btn btn-primary site-header__cta">
                 {ctaLabel}
               </a>
-            </>
-          )
-        }
-      </div>
+            )
+          }
+        </div>
 
-      <MobileNav
-        client:only="react"
-        links={NAV_ITEMS}
-        siteSettings={mobileNavSettings}
-        ctaLabel={ctaLabel}
-        ctaHref={ctaHref}
-        {...mobileChrome}
-      />
+        <MobileNav
+          client:only="react"
+          links={NAV_ITEMS}
+          siteSettings={mobileNavSettings}
+          ctaLabel={ctaLabel}
+          ctaHref={ctaHref}
+          {...mobileChrome}
+        />
+      </div>
     </div>
   </div>
 </header>
 
 <style>
+  .site-header__cta {
+    min-height: 2.75rem;
+    padding: 0.7rem 1.3rem;
+  }
   .site-nav__group > summary {
     list-style: none;
   }
@@ -418,4 +418,32 @@ const mobileChrome = {
   }
   initHeaderNav();
   document.addEventListener('astro:page-load', initHeaderNav);
+
+  // Condense + solidify on scroll (Direction D). One passive, rAF-throttled
+  // listener; it only toggles an attribute, CSS does the rest. Bound once
+  // (window survives View Transitions); it re-queries the header each frame
+  // because the router swaps the <header> element on navigation.
+  const hw = window as typeof window & { __headerScrollBound?: boolean };
+  function syncHeaderScrolled() {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    if (header) header.toggleAttribute('data-scrolled', window.scrollY > 16);
+  }
+  if (!hw.__headerScrollBound) {
+    hw.__headerScrollBound = true;
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          syncHeaderScrolled();
+        });
+      },
+      { passive: true },
+    );
+    document.addEventListener('astro:page-load', syncHeaderScrolled);
+  }
+  syncHeaderScrolled();
 </script>

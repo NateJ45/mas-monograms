@@ -1,0 +1,237 @@
+---
+// Safe to edit by hand
+// A shop hang tag (Direction D): card stock with chamfered top corners, a
+// punched hole with a brass eyelet, and a twine loop through it. For prices
+// (the /pricing tag line), clearance items and small labels. All text is
+// real HTML; every string comes in as a prop from Sanity.
+//
+//   <HangTag eyebrow="Bath towel" title="Monogram" value="$18" note="Up to 3 letters" />
+//   <HangTag tone="paper" tilt={-4} title={tier.name} titleTag="h3" value={tier.price}>
+//     <PortableText value={tier.details} />
+//   </HangTag>
+//
+// tone: kraft (default, Ink text), paper, or midnight (a dark ground; gold
+// eyebrow, light text). The tag itself is a CSS clip-path + mask (the hole is
+// real, the ground shows through it), so the shadow lives on the wrapper.
+
+interface Props {
+  eyebrow?: string | null;
+  title?: string | null;
+  /** Heading level for the title. Default 'p' (not a heading). */
+  titleTag?: 'h2' | 'h3' | 'h4' | 'p';
+  /** The big figure: a price, a size, a number. */
+  value?: string | null;
+  note?: string | null;
+  tone?: 'kraft' | 'paper' | 'midnight';
+  /** Rotation in degrees; tags hang a little crooked. */
+  tilt?: number;
+  /** Draw the twine loop. Default true. */
+  string?: boolean;
+  size?: 'sm' | 'md';
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  titleTag: TitleTag = 'p',
+  value,
+  note,
+  tone = 'kraft',
+  tilt = 0,
+  string = true,
+  size = 'md',
+  class: className = '',
+} = Astro.props as Props;
+---
+
+<div
+  class:list={['hangtag', `hangtag--${size}`, string && 'hangtag--strung', className]}
+  style={`--tag-tilt:${tilt}deg`}
+>
+  {
+    string && (
+      <svg
+        class="hangtag__string"
+        viewBox="0 0 60 64"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M30 62 C 22 46, 18 30, 26 14 C 30 6, 38 2, 46 0"
+          fill="none"
+          stroke="var(--tag-twine)"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          vector-effect="non-scaling-stroke"
+        />
+        <path
+          d="M30 62 C 36 48, 38 32, 32 18 C 28 9, 34 3, 46 0"
+          fill="none"
+          stroke="var(--tag-twine)"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          opacity="0.8"
+          vector-effect="non-scaling-stroke"
+        />
+      </svg>
+    )
+  }
+  <div
+    class:list={[
+      'hangtag__card',
+      `hangtag__card--${tone}`,
+      tone === 'midnight' ? 'on-dark' : 'on-light',
+    ]}
+  >
+    <span class="hangtag__eyelet" aria-hidden="true"></span>
+    {eyebrow && <p class="hangtag__eyebrow">{eyebrow}</p>}
+    {title && <TitleTag class="hangtag__title">{title}</TitleTag>}
+    {value && <p class="hangtag__value">{value}</p>}
+    {note && <p class="hangtag__note">{note}</p>}
+    {
+      Astro.slots.has('default') && (
+        <div class="hangtag__extra">
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .hangtag {
+    --tag-w: 15rem;
+    --tag-hole: 2.1rem;
+    --tag-twine: #a98a5f;
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(var(--tag-w), 100%);
+    transform: rotate(var(--tag-tilt));
+    transform-origin: 50% 0;
+    filter: drop-shadow(0 16px 16px rgba(15, 27, 45, 0.18))
+      drop-shadow(0 2px 2px rgba(15, 27, 45, 0.16));
+  }
+  .hangtag--sm {
+    --tag-w: 11.5rem;
+    --tag-hole: 1.7rem;
+  }
+  .hangtag--strung {
+    padding-top: 3rem;
+  }
+  :global(:is(.on-dark, .surface-midnight, .surface-indigo)) .hangtag {
+    --tag-twine: #d9b15f;
+  }
+  .hangtag__string {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 3.6rem;
+    height: calc(3rem + var(--tag-hole));
+    translate: -50% 0;
+    overflow: visible;
+    z-index: 1;
+  }
+  .hangtag__card {
+    position: relative;
+    width: 100%;
+    padding: calc(var(--tag-hole) + 1.6rem) 1.4rem 1.6rem;
+    text-align: center;
+    color: var(--foreground);
+    clip-path: polygon(22% 0, 78% 0, 100% 14%, 100% 100%, 0 100%, 0 14%);
+    -webkit-mask: radial-gradient(circle at 50% var(--tag-hole), #0000 0.42rem, #000 0.47rem);
+    mask: radial-gradient(circle at 50% var(--tag-hole), #0000 0.42rem, #000 0.47rem);
+  }
+  .hangtag--sm .hangtag__card {
+    padding: calc(var(--tag-hole) + 1.25rem) 1.1rem 1.25rem;
+  }
+  .hangtag__card--kraft {
+    background-color: var(--color-kraft);
+    background-image:
+      var(--tex-grain), linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 40%);
+    background-size:
+      200px 200px,
+      auto;
+  }
+  .hangtag__card--paper {
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+  }
+  .hangtag__card--midnight {
+    background-color: var(--color-midnight-raised);
+    background-image: var(--tex-midnight);
+    background-size: var(--tex-midnight-size);
+  }
+  /* A stitched hem just inside the edge, following the chamfer. */
+  .hangtag__card::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1.5px dashed var(--stitch-color);
+    clip-path: polygon(21% 0, 79% 0, 100% 13%, 100% 100%, 0 100%, 0 13%);
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  .hangtag__eyelet {
+    position: absolute;
+    left: 50%;
+    top: var(--tag-hole);
+    width: 1.35rem;
+    height: 1.35rem;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      transparent 0.42rem,
+      #7a5a22 0.45rem,
+      #e8cf8f 0.55rem,
+      #b48a3e 0.62rem,
+      #6b4c1c 0.67rem
+    );
+  }
+  .hangtag__eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+  .hangtag__title {
+    margin-top: 0.35rem;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 440;
+    line-height: 1.15;
+    color: var(--foreground);
+  }
+  .hangtag__value {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(2.4rem, 2rem + 1.5vw, 3.1rem);
+    font-weight: 380;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+  .hangtag--sm .hangtag__value {
+    font-size: 2.1rem;
+  }
+  .hangtag__note {
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+  }
+  .hangtag__extra {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    text-align: left;
+  }
+</style>

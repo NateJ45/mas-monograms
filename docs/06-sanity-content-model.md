@@ -25,6 +25,26 @@ defaults, `businessType` (drives the LocalBusiness schema.org type), price range
 `homePage`, `howItWorksPage`, `pricingPage`, `aboutPage`, `requestAQuotePage`, `shopIndexPage`,
 `styleGalleryPage`, `fontGuidePage`, `threadChartPage`, `clearancePage`, `thankYouPage`, `notFoundPage`.
 
+**`atelierSettings`** (added 2026-10-04, Direction D "The Atelier") — every word of the live monogram preview:
+section `eyebrow`/`headline`/`subhead`; control labels (`initialsLabel`, `initialsHint`, `styleLabel`,
+`threadLabel`, `fabricLabel`); `styles[]` (`key` is one of `classic|script|block|circle|single` and is fixed by
+the code, `label`, `blurb`); `fabrics[]` (`key`, `label`, `color` hex, `note`); `sampleMonograms[]` (made-up
+initials only, 1 to 3 letters); `replayLabel`, `ctaLabel`, `disclaimer` (the "preview, Mary Ann confirms the
+proof" line); `heroTryLabel`, `heroPlaceholder`. Desk: Website pages > "Monogram Preview (live stitching)".
+Read with `getAtelierSettings()`. Seeded by `scripts/seed-atelier.mjs` (dry run by default, `--apply` to write;
+`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is NOT yet in the `SINGLETON_TYPES` set
+in the repo-root `sanity.config.ts`, so the Studio still allows duplicating or deleting it until that one line is added.
+
+**`homePage` additions (2026-10-04, all optional):** `marqueeEyebrow` (trust group), `categoriesNote`,
+`makerQuote` / `makerSignature` / `makerFacts[]` (about group), studio wall `wallEyebrow` / `wallHeadline` /
+`wallSubhead` / `wallCtaLabel` (new "Studio wall" group), closing banner `finalEyebrow` / `finalHeadline` /
+`finalSubhead` / `finalCtaLabel` / `finalCtaHref` (new "Closing thread banner" group). Existing fields are
+untouched. `makerFacts` must hold only true statements.
+
+**Query notes:** `getAllThreadColors()` now returns `slug` as a plain string (it was the `{current}` object; no
+caller used it). `getGalleryItemsForWall(limit)` returns featured items first with `hotspot`/`crop`; as of
+2026-10-04 none of the 69 gallery photos has a hotspot set, so the front end must default to the centre.
+
 Common shape across pages: an SEO group (collapsed in the Studio), a hero (eyebrow/headline/subhead), the
 page's own sections, and a bottom CTA banner. `requestAQuotePage` is the outlier — it stores every form
 label, help line, placeholder, section heading, and the referral-source options.

@@ -1,43 +1,118 @@
 ---
 // Reusable bottom-of-page CTA section. Every MAS page ends with this.
 // Pull eyebrow/headline/subhead/ctaLabel/ctaHref from the page's Sanity data.
+//
+// Direction D ("The Atelier", 2026-10-04): a Midnight drench with the linen
+// twill texture, a stitched frame, the headline at display scale with an
+// optional italic swash, and the paper-on-dark primary button. The golden
+// ThreadLine finishes here: the button row carries data-thread-end, so the
+// thread is sewn down the page and tied off at the call to action.
+// The section is a top-level .surface-midnight, so it must stay a direct
+// child of <main> (pages render it last, outside any wrapper).
+
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
 
 interface Props {
   eyebrow?: string;
   headline?: string;
+  /** A word or phrase from the headline set in the gold italic swash. */
+  swash?: string;
   subhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  /** Optional quieter second action (outlined). */
+  secondaryLabel?: string;
+  secondaryHref?: string;
 }
 
 const {
   eyebrow = 'Ready to get started?',
   headline = 'Request a Custom Quote',
+  swash,
   subhead = "Tell us about your project and we'll get back to you within one business day.",
   ctaLabel = 'Request a Quote',
   ctaHref = '/request-a-quote',
+  secondaryLabel,
+  secondaryHref,
 } = Astro.props;
+
+let before = headline ?? '';
+let word = '';
+let after = '';
+if (swash && headline?.includes(swash)) {
+  const i = headline.indexOf(swash);
+  before = headline.slice(0, i);
+  word = swash;
+  after = headline.slice(i + swash.length);
+}
 ---
 
-{
-  /* Direction C drench band: Heritage Indigo, not the old near-black
-    (#1a1512) slab — the near-black was the largest tonal jump on the site
-    and had no counterpart in the reference set. On indigo, the button flips
-    to paper-with-ink (claret-on-indigo vibrates; light-button-on-drench is
-    the pattern every premium reference uses on dark surfaces). */
-}
-<section class="bg-primary py-section-lg text-bg">
-  <div class="mx-auto max-w-content px-m text-center">
-    {eyebrow && <p class="mb-s text-xs tracking-eyebrow text-bg/80 uppercase">{eyebrow}</p>}
-    <h2 class="mb-m font-display text-h2 leading-headline-tight text-bg">
-      {headline}
-    </h2>
-    {subhead && <p class="mx-auto mb-l max-w-xl text-bg/85">{subhead}</p>}
-    <a
-      href={ctaHref}
-      class="press-tactile inline-flex min-h-[44px] items-center justify-center rounded-sm bg-card px-l py-s text-xs font-semibold tracking-[0.18em] text-foreground uppercase transition-colors hover:bg-white"
-    >
-      {ctaLabel}
-    </a>
+<section class="cta-banner surface-midnight py-section-lg" aria-labelledby="cta-banner-heading">
+  <div class="cta-banner__frame mx-auto max-w-content px-m">
+    <div class="cta-banner__inner relative px-m py-section-md text-center">
+      {
+        eyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {eyebrow}
+          </p>
+        )
+      }
+      <h2 id="cta-banner-heading" class="display-sm mx-auto max-w-4xl" data-reveal>
+        {before}
+        {word && <em class="swash">{word}</em>}
+        {after}
+      </h2>
+      {
+        subhead && (
+          <p class="lede mx-auto mt-m text-center" data-reveal style="--reveal-delay: 120ms">
+            {subhead}
+          </p>
+        )
+      }
+      <div
+        class="mt-l flex flex-wrap items-center justify-center gap-m"
+        data-thread-end
+        data-reveal
+        style="--reveal-delay: 220ms"
+      >
+        <a href={ctaHref} class="btn btn-primary">
+          <span>{ctaLabel}</span>
+          <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        {
+          secondaryLabel && secondaryHref && (
+            <a href={secondaryHref} class="btn btn-secondary">
+              {secondaryLabel}
+            </a>
+          )
+        }
+      </div>
+      <RunningStitch ornament="cross" class="mx-auto mt-l" length="min(18rem, 70%)" />
+    </div>
   </div>
 </section>
+
+<style>
+  .cta-banner__inner {
+    outline: 1.5px dashed rgba(217, 177, 95, 0.55);
+    outline-offset: -2px;
+  }
+  .cta-banner__inner::before,
+  .cta-banner__inner::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background:
+      linear-gradient(45deg, transparent 43%, var(--color-gold) 43% 57%, transparent 57%),
+      linear-gradient(-45deg, transparent 43%, var(--color-gold) 43% 57%, transparent 57%);
+  }
+  .cta-banner__inner::before {
+    top: -7px;
+    left: -7px;
+  }
+  .cta-banner__inner::after {
+    right: -7px;
+    bottom: -7px;
+  }
+</style>

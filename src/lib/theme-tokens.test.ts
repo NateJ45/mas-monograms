@@ -73,7 +73,8 @@ function token(name: string): string {
 test('the @theme palette was actually found', () => {
   // Guards the regex itself: if globals.css is restructured so the hex tokens
   // stop matching, every pair below would silently pass on an empty map.
-  assert.ok(Object.keys(tokens).length >= 20, `only ${Object.keys(tokens).length} hex tokens read`);
+  // 22 Heirloom Coast tokens + 11 Direction D tokens (2026-10-04).
+  assert.ok(Object.keys(tokens).length >= 33, `only ${Object.keys(tokens).length} hex tokens read`);
 });
 
 test('contrast math matches the WCAG reference points', () => {
@@ -197,3 +198,149 @@ for (const [fg, bg] of NON_TEXT) {
     );
   });
 }
+
+// =============================================================================
+// Direction D, "The Atelier" (2026-10-04)
+// =============================================================================
+// New grounds: Midnight (the drench) and Midnight raised (a panel on it), plus
+// three light fabric grounds for swatch cards and hang tags (Paper, Kraft,
+// Blush, Sage). Dark grounds re-point the text tokens inside .surface-midnight /
+// .surface-indigo / .on-dark (globals.css "Ground contexts"); every pair those
+// contexts actually put on screen is asserted here. Deliberately NOT asserted:
+//   --color-gold-deep (#a9772a) - the shadow stop of the thread-gold gradient
+//     and the thread strokes, 4.41:1 on Midnight. DECORATIVE ONLY, never text.
+//   --color-gold-script / --color-gold on Linen - gold is a dark-ground colour.
+
+const DARK_GROUNDS = ['color-midnight', 'color-midnight-raised'];
+const ALL_DARK_GROUNDS = [...DARK_GROUNDS, 'color-primary', 'color-primary-dark'];
+
+test('Direction D tokens are declared in @theme', () => {
+  for (const name of [
+    'color-midnight',
+    'color-midnight-raised',
+    'color-paper',
+    'color-on-dark-muted',
+    'color-gold-light',
+    'color-gold',
+    'color-gold-deep',
+    'color-kraft',
+    'color-blush',
+    'color-sage',
+    'color-border-on-dark',
+  ]) {
+    token(name);
+  }
+});
+
+test('the context overrides never redeclare a --color-* token with a raw hex', () => {
+  // readTokens() keeps the LAST hex it finds for each name. A dark context that
+  // wrote `--color-text-secondary: #c8c0b0` would silently replace the light
+  // value this file asserts on Linen. Overrides must go through var().
+  const css = readFileSync(CSS, 'utf8');
+  const seen = new Map<string, number>();
+  for (const m of css.matchAll(/--(color-[a-z0-9-]+)\s*:\s*#[0-9a-fA-F]{3,8}\s*;/g)) {
+    seen.set(m[1], (seen.get(m[1]) ?? 0) + 1);
+  }
+  const dupes = [...seen].filter(([, n]) => n > 1).map(([k]) => k);
+  assert.deepEqual(dupes, [], `hex declared more than once: ${dupes.join(', ')}`);
+});
+
+// Light text the dark contexts put on screen: --foreground is Linen, cards are
+// Paper-on-raised, secondary/tertiary/muted text all map to --color-on-dark-muted,
+// links and swash words are gold-light, brass text maps to gold.
+const ON_DARK_TEXT = [
+  'color-bg',
+  'color-paper',
+  'color-white-pure',
+  'color-on-dark-muted',
+  'color-gold-light',
+];
+for (const bg of ALL_DARK_GROUNDS) {
+  for (const fg of ON_DARK_TEXT) {
+    test(`--${fg} on dark ground --${bg} meets AA body text`, () => {
+      const ratio = contrastRatio(token(fg), token(bg));
+      assert.ok(
+        ratio >= AA_BODY_TEXT,
+        `--${fg} (${token(fg)}) on --${bg} (${token(bg)}) is ${ratio}:1, needs ${AA_BODY_TEXT}:1`,
+      );
+    });
+  }
+}
+
+// Gold (the eyebrow and brass-text colour in a dark context) at body size on
+// Midnight and the raised panel; on Indigo it is held to the large-text bar
+// only (see the gold-script tests above: same hex).
+for (const bg of DARK_GROUNDS) {
+  test(`--color-gold on --${bg} meets AA body text (dark-context eyebrows)`, () => {
+    const ratio = contrastRatio(token('color-gold'), token(bg));
+    assert.ok(ratio >= AA_BODY_TEXT, `gold on --${bg} is ${ratio}:1`);
+  });
+}
+
+// Buttons. The primary button on a dark ground is Paper with Ink type, and its
+// hover/focus fill is gold-light with Midnight type. On light it is Claret with
+// white (asserted above under REVERSED).
+const BUTTON_PAIRS: Array<[string, string]> = [
+  ['color-accent', 'color-paper'], // Ink on the paper button
+  ['color-midnight', 'color-gold-light'], // Midnight on the gold fill
+  ['color-accent', 'color-gold-light'],
+  ['color-midnight', 'color-bg'], // secondary-on-dark fill: Midnight on Linen
+];
+for (const [fg, bg] of BUTTON_PAIRS) {
+  test(`button pair --${fg} on --${bg} meets AA body text`, () => {
+    const ratio = contrastRatio(token(fg), token(bg));
+    assert.ok(ratio >= AA_BODY_TEXT, `--${fg} on --${bg} is ${ratio}:1`);
+  });
+}
+
+// Light fabric grounds (SwatchCard tones, HangTag kraft/paper). Ink and the
+// secondary text token sit on all of them; Claret display text on Kraft and
+// Blush. Brass text is NOT allowed on Kraft (3.98:1) and is left out on purpose.
+const FABRIC_TEXT: Array<[string, string]> = [
+  ['color-accent', 'color-paper'],
+  ['color-text-secondary', 'color-paper'],
+  ['color-text-tertiary', 'color-paper'],
+  ['color-brass-text', 'color-paper'],
+  ['color-rust-decorative', 'color-paper'],
+  ['color-primary', 'color-paper'],
+  ['color-accent', 'color-kraft'],
+  ['color-text-secondary', 'color-kraft'],
+  ['color-rust-decorative', 'color-kraft'],
+  ['color-accent', 'color-blush'],
+  ['color-text-secondary', 'color-blush'],
+  ['color-rust-decorative', 'color-blush'],
+  ['color-accent', 'color-sage'],
+  ['color-text-secondary', 'color-sage'],
+];
+for (const [fg, bg] of FABRIC_TEXT) {
+  test(`fabric ground: --${fg} on --${bg} meets AA body text`, () => {
+    const ratio = contrastRatio(token(fg), token(bg));
+    assert.ok(
+      ratio >= AA_BODY_TEXT,
+      `--${fg} (${token(fg)}) on --${bg} (${token(bg)}) is ${ratio}:1, needs ${AA_BODY_TEXT}:1`,
+    );
+  });
+}
+
+// Non-text on dark: gold-light is the focus ring (and the swash colour) on
+// every dark ground; --color-border-on-dark is a form field's edge there.
+const NON_TEXT_DARK: Array<[string, string]> = [
+  ...ALL_DARK_GROUNDS.map((bg): [string, string] => ['color-gold-light', bg]),
+  ['color-border-on-dark', 'color-midnight'],
+  ['color-border-on-dark', 'color-midnight-raised'],
+  ['color-primary', 'color-paper'], // the light focus ring on a Paper card
+];
+for (const [fg, bg] of NON_TEXT_DARK) {
+  test(`--${fg} on --${bg} meets the AA non-text threshold (focus ring / field edge)`, () => {
+    const ratio = contrastRatio(token(fg), token(bg));
+    assert.ok(ratio >= AA_NON_TEXT, `--${fg} on --${bg} is ${ratio}:1, needs ${AA_NON_TEXT}:1`);
+  });
+}
+
+test('gold-deep stays decorative: it is NOT body-text safe on Midnight', () => {
+  // A tripwire, not a gate: if someone darkens Midnight or lightens gold-deep
+  // until this passes AA, the "decorative only" rule in globals.css should be
+  // revisited deliberately rather than drift into use as text.
+  const ratio = contrastRatio(token('color-gold-deep'), token('color-midnight'));
+  assert.ok(ratio < AA_BODY_TEXT, `gold-deep on Midnight is now ${ratio}:1`);
+});

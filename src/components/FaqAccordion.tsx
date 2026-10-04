@@ -8,6 +8,12 @@
 // and keyboard nav for free.
 //
 // Hydrate with client:visible — FAQ is below-the-fold on every page that uses it.
+//
+// Direction D ("The Atelier", 2026-10-04): rows divided by running stitches,
+// a numbered italic index (01, 02...) beside each question, and a cross-stitch
+// "+" that turns into an "x" when the answer is open (the primitive's chevrons
+// are hidden). Colours come from the ground, so it reads on Linen and on a
+// Midnight surface alike. Behaviour (Radix, type="multiple") is unchanged.
 
 import {
   Accordion,
@@ -79,6 +85,23 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
 
   return (
     <div className="space-y-section-lg">
+      <style>{`
+        .faq-stitch { border-color: color-mix(in srgb, var(--stitch-color) 55%, transparent); }
+        .faq-cross {
+          position: relative; flex: none; width: 2.25rem; height: 2.25rem;
+          border-radius: 9999px;
+          box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--stitch-color) 70%, transparent);
+          transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1), background-color 400ms;
+        }
+        .faq-cross > span {
+          position: absolute; left: 50%; top: 50%; width: 0.9rem; height: 2px;
+          margin: -1px 0 0 -0.45rem; border-radius: 2px;
+          background-image: repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 5px);
+        }
+        .faq-cross > span:last-child { transform: rotate(90deg); }
+        [data-state='open'] > .faq-cross,
+        [aria-expanded='true'] > .faq-cross { transform: rotate(45deg); }
+      `}</style>
       {sections.map((section, sectionIdx) => {
         const sectionId = section.category
           ? `${idPrefix}-${slugify(section.category)}`
@@ -100,27 +123,41 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
               : { 'aria-label': 'Common questions' })}
           >
             {section.category && (
-              <h2 id={`${sectionId}-heading`} className="mb-m font-display text-h3 text-foreground">
+              <h2
+                id={`${sectionId}-heading`}
+                className="mb-m font-display text-h3 text-foreground italic"
+              >
                 {section.category}
               </h2>
             )}
-            <Accordion type="multiple" className="border-t border-border-soft">
+            <Accordion type="multiple" className="faq-stitch border-t-2 border-dashed">
               {section.items.map((item, i) => {
                 const itemId = `${sectionId}-item-${i}`;
                 return (
                   <AccordionItem
                     key={itemId}
                     value={itemId}
-                    className="border-b border-border-soft"
+                    className="faq-stitch border-b-2 border-dashed"
                   >
-                    {/* Question text — bumped to h3 scale (Cormorant) so the
-                        question reads as the structural heading it is, not as
-                        a button label. Hover stays bronze for affordance. */}
-                    <AccordionTrigger className="py-m text-left font-display text-h3 text-foreground hover:text-link hover:no-underline">
-                      {item.question}
+                    {/* Question: Fraunces at h4 scale beside an italic index
+                        numeral; the cross-stitch toggle replaces the chevrons. */}
+                    <AccordionTrigger className="items-center gap-m rounded-sm py-m text-left font-display text-h4 leading-snug text-foreground hover:text-link hover:no-underline [&_[data-slot=accordion-trigger-icon]]:hidden">
+                      <span
+                        aria-hidden="true"
+                        className="w-8 shrink-0 font-display text-base text-[var(--color-brass-text)] italic"
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span className="flex-1">{item.question}</span>
+                      <span aria-hidden="true" className="faq-cross">
+                        <span />
+                        <span />
+                      </span>
                     </AccordionTrigger>
-                    <AccordionContent className="text-base leading-relaxed text-foreground/85">
-                      <PortableText value={item.answer} />
+                    <AccordionContent className="pl-[calc(2rem+var(--spacing-m))] text-base leading-relaxed text-[var(--color-text-secondary)] [&_strong]:text-foreground">
+                      <div className="max-w-[62ch] pb-s">
+                        <PortableText value={item.answer} />
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 );

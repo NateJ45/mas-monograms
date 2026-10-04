@@ -44,6 +44,7 @@ const SINGLETON_TYPES = [
   'clearancePage',
   'thankYouPage',
   'notFoundPage',
+  'atelierSettings',
 ] as const;
 
 const HIDDEN_FROM_DEFAULT = new Set<string>([
@@ -161,6 +162,7 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
               singleton(S, 'styleGalleryPage', 'Style Gallery', ImagesIcon),
               singleton(S, 'fontGuidePage', 'Font & Lettering Guide', TextIcon),
               singleton(S, 'threadChartPage', 'Thread Color Chart', ColorWheelIcon),
+              singleton(S, 'atelierSettings', 'Monogram Preview (live stitching)', SparklesIcon),
 
               S.divider(),
 

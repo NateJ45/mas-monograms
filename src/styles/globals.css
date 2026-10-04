@@ -22,7 +22,13 @@
    display grade at heading sizes). The italic file is the REAL italic cut;
    before 2026-07-03 the em'd headline suffix was browser-synthesized oblique. */
 @import '@fontsource-variable/fraunces/opsz.css';
-@import '@fontsource-variable/fraunces/opsz-italic.css';
+/* Direction D (2026-10-04): the italic is the FULL build (wght + opsz + SOFT +
+   WONK axes), not opsz-italic. The swash words in the display headlines run at
+   SOFT 100 / WONK 1 (see .swash below): rounded, thread-like terminals and the
+   leaning italic forms that read as hand lettering. It costs ~68KB over the
+   opsz italic, loads with font-display: swap, and only downloads when a page
+   actually sets italic text. The roman stays on the lighter opsz build. */
+@import '@fontsource-variable/fraunces/full-italic.css';
 @import '@fontsource-variable/mulish';
 @import '@fontsource/petemoss';
 
@@ -78,6 +84,29 @@
      ≥3:1 non-text minimum). Previously hardcoded as #847a63 in the form. */
   --color-border-interactive: #847a63;
 
+  /* ---- Direction D, "The Atelier" (2026-10-04) --------------------------
+     Heirloom Coast keeps every token above; these are additions. Ratios are
+     computed by src/lib/contrast.ts and ASSERTED in theme-tokens.test.ts.
+     Midnight sits beneath Heritage Indigo as the drench surface for the dark
+     sections, the header strip, the mobile menu and the footer. */
+  --color-midnight: #0f1b2d; /* drench surface; Linen on it = 14.97:1 */
+  --color-midnight-raised: #172a42; /* a card or panel lifted off Midnight; Linen 12.57:1 */
+  --color-paper: #fbf8f1; /* Paper as a named token (also --card); Ink on it = 12.68:1 */
+  --color-on-dark-muted: #c8c0b0; /* secondary text on dark grounds: 9.57 Midnight, 5.21 Indigo */
+  /* Thread gold. The three stops of the --thread-gold gradient. ONLY on dark
+     grounds as text (gold-light 12.01:1 on Midnight, 6.54 on Indigo); gold-light
+     is also the focus ring on dark. Gold-deep is DECORATIVE ONLY (the shadow
+     stop of the gradient and thread strokes; 4.41:1 on Midnight, never text). */
+  --color-gold-light: #f0d58a;
+  --color-gold: #d9b15f;
+  --color-gold-deep: #a9772a;
+  /* Fabric grounds for swatch cards and hang tags (light; Ink text on all). */
+  --color-kraft: #e2cfa9; /* hang-tag card stock; Ink 8.80, Claret 4.98. Not brass-text (3.98) */
+  --color-blush: #f1dfd7; /* blush cotton swatch; Ink 10.43, Secondary 6.02 */
+  --color-sage: #dde2d0; /* sage linen swatch; Ink 10.16, Secondary 5.86 */
+  /* A form field's edge on a dark ground (SC 1.4.11): 5.77:1 on Midnight. */
+  --color-border-on-dark: #8a96a8;
+
   /* Fonts — "Heirloom Coast": Fraunces headings, Mulish body, Petemoss monogram.
      --font-heading is mapped to --font-display in the @theme inline block below. */
   --font-display: 'Fraunces Variable', serif;
@@ -92,6 +121,13 @@
   --text-h3: clamp(1.5rem, 2.5vw, 2rem);
   --text-h2: clamp(2rem, 4vw, 3rem);
   --text-h1: clamp(2.5rem, 6vw, 5rem);
+  /* Direction D display sizes (utilities: text-display, text-display-sm). The
+     hero size is deliberately huge: hierarchy by scale, with the opsz axis
+     cutting hairline contrast at these sizes. */
+  --text-display: clamp(3.25rem, 1.4rem + 7vw, 9.5rem);
+  --text-display-sm: clamp(2.6rem, 1.5rem + 4.4vw, 6.25rem);
+
+  --ease-thread: cubic-bezier(0.22, 1, 0.36, 1); /* utility: ease-thread */
 
   --leading-headline-tight: 1.1; /* Fraunces reads tight at display sizes */
   --tracking-eyebrow: 0.08em; /* Uppercase eyebrow labels */
@@ -209,6 +245,13 @@
   font-style: italic;
 }
 
+/* The script face as a utility. SectionHeading's scriptAccent branch has
+   always emitted `.font-script`; until Direction D nothing defined it. */
+@utility font-script {
+  font-family: var(--font-monogram);
+  font-weight: 400;
+}
+
 /* ---------- Light mode (MAS Monograms palette) ----------- */
 
 :root {
@@ -280,6 +323,94 @@
   --error: oklch(0.577 0.245 27.325);
   --error-foreground: #ffffff;
   --outline: #28486b; /* Heritage Indigo */
+
+  /* ---- Direction D globals ---------------------------------------------- */
+  /* The thread-gold gradient: light, true, deep. Text set in it keeps
+     `color: --color-gold-light` underneath for contrast tools (see .swash). */
+  --thread-gold: linear-gradient(
+    100deg,
+    #a9772a 0%,
+    #d9b15f 22%,
+    #f0d58a 46%,
+    #d9b15f 70%,
+    #a9772a 100%
+  );
+  /* The sticky header's reserved height. The bars are fixed-height rows, so
+     these are exact: mobile row 4.25rem; desktop strip 2.25rem + row 5rem.
+     BaseLayout's overlay mode pulls <main> up by this much. */
+  --header-h: 4.25rem;
+
+  /* Context tokens: what "light ground" means for the adaptive pieces (the
+     buttons, stitch strokes, the logo). .surface-midnight / .on-dark swap
+     every one of these; see "Surfaces" below. */
+  --stitch-color: #b98a3e; /* decorative brass running stitch */
+  --accent-stitch: #8c3a2e; /* claret: the nav underline and active marks */
+  --swash-color: #8c3a2e; /* italic swash words on light grounds */
+  --eyebrow-color: #835a24; /* brass text, 5.27:1 on Linen */
+  --logo-word: #26312e;
+  --logo-script: #8c3a2e;
+  --btn-primary-bg: #8c3a2e;
+  --btn-primary-fg: #ffffff;
+  --btn-primary-fill: #722c22;
+  --btn-primary-fill-fg: #ffffff;
+  --btn-primary-stitch: rgba(255, 255, 255, 0.42);
+  --btn-primary-stitch-hover: #f0d58a;
+  --btn-secondary-fg: #28486b;
+  --btn-secondary-edge: #28486b;
+  --btn-secondary-fill: #28486b;
+  --btn-secondary-fill-fg: #fbf8f1;
+  --btn-secondary-stitch: rgba(40, 72, 107, 0.28);
+
+  /* Light-ground snapshots. A custom property inherits its COMPUTED value, so
+     these hold the light @theme values even inside a dark surface that has
+     overridden the originals; .on-light restores from them. (Never write a
+     --color-* hex outside @theme: theme-tokens.test.ts reads the LAST hex it
+     finds for each name.) */
+  --snap-text-secondary: var(--color-text-secondary);
+  --snap-text-tertiary: var(--color-text-tertiary);
+  --snap-muted-text: var(--color-muted-text);
+  --snap-brass-text: var(--color-brass-text);
+  --snap-rust-decorative: var(--color-rust-decorative);
+  --snap-border-soft: var(--color-border-soft);
+  --snap-border-interactive: var(--color-border-interactive);
+
+  /* Textures, generated (no image files). Linen is a weave, not a noise
+     photo: a 1px warp and weft at 3px pitch, then slubs (the thicker,
+     irregular threads real linen has) as sparse lines at PRIME pitches (11,
+     17, 13, 23px) so their repeats never line up into a visible grid, and an
+     isotropic grain on top. Every layer is seamless by construction; an
+     earlier anisotropic feTurbulence version showed tile seams. */
+  --tex-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.15  0 0 0 0 0.13  0 0 0 0 0.1  0 0 0 0.09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --tex-grain-light: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='9' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.96  0 0 0 0 0.93  0 0 0 0 0.87  0 0 0 0.07 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  --tex-linen:
+    var(--tex-grain),
+    repeating-linear-gradient(0deg, rgba(38, 49, 46, 0.035) 0 2px, transparent 2px 17px),
+    repeating-linear-gradient(90deg, rgba(38, 49, 46, 0.028) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.32) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 23px),
+    repeating-linear-gradient(0deg, rgba(38, 49, 46, 0.03) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(38, 49, 46, 0.026) 0 1px, transparent 1px 3px);
+  --tex-weave-light:
+    var(--tex-grain-light),
+    repeating-linear-gradient(0deg, rgba(244, 238, 227, 0.03) 0 2px, transparent 2px 17px),
+    repeating-linear-gradient(90deg, rgba(244, 238, 227, 0.022) 0 1px, transparent 1px 13px),
+    repeating-linear-gradient(0deg, rgba(244, 238, 227, 0.016) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(244, 238, 227, 0.012) 0 1px, transparent 1px 3px);
+  --tex-linen-size: 200px 200px, auto, auto, auto, auto, auto, auto;
+  --tex-paper-size: 200px 200px, auto;
+  --tex-midnight-size: auto, auto, 200px 200px, auto, auto, auto, auto;
+  --tex-paper:
+    var(--tex-grain),
+    radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 255, 255, 0.55), transparent 70%);
+  --tex-midnight:
+    radial-gradient(ellipse 75% 55% at 10% 0%, rgba(40, 72, 107, 0.6), transparent 72%),
+    radial-gradient(ellipse 55% 45% at 100% 100%, rgba(169, 119, 42, 0.13), transparent 70%),
+    var(--tex-weave-light);
+}
+@media (min-width: 64rem) {
+  :root {
+    --header-h: 7.25rem;
+  }
 }
 
 /* ---------- Base resets and defaults ---------------------- */
@@ -325,6 +456,18 @@
   h6 {
     font-weight: 560;
   }
+  /* Direction D: one visible focus ring everywhere, in the ground's own ring
+     colour (Heritage Indigo on light, gold-light on dark; both asserted at
+     AA_NON_TEXT in theme-tokens.test.ts). It lives in @layer base inside
+     :where(), so any component's own focus-visible utilities still win. */
+  :where(a, button, summary, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  ::selection {
+    background: rgba(217, 177, 95, 0.38);
+    color: inherit;
+  }
 }
 
 /* ---------- Skip-to-main link ----------------------------- */
@@ -349,13 +492,11 @@
 
 /* ---------- Polish layer ---------------------------------- */
 
-/* Scroll-reveal styles removed (Direction C motion pass, 2026-07-03): no
-   premium reference site animates content in on scroll, and the uniform
-   fade-up-on-every-section was the site's single clearest "template" tell.
-   [data-reveal] attributes remain in markup (the BaseLayout observer still
-   toggles .is-visible for the step-connector draw below) but carry no
-   entrance animation any more — content is simply visible. */
+/* Scroll reveals are BACK in Direction D (2026-10-04), gated and opt-in; see
+   "Reveal" in the Atelier layer at the end of this file. */
 
+/* Nav underline: a short running stitch (claret on light, gold on dark) that
+   sews outward from the centre on hover/focus and stays on the active page. */
 .nav-underline {
   position: relative;
 }
@@ -363,13 +504,18 @@
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -0.35rem;
+  bottom: -0.4rem;
   height: 2px;
   width: 100%;
-  background-color: var(--primary);
+  border-radius: 2px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--accent-stitch) 0 6px,
+    transparent 6px 10px
+  );
   transform: translateX(-50%) scaleX(0);
   transform-origin: center;
-  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .nav-underline:hover::after,
 .nav-underline:focus-visible::after,
@@ -396,16 +542,7 @@
   transition: transform 80ms linear;
 }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-}
-.site-header[data-state='hidden'] {
-  transform: translateY(-100%);
-}
+/* Site header: see "Site header (Direction D)" in the Atelier layer below. */
 
 .card-lift {
   transition-property: box-shadow, transform, border-color, color, background-color;
@@ -437,6 +574,23 @@
 .press-tactile:active {
   transform: translateY(1px);
   transition-duration: 60ms;
+}
+
+/* ---- Invisible 44px hit area for a small standalone link or control (PORTS.md
+   card 82; block copied from the starter's globals.css, PR #72). Grows the
+   TAPPABLE box, not the visible one, so nothing moves and an underline stays on
+   its baseline. The element must be positioned: put `relative` beside this
+   class. This class owns the element's ::after. Not for links inside a sentence
+   (WCAG 2.5.8 exempt) and not for stacked rows closer than 44px (give those real
+   min-height, or space them at least 44px minus their height apart). ---- */
+.hit-44::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
 }
 
 @layer base {
@@ -738,6 +892,651 @@ body::before {
   margin-top: 0.5rem;
 }
 
+/* =====================================================================
+   DIRECTION D, "THE ATELIER" (2026-10-04)
+   Surfaces, textures, type, buttons, stitches, reveal, marquee, header.
+   Catalog and rules: docs/02-design-system.md and .claude/rules/design-system.md.
+   ===================================================================== */
+
+/* Everything from here to "Reveal" lives in @layer components, so a
+   Tailwind utility on the same element (mt-0, text-center, justify-center,
+   w-full, a colour) always wins over these defaults. */
+@layer components {
+  /* ---------- Ground contexts -------------------------------------------
+   A dark context re-points the semantic tokens, so every existing utility
+   (text-foreground, text-link, text-[var(--color-text-secondary)], borders,
+   the focus ring) turns legible on Midnight/Indigo with no per-component
+   work. .on-light restores the light values inside a dark context (dropdown
+   panels, a paper card inside a midnight band). The header joins the dark
+   list while it sits transparent over a dark hero. */
+
+  .on-dark,
+  .surface-midnight,
+  .surface-indigo,
+  .site-header__strip,
+  .site-header[data-tone='overlay']:not([data-scrolled]) {
+    --background: var(--color-midnight);
+    --foreground: #f4eee3;
+    --card: var(--color-midnight-raised);
+    --card-foreground: #f4eee3;
+    --popover: var(--color-midnight-raised);
+    --popover-foreground: #f4eee3;
+    --muted: var(--color-midnight-raised);
+    --muted-foreground: var(--color-on-dark-muted);
+    --link: var(--color-gold-light);
+    --ring: var(--color-gold-light);
+    --border: rgba(240, 213, 138, 0.3);
+    --input: rgba(244, 238, 227, 0.2);
+    --color-text-secondary: var(--color-on-dark-muted);
+    --color-text-tertiary: var(--color-on-dark-muted);
+    --color-muted-text: var(--color-on-dark-muted);
+    --color-brass-text: var(--color-gold);
+    --color-rust-decorative: var(--color-gold-light);
+    --color-border-soft: rgba(244, 238, 227, 0.16);
+    --color-border-interactive: var(--color-border-on-dark);
+    --stitch-color: var(--color-gold);
+    --accent-stitch: var(--color-gold-light);
+    --swash-color: var(--color-gold-light);
+    --eyebrow-color: var(--color-gold);
+    --logo-word: #f4eee3;
+    --logo-script: var(--color-gold-light);
+    --btn-primary-bg: var(--color-paper);
+    --btn-primary-fg: #26312e;
+    --btn-primary-fill: var(--color-gold-light);
+    --btn-primary-fill-fg: var(--color-midnight);
+    --btn-primary-stitch: rgba(15, 27, 45, 0.26);
+    --btn-primary-stitch-hover: rgba(15, 27, 45, 0.55);
+    --btn-secondary-fg: #f4eee3;
+    --btn-secondary-edge: rgba(244, 238, 227, 0.62);
+    --btn-secondary-fill: #f4eee3;
+    --btn-secondary-fill-fg: var(--color-midnight);
+    --btn-secondary-stitch: rgba(244, 238, 227, 0.2);
+    color: var(--foreground);
+  }
+  .surface-indigo {
+    --background: var(--color-primary);
+    --card: var(--color-primary-dark);
+    --muted: var(--color-primary-dark);
+  }
+
+  .on-light,
+  .surface-linen,
+  .surface-paper,
+  .surface-sage {
+    --background: #f4eee3;
+    --foreground: #26312e;
+    --card: #fbf8f1;
+    --card-foreground: #26312e;
+    --popover: #fbf8f1;
+    --popover-foreground: #26312e;
+    --muted: #e4e2d3;
+    --muted-foreground: #5a5148;
+    --link: #28486b;
+    --ring: #28486b;
+    --border: #b7ad99;
+    --input: #d8cfbc;
+    --color-text-secondary: var(--snap-text-secondary);
+    --color-text-tertiary: var(--snap-text-tertiary);
+    --color-muted-text: var(--snap-muted-text);
+    --color-brass-text: var(--snap-brass-text);
+    --color-rust-decorative: var(--snap-rust-decorative);
+    --color-border-soft: var(--snap-border-soft);
+    --color-border-interactive: var(--snap-border-interactive);
+    --stitch-color: #b98a3e;
+    --accent-stitch: #8c3a2e;
+    --swash-color: #8c3a2e;
+    --eyebrow-color: #835a24;
+    --logo-word: #26312e;
+    --logo-script: #8c3a2e;
+    --btn-primary-bg: #8c3a2e;
+    --btn-primary-fg: #ffffff;
+    --btn-primary-fill: #722c22;
+    --btn-primary-fill-fg: #ffffff;
+    --btn-primary-stitch: rgba(255, 255, 255, 0.42);
+    --btn-primary-stitch-hover: #f0d58a;
+    --btn-secondary-fg: #28486b;
+    --btn-secondary-edge: #28486b;
+    --btn-secondary-fill: #28486b;
+    --btn-secondary-fill-fg: #fbf8f1;
+    --btn-secondary-stitch: rgba(40, 72, 107, 0.28);
+    color: var(--foreground);
+  }
+  .surface-paper {
+    --background: #fbf8f1;
+  }
+  .surface-sage {
+    --background: #e4e2d3;
+  }
+
+  /* ---------- Surfaces ---------------------------------------------------
+   A surface paints its ground (colour + texture) on ::before at z-index -2.
+   Why a pseudo: <main> is an isolated stacking context and the golden
+   ThreadLine sits inside it at z-index -1, so a TOP-LEVEL surface (a direct
+   child of <main>, or anything carrying .thread-through) paints its ground
+   UNDER the thread while its in-flow content paints OVER it: the thread
+   passes behind the words and in front of the cloth. Every other surface is
+   isolated (its own stacking context), so it paints correctly wherever it is
+   nested. Gotchas for page authors:
+     - never put data-reveal / transform / opacity / filter ON a top-level
+       surface section (it becomes its own stacking context and the thread
+       disappears beneath it); put them on the content inside.
+     - inside a top-level surface, a negative z-index child lands in <main>'s
+       context, below the ground. Use z-0 and DOM order instead.
+     - a section that paints a plain bg-* utility hides the thread. Use a
+       surface class for full-width bands. */
+  .surface-midnight,
+  .surface-indigo,
+  .surface-linen,
+  .surface-paper,
+  .surface-sage {
+    position: relative;
+    isolation: isolate;
+  }
+  main > :is(.surface-midnight, .surface-indigo, .surface-linen, .surface-paper, .surface-sage),
+  .thread-through {
+    isolation: auto;
+  }
+  .surface-midnight::before,
+  .surface-indigo::before,
+  .surface-linen::before,
+  .surface-paper::before,
+  .surface-sage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+  }
+  .surface-midnight::before,
+  .texture-midnight {
+    background-color: var(--color-midnight);
+    background-image: var(--tex-midnight);
+    background-size: var(--tex-midnight-size);
+  }
+  .surface-indigo::before {
+    background-color: var(--color-primary);
+    background-image:
+      radial-gradient(ellipse 80% 60% at 85% 0%, rgba(15, 27, 45, 0.45), transparent 70%),
+      var(--tex-weave-light);
+    background-size:
+      auto,
+      200px 200px,
+      auto,
+      auto,
+      auto,
+      auto;
+  }
+  .surface-linen::before,
+  .texture-linen {
+    background-color: var(--color-bg);
+    background-image: var(--tex-linen);
+    background-size: var(--tex-linen-size);
+  }
+  .surface-sage::before {
+    background-color: var(--color-bg-soft);
+    background-image: var(--tex-linen);
+    background-size: var(--tex-linen-size);
+  }
+  .surface-paper::before,
+  .texture-paper {
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+  }
+  /* .texture-* paint the ground on the element itself (cards, panels, tags):
+   no stacking tricks, no thread interaction. */
+
+  /* ---------- Type --------------------------------------------------------
+   .display / .display-sm: the huge Fraunces statement sizes (light weight,
+   negative tracking, opsz at its display cut). .swash: the italic word that
+   carries the line, SOFT 100 + WONK 1 on the full italic build; claret on
+   light, the thread-gold gradient on dark. The gradient is clipped to the
+   glyphs with -webkit-text-fill-color while `color` stays gold-light, so
+   contrast tools (axe, Lighthouse) still measure a real, passing colour. */
+  .display,
+  .display-sm {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    color: var(--foreground);
+    text-wrap: balance;
+  }
+  .display {
+    font-size: var(--text-display);
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    font-weight: 340;
+  }
+  .display-sm {
+    font-size: var(--text-display-sm);
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    font-weight: 360;
+  }
+  .swash {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 330;
+    font-variation-settings:
+      'SOFT' 100,
+      'WONK' 1;
+    color: var(--swash-color);
+    letter-spacing: -0.012em;
+    /* Room for the italic overhang so the clipped gradient never shaves a
+     terminal; the negative margin keeps the word's advance unchanged. */
+    padding-inline: 0.08em 0.12em;
+    margin-inline: -0.08em -0.05em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  :is(.on-dark, .surface-midnight, .surface-indigo, .site-header__strip) .swash,
+  .swash-gold {
+    color: var(--color-gold-light);
+    background-image: var(--thread-gold);
+    background-size: 100% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  :is(.on-light, .surface-linen, .surface-paper, .surface-sage) .swash:not(.swash-gold) {
+    color: var(--swash-color);
+    background-image: none;
+    -webkit-text-fill-color: currentColor;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--eyebrow-color);
+  }
+  .eyebrow::before {
+    content: '';
+    flex: none;
+    width: 2.25rem;
+    height: 2px;
+    border-radius: 2px;
+    background-image: repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 10px);
+  }
+  .eyebrow--center::after {
+    content: '';
+    flex: none;
+    width: 2.25rem;
+    height: 2px;
+    border-radius: 2px;
+    background-image: repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 10px);
+  }
+
+  .lede {
+    font-size: clamp(1.125rem, 1rem + 0.45vw, 1.375rem);
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    max-width: 42ch;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Buttons ---------------------------------------------------
+   .btn + .btn-primary | .btn-secondary. The variant reads the ground's
+   context tokens, so ONE class pair is claret-on-light and paper-on-dark
+   automatically. Anatomy: an inner running stitch (::after) like the edge of
+   an embroidered patch, and a fill (::before) that sews across from the
+   left on hover AND keyboard focus. 48px tall (44px floor). */
+  .btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0.85rem 1.75rem;
+    border-radius: 2px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition-property:
+      color, background-color, border-color, box-shadow, transform, outline-color;
+    transition-duration: 520ms;
+    transition-timing-function: var(--ease-thread);
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--btn-fill);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 560ms var(--ease-thread);
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px dashed var(--btn-stitch);
+    border-radius: 1px;
+    pointer-events: none;
+    transition:
+      border-color 520ms var(--ease-thread),
+      inset 520ms var(--ease-thread);
+  }
+  .btn:hover::before,
+  .btn:focus-visible::before {
+    transform: scaleX(1);
+  }
+  .btn:hover::after,
+  .btn:focus-visible::after {
+    border-color: var(--btn-stitch-hover);
+    inset: 5px;
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  .btn:active {
+    transform: translateY(1px);
+    transition-duration: 60ms;
+  }
+  .btn-primary {
+    --btn-fill: var(--btn-primary-fill);
+    --btn-stitch: var(--btn-primary-stitch);
+    --btn-stitch-hover: var(--btn-primary-stitch-hover);
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+    box-shadow: 0 14px 28px -18px rgba(15, 27, 45, 0.55);
+  }
+  .btn-primary:hover,
+  .btn-primary:focus-visible {
+    color: var(--btn-primary-fill-fg);
+  }
+  .btn-secondary {
+    --btn-fill: var(--btn-secondary-fill);
+    --btn-stitch: var(--btn-secondary-stitch);
+    --btn-stitch-hover: transparent;
+    background-color: transparent;
+    color: var(--btn-secondary-fg);
+    box-shadow: inset 0 0 0 1px var(--btn-secondary-edge);
+  }
+  .btn-secondary:hover,
+  .btn-secondary:focus-visible {
+    color: var(--btn-secondary-fill-fg);
+  }
+  .btn__arrow {
+    display: inline-block;
+    transition: transform 520ms var(--ease-thread);
+  }
+  .btn:hover .btn__arrow,
+  .btn:focus-visible .btn__arrow {
+    transform: translateX(0.3rem);
+  }
+
+  /* Text link with a stitched underline: dashed at rest, sewn solid across on
+   hover and focus. Use for standalone links ("See every thread colour"), not
+   for links inside running prose (those keep a plain underline). */
+  .link-stitch {
+    color: var(--link);
+    text-decoration: none;
+    padding-bottom: 0.2em;
+    background-image:
+      linear-gradient(currentColor, currentColor),
+      repeating-linear-gradient(90deg, currentColor 0 5px, transparent 5px 9px);
+    background-size:
+      0% 1.5px,
+      100% 1.5px;
+    background-position:
+      0 100%,
+      0 100%;
+    background-repeat: no-repeat;
+    transition:
+      background-size 560ms var(--ease-thread),
+      color 440ms var(--ease-thread);
+  }
+  .link-stitch:hover,
+  .link-stitch:focus-visible {
+    background-size:
+      100% 1.5px,
+      0% 1.5px;
+  }
+
+  /* ---------- Stitches ----------------------------------------------------
+   CSS stitch utilities for when a component is overkill. RunningStitch.astro
+   draws the round-capped SVG version for dividers. --stitch-color follows the
+   ground (brass on light, gold on dark); override it inline for claret. */
+  .stitch-x {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--stitch-color) 0 var(--stitch-len, 10px),
+      transparent var(--stitch-len, 10px) calc(var(--stitch-len, 10px) + var(--stitch-gap, 7px))
+    );
+  }
+  .stitch-frame {
+    outline: 1.5px dashed var(--stitch-color);
+    outline-offset: calc(-1 * var(--stitch-inset, 10px));
+  }
+  /* Four cross-stitch marks in the corners. Owns ::after; needs a positioned host. */
+  .cross-corners {
+    position: relative;
+  }
+  .cross-corners::after {
+    content: '';
+    position: absolute;
+    inset: var(--cc-inset, 12px);
+    pointer-events: none;
+    background-color: var(--stitch-color);
+    --cc: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2 2l8 8M10 2l-8 8' stroke='black' stroke-width='2' stroke-linecap='round'/></svg>");
+    -webkit-mask:
+      var(--cc) top left / 12px 12px no-repeat,
+      var(--cc) top right / 12px 12px no-repeat,
+      var(--cc) bottom left / 12px 12px no-repeat,
+      var(--cc) bottom right / 12px 12px no-repeat;
+    mask:
+      var(--cc) top left / 12px 12px no-repeat,
+      var(--cc) top right / 12px 12px no-repeat,
+      var(--cc) bottom left / 12px 12px no-repeat,
+      var(--cc) bottom right / 12px 12px no-repeat;
+  }
+}
+
+/* ---------- Reveal ------------------------------------------------------
+   Opt-in: add data-reveal (rise, the default), data-reveal="fade" or
+   data-reveal="stitch" (a left-to-right wipe, like a line being sewn) to an
+   element, or data-reveal-stagger on a parent to stagger its children.
+   Optional per-element delay: style="--reveal-delay: 160ms".
+   Content is NEVER hidden unless motifs/RevealScript.astro has run and put
+   .reveal-ready on <html>: no JS, a failed script, the preview shell and
+   reduced motion all show everything. Elements already on screen when the
+   script starts are marked visible without animating. The end state is
+   .is-visible, which tests/helpers.ts settle() and PreviewLayout force. */
+[data-reveal] {
+  transition-property: opacity, translate, clip-path, transform, box-shadow, border-color;
+  transition-duration: 1000ms, 1000ms, 1300ms, 440ms, 440ms, 440ms;
+  transition-delay:
+    var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0s, 0s, 0s;
+  transition-timing-function: var(--ease-thread);
+}
+html.reveal-ready [data-reveal]:not(.is-visible) {
+  opacity: 0;
+  translate: 0 1.75rem;
+}
+html.reveal-ready [data-reveal='fade']:not(.is-visible) {
+  translate: none;
+}
+html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
+  opacity: 1;
+  translate: none;
+  clip-path: inset(0 100% 0 0);
+}
+[data-reveal='stitch'].is-visible {
+  clip-path: inset(0 0 0 0);
+}
+
+/* ---------- Marquee (motifs/Marquee.astro) ------------------------------ */
+.marquee {
+  --marquee-duration: 70s;
+  --marquee-gap: clamp(1.5rem, 3vw, 3rem);
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+.marquee__track {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--marquee-gap);
+  min-width: 100%;
+  padding-right: var(--marquee-gap);
+  margin: 0;
+  list-style: none;
+  animation: atelier-marquee var(--marquee-duration) linear infinite;
+}
+.marquee[data-direction='reverse'] .marquee__track {
+  animation-direction: reverse;
+}
+.marquee:hover .marquee__track,
+.marquee:focus-within .marquee__track,
+.marquee[data-paused] .marquee__track {
+  animation-play-state: paused;
+}
+@keyframes atelier-marquee {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* ---------- Site header (Direction D) -----------------------------------
+   The outer <header> is sticky and reserves --header-h, so condensing never
+   shifts the page. It is pointer-events:none; the visible .site-header__bar
+   takes the clicks. States (set by the Header script, rAF-throttled):
+     data-tone="solid"   linen bar under a midnight contact strip (default)
+     data-tone="overlay" transparent over a dark hero, dark-context tokens
+     data-scrolled       paper glass, strip folded away, stitched hem
+   With no JS an overlay header is painted solid midnight, so it can never
+   end up as light text over a light section. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--header-h);
+  pointer-events: none;
+}
+.site-header__bar {
+  position: relative;
+  pointer-events: auto;
+  background-color: var(--color-bg);
+  transition:
+    background-color 480ms var(--ease-thread),
+    box-shadow 480ms var(--ease-thread),
+    -webkit-backdrop-filter 480ms var(--ease-thread),
+    backdrop-filter 480ms var(--ease-thread);
+}
+.site-header__bar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--stitch-color) 0 9px,
+    transparent 9px 15px
+  );
+  opacity: 0.55;
+  transition: opacity 480ms var(--ease-thread);
+}
+.site-header[data-tone='overlay'] .site-header__bar {
+  background-color: transparent;
+}
+.site-header[data-tone='overlay']:not([data-scrolled]) .site-header__bar::after {
+  opacity: 0.35;
+}
+html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
+  background-color: var(--color-midnight);
+}
+.site-header[data-scrolled] .site-header__bar {
+  background-color: rgba(251, 248, 241, 0.9);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  box-shadow: 0 18px 36px -28px rgba(15, 27, 45, 0.5);
+}
+.site-header[data-scrolled] .site-header__bar::after {
+  opacity: 0.75;
+}
+.site-header__strip {
+  display: none;
+}
+.site-header__row {
+  height: 4.25rem;
+  transition: height 480ms var(--ease-thread);
+}
+.site-header__logo {
+  height: 2.6rem;
+  width: auto;
+  transition: height 480ms var(--ease-thread);
+}
+@media (min-width: 64rem) {
+  .site-header__strip {
+    display: grid;
+    grid-template-rows: 1fr;
+    background-color: var(--color-midnight);
+    transition:
+      grid-template-rows 480ms var(--ease-thread),
+      visibility 0s linear 0s;
+  }
+  .site-header[data-tone='overlay'] .site-header__strip {
+    background-color: transparent;
+    box-shadow: inset 0 -1px 0 rgba(240, 213, 138, 0.18);
+  }
+  .site-header[data-scrolled] .site-header__strip {
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition:
+      grid-template-rows 480ms var(--ease-thread),
+      visibility 0s linear 480ms;
+  }
+  .site-header__strip > div {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .site-header__row {
+    height: 5rem;
+  }
+  .site-header[data-scrolled] .site-header__row {
+    height: 4rem;
+  }
+  .site-header__logo {
+    height: 3.1rem;
+  }
+  .site-header[data-scrolled] .site-header__logo {
+    height: 2.5rem;
+  }
+}
+/* Overlay pages: <main> slides up under the header; the first section (the
+   dark hero) clears it with .pt-header. */
+body[data-header='overlay'] #main {
+  margin-top: calc(-1 * var(--header-h));
+}
+.pt-header {
+  padding-top: calc(var(--header-h) + var(--spacing-section-md));
+}
+
 /* ---------- Reduced motion -------------------------------- */
 /* Transitions are ZERO, duration AND delay, never the usual 0.01ms (starter
    PORTS.md card 61, 2026-09-30). `transition-property` defaults to `all`, so
@@ -771,6 +1570,29 @@ body::before {
     transform: scaleY(1) !important;
     transition: none !important;
   }
+  /* Direction D: reveals never hide anything, the marquee stands still (one
+     copy, wrapped and centred), the header never animates its fold. */
+  html.reveal-ready [data-reveal] {
+    opacity: 1 !important;
+    translate: none !important;
+    clip-path: none !important;
+  }
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .marquee__track {
+    animation: none !important;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.75rem;
+    padding-right: 0;
+  }
+  .marquee__track[aria-hidden='true'] {
+    display: none;
+  }
 }
 
 /* ---------- Print ----------------------------------------- */
@@ -791,8 +1613,22 @@ body::before {
   body::before {
     display: none !important;
   }
+  [data-reveal] {
+    opacity: 1 !important;
+    translate: none !important;
+    clip-path: none !important;
+  }
+  .surface-midnight::before,
+  .surface-indigo::before,
+  .surface-linen::before,
+  .surface-paper::before,
+  .surface-sage::before {
+    display: none !important;
+  }
 
   .site-header,
+  .thread-line,
+  .marquee__controls,
   footer,
   .reading-progress,
   [data-back-to-top],

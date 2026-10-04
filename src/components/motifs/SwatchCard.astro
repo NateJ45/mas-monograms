@@ -1,0 +1,174 @@
+---
+// Safe to edit by hand
+// A fabric swatch: a card cut with pinking shears (zig-zag top and bottom
+// edges), a running stitch sewn just inside the edge, and a soft drop shadow
+// as if it were lying on the table (Direction D). For gallery photos, studio
+// wall pieces, specimen and content cards.
+//
+//   <SwatchCard>
+//     <SanityImage slot="media" source={item.image} width={600} />
+//     <p class="font-display text-lg">{item.caption}</p>
+//   </SwatchCard>
+//   <SwatchCard tone="blush" tilt={2} as="li">...</SwatchCard>
+//   <SwatchCard tone="midnight" stitched={false}>...</SwatchCard>
+//
+// The `media` slot runs edge to edge at the top (the pinked edge cuts it);
+// the default slot is padded body content. Tones set their own text context:
+// midnight is a dark ground (gold stitch, light text), the rest are light.
+// The pinked cut is a CSS mask, so the shadow is a filter on the wrapper.
+
+interface Props {
+  tone?: 'paper' | 'linen' | 'blush' | 'sage' | 'kraft' | 'midnight';
+  /** The inner running stitch. Default true. */
+  stitched?: boolean;
+  /** Pinked (zig-zag) top and bottom edges. Default true. */
+  pinked?: boolean;
+  /** Rotation in degrees (a casual, pinned-to-the-board look). */
+  tilt?: number;
+  /** Lift and straighten on hover / focus-within. Default false. */
+  interactive?: boolean;
+  as?: 'div' | 'article' | 'li' | 'figure';
+  class?: string;
+  /** Classes for the padded body (override the default padding). */
+  bodyClass?: string;
+}
+
+const {
+  tone = 'paper',
+  stitched = true,
+  pinked = true,
+  tilt = 0,
+  interactive = false,
+  as: Tag = 'div',
+  class: className = '',
+  bodyClass = 'p-m',
+} = Astro.props as Props;
+
+const hasMedia = Astro.slots.has('media');
+const hasBody = Astro.slots.has('default');
+---
+
+<Tag
+  class:list={['swatch', interactive && 'swatch--interactive', className]}
+  style={`--swatch-tilt:${tilt}deg`}
+>
+  <div
+    class:list={[
+      'swatch__cloth',
+      `swatch__cloth--${tone}`,
+      tone === 'midnight' ? 'on-dark' : 'on-light',
+      pinked && 'swatch__cloth--pinked',
+      stitched && 'swatch__cloth--stitched',
+    ]}
+  >
+    {
+      hasMedia && (
+        <div class="swatch__media">
+          <slot name="media" />
+        </div>
+      )
+    }
+    {
+      hasBody && (
+        <div class:list={['swatch__body', bodyClass]}>
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</Tag>
+
+<style>
+  .swatch {
+    --pink: 11px;
+    display: block;
+    position: relative;
+    transform: rotate(var(--swatch-tilt));
+    filter: drop-shadow(0 18px 18px rgba(15, 27, 45, 0.16))
+      drop-shadow(0 2px 3px rgba(15, 27, 45, 0.14));
+    transition:
+      transform 620ms var(--ease-thread),
+      filter 620ms var(--ease-thread);
+  }
+  .swatch--interactive:hover,
+  .swatch--interactive:focus-within {
+    transform: rotate(0deg) translateY(-4px);
+    filter: drop-shadow(0 26px 24px rgba(15, 27, 45, 0.22))
+      drop-shadow(0 3px 4px rgba(15, 27, 45, 0.16));
+  }
+  .swatch__cloth {
+    position: relative;
+    color: var(--foreground);
+  }
+  .swatch__cloth--pinked {
+    padding-block: calc(var(--pink) * 0.5);
+    -webkit-mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+        var(--pink) 51% repeat-x,
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--pink) 51%
+        repeat-x;
+    mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+        var(--pink) 51% repeat-x,
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--pink) 51%
+        repeat-x;
+  }
+  .swatch__cloth--stitched::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--pink) * 0.5 + 9px) 10px;
+    border: 1.5px dashed var(--stitch-color);
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .swatch__cloth--paper {
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+  }
+  .swatch__cloth--linen {
+    background-color: var(--color-bg);
+    background-image: var(--tex-linen);
+    background-size: var(--tex-linen-size);
+  }
+  .swatch__cloth--blush {
+    background-color: var(--color-blush);
+    background-image: var(--tex-linen);
+    background-size: var(--tex-linen-size);
+  }
+  .swatch__cloth--sage {
+    background-color: var(--color-sage);
+    background-image: var(--tex-linen);
+    background-size: var(--tex-linen-size);
+  }
+  .swatch__cloth--kraft {
+    background-color: var(--color-kraft);
+    background-image: var(--tex-grain);
+    background-size: 200px 200px;
+  }
+  .swatch__cloth--midnight {
+    background-color: var(--color-midnight);
+    background-image: var(--tex-midnight);
+    background-size: var(--tex-midnight-size);
+  }
+  .swatch__media {
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch__media :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: sepia(0.12) saturate(0.92) contrast(0.96) brightness(1.03);
+  }
+  .swatch__body {
+    position: relative;
+  }
+  .swatch__cloth--stitched .swatch__body {
+    padding-inline: max(1.5rem, var(--spacing-m));
+  }
+  .swatch__cloth--stitched .swatch__media + .swatch__body {
+    padding-bottom: calc(var(--spacing-m) + 6px);
+  }
+</style>

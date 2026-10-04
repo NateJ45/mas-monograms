@@ -1,0 +1,173 @@
+---
+// Safe to edit by hand
+// A running stitch: round-capped dashes drawn as SVG, for dividers and
+// borders (Direction D, "The Atelier"). Purely decorative (aria-hidden).
+//
+//   <RunningStitch />                          full-width divider, ground colour
+//   <RunningStitch tone="claret" length="6rem" />
+//   <RunningStitch ornament="cross" />         a cross-stitch knot in the middle
+//   <RunningStitch orientation="vertical" length="100%" class="h-40" />
+//
+// The default tone 'ground' follows --stitch-color (brass on light grounds,
+// gold on dark ones), so one divider works on both. Stitches are user units in
+// an SVG with no viewBox, so a stitch is the same length at every width.
+
+interface Props {
+  /** 'ground' follows the surface (brass on light, gold on dark). */
+  tone?: 'ground' | 'gold' | 'brass' | 'claret' | 'linen' | 'ink' | 'current';
+  orientation?: 'horizontal' | 'vertical';
+  /** CSS length along the stitch. Default 100%. */
+  length?: string;
+  /** Stitch (dash) length in px. */
+  stitch?: number;
+  /** Gap between stitches in px. */
+  gap?: number;
+  /** Thread weight in px. */
+  weight?: number;
+  /** A small motif at the centre: a cross-stitch, a knot, or a needle. */
+  ornament?: 'none' | 'cross' | 'knot' | 'needle';
+  class?: string;
+}
+
+const {
+  tone = 'ground',
+  orientation = 'horizontal',
+  length = '100%',
+  stitch = 10,
+  gap = 7,
+  weight = 2,
+  ornament = 'none',
+  class: className = '',
+} = Astro.props as Props;
+
+const TONES: Record<NonNullable<Props['tone']>, string> = {
+  ground: 'var(--stitch-color)',
+  gold: 'var(--color-gold)',
+  brass: 'var(--color-secondary)',
+  claret: 'var(--color-rust-cta)',
+  linen: 'var(--color-bg)',
+  ink: 'var(--color-accent)',
+  current: 'currentColor',
+};
+const color = TONES[tone];
+const horizontal = orientation === 'horizontal';
+const thickness = Math.max(weight * 3, 8);
+const dash = `${stitch} ${gap}`;
+const mid = thickness / 2;
+---
+
+{
+  horizontal ? (
+    <div
+      class:list={['running-stitch flex items-center', className]}
+      style={`width:${length};color:${color};--rs-h:${thickness}px`}
+      aria-hidden="true"
+    >
+      <svg class="running-stitch__line" height={thickness} width="100%" focusable="false">
+        <line
+          x1={weight}
+          x2="100%"
+          y1={mid}
+          y2={mid}
+          stroke="currentColor"
+          stroke-width={weight}
+          stroke-linecap="round"
+          stroke-dasharray={dash}
+        />
+      </svg>
+      {ornament !== 'none' && (
+        <>
+          <svg
+            class="running-stitch__ornament"
+            viewBox="0 0 24 24"
+            width={ornament === 'needle' ? 34 : 22}
+            height={ornament === 'needle' ? 34 : 22}
+            focusable="false"
+          >
+            {ornament === 'cross' && (
+              <path
+                d="M6 6l12 12M18 6L6 18"
+                stroke="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                fill="none"
+              />
+            )}
+            {ornament === 'knot' && (
+              <>
+                <circle cx="12" cy="12" r="4.2" fill="currentColor" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="7.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-dasharray="2 2.4"
+                />
+              </>
+            )}
+            {ornament === 'needle' && (
+              <g transform="rotate(-62 12 12)">
+                <path d="M12 1.5 L13.1 18 Q12 22.5 10.9 18 Z" fill="currentColor" />
+                <ellipse cx="12" cy="5.2" rx="0.55" ry="1.9" fill="var(--background, #f4eee3)" />
+              </g>
+            )}
+          </svg>
+          <svg class="running-stitch__line" height={thickness} width="100%" focusable="false">
+            <line
+              x1="0"
+              x2="100%"
+              y1={mid}
+              y2={mid}
+              stroke="currentColor"
+              stroke-width={weight}
+              stroke-linecap="round"
+              stroke-dasharray={dash}
+            />
+          </svg>
+        </>
+      )}
+    </div>
+  ) : (
+    <div
+      class:list={['running-stitch running-stitch--v', className]}
+      style={`height:${length};width:${thickness}px;color:${color}`}
+      aria-hidden="true"
+    >
+      <svg width={thickness} height="100%" focusable="false">
+        <line
+          x1={mid}
+          x2={mid}
+          y1={weight}
+          y2="100%"
+          stroke="currentColor"
+          stroke-width={weight}
+          stroke-linecap="round"
+          stroke-dasharray={dash}
+        />
+      </svg>
+    </div>
+  )
+}
+
+<style>
+  .running-stitch {
+    gap: 0.75rem;
+    max-width: 100%;
+  }
+  .running-stitch__line {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: visible;
+    display: block;
+  }
+  .running-stitch__ornament {
+    flex: none;
+    display: block;
+  }
+  .running-stitch--v svg {
+    display: block;
+    overflow: visible;
+  }
+</style>

@@ -25,6 +25,7 @@ import { threadChartPage } from './threadChartPage';
 import { clearancePage } from './clearancePage';
 import { thankYouPage } from './thankYouPage';
 import { notFoundPage } from './notFoundPage';
+import { atelierSettings } from './atelierSettings';
 
 // ── Reusable content collections ──────────────────────────────────────────────
 import { itemCategory } from './itemCategory';
@@ -60,6 +61,7 @@ export const schemaTypes = [
   clearancePage,
   thankYouPage,
   notFoundPage,
+  atelierSettings,
 
   // ── Collections ──────────────────────────────────────────────────────────────
   itemCategory,

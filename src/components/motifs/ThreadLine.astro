@@ -1,0 +1,179 @@
+---
+// Safe to edit by hand
+// THE GOLDEN THREAD (Direction D signature motif). One continuous gold thread
+// sewn down the page as you scroll, a needle at its tip, ending at the final
+// call to action. Rendered ONCE per page by BaseLayout, as the first child of
+// <main> (which is `relative isolate`).
+//
+// Layering: the host is absolute, inset 0, z-index -1 inside <main>'s
+// stacking context. Top-level surface sections paint their ground at -2, so
+// the thread runs OVER the cloth and UNDER the words, cards and photos (see
+// "Surfaces" in globals.css). A section with a plain bg-* utility hides it.
+//
+// Shapes:
+//   desktop (>= 48rem) a plied gold thread (shadow, deep base, body, twist
+//                      dashes, highlight) wandering in S-curves between the two
+//                      page edges; ThreadLineScript rebuilds it in real pixels
+//                      on resize so the swings suit the page height.
+//   mobile             a running stitch straight down the left gutter (CSS).
+// Ending: put data-thread-end on the element the thread should finish at
+// (CtaBanner does this on its button row); otherwise it ends bottom-centre.
+//
+// Motion: ThreadLineScript reveals the thread with a rectangular clip-path
+// and moves the needle with a transform, from ONE rAF-throttled passive
+// scroll listener (no per-frame layout reads). Reduced motion: drawn in full,
+// no needle, no scroll listener. No JS: the server-rendered path, drawn in full.
+// The host clips its own overflow, so it can never cause horizontal scroll or
+// shift layout (it is out of flow and sized by <main>).
+
+import ThreadLineScript from './ThreadLineScript.astro';
+
+// Server-rendered fallback path in a 1000 x 10000 box, stretched to <main>
+// (preserveAspectRatio none + non-scaling strokes keep the thread 2px wide).
+const VB_W = 1000;
+const VB_H = 10000;
+const XS = [880, 120, 900, 90, 870, 140, 910, 110, 500];
+const step = VB_H / (XS.length - 1);
+let d = `M ${XS[0]} 0`;
+for (let i = 1; i < XS.length; i++) {
+  const y0 = (i - 1) * step;
+  const y1 = i * step;
+  d += ` C ${XS[i - 1]} ${Math.round(y0 + step * 0.55)} ${XS[i]} ${Math.round(y1 - step * 0.55)} ${XS[i]} ${Math.round(y1)}`;
+}
+---
+
+<div class="thread-line" data-thread-line aria-hidden="true">
+  <svg
+    class="thread-line__svg"
+    viewBox={`0 0 ${VB_W} ${VB_H}`}
+    preserveAspectRatio="none"
+    width="100%"
+    height="100%"
+    focusable="false"
+  >
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path
+        data-thread-path
+        d={d}
+        stroke="rgba(15,27,45,0.2)"
+        stroke-width="3.4"
+        vector-effect="non-scaling-stroke"
+        transform="translate(1.5 3)"></path>
+      <path
+        data-thread-path
+        d={d}
+        stroke="#a9772a"
+        stroke-width="2.8"
+        vector-effect="non-scaling-stroke"></path>
+      <path
+        data-thread-path
+        d={d}
+        stroke="#d9b15f"
+        stroke-width="1.9"
+        vector-effect="non-scaling-stroke"></path>
+      <path
+        data-thread-path
+        d={d}
+        stroke="#9a6a22"
+        stroke-width="1.9"
+        stroke-dasharray="1.4 3.4"
+        opacity="0.55"
+        vector-effect="non-scaling-stroke"></path>
+      <path
+        data-thread-path
+        d={d}
+        stroke="#f6e2a6"
+        stroke-width="0.7"
+        opacity="0.9"
+        vector-effect="non-scaling-stroke"
+        transform="translate(-0.4 -0.6)"></path>
+    </g>
+  </svg>
+  <span class="thread-line__stitch"></span>
+  <svg class="thread-line__needle" viewBox="0 0 12 52" width="12" height="52" focusable="false">
+    <defs>
+      <linearGradient id="thread-line-steel" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#6d747c"></stop>
+        <stop offset="0.38" stop-color="#f4f6f8"></stop>
+        <stop offset="0.6" stop-color="#b9c0c7"></stop>
+        <stop offset="1" stop-color="#565c63"></stop>
+      </linearGradient>
+    </defs>
+    <path
+      d="M5 3 Q6 0.4 7 3 L7.2 36 Q6.6 46 6 51.5 Q5.4 46 4.8 36 Z"
+      fill="url(#thread-line-steel)"
+      stroke="rgba(30,36,42,0.4)"
+      stroke-width="0.35"></path>
+    <rect x="5.55" y="3.2" width="0.9" height="6.4" rx="0.45" fill="rgba(15,27,45,0.75)"></rect>
+    <path d="M5.75 12 L5.9 38" stroke="rgba(255,255,255,0.85)" stroke-width="0.4"></path>
+  </svg>
+</div>
+<ThreadLineScript />
+
+<style>
+  .thread-line {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    overflow: clip;
+    pointer-events: none;
+    contain: strict;
+  }
+  .thread-line__svg {
+    position: absolute;
+    inset: 0;
+    display: none;
+    width: 100%;
+    height: 100%;
+  }
+  .thread-line__stitch {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 6px;
+    width: 2px;
+    border-radius: 2px;
+    background-image: repeating-linear-gradient(
+      180deg,
+      var(--color-gold) 0 9px,
+      transparent 9px 16px
+    );
+    opacity: 0.9;
+  }
+  .thread-line__needle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    transform-origin: 6px 4px;
+    filter: drop-shadow(1px 2px 1.5px rgba(15, 27, 45, 0.3));
+    will-change: transform;
+  }
+  @media (min-width: 48rem) {
+    .thread-line__svg {
+      display: block;
+    }
+    .thread-line__stitch {
+      display: none;
+    }
+  }
+  /* Before the script has measured, a JS-capable page keeps the thread
+     undrawn so it never flashes in full and then retracts. */
+  :global(html.js) .thread-line:not([data-ready]) .thread-line__svg,
+  :global(html.js) .thread-line:not([data-ready]) .thread-line__stitch {
+    clip-path: inset(0 0 100% 0);
+  }
+  .thread-line[data-ready][data-animated] .thread-line__needle {
+    display: block;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js) .thread-line .thread-line__svg,
+    :global(html.js) .thread-line .thread-line__stitch {
+      clip-path: none !important;
+    }
+    .thread-line .thread-line__needle {
+      display: none !important;
+    }
+  }
+</style>

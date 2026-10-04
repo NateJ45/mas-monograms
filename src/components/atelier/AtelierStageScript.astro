@@ -1,0 +1,84 @@
+---
+// Client wiring for AtelierStage. Lives in its own component (never a <script>
+// inside a JSX expression; see .claude/rules/design-system.md). Astro bundles
+// and de-duplicates this module, so many stages on a page share one copy.
+---
+
+<script>
+  import type { Atelier, Design } from '@/lib/atelier/engine';
+
+  type StageEl = HTMLElement & { __atelier?: Atelier; __atelierCleanup?: () => void };
+
+  const live = new Set<StageEl>();
+
+  function designFrom(el: StageEl): Partial<Design> {
+    const d = el.dataset;
+    return {
+      text: d.text ?? '',
+      style: (d.style as Design['style']) ?? 'classic',
+      thread: d.thread ?? '#8c3a2e',
+      fabric: d.fabric ?? '#efe6d6',
+      fabricTexture: (d.texture as Design['fabricTexture']) ?? 'linen',
+    };
+  }
+
+  async function initStage(el: StageEl) {
+    if (el.dataset.atelierInit) return;
+    el.dataset.atelierInit = '1';
+    const canvas = el.querySelector('canvas');
+    if (!canvas) return;
+    const { createAtelier } = await import('@/lib/atelier/engine');
+    if (!el.isConnected) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const atelier = createAtelier(canvas, {
+      quality: el.dataset.quality === 'hero' ? 'hero' : 'studio',
+      reducedMotion: reduced,
+      onProgress: (progress) => {
+        if (!el.dataset.ready) el.dataset.ready = '1';
+        el.dispatchEvent(new CustomEvent('atelier:progress', { detail: { progress } }));
+      },
+    });
+    el.__atelier = atelier;
+    live.add(el);
+
+    // Start when near the viewport; pause the animation loop while off-screen.
+    let started = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            if (!started) {
+              started = true;
+              void atelier.setDesign(designFrom(el), {
+                animate: el.dataset.autoplay !== 'false',
+              });
+            } else atelier.resume();
+          } else atelier.pause();
+        }
+      },
+      { rootMargin: '120px 0px' },
+    );
+    io.observe(el);
+    el.__atelierCleanup = () => {
+      io.disconnect();
+      atelier.destroy();
+      delete el.__atelier;
+      delete el.dataset.atelierInit;
+      delete el.dataset.ready;
+    };
+    el.dispatchEvent(new CustomEvent('atelier:ready', { detail: { atelier }, bubbles: true }));
+  }
+
+  function initAll() {
+    document.querySelectorAll<StageEl>('[data-atelier-stage]').forEach((el) => void initStage(el));
+  }
+
+  function teardown() {
+    for (const el of live) el.__atelierCleanup?.();
+    live.clear();
+  }
+
+  initAll();
+  document.addEventListener('astro:page-load', initAll);
+  document.addEventListener('astro:before-swap', teardown);
+</script>

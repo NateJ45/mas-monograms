@@ -1,0 +1,232 @@
+---
+// Safe to edit by hand
+// A photo stretched in an embroidery hoop (Direction D, the photo strategy):
+// a circular crop on the stitched area, two turned-wood rings with a hairline
+// between them, a brass screw clasp at the top, and the fabric sitting just
+// below the ring (inner shadow + vignette). With `tone` on, every photo gets
+// the same warm grade (slight warmth, lifted shadows, soft vignette, grain), so
+// phone photos from different years read as one set.
+//
+//   <HoopFrame image={item.image} size="lg" />
+//   <HoopFrame image={cat.heroImage} size={360} focal={{ x: 0.5, y: 0.35 }} tilt={-3} />
+//   <HoopFrame image={null} size="sm" />      an empty hoop on linen (placeholder)
+//
+// Focal point: when the Sanity image has a hotspot or crop, Sanity crops the
+// square around it. Otherwise `focal` (0..1) drives object-position.
+// Built on SanityImage.astro; alt comes from Sanity unless `alt` is passed.
+
+import SanityImage from '@/components/SanityImage.astro';
+import { motifId } from './uid';
+
+interface SanityImageObject {
+  asset?: { _ref?: string; _id?: string };
+  alt?: string;
+  hotspot?: { x: number; y: number; height: number; width: number };
+  crop?: { top: number; bottom: number; left: number; right: number };
+}
+
+interface Props {
+  /** Sanity image object (with asset, alt, optional hotspot/crop). Null renders an empty linen hoop. */
+  image?: SanityImageObject | null;
+  /** Alt override. Pass "" when an adjacent caption already describes the photo. */
+  alt?: string;
+  /** sm 200px, md 300px, lg 420px, xl 560px, or px. Shrinks to fit narrow containers. */
+  size?: 'sm' | 'md' | 'lg' | 'xl' | number;
+  /** Focal point 0..1 for photos without a Sanity hotspot. */
+  focal?: { x: number; y: number } | null;
+  /** The shared warm grade. Default true. */
+  tone?: boolean;
+  /** Rotation in degrees. */
+  tilt?: number;
+  /** Optional caption, set under the hoop in a stitched label. */
+  caption?: string | null;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+}
+
+const {
+  image,
+  alt,
+  size = 'md',
+  focal = null,
+  tone = true,
+  tilt = 0,
+  caption,
+  loading = 'lazy',
+  fetchpriority,
+  class: className = '',
+} = Astro.props as Props;
+
+const SIZES = { sm: 200, md: 300, lg: 420, xl: 560 } as const;
+const px = typeof size === 'number' ? size : SIZES[size];
+const hasPhoto = !!image?.asset;
+const sanityCrops = !!(image?.hotspot || image?.crop);
+const reqWidth = Math.min(1200, Math.round(px * 2));
+const objectPosition = focal
+  ? `object-position:${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%`
+  : undefined;
+const Tag = caption ? 'figure' : 'div';
+const brassId = motifId('hb');
+---
+
+<Tag
+  class:list={['hoop', tone && 'hoop--graded', className]}
+  style={`--hoop:${px}px;--hoop-tilt:${tilt}deg`}
+>
+  <div class="hoop__body">
+    <div class="hoop__ring" aria-hidden="true"></div>
+    <div class:list={['hoop__fabric', !hasPhoto && 'texture-linen']}>
+      {
+        hasPhoto && (
+          <SanityImage
+            source={image}
+            width={reqWidth}
+            height={sanityCrops ? reqWidth : undefined}
+            alt={alt}
+            loading={loading}
+            fetchpriority={fetchpriority}
+            sizes={`(max-width: ${px + 32}px) calc(100vw - 4rem), ${px}px`}
+            class="hoop__img"
+            style={objectPosition}
+          />
+        )
+      }
+      <span class="hoop__grade" aria-hidden="true"></span>
+    </div>
+    <svg class="hoop__clasp" viewBox="0 0 48 34" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id={brassId} x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stop-color="#7a5a22"></stop>
+          <stop offset="0.3" stop-color="#e8cf8f"></stop>
+          <stop offset="0.55" stop-color="#c49a4a"></stop>
+          <stop offset="1" stop-color="#6b4c1c"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="9" y="12" width="12" height="20" rx="2" fill={`url(#${brassId})`}></rect>
+      <rect x="27" y="12" width="12" height="20" rx="2" fill={`url(#${brassId})`}></rect>
+      <rect x="4" y="17" width="40" height="5" rx="2.5" fill={`url(#${brassId})`}></rect>
+      <circle cx="24" cy="8" r="7" fill={`url(#${brassId})`} stroke="#5c4117" stroke-width="0.8"
+      ></circle>
+      <path d="M19.5 8h9" stroke="#4a3412" stroke-width="1.6" stroke-linecap="round"></path>
+    </svg>
+  </div>
+  {caption && <figcaption class="hoop__caption">{caption}</figcaption>}
+</Tag>
+
+<style>
+  .hoop {
+    --hoop-size: min(var(--hoop), 100%);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--hoop-size);
+    max-width: 100%;
+  }
+  .hoop__body {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-top: 5%;
+    transform: rotate(var(--hoop-tilt));
+    transition: transform 700ms var(--ease-thread);
+  }
+  /* Outer and inner rings: turned wood, lit from the top left. */
+  .hoop__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 200deg,
+      #f0d3a2,
+      #d2a46a 14%,
+      #a8743d 34%,
+      #7b4f27 50%,
+      #a46f3a 64%,
+      #d9b27a 82%,
+      #f0d3a2
+    );
+    box-shadow:
+      0 34px 54px -30px rgba(15, 27, 45, 0.6),
+      0 10px 18px -12px rgba(15, 27, 45, 0.4),
+      inset 0 0 0 1px rgba(78, 48, 20, 0.4),
+      inset 0 2px 2px rgba(255, 240, 214, 0.55);
+  }
+  .hoop__ring::before {
+    content: '';
+    position: absolute;
+    inset: 3.6%;
+    border-radius: 50%;
+    background: conic-gradient(
+      from 20deg,
+      #e7c18a,
+      #b98450 22%,
+      #8d5c2e 46%,
+      #c69660 70%,
+      #efd2a3 88%,
+      #e7c18a
+    );
+    box-shadow:
+      0 0 0 1px rgba(60, 35, 14, 0.55),
+      inset 0 0 0 1px rgba(255, 236, 205, 0.35);
+  }
+  .hoop__fabric {
+    position: absolute;
+    inset: 6.6%;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--color-bg);
+    box-shadow: 0 0 0 1px rgba(60, 35, 14, 0.5);
+  }
+  .hoop__fabric :global(.hoop__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .hoop__grade {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow:
+      inset 0 10px 24px rgba(28, 16, 6, 0.42),
+      inset 0 -6px 14px rgba(255, 238, 212, 0.14);
+    background: radial-gradient(circle at 50% 44%, transparent 58%, rgba(30, 18, 8, 0.32) 100%);
+  }
+  /* The shared grade: warmth, lifted blacks, a little less saturation, grain. */
+  .hoop--graded .hoop__fabric :global(.hoop__img) {
+    filter: sepia(0.14) saturate(0.9) contrast(0.95) brightness(1.04);
+  }
+  .hoop--graded .hoop__grade {
+    background:
+      var(--tex-grain),
+      radial-gradient(circle at 50% 44%, transparent 56%, rgba(30, 18, 8, 0.34) 100%),
+      linear-gradient(160deg, rgba(255, 214, 160, 0.16), rgba(40, 72, 107, 0.08));
+    background-size:
+      160px 160px,
+      auto,
+      auto;
+  }
+  .hoop__clasp {
+    position: absolute;
+    left: 50%;
+    top: -6.5%;
+    width: 15%;
+    translate: -50% 0;
+    filter: drop-shadow(0 3px 3px rgba(15, 27, 45, 0.35));
+  }
+  .hoop__caption {
+    margin-top: 1rem;
+    padding: 0.35rem 0.9rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-align: center;
+    color: var(--foreground);
+    outline: 1px dashed var(--stitch-color);
+    outline-offset: 3px;
+    max-width: 100%;
+  }
+</style>

@@ -272,6 +272,43 @@ export type Font = {
   displayOrder?: number;
 };
 
+export type AtelierSettings = {
+  _id: string;
+  _type: 'atelierSettings';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
+  initialsLabel?: string;
+  initialsHint?: string;
+  styleLabel?: string;
+  threadLabel?: string;
+  fabricLabel?: string;
+  styles?: Array<{
+    key?: 'classic' | 'script' | 'block' | 'circle' | 'single';
+    label?: string;
+    blurb?: string;
+    _type: 'atelierStyle';
+    _key: string;
+  }>;
+  fabrics?: Array<{
+    key?: string;
+    label?: string;
+    color?: string;
+    note?: string;
+    _type: 'atelierFabric';
+    _key: string;
+  }>;
+  sampleMonograms?: Array<string>;
+  replayLabel?: string;
+  ctaLabel?: string;
+  disclaimer?: string;
+  heroTryLabel?: string;
+  heroPlaceholder?: string;
+};
+
 export type NotFoundPage = {
   _id: string;
   _type: 'notFoundPage';
@@ -1141,9 +1178,11 @@ export type HomePage = {
   heroSecondaryCtaLabel?: string;
   heroSecondaryCtaHref?: string;
   trustItems?: Array<string>;
+  marqueeEyebrow?: string;
   categoriesEyebrow?: string;
   categoriesHeadline?: string;
   categoriesSubhead?: string;
+  categoriesNote?: string;
   aboutEyebrow?: string;
   aboutHeadline?: string;
   aboutBody?: Array<{
@@ -1170,6 +1209,9 @@ export type HomePage = {
   };
   aboutCtaLabel?: string;
   aboutCtaHref?: string;
+  makerQuote?: string;
+  makerSignature?: string;
+  makerFacts?: Array<string>;
   processEyebrow?: string;
   processHeadline?: string;
   processSubhead?: string;
@@ -1187,11 +1229,20 @@ export type HomePage = {
   gallerySubhead?: string;
   galleryCtaLabel?: string;
   galleryCtaHref?: string;
+  wallEyebrow?: string;
+  wallHeadline?: string;
+  wallSubhead?: string;
+  wallCtaLabel?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  finalEyebrow?: string;
+  finalHeadline?: string;
+  finalSubhead?: string;
+  finalCtaLabel?: string;
+  finalCtaHref?: string;
 };
 
 export type MediaTag = {
@@ -1316,6 +1367,7 @@ export type AllSanitySchemaTypes =
   | ThreadColor
   | Slug
   | Font
+  | AtelierSettings
   | NotFoundPage
   | SiteSettings
   | HomePageReference

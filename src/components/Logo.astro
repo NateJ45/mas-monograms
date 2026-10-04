@@ -8,11 +8,15 @@
 // No runtime theme switching: pick the variant that matches the surface at the call site.
 //   <Logo variant="ink" />        on light surfaces (header, footer — every current surface)
 //   <Logo variant="parchment" />  on a dark-ink surface, if one is ever introduced
+//   <Logo variant="adaptive" />   (Direction D, 2026-10-04) colours from the ground's context
+//                                 tokens --logo-word / --logo-script (ink + claret on light,
+//                                 linen + gold-light on dark). The header uses this so the
+//                                 lockup follows it from overlay (dark) to scrolled (light).
 
 interface Props {
   /** "ink" (default) recolors the wordmark for light/linen surfaces;
    *  "parchment" for a dark-ink surface, if one is ever introduced. */
-  variant?: 'ink' | 'parchment';
+  variant?: 'ink' | 'parchment' | 'adaptive';
   /** Render only the compact badge mark (hoop rings + M), no wordmark text.
    *  Square; source of truth for favicon/social-avatar contexts. */
   mark?: boolean;
@@ -25,6 +29,12 @@ const { variant = 'ink', mark = false, class: className } = Astro.props as Props
 // Hardcoded because SVG presentation attributes can't consume CSS custom properties.
 const wordmarkColor = variant === 'parchment' ? '#F4EEE3' : '#26312E';
 const claret = '#8C3A2E';
+// The adaptive variant colours through CSS (presentation attributes cannot read
+// custom properties, a style attribute can); the attributes stay as fallbacks.
+const adaptive = variant === 'adaptive';
+const scriptStyle = adaptive ? 'fill: var(--logo-script, #8C3A2E)' : undefined;
+const wordStyle = adaptive ? 'fill: var(--logo-word, #26312E)' : undefined;
+const swashStyle = adaptive ? 'stroke: var(--logo-script, #8C3A2E)' : undefined;
 const indigo = '#28486B';
 
 // Fraunces 700 (opsz 60, WONK off) capital M, outlined to a path so the mark has no
@@ -53,7 +63,13 @@ const frauncesM =
         matter how the webfont measures. The script face is loaded globally via @fontsource
         in globals.css; until it arrives "Mas" falls back to system cursive for one paint. */}
       <text y="52">
-        <tspan x="6" font-family="'Petemoss', cursive" font-size="62" fill={claret}>
+        <tspan
+          x="6"
+          font-family="'Petemoss', cursive"
+          font-size="62"
+          fill={claret}
+          style={scriptStyle}
+        >
           Mas
         </tspan>
         <tspan
@@ -64,6 +80,7 @@ const frauncesM =
           font-size="27"
           letter-spacing="1"
           fill={wordmarkColor}
+          style={wordStyle}
         >
           MONOGRAMS
         </tspan>
@@ -76,6 +93,7 @@ const frauncesM =
         stroke={claret}
         stroke-width="2.4"
         stroke-linecap="round"
+        style={swashStyle}
       />
     </svg>
   )

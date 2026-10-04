@@ -18,7 +18,9 @@ export const homePage = defineType({
     { name: 'about', title: 'About / Maker blurb' },
     { name: 'process', title: 'Process preview' },
     { name: 'gallery', title: 'Gallery preview' },
+    { name: 'wall', title: 'Studio wall (photo cards)' },
     { name: 'cta', title: 'Bottom banner' },
+    { name: 'final', title: 'Closing thread banner' },
   ],
   fieldsets: [
     {
@@ -162,6 +164,15 @@ export const homePage = defineType({
       of: [defineArrayMember({ type: 'string' })],
       validation: (Rule) => Rule.required().min(2).max(6),
     }),
+    defineField({
+      name: 'marqueeEyebrow',
+      title: 'Small label on the scrolling item strip (optional)',
+      type: 'string',
+      group: 'trust',
+      description:
+        'The slowly scrolling strip of item names (towels, totes, hats...) can carry a small label, e.g. "Stitched on".',
+      validation: (R) => R.max(60),
+    }),
 
     // ── Shop categories section ───────────────────────────────────────────────
     defineField({
@@ -186,6 +197,15 @@ export const homePage = defineType({
       type: 'text',
       rows: 2,
       group: 'categories',
+    }),
+    defineField({
+      name: 'categoriesNote',
+      title: 'Small note under the item circles (optional)',
+      type: 'string',
+      group: 'categories',
+      description:
+        'A short reassurance below the row of item circles. E.g. about bringing your own item.',
+      validation: (R) => R.max(160),
     }),
 
     // ── About / Maker blurb ───────────────────────────────────────────────────
@@ -257,6 +277,34 @@ export const homePage = defineType({
       group: 'about',
       initialValue: '/about',
       validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'makerQuote',
+      title: 'Pull-quote in your own words (optional)',
+      type: 'text',
+      rows: 3,
+      group: 'about',
+      description:
+        'One or two short sentences shown large beside your photo. Must be something you would say.',
+      validation: (R) => R.max(220),
+    }),
+    defineField({
+      name: 'makerSignature',
+      title: 'Signature line (optional)',
+      type: 'string',
+      group: 'about',
+      description: 'Shown in handwriting under the quote. E.g. "Mary Ann".',
+      validation: (R) => R.max(60),
+    }),
+    defineField({
+      name: 'makerFacts',
+      title: 'Small facts about the studio (optional)',
+      type: 'array',
+      group: 'about',
+      description:
+        'Two to four short true statements, shown as a little list. Only things that are true today.',
+      of: [defineArrayMember({ type: 'string', validation: (R) => R.max(80) })],
+      validation: (R) => R.max(5),
     }),
 
     // ── Process preview ───────────────────────────────────────────────────────
@@ -374,6 +422,38 @@ export const homePage = defineType({
       validation: (R) => R.required(),
     }),
 
+    // ── Studio wall (swatch-card photo wall) ──────────────────────────────────
+    defineField({
+      name: 'wallEyebrow',
+      title: 'Small label above the heading (optional)',
+      type: 'string',
+      group: 'wall',
+      validation: (R) => R.max(60),
+    }),
+    defineField({
+      name: 'wallHeadline',
+      title: 'Headline (optional)',
+      type: 'string',
+      group: 'wall',
+      validation: (R) => R.max(80),
+    }),
+    defineField({
+      name: 'wallSubhead',
+      title: 'Short line under the heading (optional)',
+      type: 'text',
+      rows: 2,
+      group: 'wall',
+      validation: (R) => R.max(200),
+    }),
+    defineField({
+      name: 'wallCtaLabel',
+      title: 'Button text (optional)',
+      type: 'string',
+      group: 'wall',
+      description: 'The button links to the Style Gallery.',
+      validation: (R) => R.max(50),
+    }),
+
     // ── Final CTA banner ──────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
@@ -411,6 +491,44 @@ export const homePage = defineType({
       group: 'cta',
       initialValue: '/request-a-quote',
       validation: (R) => R.required(),
+    }),
+
+    // ── Closing thread banner (the golden thread ends here) ───────────────────
+    defineField({
+      name: 'finalEyebrow',
+      title: 'Small label above the heading (optional)',
+      type: 'string',
+      group: 'final',
+      validation: (R) => R.max(60),
+    }),
+    defineField({
+      name: 'finalHeadline',
+      title: 'Headline (optional)',
+      type: 'string',
+      group: 'final',
+      validation: (R) => R.max(100),
+    }),
+    defineField({
+      name: 'finalSubhead',
+      title: 'Body copy (optional)',
+      type: 'text',
+      rows: 2,
+      group: 'final',
+      validation: (R) => R.max(220),
+    }),
+    defineField({
+      name: 'finalCtaLabel',
+      title: 'Button text (optional)',
+      type: 'string',
+      group: 'final',
+      validation: (R) => R.max(50),
+    }),
+    defineField({
+      name: 'finalCtaHref',
+      title: 'Button link (optional)',
+      type: 'string',
+      group: 'final',
+      description: 'Usually /request-a-quote.',
     }),
   ],
   preview: { prepare: () => ({ title: 'Home Page' }) },

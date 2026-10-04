@@ -3,11 +3,14 @@
 // always client-hydrated.
 //
 // Design language borrowed from the Nixon Creative Studio portfolio menu and
-// adapted to Heirloom Coast: a full-screen Linen panel (not a narrow drawer),
-// a wordmark + close in the top bar, a positioning line, then the nav as a big
-// editorial index — large Fraunces labels, hairline-divided rows, a slide-in
-// arrow, and a staggered cascade on open. A claret CTA, then a pinned "Get in
-// touch" block. No dark mode, no theme toggle — this brand is light-only.
+// adapted to the Atelier (Direction D, 2026-10-04): a full-screen Midnight
+// panel with the linen twill texture (a dark SECTION, not a dark mode), a
+// wordmark + close in the top bar, a positioning line, then the nav as a big
+// editorial index: large Fraunces labels, running-stitch dividers, a slide-in
+// arrow, the active page in the gold italic swash, and a staggered cascade on
+// open. The paper-on-dark .btn CTA, then a pinned "Get in touch" block. The
+// panel carries .surface-midnight, so every token inside is the dark context
+// (text-foreground is Linen, text-link and the focus ring are gold-light).
 //
 // Because MAS has far more nav items than the portfolio (8 shop categories, an
 // inspiration cluster), dropdown groups are COLLAPSIBLE accordions: collapsed
@@ -160,7 +163,7 @@ export default function MobileNav({
           <button
             type="button"
             aria-label="Open menu"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/10"
           >
             <Menu size={22} />
           </button>
@@ -174,7 +177,7 @@ export default function MobileNav({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="!w-full !max-w-full overflow-y-auto !border-0 bg-background p-0 text-foreground"
+          className="surface-midnight !w-full !max-w-full overflow-y-auto !border-0 !bg-[var(--color-midnight)] p-0 text-foreground"
         >
           <style>{`
             @keyframes mnav-in {
@@ -200,9 +203,28 @@ export default function MobileNav({
           `}</style>
 
           <div className="mnav-shell relative flex min-h-full flex-col">
+            {/* A stitched hoop ring in the corner, purely decorative. */}
+            <svg
+              aria-hidden="true"
+              focusable="false"
+              viewBox="0 0 200 200"
+              className="pointer-events-none absolute -right-16 -bottom-10 h-72 w-72 text-[var(--color-gold)] opacity-[0.16]"
+            >
+              <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" strokeWidth="3" />
+              <circle
+                cx="100"
+                cy="100"
+                r="80"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeDasharray="7 6"
+                strokeLinecap="round"
+              />
+            </svg>
             {/* Top bar: wordmark (doubles as the dialog's accessible name) + close. */}
             <div className="flex items-center justify-between gap-m">
-              <SheetTitle className="font-display text-2xl leading-none tracking-[-0.01em] text-foreground">
+              <SheetTitle className="font-display text-2xl leading-none tracking-[-0.01em] text-foreground italic">
                 MAS Monograms
               </SheetTitle>
               <SheetDescription className="sr-only">
@@ -212,7 +234,7 @@ export default function MobileNav({
                 type="button"
                 onClick={close}
                 aria-label="Close menu"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-md text-foreground transition-colors hover:text-link"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/10 hover:text-link"
               >
                 <X size={24} />
               </button>
@@ -232,7 +254,7 @@ export default function MobileNav({
                 collapsible accordions. Hairline dividers structure the list. */}
             <nav
               aria-label="Primary mobile"
-              className="mt-l flex flex-col divide-y divide-border-soft border-y border-border-soft"
+              className="mt-l flex flex-col divide-y divide-dashed divide-[var(--color-gold)]/35 border-y border-dashed border-[var(--color-gold)]/35"
             >
               {links.map((item, i) => {
                 const rowDelay = delay(140 + i * 45);
@@ -252,8 +274,8 @@ export default function MobileNav({
                       <span className="flex flex-col gap-0.5">
                         <span
                           className={
-                            'font-display text-2xl leading-tight tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
-                            (active ? 'text-link' : 'text-foreground')
+                            'font-display text-[1.75rem] leading-tight tracking-[-0.005em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                            (active ? 'swash' : 'text-foreground')
                           }
                         >
                           {item.label}
@@ -294,8 +316,8 @@ export default function MobileNav({
                     >
                       <span
                         className={
-                          'font-display text-2xl leading-tight tracking-[0.01em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
-                          (groupActive ? 'text-link' : 'text-foreground')
+                          'font-display text-[1.75rem] leading-tight tracking-[-0.005em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                          (groupActive ? 'swash' : 'text-foreground')
                         }
                       >
                         {item.label}
@@ -363,12 +385,11 @@ export default function MobileNav({
                 turn it off everywhere, here included. */}
             {showCta && (
               <div className="mnav-item mt-l" style={delay(140 + links.length * 45 + 40)}>
-                <a
-                  href={ctaHref}
-                  onClick={close}
-                  className="block min-h-[44px] w-full rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] px-m py-s text-center text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)]"
-                >
-                  {ctaLabel}
+                <a href={ctaHref} onClick={close} className="btn btn-primary w-full">
+                  <span>{ctaLabel}</span>
+                  <span className="btn__arrow" aria-hidden="true">
+                    &rarr;
+                  </span>
                 </a>
               </div>
             )}
@@ -376,9 +397,7 @@ export default function MobileNav({
             {/* Get in touch — pinned to the bottom via mt-auto when the menu is
                 shorter than the viewport; scrolls naturally when it isn't. */}
             <div className="mnav-item mt-auto pt-l" style={delay(140 + links.length * 45 + 100)}>
-              <p className="text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase">
-                Get in touch
-              </p>
+              <p className="eyebrow">Get in touch</p>
               <div className="mt-s flex flex-col gap-1">
                 {email && (
                   <a
@@ -408,7 +427,7 @@ export default function MobileNav({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={link.label ?? link.platform ?? 'Social link'}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border-soft text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[var(--color-gold)]/60 text-foreground transition-colors hover:border-solid hover:border-[var(--color-gold-light)] hover:bg-[var(--color-gold-light)] hover:text-[var(--color-midnight)]"
                       >
                         <Icon size={20} stroke={1.5} />
                       </a>

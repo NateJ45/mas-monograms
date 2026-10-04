@@ -51,6 +51,8 @@ interface Props {
    * its own heuristics for everything else.
    */
   fetchpriority?: 'high' | 'low' | 'auto';
+  /** Inline style for the <img> (e.g. object-position for a focal point). Added for HoopFrame, Direction D. */
+  style?: string;
 }
 
 const {
@@ -64,6 +66,7 @@ const {
   quality = 75,
   format = 'auto',
   fetchpriority,
+  style,
 } = Astro.props;
 
 // Build the URL. If source is null/undefined we render nothing — pages should handle absence explicitly.
@@ -125,4 +128,5 @@ const resolvedAlt = alt !== undefined ? alt : (source.alt ?? '');
   fetchpriority={fetchpriority}
   sizes={sizes ?? `(max-width: ${width}px) 100vw, ${width}px`}
   class={className}
+  style={style}
 />

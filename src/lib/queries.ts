@@ -114,12 +114,17 @@ export function getHomePage(): Promise<any> {
       categoriesEyebrow,
       categoriesHeadline,
       categoriesSubhead,
+      categoriesNote,
+      marqueeEyebrow,
       aboutEyebrow,
       aboutHeadline,
       aboutBody ${PT_BODY},
       aboutPhoto ${IMG},
       aboutCtaLabel,
       aboutCtaHref,
+      makerQuote,
+      makerSignature,
+      makerFacts,
       processEyebrow,
       processHeadline,
       processSubhead,
@@ -131,11 +136,71 @@ export function getHomePage(): Promise<any> {
       gallerySubhead,
       galleryCtaLabel,
       galleryCtaHref,
+      wallEyebrow,
+      wallHeadline,
+      wallSubhead,
+      wallCtaLabel,
       ctaEyebrow,
       ctaHeadline,
       ctaSubhead,
       ctaLabel,
-      ctaHref
+      ctaHref,
+      finalEyebrow,
+      finalHeadline,
+      finalSubhead,
+      finalCtaLabel,
+      finalCtaHref
+    }`,
+    {},
+    null,
+  );
+}
+
+// ─── Atelier settings (live monogram preview copy) ──────────────────────────
+
+export interface AtelierSettings {
+  eyebrow?: string;
+  headline?: string;
+  subhead?: string;
+  initialsLabel?: string;
+  initialsHint?: string;
+  styleLabel?: string;
+  threadLabel?: string;
+  fabricLabel?: string;
+  styles?: Array<{
+    _key: string;
+    key: 'classic' | 'script' | 'block' | 'circle' | 'single';
+    label: string;
+    blurb: string;
+  }>;
+  fabrics?: Array<{ _key: string; key: string; label: string; color: string; note?: string }>;
+  sampleMonograms?: string[];
+  replayLabel?: string;
+  ctaLabel?: string;
+  disclaimer?: string;
+  heroTryLabel?: string;
+  heroPlaceholder?: string;
+}
+
+export function getAtelierSettings(): Promise<AtelierSettings | null> {
+  return sanityFetch<AtelierSettings | null>(
+    `*[_type == "atelierSettings"][0]{
+      eyebrow,
+      headline,
+      subhead,
+      initialsLabel,
+      initialsHint,
+      styleLabel,
+      threadLabel,
+      fabricLabel,
+      styles[] { _key, key, label, blurb },
+      fabrics[] { _key, key, label, color, note },
+      sampleMonograms,
+      replayLabel,
+      ctaLabel,
+      disclaimer,
+      heroTryLabel,
+      heroPlaceholder
     }`,
     {},
     null,
@@ -497,7 +562,7 @@ export function getAllThreadColors(): Promise<any[]> {
     `*[_type == "threadColor"] | order(colorFamily asc, displayOrder asc){
       _id,
       name,
-      slug,
+      "slug": slug.current,
       hexColor,
       dmcNumber,
       swatchImage ${IMG},
@@ -683,6 +748,37 @@ export function getFeaturedGalleryItems(limit = 9): Promise<any[]> {
       image ${IMG},
       "relatedCategory": relatedCategory->{ name, slug },
       "relatedFont": relatedFont->{ name, slug },
+      tags
+    }`,
+    { limit },
+    [],
+  );
+}
+
+// ─── Gallery items for the home "studio wall" ───────────────────────────────
+// Featured items first, then the rest by display order, so the wall is full even
+// if few are featured. The image keeps its hotspot and crop so the front end can
+// build a focal-point crop (object-position) from them. Today no photo has a
+// hotspot set, so `hotspot` and `crop` come back null and callers must default
+// to the centre.
+
+export function getGalleryItemsForWall(limit = 12): Promise<any[]> {
+  return sanityFetch(
+    `*[_type == "galleryItem" && defined(image.asset)] | order(featured desc, displayOrder asc)[0...$limit]{
+      _id,
+      featured,
+      "image": image{
+        asset->,
+        hotspot,
+        crop,
+        "alt": coalesce(alt, asset->altText, ""),
+        caption,
+        "dimensions": {
+          "width": asset->metadata.dimensions.width,
+          "height": asset->metadata.dimensions.height
+        }
+      },
+      "relatedCategory": relatedCategory->{ name, "slug": slug.current },
       tags
     }`,
     { limit },
