@@ -160,7 +160,8 @@
         const dd = document.createElement('dd');
         dt.textContent = k;
         dd.textContent = v;
-        spec.append(dt, dd);
+        spec.appendChild(dt);
+        spec.appendChild(dd);
       }
     }
     if (stage) {

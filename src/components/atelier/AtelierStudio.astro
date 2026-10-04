@@ -283,19 +283,6 @@ const ids = {
             </fieldset>
           )
         }
-
-        {
-          settings?.ctaLabel && (
-            <div class="atelier-studio__cta">
-              <button type="submit" class="btn btn-primary">
-                <span>{settings.ctaLabel}</span>
-                <span class="btn__arrow" aria-hidden="true">
-                  &rarr;
-                </span>
-              </button>
-            </div>
-          )
-        }
       </div>
     </div>
 
@@ -333,24 +320,62 @@ const ids = {
         </fieldset>
       )
     }
+
+    {
+      settings?.ctaLabel && (
+        <div class="atelier-studio__cta">
+          <button type="submit" class="btn btn-primary">
+            <span>{settings.ctaLabel}</span>
+            <span class="btn__arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </button>
+        </div>
+      )
+    }
   </form>
 </div>
 <AtelierStudioScript />
 
 <style>
+  /* One grid on the form; the inner wrapper is display: contents so the
+     phone order is stage, controls, thread rack, then the request button,
+     while desktop keeps the button under the controls. */
   .atelier-studio__form {
     display: grid;
-    gap: var(--spacing-section-md);
-  }
-  .atelier-studio__grid {
-    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'stage' 'controls' 'rack' 'cta';
     gap: var(--spacing-l);
     align-items: start;
   }
+  .atelier-studio__grid {
+    display: contents;
+  }
+  .atelier-studio__stage-col {
+    grid-area: stage;
+    min-width: 0;
+  }
+  .atelier-studio__controls {
+    grid-area: controls;
+  }
+  .atelier-studio__rack-field {
+    grid-area: rack;
+  }
+  .atelier-studio__cta {
+    grid-area: cta;
+  }
   @media (min-width: 1024px) {
-    .atelier-studio__grid {
+    .atelier-studio__form {
       grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-      gap: var(--spacing-section-md);
+      grid-template-areas:
+        'stage controls'
+        'stage cta'
+        'rack rack';
+      grid-template-rows: auto 1fr auto;
+      column-gap: var(--spacing-section-md);
+    }
+    .atelier-studio__rack-field {
+      margin-top: var(--spacing-l);
     }
   }
 
@@ -436,6 +461,7 @@ const ids = {
   /* ---- controls ---- */
   .atelier-studio__controls {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--spacing-l);
     padding: clamp(1.25rem, 3vw, 2.25rem);
     background-color: var(--color-paper);
@@ -609,6 +635,8 @@ const ids = {
   }
   .atelier-studio__cta .btn {
     width: 100%;
+    white-space: normal;
+    text-align: center;
   }
 
   /* ---- the spool rack ---- */

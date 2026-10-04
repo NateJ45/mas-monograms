@@ -902,9 +902,10 @@ const hLead = hWords.join(' ');
     }
   }
 
-  /* ── Layout ────────────────────────────────────────────────────────── */
+  /* ── Layout (one shrinkable column on phones, aside + card from 64rem) ── */
   .quote-layout {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2rem;
     align-items: start;
   }

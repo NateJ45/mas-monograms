@@ -65,7 +65,7 @@
       if (cta) {
         const p = new URLSearchParams();
         if (initials) p.set('initials', initials);
-        p.set('style', stage.dataset.style || 'classic');
+        p.set('style', stage!.dataset.style || 'classic');
         if (thread?.value) p.set('thread', thread.value);
         if (fabric?.value) p.set('fabric', fabric.value);
         cta.href = `${cta.dataset.quoteHref ?? '/request-a-quote'}?${p.toString()}`;
