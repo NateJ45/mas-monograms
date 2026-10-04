@@ -195,4 +195,12 @@ const playText = playLabel || 'Play';
       white-space: normal;
     }
   }
+  /* No JS: the button would do nothing, and the track stands still
+     (globals.css), so it goes. */
+  :global(html:not(.js)) .marquee__controls {
+    display: none;
+  }
+  :global(html:not(.js)) .marquee__item {
+    white-space: normal;
+  }
 </style>

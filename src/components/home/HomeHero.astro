@@ -475,6 +475,13 @@ const hintId = 'hero-try-hint';
     font-size: 0.8125rem;
     color: var(--color-text-secondary);
   }
+  /* No JS: the hero field cannot stitch anything, so only the link down to the
+     studio (a real GET form) stays. */
+  :global(html:not(.js)) .home-hero__try-label,
+  :global(html:not(.js)) .home-hero__input,
+  :global(html:not(.js)) .home-hero__hint {
+    display: none;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .home-hero__float {

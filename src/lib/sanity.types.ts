@@ -272,6 +272,22 @@ export type Font = {
   displayOrder?: number;
 };
 
+export type NotFoundPage = {
+  _id: string;
+  _type: 'notFoundPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  headline?: string;
+  body?: string;
+  primaryCtaLabel?: string;
+  primaryCtaHref?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
+};
+
 export type AtelierSettings = {
   _id: string;
   _type: 'atelierSettings';
@@ -307,22 +323,6 @@ export type AtelierSettings = {
   disclaimer?: string;
   heroTryLabel?: string;
   heroPlaceholder?: string;
-};
-
-export type NotFoundPage = {
-  _id: string;
-  _type: 'notFoundPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  headline?: string;
-  body?: string;
-  primaryCtaLabel?: string;
-  primaryCtaHref?: string;
-  secondaryCtaLabel?: string;
-  secondaryCtaHref?: string;
 };
 
 export type SiteSettings = {
@@ -1367,8 +1367,8 @@ export type AllSanitySchemaTypes =
   | ThreadColor
   | Slug
   | Font
-  | AtelierSettings
   | NotFoundPage
+  | AtelierSettings
   | SiteSettings
   | HomePageReference
   | HowItWorksPageReference

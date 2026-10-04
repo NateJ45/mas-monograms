@@ -104,7 +104,7 @@ const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
         {
           page?.body && (
             <div class="ty-body mt-l" data-reveal style="--reveal-delay: 100ms">
-              <PortableText client:idle value={page.body} />
+              <PortableText value={page.body} />
             </div>
           )
         }
@@ -194,6 +194,18 @@ const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
   .tie__tail {
     transform-origin: 152px 64px;
     animation: tie-sway 3.6s ease-in-out 3100ms infinite;
+  }
+  /* Reduced motion: the resting state is the finished drawing, so the tie-off
+     does not run at all. The global reset shortens durations but keeps each
+     animation-delay, which left these "running" (in their delay) for up to
+     3.1s, and the sway would still play once. */
+  @media (prefers-reduced-motion: reduce) {
+    .tie__mask,
+    .tie__knot,
+    .tie__tail-path,
+    .tie__tail {
+      animation: none !important;
+    }
   }
   @keyframes tie-draw {
     from {

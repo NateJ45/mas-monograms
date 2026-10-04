@@ -173,23 +173,35 @@ function priceHint(cat: any): string | null {
 </BaseLayout>
 
 <style>
+  /* The spools are sized against the rack itself (a size container), not the
+     viewport: at 1024px the rack's grid column is only ~380px, and fixed
+     96px/78px spools pushed it 60px past the viewport edge (reflow test). */
   .shop-intro__rack {
+    container-type: inline-size;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: clamp(0.5rem, 2vw, 1.5rem);
+    gap: 3cqi;
     padding-block: 1rem;
+  }
+  .shop-intro__rack :global(.shop-intro__spool) {
+    width: auto;
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+  .shop-intro__rack :global(.spool__art) {
+    width: clamp(2.4rem, 15cqi, 6rem);
+    height: auto;
   }
   .shop-intro__rack :global(.shop-intro__spool:nth-child(even)) {
     margin-bottom: 1.75rem;
   }
+  .shop-intro__rack :global(.shop-intro__spool:nth-child(even) .spool__art) {
+    width: clamp(2rem, 12cqi, 4.875rem);
+  }
   @media (max-width: 1023px) {
     .shop-intro__rack {
       justify-content: flex-start;
-    }
-    .shop-intro__rack :global(.spool__art) {
-      width: clamp(2.6rem, 12vw, 4.5rem);
-      height: auto;
     }
   }
 

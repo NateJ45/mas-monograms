@@ -34,7 +34,11 @@ src/
       draft-mode/               draft mode on/off for the preview
   components/
     Header.astro                header + dropdown folders (indigo eyebrow strip)
-    MobileNav.tsx               the nav JS island
+    MobileNav.tsx               the phone menu (React + Radix Sheet). NOT an island since 2026-10-04:
+    mobileNavMount.tsx          Header.astro server-renders a look-alike menu button and imports this
+                                module on the first tap or interaction anywhere, or 2.5s after load plus
+                                an idle moment, then swaps the real menu in (flushSync, no blank frame).
+                                Keeps React (~80 KB) off the first paint. tests/features.spec.ts covers it
     Footer.astro
     Logo.astro                  the hybrid logo: Flourished-Initial lockup + Badge mark
     Hero.astro                  legacy page hero; only the /preview shell and a unit test still use it
@@ -47,8 +51,11 @@ src/
     CtaBanner.astro             recurring bottom-of-page CTA band (data-thread-end)
     ProcessStepIllustration.astro  pattern-sheet illustration for a process step (ProcessStep.astro is unused)
     SanityImage.astro           responsive images through the Sanity CDN
-    PortableText.tsx            rich-text renderer (React island)
-    FaqAccordion.tsx            FAQ accordion (React island)
+    PortableText.tsx            rich-text renderer, rendered at BUILD time (no client: directive; it has no
+                                state, so an island only shipped ~110 KB of JS, 2026-10-04)
+    FaqAccordion.tsx            FAQ accordion (React island, client:visible). Answers are force-mounted so
+                                they exist in the HTML; globals.css hides closed ones (data-state) with JS
+                                and shows them all with no JS
     BackToTop.tsx
     atelier/                    THE MONOGRAM ATELIER UI. AtelierStage (+Script: lazy engine import, pause
                                 off-screen), HeroAtelierStage (engine started by HomeHeroScript),

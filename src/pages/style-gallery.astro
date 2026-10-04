@@ -322,7 +322,10 @@ const fan = [
   }
   .gallery-fan :global(.gallery-fan__card) {
     position: absolute;
-    width: 56%;
+    /* 52%, not 56%: with the -92% / -8% fan offsets a 56% card hung 1.5% outside
+       the fan on each side, and the 9deg tilt pushed the right card past the
+       viewport at 1024px (reflow test). At 52% both outer cards stay inside. */
+    width: 52%;
     top: 50%;
     left: 50%;
   }

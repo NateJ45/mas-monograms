@@ -34,8 +34,10 @@ Loads when you touch workflows, scripts or tests.
   dark-ground, button and fabric contrast pairs plus a no-duplicate-hex guard; `src/lib/page-fields.test.ts`
   now excludes `atelierSettings` from the "page singletons" list (it is a settings singleton, not a page).
   `scripts/seed-atelier.mjs` is the only new script (dry run by default; see
-  `.claude/rules/sanity-studio.md`). The render-parity baselines (`scripts/.parity`) are NOT yet
-  regenerated for the redesign (see `docs/PENDING.md`). Dev-server note for agents: gotcha 15 in
+  `.claude/rules/sanity-studio.md`). The render-parity baselines (`scripts/.parity`) were
+  regenerated for the redesign on 2026-10-04 (23/23 PASS on two clean rebuilds). `tests/features.spec.ts`
+  covers the interactive pieces (Atelier studio, quote prefill incl. hostile params, thread chart,
+  lightbox, lazy phone menu); each block skips when the credential-less CI build has no content for it. Dev-server note for agents: gotcha 15 in
   `.claude/rules/design-system.md` (`ASTRO_DEV_BACKGROUND=1 ... --port <n> --ignore-lock`).
 - Parity and Tailwind: `src/styles/globals.css` carries `@source not` for
   `scripts/.parity`, `docs`, `.claude`, `CLAUDE.md` and `README.md` so committed

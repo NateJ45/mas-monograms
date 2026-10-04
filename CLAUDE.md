@@ -24,7 +24,10 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
   `scripts/seed-atelier.mjs` (dry run by default; backup `tmp/backups/production-2026-10-04.tar.gz`,
   gitignored). Confirm in the dataset that the seed has been applied before judging the live copy.
 - **Removed:** Lenis smooth scroll (2026-10-04). Native scroll only; do not reintroduce it.
-- **Open:** Sanity fields the page work wanted, parity baselines, the LCP/font perf pass, hotspots on the
+- **Merge-ready pass (2026-10-04):** `check:full` green (324 unit tests), Playwright 191/191 (incl. the
+  new `tests/features.spec.ts`), parity baselines regenerated (23/23 on two clean rebuilds), Lighthouse
+  accessibility 100 on all 12 audited URLs. `PortableText` renders at build time (no island).
+- **Open:** Sanity fields the page work wanted, the LCP/font perf pass, hotspots on the
   69 gallery photos, seam polish on heavy block letters. All in `docs/PENDING.md`.
 - Studio for Mary Ann: Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first
   desk; new desk entry "Monogram Preview (live stitching)".

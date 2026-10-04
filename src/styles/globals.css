@@ -1595,6 +1595,37 @@ body[data-header='overlay'] #main {
   }
 }
 
+/* No JS: FAQ answers (force-mounted by FaqAccordion with `hidden`) are shown
+   open, since the accordion triggers cannot toggle them. */
+html:not(.js) [data-slot='accordion-content'][hidden] {
+  display: block;
+}
+/* With JS, a force-mounted Radix region is never given `hidden` (Presence is
+   always "present"), so a closed answer is hidden by its state here. */
+html.js [data-slot='accordion-content'][data-state='closed'] {
+  display: none;
+}
+
+/* No JS: the Pause button cannot work, so the marquee must not move either
+   (WCAG 2.2.2). It stands still as one wrapped, centred line, exactly as
+   under reduced motion; Marquee.astro hides the button. */
+html:not(.js) .marquee {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+html:not(.js) .marquee__track {
+  animation: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 0.75rem;
+  padding-right: 0;
+}
+html:not(.js) .marquee__track[aria-hidden='true'] {
+  display: none;
+}
+
 /* ---------- Print ----------------------------------------- */
 
 @media print {

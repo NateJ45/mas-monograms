@@ -9,6 +9,12 @@
 //
 // Hydrate with client:visible — FAQ is below-the-fold on every page that uses it.
 //
+// Answers are force-mounted (2026-10-04 no-JS pass): a closed Radix item otherwise
+// server-renders an EMPTY region, so with JavaScript off the answers did not exist
+// at all. Now they are always in the HTML; globals.css hides a closed one by its
+// data-state when html has .js (Radix never sets `hidden` on a force-mounted region)
+// and shows them all when it does not. Cost: closing no longer animates.
+//
 // Direction D ("The Atelier", 2026-10-04): rows divided by running stitches,
 // a numbered italic index (01, 02...) beside each question, and a cross-stitch
 // "+" that turns into an "x" when the answer is open (the primitive's chevrons
@@ -154,7 +160,10 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
                         <span />
                       </span>
                     </AccordionTrigger>
-                    <AccordionContent className="pl-[calc(2rem+var(--spacing-m))] text-base leading-relaxed text-[var(--color-text-secondary)] [&_strong]:text-foreground">
+                    <AccordionContent
+                      forceMount
+                      className="pl-[calc(2rem+var(--spacing-m))] text-base leading-relaxed text-[var(--color-text-secondary)] [&_strong]:text-foreground"
+                    >
                       <div className="max-w-[62ch] pb-s">
                         <PortableText value={item.answer} />
                       </div>
