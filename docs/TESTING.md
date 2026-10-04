@@ -233,11 +233,12 @@ server to check production.) Measured 2026-10-04 over the 22 prebuilt routes: 23
 before (27 on `/`, 42 on `/request-a-quote/`, 149 on `/style-gallery/`), 0 after, with 4 inline-in-sentence
 links exempt (the email address in the legal pages, "Font Guide →" and "Color Chart →" on the quote form).
 
-**Known false positive on `/style-gallery/`.** The mobile filter panel is a closed `<details>` at load. Chrome still
-reports geometry for its chips, but they are not rendered or tappable, and the hit test lands on the gallery photos
-beneath, so the stock scan prints about 68 stolen-tap warnings there. Open the panel (and the "+ N more" groups) before
-scanning and the same page reads 0 under 44px and 0 stolen. The fix belongs in the starter's scan (skip content inside
-a closed `<details>` other than its `<summary>`); the file is PORTABLE, so it is not edited here.
+**Closed `<details>` (fixed 2026-10-04, starter PR #85).** The mobile filter panel on `/style-gallery/` is a closed
+`<details>` at load. Chrome still reports geometry for its chips, but they are not rendered or tappable, and the hit
+test lands on the gallery photos beneath, so the old scan printed 68 stolen-tap warnings there. The scan now skips
+content inside a closed `<details>` (other than its `<summary>`). Measured at 390px on `/style-gallery/`: 0 under
+44px, 0 stolen-tap warnings, 58 lifted by a hit-area; with `--include-closed-details` (the old behaviour) 0 under
+44px, 68 stolen-tap warnings, 126 lifted. Open the panel yourself, or pass the flag, if you want the chips measured.
 
 ## Library drift
 
