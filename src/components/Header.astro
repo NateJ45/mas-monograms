@@ -17,8 +17,7 @@
 import { site } from '@/data/site';
 import { Mail, Phone } from 'lucide-react';
 import { IconBrandInstagram, IconBrandFacebook, IconBrandPinterest } from '@tabler/icons-react';
-import { ChevronDown } from 'lucide-react';
-import MobileNav from './MobileNav';
+import { ChevronDown, Menu } from 'lucide-react';
 import Logo from './Logo.astro';
 import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
@@ -119,8 +118,9 @@ const mobileNavSettings = siteSettings
     }
   : null;
 
-// MobileNav is a client:only island, so every prop it is given is WRITTEN INTO
-// THE PAGE. Give it only the switches that are actually turned off, so a Site
+// MobileNav's props are WRITTEN INTO THE PAGE (the data-props attribute on its
+// slot, read by mobileNavMount.tsx). Give it only the switches that are
+// actually turned off, so a Site
 // Settings nobody has touched produces the very same page it always did — the
 // same "nothing changes until you change it" promise the rest of these settings
 // make, kept all the way down to the phone menu's props.
@@ -128,6 +128,13 @@ const mobileChrome = {
   ...(chrome.headerCta.show ? {} : { showCta: false }),
   ...(chrome.showEmail ? {} : { showEmail: false }),
   ...(chrome.showSocials ? {} : { showSocials: false }),
+};
+const mobileNavProps = {
+  links: NAV_ITEMS,
+  siteSettings: mobileNavSettings,
+  ctaLabel,
+  ctaHref,
+  ...mobileChrome,
 };
 ---
 
@@ -287,14 +294,28 @@ const mobileChrome = {
           }
         </div>
 
-        <MobileNav
-          client:only="react"
-          links={NAV_ITEMS}
-          siteSettings={mobileNavSettings}
-          ctaLabel={ctaLabel}
-          ctaHref={ctaHref}
-          {...mobileChrome}
-        />
+        {
+          /* The phone menu. Not an Astro island: the slot carries MobileNav's
+            props, the placeholder below is a server-rendered copy of its menu
+            button, and the script at the bottom mounts the React menu after
+            the load event (or on the first tap). See mobileNavMount.tsx. */
+        }
+        <div class="contents" data-mobile-nav data-props={JSON.stringify(mobileNavProps)}>
+          <div
+            class="absolute top-1/2 right-m -translate-y-1/2 lg:hidden"
+            data-mobile-nav-placeholder
+          >
+            <button
+              type="button"
+              aria-label="Open menu"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+              class="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground transition-colors hover:bg-foreground/10"
+            >
+              <Menu size={22} />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -418,6 +439,63 @@ const mobileChrome = {
   }
   initHeaderNav();
   document.addEventListener('astro:page-load', initHeaderNav);
+
+  // Phone menu: mount the React MobileNav into its slot on the first tap of the
+  // placeholder button (which then opens it), on the first interaction
+  // anywhere, or 2.5s after load plus an idle moment. Keeps React off the
+  // first paint; see mobileNavMount.tsx for the why and the seamless swap.
+  type MobileNavSlot = HTMLElement & { __mnavRoot?: { unmount(): void } };
+  let mobileNavModule: Promise<typeof import('@/components/mobileNavMount')> | null = null;
+  const loadMobileNav = () => (mobileNavModule ??= import('@/components/mobileNavMount'));
+  function mountMobileNav(slot: MobileNavSlot) {
+    if (slot.dataset.mnavMounting) return;
+    slot.dataset.mnavMounting = '1';
+    loadMobileNav()
+      .then(({ mountMobileNav: mount }) => {
+        if (!slot.isConnected || slot.__mnavRoot) return;
+        slot.__mnavRoot = mount(slot, slot.dataset.mnavOpen === '1') ?? undefined;
+      })
+      .catch(() => {
+        // offline or a failed chunk: let the next tap try again
+        mobileNavModule = null;
+        delete slot.dataset.mnavMounting;
+      });
+  }
+  function initMobileNav() {
+    const slot = document.querySelector<MobileNavSlot>('[data-mobile-nav]');
+    const button = slot?.querySelector<HTMLButtonElement>('[data-mobile-nav-placeholder] button');
+    if (!slot || !button || slot.dataset.mnavInit) return;
+    slot.dataset.mnavInit = '1';
+    button.addEventListener('pointerdown', () => void loadMobileNav(), { once: true });
+    button.addEventListener('click', () => {
+      slot.dataset.mnavOpen = '1';
+      mountMobileNav(slot);
+    });
+    // No tap yet: mount on the first interaction anywhere, or a quiet moment
+    // after load (late enough to stay clear of a photo LCP and its decode).
+    // (A press on the placeholder itself is left to its click handler, so the
+    // button is still in the page when its click lands.)
+    const WAKE = ['pointerdown', 'keydown', 'touchstart'] as const;
+    const wake = (e?: Event) => {
+      if (e?.target instanceof Node && button.contains(e.target)) return;
+      WAKE.forEach((t) => window.removeEventListener(t, wake));
+      mountMobileNav(slot);
+    };
+    WAKE.forEach((t) => window.addEventListener(t, wake, { passive: true }));
+    const later = () =>
+      window.setTimeout(() => {
+        if ('requestIdleCallback' in window)
+          window.requestIdleCallback(() => wake(), { timeout: 2000 });
+        else wake();
+      }, 2500);
+    if (document.readyState === 'complete') later();
+    else window.addEventListener('load', later, { once: true });
+  }
+  document.addEventListener('astro:before-swap', () => {
+    document.querySelector<MobileNavSlot>('[data-mobile-nav]')?.__mnavRoot?.unmount();
+  });
+  initMobileNav();
+  document.addEventListener('astro:page-load', initMobileNav);
 
   // Condense + solidify on scroll (Direction D). One passive, rAF-throttled
   // listener; it only toggles an attribute, CSS does the rest. Bound once

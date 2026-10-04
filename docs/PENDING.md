@@ -117,6 +117,49 @@ This file tracks the things that have no other home.
 
 ## Open — code/content work queued
 
+### From the 2026-10-04 Direction D redesign ("The Atelier", branch `redesign/atelier`)
+
+- **Land the branch.** 8 commits ahead of `main`, no PR as of 2026-10-04. Needs a PR with green `build`
+  and `test`, then a live-site check after merge. Until then production is still the Direction C look.
+- **Confirm `scripts/seed-atelier.mjs` has been applied** to the production dataset (dry run is the
+  default; backup is `tmp/backups/production-2026-10-04.tar.gz`, gitignored). Until `atelierSettings`
+  exists, the Atelier pages fall back to short neutral strings in code.
+- **Sanity fields the page work wanted but could not add** (each is currently a neutral code fallback,
+  which breaks Sanity-first; add the field, query it, seed it, then drop the fallback):
+  - `pricingTier.highlightLabel`, `pricingPage.tierPricePrefix`
+  - `font.popularLabel` / `fontGuidePage.popularLabel`, and an `atelierStyle` key per font (so a font's
+    "try it" button can load the matching Atelier style)
+  - `legalPage.lastUpdatedLabel`
+  - `thankYouPage.nextStepsLabel`, `thankYouPage.responseTimeLabel`
+  - `notFoundPage`: `getNotFoundPage` should also fetch `seoTitle` / `seoDescription`
+  - `styleGalleryPage`: lightbox labels (dialog name, close, previous, next) and the announcement text
+  - `itemCategory`: `galleryHeading`, `requestSimilarLabel`, `crossSellHeading`
+  - `clearancePage.quantityLeftLabel`
+  - `threadChartPage.filterLabel`
+  - `atelierSettings`: pause and play labels for the hero and the Marquee (WCAG 2.2.2; `Marquee` falls
+    back to "Pause" / "Play" today)
+- **Set hotspots on the 69 gallery photos and the category card images.** None has one, so every hoop
+  and swatch crop defaults to the centre (`getGalleryItemsForWall` returns `hotspot: null`). `HoopFrame`
+  also takes a `focal` prop as a stopgap.
+- **Add the new Monogram Preview page to the Start Here handbook.** `scripts/seed-studio-guides.mjs` lists
+  the page singletons (line ~96) without "Monogram Preview (live stitching)", and still mentions a per-page
+  "Preview" tab. Patch through `scripts/lib/sanity-lib.mjs` (dry-run gate).
+- **Regenerate the render-parity baselines (`scripts/.parity`) for the redesign.** They were not part of
+  the branch diff, so `npm run parity compare` will differ everywhere. Re-capture from a plain
+  `npm run build` and say so in the commit message.
+- **Performance: LCP is still about 6.6s on mobile and is font/CSS bound.** The worker move took
+  Lighthouse mobile performance from 58 to 65 and total blocking time from about 300 to 550ms to about 0,
+  but the hero headline's fonts and the stylesheet still gate LCP. A perf pass is pending.
+- **Simplify the consumer workarounds** in `QuotePrefillScript` and `ThreadChartScript`: they guard against
+  the engine starting late (writing `data-*` and checking `stage.dataset.ready`). The engine now applies
+  the latest `setDesign` itself, so they can call it directly.
+- **Wire the `lazy` prop in `QuotePreview`** if wanted: its stage is hidden until initials arrive, and
+  `lazy` keeps the engine from loading on idle for a visitor who never uses the preview.
+- **Heavy block-letter seams.** Bowls of B, the arm of F and the leg of K in the `block` style still show
+  seams where tatami rows meet (`src/lib/atelier/stitches.ts`, `field.ts`).
+- **Removed on 2026-10-04: Lenis smooth scroll** (script, dependency, hero cue hook). Not an open item;
+  recorded so nobody reintroduces it.
+
 - **The parity baselines are unowned until the first real refactor.**
   `scripts/.parity/*.html` holds 23 committed snapshots captured 2026-08-27 off
   a clean build. They only earn their keep if `npm run parity compare` is

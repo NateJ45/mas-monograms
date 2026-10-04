@@ -49,6 +49,25 @@ generate`), not from a `studio/` workspace.
   `node scripts/seed-studio-guides.mjs` (idempotent createOrReplace). Do NOT run `scripts/seed-core.mjs`
   — it is the leftover interior-design "Studio Starter" seed and would inject junk `service`/`journalEntry`
   docs.
+- **Atelier content (2026-10-04).** `atelierSettings` is a new singleton (schema
+  `src/sanity/schemaTypes/atelierSettings.ts`, desk entry "Monogram Preview (live stitching)" under
+  Website pages, listed in both `SINGLETON_TYPES` sets: `src/sanity/structure.ts` and the repo-root
+  `sanity.config.ts`). It holds every word of the live preview: section copy, control labels,
+  `styles[]` (`key` is fixed by the code: classic, script, block, circle, single), `fabrics[]`
+  (`key`, `label`, `color` hex, `note`), `sampleMonograms[]` (initials only, never real people's names),
+  button labels, the "preview, Mary Ann confirms your proof" `disclaimer`, and the hero try-it words.
+  `homePage` gained 14 optional fields: `marqueeEyebrow`, `categoriesNote`, `makerQuote`,
+  `makerSignature`, `makerFacts[]` (true statements only), `wallEyebrow`/`wallHeadline`/`wallSubhead`/
+  `wallCtaLabel`, `finalEyebrow`/`finalHeadline`/`finalSubhead`/`finalCtaLabel`/`finalCtaHref`. Existing
+  fields are untouched so the live Studio never breaks. Read with `getAtelierSettings()` and
+  `getHomePage()`. Field reference: `docs/06-sanity-content-model.md`.
+- **`scripts/seed-atelier.mjs`** seeds both. Dry run by default (`--apply` writes); `atelierSettings` is
+  `createIfNotExists` (skipped if it or its draft exists) and the new `homePage` fields are `setIfMissing`
+  on the published doc AND `drafts.homePage` if one exists, so a re-run never overwrites Mary Ann's
+  edits. A dataset backup was taken 2026-10-04 in `tmp/backups/` (gitignored). Procedure for any live
+  write: backup, dry run, apply, verify read-only. Never run `seed-core.mjs`.
+- **After adding schema fields**, run `npm run typegen` and commit `src/lib/sanity.types.ts` (gotcha 1),
+  and add the new field to the GROQ projection in `src/lib/queries.ts` or the page will not see it.
 - Any new seed or patch script should import `scripts/lib/sanity-lib.mjs` rather
   than build its own client: it brings a **dry-run-by-default** gate (`--apply`
   to actually write), Portable Text builders, and an idempotent asset uploader.

@@ -12,6 +12,7 @@ import {
 import { downsample, tensorField } from './field.ts';
 import { KIND_FILL, KIND_SATIN, fillRegions, orderStitches } from './stitches.ts';
 import { clearBuffers, emptyRect, makeBuffers, rasterize } from './raster.ts';
+import { buildGeometry, dsepFor } from './geometry.ts';
 
 test('hexToRgb parses long, short and bad input', () => {
   assert.deepEqual(hexToRgb('#ff0000'), [1, 0, 0]);
@@ -143,4 +144,49 @@ test('ordering follows keys and rasteriser covers stitched pixels', () => {
   assert.ok(peak > 0.9);
   assert.equal(b.A[5 * W + 60], 0);
   assert.ok(r.x0 <= 12 && r.x1 >= 108);
+});
+
+test('geometry builds ordered stitches from a label map (worker path, no DOM)', async () => {
+  const W = 200;
+  const H = 120;
+  const labels = new Uint8Array(W * H);
+  // two elements: a vertical stem and a horizontal slab touching it (a serif junction)
+  for (let y = 20; y < 100; y++) for (let x = 40; x < 70; x++) labels[y * W + x] = 1;
+  for (let y = 90; y < 100; y++) for (let x = 20; x < 90; x++) labels[y * W + x] = 1;
+  for (let y = 30; y < 90; y++) for (let x = 120; x < 160; x++) labels[y * W + x] = 2;
+  const g = await buildGeometry({
+    key: 'T|block|200x120|studio',
+    quality: 'studio',
+    W,
+    H,
+    labels,
+    order: [1, 2],
+    fillAngle: [
+      [1, 0.66],
+      [2, -0.6],
+    ],
+    letterH: 80,
+  });
+  assert.ok(g && !g.empty);
+  assert.ok(g.stitches.count > 50);
+  for (let i = 1; i < g.stitches.count; i++) assert.ok(g.stitches.key[i] >= g.stitches.key[i - 1]);
+  // element 1 is sewn before element 2
+  const firstOf2 = Array.from(g.stitches.label.subarray(0, g.stitches.count)).indexOf(2);
+  const lastOf1 = Array.from(g.stitches.label.subarray(0, g.stitches.count)).lastIndexOf(1);
+  assert.ok(lastOf1 < firstOf2);
+  // a superseded run stops
+  const dead = await buildGeometry(
+    { key: 'x', quality: 'hero', W, H, labels, order: [1], fillAngle: [], letterH: 80 },
+    { alive: () => false },
+  );
+  assert.equal(dead, null);
+});
+
+test('stitch spacing stays inside each quality band', () => {
+  for (const h of [50, 200, 400, 900]) {
+    const hero = dsepFor('hero', h);
+    const studio = dsepFor('studio', h);
+    assert.ok(hero >= 2.3 && hero <= 4.2);
+    assert.ok(studio >= 3.2 && studio <= 5.6);
+  }
 });

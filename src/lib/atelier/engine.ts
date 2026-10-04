@@ -246,6 +246,7 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
         if (!px || destroyed || target !== fabricCanvas || px.length !== w * h * 4) return;
         ctx2d(target).putImageData(new ImageData(px as Uint8ClampedArray<ArrayBuffer>, w, h), 0, 0);
         fabricKey = key;
+        baseDirty = true;
       })();
       try {
         await fabricBusy;
@@ -320,22 +321,47 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
       c.fillRect(0, 0, cv.width, cv.height);
       c.globalCompositeOperation = 'source-over';
     }
+    baseDirty = true;
+  }
+
+  /**
+   * The cloth with its shadows (fabric x ambient x contact), cached: it only
+   * changes when the shadows or the fabric do, so an animation frame is two
+   * draws (base, thread) instead of four.
+   */
+  let baseCanvas: HTMLCanvasElement | null = null;
+  let baseDirty = true;
+  function ensureBase(): HTMLCanvasElement | null {
+    if (!fabricCanvas || !ambient || !contact) return null;
+    if (!baseCanvas || baseCanvas.width !== W || baseCanvas.height !== H) {
+      baseCanvas = makeCanvas(W, H);
+      baseDirty = true;
+    }
+    if (!baseDirty) return baseCanvas;
+    const b = ctx2d(baseCanvas);
+    const u = Math.min(W, H) / 1000;
+    b.globalCompositeOperation = 'source-over';
+    b.globalAlpha = 1;
+    b.drawImage(fabricCanvas, 0, 0);
+    b.imageSmoothingEnabled = true;
+    b.globalCompositeOperation = 'multiply';
+    b.globalAlpha = 0.42;
+    b.drawImage(ambient, 7 * u, 10 * u, W, H);
+    b.globalAlpha = 0.62;
+    b.drawImage(contact, 1.4 * u, 2.2 * u, W, H);
+    b.globalCompositeOperation = 'source-over';
+    b.globalAlpha = 1;
+    baseDirty = false;
+    return baseCanvas;
   }
 
   function compose() {
-    if (!fabricCanvas || !stitchCanvas || !ambient || !contact) return;
-    const u = Math.min(W, H) / 1000;
+    if (!stitchCanvas) return;
+    const base = ensureBase();
+    if (!base) return;
     main.globalCompositeOperation = 'source-over';
     main.globalAlpha = 1;
-    main.drawImage(fabricCanvas, 0, 0);
-    main.imageSmoothingEnabled = true;
-    main.globalCompositeOperation = 'multiply';
-    main.globalAlpha = 0.42;
-    main.drawImage(ambient, 7 * u, 10 * u, W, H);
-    main.globalAlpha = 0.62;
-    main.drawImage(contact, 1.4 * u, 2.2 * u, W, H);
-    main.globalCompositeOperation = 'source-over';
-    main.globalAlpha = 1;
+    main.drawImage(base, 0, 0);
     main.drawImage(stitchCanvas, 0, 0);
   }
 
@@ -612,8 +638,8 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
             if (now() > budget) break;
           }
           pushStitchPixels(r);
-          // soft shadows lag a frame behind the thread: invisible, halves the cost
-          if ((frameNo++ & 1) === 0 || drawn >= N) updateShadows();
+          // soft shadows lag two frames behind the thread: invisible, a third of the cost
+          if (frameNo++ % 3 === 0 || drawn >= N) updateShadows();
           compose();
           if (drawn > 0 && drawn < N) {
             const k = drawn - 1;
@@ -794,7 +820,9 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
       for (const c of [stitchCanvas, fabricCanvas, ambient, contact, sheenCanvas, glintCanvas]) {
         if (c) c.width = c.height = 0;
       }
+      if (baseCanvas) baseCanvas.width = baseCanvas.height = 0;
       stitchCanvas = fabricCanvas = ambient = contact = sheenCanvas = glintCanvas = null;
+      baseCanvas = null;
       buffers = null;
       stitchImg = null;
       sheenImg = null;

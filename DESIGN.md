@@ -1,6 +1,6 @@
 ---
 name: MAS Monograms
-description: Heirloom Coast, "The Sampler": warm linen paper, deep ink, indigo-drenched bands, a claret quote button and a gold script flourish.
+description: Heirloom Coast, "Direction D: The Atelier": Midnight and Linen sections alternating, huge Fraunces with italic swash words, a thread-gold gradient, and a live embroidery engine as the standout feature.
 colors:
   linen: "#F4EEE3"
   paper: "#FBF8F1"
@@ -11,20 +11,35 @@ colors:
   ink-dark: "#1A1512"
   heritage-indigo: "#28486B"
   indigo-deep: "#1C3550"
+  midnight: "#0F1B2D"
+  midnight-raised: "#172A42"
   claret: "#8C3A2E"
   claret-deep: "#722C22"
   brass-text: "#835A24"
   brass-decorative: "#B98A3E"
-  gold-script: "#D9B15F"
+  gold: "#D9B15F"
+  gold-light: "#F0D58A"
+  gold-deep: "#A9772A"
+  on-dark-muted: "#C8C0B0"
+  border-on-dark: "#8A96A8"
+  kraft: "#E2CFA9"
+  blush: "#F1DFD7"
+  sage: "#DDE2D0"
   taupe-secondary: "#5A5148"
   taupe-tertiary: "#67614F"
   error-text: "#B91C1C"
 typography:
   display:
     fontFamily: "Fraunces Variable, serif"
-    fontSize: "clamp(2.5rem, 6vw, 5rem)"
-    fontWeight: 440
+    fontSize: "clamp(3.25rem, 1.4rem + 7vw, 9.5rem)"
+    fontWeight: 340
     lineHeight: 1.1
+    letterSpacing: "-0.035em"
+  display-sm:
+    fontFamily: "Fraunces Variable, serif"
+    fontSize: "clamp(2.6rem, 1.5rem + 4.4vw, 6.25rem)"
+    fontWeight: 360
+    letterSpacing: "-0.028em"
   heading-small:
     fontFamily: "Fraunces Variable, serif"
     fontSize: "clamp(1.25rem, 2vw, 1.5rem)"
@@ -34,13 +49,14 @@ typography:
   label:
     fontFamily: "Mulish Variable, sans-serif"
     fontSize: "0.75rem"
-    fontWeight: 600
-    letterSpacing: "0.18em"
+    fontWeight: 700
+    letterSpacing: "0.24em"
   script-kicker:
     fontFamily: "Petemoss, cursive"
     fontSize: "2.75rem"
 rounded:
   base: "0.25rem"
+  button: "2px"
 spacing:
   xs: "clamp(0.25rem, 0.5vw, 0.5rem)"
   s: "clamp(0.5rem, 1vw, 1rem)"
@@ -53,84 +69,98 @@ components:
     backgroundColor: "{colors.claret}"
     textColor: "#FFFFFF"
     typography: "{typography.label}"
-    rounded: "{rounded.base}"
-    padding: "{spacing.s} {spacing.l}"
-    height: "44px"
+    rounded: "{rounded.button}"
+    height: "48px"
   button-primary-hover:
     backgroundColor: "{colors.claret-deep}"
   button-on-dark:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.heirloom-ink}"
-  band-drench:
+  surface-midnight:
+    backgroundColor: "{colors.midnight}"
+    textColor: "{colors.linen}"
+  surface-indigo:
     backgroundColor: "{colors.heritage-indigo}"
     textColor: "{colors.linen}"
 ---
 
 # Design System: MAS Monograms
 
-Tokens live in `src/styles/globals.css` (`@theme`); there is no `tokens.css` or Tailwind config. The CSS wins if this file and the code disagree. Strategy is in `PRODUCT.md`. Fuller rationale and contrast math: `docs/02-design-system.md` and `docs/superpowers/specs/2026-07-01-redesign-audit-and-recommendations.md`.
+Tokens live in `src/styles/globals.css` (`@theme` and `:root`); there is no `tokens.css` or Tailwind config. The CSS wins if this file and the code disagree. Strategy is in `PRODUCT.md`. Fuller rationale, the motif catalog with props and contrast math: `docs/02-design-system.md`, `.claude/rules/design-system.md` and the brief `docs/superpowers/specs/2026-10-04-atelier-direction.md`. The embroidery engine is documented in `.claude/rules/atelier-engine.md`.
 
 ## 1. Overview
 
-**Creative North Star: the sampler.** A hand-stitched heirloom shop: warm linen paper, deep ink text, one heritage indigo that also drenches whole bands, claret for the one action that matters, a thin gold script flourish. "Expensive through restraint": space and editing do the work, not effects.
+**Creative North Star: the atelier.** A craft you can watch happen. The site makes its own product photography: a live embroidery engine stitches a visitor's initials, thread by thread, onto woven fabric in real thread colours, and everything else (hoops, spools, tags, running stitches, a gold thread sewn down the page as you scroll) supports that one idea. Direction D (2026-10-04) replaced Direction C's "The Sampler"; its "expensive through restraint" rule no longer governs visual ambition, but Sanity-first, no fabrication and the perfect accessibility gate still bind.
 
-- **Light only, by decision.** No `.dark` CSS, no toggle, no theme bootstrap script. Do not add one.
-- **Mostly flat.** Paper cards on a linen page, sage bands alternating full width, one committed hover shadow. Tight `0.25rem` radius.
-- **Indigo drench.** The home hero, the bottom CTA band, the desktop header strip and a 4px stripe above the footer are Heritage Indigo with linen type.
-- **Motion is subtractive** (2026-07-03): no scroll reveals, no grid stagger, no floating or zoom on the hero collage.
+- **Heirloom Coast stays.** The logo, Linen, Paper, Heritage Indigo, Claret and Brass are unchanged. Direction D adds a deeper **Midnight** beneath Indigo and a **thread-gold gradient**.
+- **Dark and light sections alternate** (Midnight, Indigo, Linen, Paper, Sage); never two flat light sections in a row. This is rhythm, not a dark mode: there is no `.dark` CSS, no toggle and no theme bootstrap script. Do not add one.
+- **Generated textures, no image files.** A linen weave, paper grain and a Midnight twill are CSS/SVG; the fabric on the engine's canvas is procedural too.
+- **Photos are reframed, not hero.** Mary Ann's photos are modest, so they sit in embroidery hoops, on swatch cards and hang tags, under one shared warm grade, in tight crops. The home hero has no photo; it has the live stitching.
+- **Motion is purposeful** and gated: scroll reveals (`data-reveal`) are opt-in and never hide content without JS, the golden thread draws with scroll, and reduced motion shows everything finished.
 - Reference sites and anti-references (proposed, unconfirmed) are in `PRODUCT.md`; this file records only what the code does.
 
 ## 2. Colors
 
-- **Ground.** Linen `#F4EEE3` page, Paper `#FBF8F1` cards and raised surfaces, Sage band `#E4E2D3` alternating section, soft border `#D8CFBC` for decorative hairlines, interactive border `#847A63` for form fields (the border is the field's only affordance).
-- **Ink.** Heirloom Ink `#26312E` for text and headings (11.65:1 on Linen). Secondary text taupe `#5A5148` (6.72:1), captions `#67614F` (5.35:1). Never dim text with opacity utilities; use these tokens.
-- **Heritage Indigo** `#28486B`: primary, links, focus ring (8.16:1 on Linen) and the drench surface; Indigo Deep `#1C3550` on hover.
-- **Claret** `#8C3A2E` (hover `#722C22`): the CTA button background on light grounds only (white label 7.61:1), plus the running-stitch borders on the hero photo mats. On indigo, claret vibrates and fails, so buttons flip to Paper with Ink text (`onDark`).
-- **Brass.** Text `#835A24` (5.27:1 on Linen) for pricing figures and small meta. Decorative `#B98A3E` is about 2.7:1: hairlines and hoop-ring strokes only, never text.
-- **Gold script** `#D9B15F`: the script kicker and hairlines on indigo or dark grounds only (about 4.84:1 on indigo at 44px and up; about 1.6:1 on Linen, so never on light).
-- **Errors** use a token set (`#B91C1C` text, `#F9E8E6` wash, `#E0B4AC` border), not the shadcn red (about 4.0:1, fails AA).
+- **Ground (light).** Linen `#F4EEE3` page, Paper `#FBF8F1` cards and raised surfaces, Sage band `#E4E2D3`, soft border `#D8CFBC` for decorative hairlines, interactive border `#847A63` for form fields.
+- **Ground (dark).** Midnight `#0F1B2D` is the drench surface (hero, dark sections, header strip, mobile menu, footer; Linen on it is 14.97:1); Midnight Raised `#172A42` lifts a panel off it. Heritage Indigo `#28486B` is also a full-width band, a primary and the focus ring on light; Indigo Deep `#1C3550` on hover.
+- **Ink.** Heirloom Ink `#26312E` for text and headings on light (11.65:1 on Linen). Secondary taupe `#5A5148` (6.72:1), captions `#67614F` (5.35:1). On dark grounds secondary text is On-dark muted `#C8C0B0`. Never dim text with opacity utilities; use tokens.
+- **Claret** `#8C3A2E` (hover `#722C22`): the button fill on light grounds only (white label 7.61:1), and the swash colour on light. Never text on dark; on Midnight and Indigo the same `.btn-primary` flips to Paper with an Ink label.
+- **Brass.** Text `#835A24` (5.27:1 on Linen) for pricing figures and small meta on light; on dark grounds `--color-brass-text` re-points to gold. Decorative `#B98A3E` (about 2.7:1) is hairlines and ring strokes only, never text.
+- **Thread gold** (dark grounds only): Gold `#D9B15F` for eyebrows and stitches, Gold Light `#F0D58A` for swash words, links and the focus ring, and as the button fill on dark. Gold Deep `#A9772A` is decorative only (a gradient stop, thread strokes). `--thread-gold` is the gradient (gold-deep, gold, gold-light, gold, gold-deep) used for the golden thread and glyph-clipped swash text.
+- **Fabric grounds** for swatch cards, hang tags and the engine's cloth: Kraft `#E2CFA9`, Blush `#F1DFD7`, Sage `#DDE2D0` (and Linen, Paper). Ink reads on all of them; Claret passes on Kraft (4.98:1); brass-text does not (3.98:1), so use Ink there.
+- **Errors** use a token set (`#B91C1C` text, `#F9E8E6` wash, `#E0B4AC` border), not the shadcn red. A form field's edge on a dark ground is `#8A96A8`.
 - Near-black `#1A1512` survives only as the base of the photo scrim in `HeroBackground`.
+- **Ground contexts.** `.surface-midnight`, `.surface-indigo` and `.on-dark` re-point the semantic tokens (`--foreground`, `--link`, `--ring`, secondary text, brass text, stitch colour, button tokens), so existing utilities turn light-on-dark with no per-component work; `.on-light` and `.surface-linen/-paper/-sage` restore the light set.
 
 ## 3. Typography
 
-- **Fraunces Variable** (display and headings), loaded from the opsz builds (`opsz.css` and `opsz-italic.css`, so the real italic cut is used, never a synthetic oblique). Weight 440 at display sizes, 560 for h4 to h6. Do not force 700: hierarchy comes from size and the optical axis. Line-height 1.1 on display sizes.
-- **Mulish Variable** (body and UI): copy, labels, buttons. Eyebrows are tracked caps at `0.08em`.
-- **Petemoss** (script), two uses only: on-screen monogram initials (combo preview, the logo's script M) and ONE script kicker per page, the opening hero's eyebrow, via `ScriptKicker.astro` (claret on light, gold on dark, tilted -2 degrees, at least 2.75rem). Never for prose, buttons, nav or small text.
+- **Fraunces Variable** (display and headings). Roman from the opsz build; italic from the full build (wght, opsz, SOFT, WONK) so the `.swash` word can run SOFT 100 and WONK 1. Never synthesise an oblique. Display sizes are light: `.display` weight 340 at `--text-display` clamp(3.25rem, 1.4rem + 7vw, 9.5rem), `.display-sm` 360 at clamp(2.6rem, 1.5rem + 4.4vw, 6.25rem), base headings 440, h4 to h6 560. Hierarchy comes from size and the optical axis, not boldness.
+- **`.swash`**: the one italic word or phrase that carries a headline. Claret on light grounds; the thread-gold gradient on dark ones (glyph-clipped, with `color` kept at gold-light so contrast tools measure a real colour).
+- **Mulish Variable** (body and UI). `.lede` for opening paragraphs; `.eyebrow` for tracked caps (12px, weight 700, 0.24em, led by a short running stitch; brass on light, gold on dark).
+- **Petemoss** (script): monogram artifacts and ONE script kicker per page via `ScriptKicker.astro` (at least 2.75rem). Never for prose, buttons, nav or small text.
+- **Lettering fonts for the engine** (Great Vibes, Playfair Display, Cinzel from `@fontsource`) are NOT site typography: they are fetched lazily by the canvas renderer only. Embroidery font choices in the Font Guide are still content (each `font` document carries a photo of the lettering).
 - **Scale.** `--text-h1` clamp(2.5rem, 6vw, 5rem), h2 clamp(2rem, 4vw, 3rem), h3 clamp(1.5rem, 2.5vw, 2rem), h4 clamp(1.25rem, 2vw, 1.5rem), h5 clamp(1.125rem, 1.5vw, 1.25rem), h6 1rem.
-- **Embroidery fonts are content, not web fonts.** Each `font` document carries a photo of the lettering stitched on fabric (`docs/04-fonts-and-lettering.md`).
-- Block quotes (`.prose-blockquote`) are Fraunces italic with a 3px indigo left rule.
 
-## 4. Elevation
+## 4. Elevation and surface
 
-Essentially flat. Surfaces separate by tone (Linen, Paper, Sage, Indigo) and by hairlines. The one committed shadow is the `.card-lift` hover: a 2px rise and `0 16px 34px -18px` at low opacity. Images zoom to 1.06 on hover under a faint indigo tint (`.img-zoom`, `.img-tint`). Photography sits frameless; the hoop-ring (a double indigo ring) frames category images. No glow, no coloured shadows.
+Surfaces separate by tone and by texture rather than shadow: Midnight twill, Linen weave, Paper grain. Cards are pinked-edge swatch cards and kraft hang tags with stitched borders and a slight tilt; photos sit in wooden embroidery hoops with a brass clasp and a soft inner shadow. The engine's thread has its own physical lighting (contact and ambient shadow on the cloth, a glint sweep on finish). No glow and no coloured shadows on UI. Tight `0.25rem` radius; buttons are 2px.
 
-## 5. Components
+**Full-width bands use a surface class, not a `bg-*` utility.** `<main>` is `relative isolate`; the golden ThreadLine sits in it at z-index -1; a top-level surface (a direct child of `<main>`) paints its ground on `::before` at -2, so the thread runs over the cloth and under every word, card and photo. Never put `data-reveal`, a transform, opacity or a filter on a top-level surface itself.
 
-- **Buttons (`CtaLink.astro`).** One recipe: 44px minimum height, `px-l py-s`, `0.25rem` radius, 12px uppercase Mulish semibold at `0.18em` tracking, a 1px tactile press. Primary is claret with a white label on light grounds and Paper with an Ink label on dark. Secondary is an indigo outline with link-coloured text on light, a white outline on dark. "Request a Quote" is the one claret button; keep it sparing.
-- **Header and footer.** A desktop strip in indigo (announcement band) above the main row; a slim indigo stripe on mobile. The footer is a sage band under a 4px indigo stripe that sits seamless below the indigo CTA band.
-- **Logo (`Logo.astro`).** Lockup is the "Flourished Initial": an oversized Petemoss M in claret with a drawn thread swash beneath a Fraunces "MAS MONOGRAMS". The compact mark is the "Shopkeeper's Badge": a double indigo hoop ring around an outlined Fraunces M in claret (also the favicon, generated by `scripts/generate-favicons.mjs`).
-- **Hero (`Hero.astro`).** Three shapes: full-bleed image hero with a dark scrim (category pages), split hero (home: indigo drench, headline and CTAs on one side, a pinned collage of photos on paper mats with claret running-stitch borders cross-fading in place on the other), and a text-only editorial hero. Cross-fade is the hero's one motion; the entry stagger and view-transition cross-fades remain.
-- **Category cards (`CategoryCard.astro`).** Hoop-ring-framed photo and name linking to the category, shared by the home grid and "Explore Other Items".
-- **Forms.** Paper or linen field, interactive-weight border, full indigo focus ring at a 2px offset, errors via the token set, each field's error linked with `aria-describedby`.
-- **Process steps, FAQ accordion, CTA banner (indigo drench, Paper button), back to top, mobile nav.**
+## 5. Components and motifs
+
+- **The Monogram Atelier** (`components/atelier/`, engine in `src/lib/atelier/`): a canvas stage on a pinked fabric swatch with real form controls (initials, style, fabric, a spool rack of real thread colours), Replay, a text alternative, a "this is a preview" disclaimer and a hand-off link to the quote form. A compact version lives in the home hero (cycles sample monograms, accepts typing).
+- **The golden thread** (`ThreadLine`): one continuous gold thread sewn down the page as you scroll, a needle at its tip, ending at the final CTA (`data-thread-end`). Desktop: a plied S-curve path with a legibility mask that dims it behind lines of text; mobile: a running stitch in the left gutter; no JS or reduced motion: fully drawn, no needle.
+- **Hoops, swatch cards, hang tags, spools, running stitches, needle, marquee** (`components/motifs/`): props and use in `docs/02-design-system.md`. Use them consistently; do not sprinkle.
+- **Buttons (`.btn`, `CtaLink.astro`).** One recipe: 48px minimum height, 2px radius, tracked uppercase Mulish label, a fill sweep on hover and focus-visible. `.btn-primary` is Claret on light grounds and Paper (Ink label) on Midnight and Indigo; `.btn-secondary` is the outline. "Request a Quote" is the one primary action; keep it sparing.
+- **Header and footer.** Header: a Midnight contact strip (desktop, folds away on scroll), a linen row that turns to paper glass on scroll, a stitched hem; mobile is a full-screen Midnight panel. Footer: a Midnight statement footer with the brand name as a giant outline sewn in a gold running stitch. BackToTop is a 48px Midnight button with a gold thread ring that winds with scroll.
+- **Logo (`Logo.astro`).** Unchanged: the "Flourished Initial" lockup and the "Shopkeeper's Badge" mark (also the favicon). `variant="adaptive"` follows its ground.
+- **Home sections** (`components/home/`): hero (Midnight, live stitching), marquee (Indigo), the Atelier studio (Linen), hoop wall of categories (Midnight), maker band with Mary Ann in an arched portrait (Indigo), stitched process path (Paper), studio wall of swatch cards (Midnight), thread-tied final CTA (Indigo).
+- **Lightbox** (`gallery/Lightbox.astro`): native `<dialog>` with focus loop, arrow keys, swipe and a live counter.
+- **Forms.** Paper or linen field (Midnight-ground variant uses the dark edge token), interactive-weight border, full focus ring at a 2px offset, errors via the token set linked with `aria-describedby`; radios and checkboxes are the hand-drawn `.choice-input` with a 44px hit area. The quote form keeps its fields, ids and Worker unchanged and gains numbered sections and the Atelier preview.
+- **Process steps, FAQ accordion (stitched dividers, italic numerals), CTA banner (Midnight, stitched frame), mobile nav.**
 
 ## 6. Do's and Don'ts
 
-Motion: one house easing, `cubic-bezier(0.16, 1, 0.3, 1)` at 440ms, for every hover and focus state. `prefers-reduced-motion` is honoured throughout (transitions of 0s).
+Motion: one house easing, `--ease-thread` = `cubic-bezier(0.22, 1, 0.36, 1)`, for hovers, reveals and the thread. No scroll hijacking and no smooth-scroll library (Lenis was removed 2026-10-04). `prefers-reduced-motion` is honoured throughout (transitions of 0s, everything shown finished).
 
 **Do**
 
-- Pull every colour, size and space from the `@theme` tokens; never hardcode.
-- Put the claret button on light grounds only and flip to Paper on indigo.
+- Pull every colour, size and space from the tokens; never hardcode.
+- Alternate Midnight and Linen sections; build full-width bands with `.surface-*` classes.
+- Put the Claret button on light grounds only and let `.btn-primary` flip to Paper on dark.
+- Keep gold (and Gold Light) on dark grounds only; Gold Deep and brass-decorative are never text.
 - Keep the Petemoss kicker to one per page and at least 2.75rem.
-- Use real photography of the work, frameless, with a quiet label.
+- Show photos in hoops or on swatch cards under the shared warm grade, with focal points set per image.
+- Give the canvas a text alternative, real labelled controls and a reduced-motion path.
 - Measure any new colour pair with `src/lib/contrast.ts` and add it to `theme-tokens.test.ts`.
 
 **Don't**
 
-- Don't add a dark mode, a theme toggle or `.dark` CSS.
-- Don't use brass decorative or gold script as text on a light surface.
-- Don't add scroll-in reveals, stagger entrances, floating or Ken-Burns motion on the collage.
+- Don't add a dark mode, a theme toggle or `.dark` CSS (dark sections are fine).
+- Don't use brass decorative, Gold Deep or Claret as text on a dark surface, or gold as text on a light one.
+- Don't paint a full-width band with a plain `bg-*` utility (it hides the thread).
 - Don't bold Fraunces to 700 for hierarchy or synthesise an oblique.
-- Don't bring back brass photo frames, caption bars, the near-black slab band, Thread Ledger or the cream/sage/blush look.
+- Don't make a full-bleed photo hero, or invent reviews, years, clients, prices or awards.
+- Don't bring back Thread Ledger, the cream/sage/blush look, or Direction C's flat frameless collage.
 - Don't write an em-dash in copy.

@@ -32,8 +32,8 @@ the code, `label`, `blurb`); `fabrics[]` (`key`, `label`, `color` hex, `note`); 
 initials only, 1 to 3 letters); `replayLabel`, `ctaLabel`, `disclaimer` (the "preview, Mary Ann confirms the
 proof" line); `heroTryLabel`, `heroPlaceholder`. Desk: Website pages > "Monogram Preview (live stitching)".
 Read with `getAtelierSettings()`. Seeded by `scripts/seed-atelier.mjs` (dry run by default, `--apply` to write;
-`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is NOT yet in the `SINGLETON_TYPES` set
-in the repo-root `sanity.config.ts`, so the Studio still allows duplicating or deleting it until that one line is added.
+`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is registered in the `SINGLETON_TYPES`
+sets in both `src/sanity/structure.ts` and the repo-root `sanity.config.ts`, so the Studio cannot duplicate or delete it.
 
 **`homePage` additions (2026-10-04, all optional):** `marqueeEyebrow` (trust group), `categoriesNote`,
 `makerQuote` / `makerSignature` / `makerFacts[]` (about group), studio wall `wallEyebrow` / `wallHeadline` /

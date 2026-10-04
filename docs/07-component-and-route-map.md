@@ -1,9 +1,10 @@
 # 07: Component & Route Map
 
-> **As-built (updated 2026-07-03).** This doc originally proposed a layout before the build; it now
-> reflects what was actually shipped, through the "Heirloom Coast" rebrand and the "Direction C"
-> treatment. Route + redirect table is in `docs/01` and `.claude/rules/site-routes.md`; design system in `docs/02`;
-> deployment in `docs/08`.
+> **As-built (updated 2026-10-04).** This doc originally proposed a layout before the build; it now
+> reflects what was actually shipped, through the "Heirloom Coast" rebrand and "Direction D, The
+> Atelier" (branch `redesign/atelier`). Route + redirect table is in `docs/01` and
+> `.claude/rules/site-routes.md` (also the quote query-string contract); design system and the motif
+> catalog in `docs/02`; the engine in `.claude/rules/atelier-engine.md`; deployment in `docs/08`.
 
 ---
 
@@ -25,35 +26,55 @@ src/
     clearance.astro
     404.astro
     [slug].astro                dynamic: builds /tote-bags, /towels-linens, … from itemCategory docs
+    legal/[slug].astro          legal pages
     robots.txt.ts               build-time robots.txt endpoint
+    preview/                    SSR draft preview for the Presentation tool
     api/
       quote.ts                  quote-form Worker (Turnstile → R2 backup → Resend); prerender = false
+      draft-mode/               draft mode on/off for the preview
   components/
     Header.astro                header + dropdown folders (indigo eyebrow strip)
     MobileNav.tsx               the nav JS island
     Footer.astro
     Logo.astro                  the hybrid logo: Flourished-Initial lockup + Badge mark
-    Hero.astro                  page hero — "split" (home indigo drench + snapshot collage),
-                                "bleed" (category photo hero), or "text" shape
-    HeroBackground.astro        full-bleed image + scrim for the "bleed" hero
+    Hero.astro                  legacy page hero; only the /preview shell and a unit test still use it
+                                (with HeroBackground, HeroFillScript, HeroSlideshowScript, HeroTriScript).
+                                The live pages use their own Direction D heroes
     ScriptKicker.astro          the one-per-page Petemoss kicker (claret on light / gold on dark)
-    SectionHeading.astro        eyebrow + headline + subhead heading block
-    CategoryCard.astro          frameless shop-category card
+    SectionHeading.astro        eyebrow + headline (+ italic swash word) + subhead heading block
+    CategoryCard.astro          shop-category card (shop-by-item and category pages)
     CtaLink.astro               the single button recipe (onDark flips to paper-on-indigo)
-    CtaBanner.astro             recurring bottom-of-page indigo CTA band
-    ProcessStep.astro           a "how it works" step (+ ProcessStepIllustration.astro)
+    CtaBanner.astro             recurring bottom-of-page CTA band (data-thread-end)
+    ProcessStepIllustration.astro  pattern-sheet illustration for a process step (ProcessStep.astro is unused)
     SanityImage.astro           responsive images through the Sanity CDN
     PortableText.tsx            rich-text renderer (React island)
     FaqAccordion.tsx            FAQ accordion (React island)
     BackToTop.tsx
+    atelier/                    THE MONOGRAM ATELIER UI. AtelierStage (+Script: lazy engine import, pause
+                                off-screen), HeroAtelierStage (engine started by HomeHeroScript),
+                                AtelierStudio (+Script, atelierStudioData.ts: the full controls)
+    home/                       HomeHero (+Script), HoopWall, MakerBand, ProcessPath (+Script), StudioWall,
+                                FinalCta, swashSplit.ts
+    thread/                     SpoolRack, StitchPanel, ThreadChartScript, threadData.ts (/thread-color-chart)
+    quote/                      QuoteFormScript (form behaviour, moved unchanged), QuotePrefillScript
+                                (query-string contract), QuotePreview, QuoteSteps
+    gallery/                    Lightbox (native dialog), lightboxData.ts, GallerySwatch, EmptyHoopOrnament, swash.ts
+    motifs/                     ThreadLine (+Script: golden thread and legibility mask), RevealScript, HoopFrame,
+                                SwatchCard, HangTag, Spool, RunningStitch, Marquee (+Script), Needle, uid.ts
+    preview/                    Presentation-tool preview shell pieces
     ui/                         shadcn primitives (accordion, button, sonner, sheet, …)
   layouts/
-    BaseLayout.astro            <html>, head, SEO + OG meta, JSON-LD, ClientRouter, Header, <slot/>, Footer
+    BaseLayout.astro            <html>, head, SEO + OG meta, JSON-LD, ClientRouter, Header, ThreadLine,
+                                RevealScript, <slot/>, Footer
   lib/
     sanity.ts                   Sanity client + image URL builder + guarded sanityFetch()
-    queries.ts                  every GROQ query (one per page + the collection fetches)
+    queries.ts                  every GROQ query (one per page + the collection fetches); includes
+                                getAtelierSettings() and getGalleryItemsForWall()
     schemas.ts                  JSON-LD builders (LocalBusiness)
     sanity.types.ts             generated by `npm run typegen`
+    atelier/                    the embroidery engine: engine.ts (createAtelier), layout, field, stitches,
+                                geometry, raster, color, fabric, noise, fonts, compute.ts +
+                                atelier.worker.ts (module worker), atelier.test.ts
   styles/
     globals.css                 Tailwind v4 entry + ALL design tokens (the `@theme` block) + base styles
     starwind.css                thin adapter mapping shadcn/Starwind tokens onto the brand tokens
@@ -61,17 +82,20 @@ src/
     site.ts                     static identity values (domain, brand colors) — NOT content
 public/
   favicon.svg · og/ · _redirects · _headers · robots
-studio/                         the Sanity Studio (separate app): schemaTypes/, structure.ts, sanity.config.ts
+src/sanity/                     the Sanity Studio schemas (schemaTypes/, structure.ts); config at the
+                                repo-root sanity.config.ts, embedded at /studio
 ```
 
 Two differences from the original plan worth noting:
 
 - The quote/contact backend is `src/pages/api/quote.ts` (an Astro endpoint that runs as a Worker),
   **not** a `functions/` Pages Function. Cloudflare merged Pages into Workers in early 2026.
-- Most page sections (hero, process strip, category grid, gallery, pricing tiers, value cards) were
-  written **inline in the page `.astro` files** rather than extracted into dozens of tiny components.
-  The shared, reused pieces are the components listed above. SEO/OG lives in `BaseLayout.astro`, not a
-  separate `Seo.astro`.
+- The 2026-10-04 redesign extracted the home page into `components/home/`, and the Atelier, thread
+  chart, quote and gallery pieces into their own folders; other pages (pricing, about, how-it-works,
+  clearance...) still keep their sections inline in the page `.astro` files. SEO/OG lives in
+  `BaseLayout.astro`, not a separate `Seo.astro`.
+- **Never put a `<script>` in a JSX expression;** every client script lives in its own `*Script.astro`
+  component (`.claude/rules/design-system.md`).
 - Three sections that existed in earlier drafts are **gone**: the homepage "most popular combinations"
   block (and its `popularCombination` type), the testimonials rows on Home and About (and the
   `testimonial` type), and the homepage stats strip. Don't reintroduce them without real content.
@@ -80,19 +104,20 @@ Two differences from the original plan worth noting:
 
 ## Squarespace section → where it lives now
 
-| Squarespace section                    | Lives in                                           | Data source                             |
-| -------------------------------------- | -------------------------------------------------- | --------------------------------------- |
-| Two-column hero                        | inline in each page / `[slug].astro`               | page singleton or `itemCategory`        |
-| 4-step "How it works" strip            | inline (`index.astro`, `how-it-works.astro`)       | `processSteps[]` / `steps[]`            |
-| Category card grid                     | inline (`index.astro`, `shop-by-item.astro`)       | `itemCategory` docs                     |
-| Gallery grid (frameless)               | inline (`style-gallery.astro`, `[slug].astro`)     | `galleryItem` docs                      |
-| Pricing tier cards                     | inline (`pricing.astro`)                           | `pricingTier` docs (rendered "from $X") |
-| About "why come back" cards            | inline (`about.astro`)                             | `aboutPage.values[]`                    |
-| FAQ                                    | `FaqAccordion.tsx`                                 | `faqItem` docs                          |
-| Quote form                             | `request-a-quote.astro` + `src/pages/api/quote.ts` | Sanity for labels, Resend for send      |
-| Footer                                 | `Footer.astro`                                     | `siteSettings`                          |
-| CTA banner                             | `CtaBanner.astro`                                  | page singleton CTA fields               |
-| Rich text (about, intros, FAQ answers) | `PortableText.tsx`                                 | Portable Text fields                    |
+| Squarespace section                     | Lives in                                                                                              | Data source                                                     |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Two-column hero                         | `home/HomeHero.astro`; inline elsewhere                                                               | `homePage`, `atelierSettings`; page singleton or `itemCategory` |
+| Live monogram preview (new, 2026-10-04) | `atelier/AtelierStudio.astro` on `/`; `thread/` on `/thread-color-chart`; `quote/QuotePreview.astro`  | `atelierSettings`, `threadColor`                                |
+| 4-step "How it works" strip             | `home/ProcessPath.astro`, inline in `how-it-works.astro`                                              | `processSteps[]` / `steps[]`                                    |
+| Category card grid                      | `home/HoopWall.astro`, `CategoryCard` on `shop-by-item.astro`                                         | `itemCategory` docs                                             |
+| Gallery grid                            | `gallery/GallerySwatch` + `Lightbox` (`style-gallery.astro`, `[slug].astro`); `home/StudioWall.astro` | `galleryItem` docs                                              |
+| Pricing tier cards                      | inline (`pricing.astro`)                                                                              | `pricingTier` docs (rendered "from $X")                         |
+| About "why come back" cards             | inline (`about.astro`)                                                                                | `aboutPage.values[]`                                            |
+| FAQ                                     | `FaqAccordion.tsx`                                                                                    | `faqItem` docs                                                  |
+| Quote form                              | `request-a-quote.astro` + `src/pages/api/quote.ts`                                                    | Sanity for labels, Resend for send                              |
+| Footer                                  | `Footer.astro`                                                                                        | `siteSettings`                                                  |
+| CTA banner                              | `CtaBanner.astro`                                                                                     | page singleton CTA fields                                       |
+| Rich text (about, intros, FAQ answers)  | `PortableText.tsx`                                                                                    | Portable Text fields                                            |
 
 ---
 
@@ -100,8 +125,10 @@ Two differences from the original plan worth noting:
 
 Astro builds static pages in CI at deploy time. Each page's frontmatter runs GROQ queries through
 `lib/queries.ts` → `lib/sanity.ts`, gets data, and renders. **No client-side data fetching for
-content.** Images go through Sanity's URL builder (`SanityImage.astro`). The only runtime code is the
-quote-form Worker; everything else is prebuilt HTML/CSS.
+content.** Images go through Sanity's URL builder (`SanityImage.astro`). The server-side runtime code is
+the quote-form Worker and the preview routes. In the browser, the Atelier engine (code-split, in a worker)
+draws the live embroidery from `data-*` attributes and props that were rendered from Sanity at build time;
+it fetches nothing but its lettering font files, on demand.
 
 Content refreshes only when a build runs (push to `main`, or — recommended, not yet wired — a Sanity
 webhook → Cloudflare deploy hook). See `docs/08`.

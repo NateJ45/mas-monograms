@@ -22,6 +22,8 @@ import BackToTop from '@/components/BackToTop';
 import ThreadLine from '@/components/motifs/ThreadLine.astro';
 import RevealScript from '@/components/motifs/RevealScript.astro';
 import '@/styles/globals.css';
+import frauncesRomanUrl from '@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
+import mulishUrl from '@fontsource-variable/mulish/files/mulish-latin-wght-normal.woff2?url';
 // Starwind UI CSS — accordion keyframes + @theme inline for new semantic tokens.
 // Imported AFTER globals.css so the brand :root declarations in globals.css win
 // the cascade over starwind.css's fallback :root defaults.
@@ -193,12 +195,16 @@ const announcementStyle =
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     {
-      /* Note: fonts (Fraunces display, Mulish body, Petemoss monogram) are loaded
-        via @fontsource @import in globals.css. Vite hashes the woff2 filename at
-        build time so a static preload here would 404. If hero h1 LCP needs faster
-        fonts, switch to font-display: optional or generate the preload tag from
-        the built CSS manifest. */
+      /* Fonts (Fraunces display, Mulish body, Petemoss monogram) are declared by
+        the @fontsource @imports in globals.css. The two faces every page paints
+        above the fold (Fraunces roman: the headline, the LCP element; Mulish:
+        body and nav) are preloaded so they download alongside the CSS instead
+        of after it, which also removes the headline's swap shift. The ?url
+        imports resolve to the same hashed files the CSS references. Latin
+        subset only: the other subsets are unicode-range gated and rarely used. */
     }
+    <link rel="preload" href={frauncesRomanUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={mulishUrl} as="font" type="font/woff2" crossorigin />
 
     {/* Open Graph */}
     <meta property="og:type" content={ogType} />

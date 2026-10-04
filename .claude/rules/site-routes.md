@@ -13,13 +13,31 @@ Loads when you touch pages, redirects, the base layout or the Worker config.
 
 ## Routes
 
+Direction D ("The Atelier", 2026-10-04) rebuilt every page; the route set did not change. What each
+page now does (brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`):
+
+- `/`: live-stitching hero, marquee, full Monogram Atelier studio, hoop wall of categories, maker band
+  (Mary Ann), stitched process path, studio wall of gallery photos, thread-tied final CTA. Also reads
+  `atelierSettings`, `threadColor` and `getGalleryItemsForWall`.
+- `/shop-by-item`, `/[slug]`: hoop wall index; category pages open with a hoop, then a swatch-card gallery
+  with the lightbox, and a CTA that links to the quote form with `?item=<slug>`.
+- `/style-gallery`: filterable swatch-card wall with the native `<dialog>` lightbox
+  (`components/gallery/Lightbox.astro`: focus loop, arrow keys, swipe).
+- `/thread-color-chart`: the spool rack IS the page; picking a spool recolours a live stage, and its CTA
+  carries `?initials&style&thread&fabric` to the quote form.
+- `/request-a-quote`: same fields, names, ids, Turnstile and `POST /api/quote`; reskinned, with the Atelier
+  hand-off preview (`components/quote/QuotePreview.astro`, hidden until valid initials arrive).
+- `/pricing` (hang tags), `/how-it-works`, `/about`, `/clearance` (Stripe links stay plain `<a>`),
+  `/thank-you`, `/404`, `/font-lettering-guide`, legal pages: same data, new Atelier components.
+- `ThreadLine` (the golden thread) and `RevealScript` are rendered once by `BaseLayout`.
+
 | Page            | Route                   | Schema                                                                 |
 | --------------- | ----------------------- | ---------------------------------------------------------------------- |
-| Home            | `/`                     | `homePage`                                                             |
+| Home            | `/`                     | `homePage` (+ `atelierSettings`)                                       |
 | How It Works    | `/how-it-works`         | `howItWorksPage`                                                       |
 | Pricing         | `/pricing`              | `pricingPage`                                                          |
 | About           | `/about`                | `aboutPage`                                                            |
-| Request a Quote | `/request-a-quote`      | `requestAQuotePage`                                                    |
+| Request a Quote | `/request-a-quote`      | `requestAQuotePage` (+ `atelierSettings`, `threadColor`)               |
 | Shop by Item    | `/shop-by-item`         | `shopIndexPage`                                                        |
 | Item category   | `/[slug]`               | `itemCategory`                                                         |
 | Style Gallery   | `/style-gallery`        | `styleGalleryPage`                                                     |
@@ -45,6 +63,35 @@ Loads when you touch pages, redirects, the base layout or the Worker config.
 - Saves submission JSON to R2 (`QUOTE_BACKUP` binding)
 - Sends two emails via Resend: owner notification + customer confirmation
 - On success: redirects to `/thank-you`
+
+## Query-string contract on `/request-a-quote`
+
+Parsed client-side by `components/quote/QuotePrefillScript.astro` (the file header is the source of
+truth). Producers: the Atelier studio CTA, the thread chart CTA, category pages (`?item=` only).
+Every value is capped at 64 characters, validated against a whitelist, and written with `.value` or
+`textContent`, never as HTML. Nothing the visitor already typed or chose is overwritten, and a line
+already present is not repeated.
+
+| Param      | Accepts                                              | Effect                                                                                      |
+| ---------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `item`     | an `itemCategory` slug                               | selects that Item type option (`data-slug`, then humanised name, then raw)                  |
+| `font`     | a font name                                          | selects that Font option, else "Other"                                                      |
+| `thread`   | a `threadColor` slug (a thread name is accepted too) | fills the Thread colour field with the Sanity name                                          |
+| `initials` | 1 to 3 letters or digits (also `&`); junk is dropped | adds "<initialsLabel>: ABC" to Personalization; 3 letters also pick "Three-letter monogram" |
+| `style`    | `classic`, `script`, `block`, `circle`, `single`     | adds "<styleLabel>: <label>" to Personalization                                             |
+| `fabric`   | an `atelierSettings.fabrics[].key`                   | adds "<fabricLabel>: <label>" to Item description                                           |
+
+Initials must be a run of letters, digits, `&`, dots, spaces or hyphens, so `<img ...>` never becomes
+"IMG". The preview (`QuotePreview`) is revealed only when valid initials arrived and the whitelist
+(`data-prefill`, built from `atelierSettings` and `threadColor`) is present; an unknown `style` or
+`fabric` is ignored, not guessed. Labels come from `atelierSettings`; the fallbacks in code are
+short neutral words used only if that document is missing.
+
+## Queries used by the Atelier pages
+
+`getAtelierSettings()` (singleton, labels and option lists) and `getGalleryItemsForWall(limit)` (featured
+first, with `hotspot`/`crop`; none of the 69 photos has a hotspot yet, so callers default to the centre)
+live in `src/lib/queries.ts`. `getAllThreadColors()` returns `slug` as a plain string.
 
 ## Redirects (public/_redirects)
 

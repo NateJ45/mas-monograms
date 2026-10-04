@@ -253,9 +253,11 @@ export function fillRegions(
     // Trace a whole line through a seed and commit it if long enough.
     const traceLine = (sx: number, sy: number, relaxed = false): number => {
       const lineId = lineStart.length;
-      // gap rows run at the element's calm fill angle, not the local field,
-      // so leftover pockets fill as tidy parallel patches instead of a tangle
-      fixed = relaxed ? fillDirL : null;
+      // gap rows run straight, so leftover pockets fill as tidy parallel
+      // patches instead of a tangle: along the wide-area stroke direction when
+      // the field has one (the pocket continues its neighbours), else at the
+      // element's calm fill angle
+      fixed = relaxed ? (field.smooth ? sampleDir(field.smooth, sx, sy) : fillDirL) : null;
       const [dx, dy] = fixed ?? sampleDir(field, sx, sy);
       const nb = traceHalf(sx, sy, -dx, -dy, lineId, bwdX, bwdY);
       let n = 0;

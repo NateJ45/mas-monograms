@@ -158,6 +158,11 @@ export interface TensorField {
   jyy: Float32Array;
   /** per-label distance to the element edge, in coarse cells (dt source only) */
   dt?: Float32Array;
+  /**
+   * The same orientation smoothed over a much wider area (dt source only): the
+   * dominant direction of the strokes around a junction, used for gap rows.
+   */
+  smooth?: TensorField;
 }
 
 /**
@@ -186,12 +191,40 @@ export function tensorField(
     // meet the direction changes along a clean medial seam (as real satin
     // columns do) instead of smearing. Computed per label: each element is
     // stitched on its own, so a neighbouring letter's ink counts as an edge.
-    const labels = new Set<number>();
-    for (let i = 0; i < n; i++) if (c.lab[i]) labels.add(c.lab[i]);
+    // per-label bounding boxes, so each transform only covers its own element
+    const box = new Map<number, [number, number, number, number]>();
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const l = c.lab[y * w + x];
+        if (!l) continue;
+        const b = box.get(l);
+        if (!b) box.set(l, [x, y, x, y]);
+        else {
+          if (x < b[0]) b[0] = x;
+          if (y < b[1]) b[1] = y;
+          if (x > b[2]) b[2] = x;
+          if (y > b[3]) b[3] = y;
+        }
+      }
+    }
     const dt = new Float32Array(n);
-    for (const l of labels) {
-      const d = distanceInside((i) => c.lab[i] === l, w, h);
-      for (let i = 0; i < n; i++) if (c.lab[i] === l) dt[i] = d[i];
+    for (const [l, b] of box) {
+      // one empty cell of margin, so the box edge is never mistaken for ink
+      const x0 = Math.max(0, b[0] - 1);
+      const y0 = Math.max(0, b[1] - 1);
+      const bw = Math.min(w - 1, b[2] + 1) - x0 + 1;
+      const bh = Math.min(h - 1, b[3] + 1) - y0 + 1;
+      const d = distanceInside(
+        (i) => c.lab[(y0 + ((i / bw) | 0)) * w + x0 + (i % bw)] === l,
+        bw,
+        bh,
+      );
+      for (let yy = 0; yy < bh; yy++) {
+        for (let xx = 0; xx < bw; xx++) {
+          const i = (y0 + yy) * w + x0 + xx;
+          if (c.lab[i] === l) dt[i] = d[yy * bw + xx];
+        }
+      }
     }
     dtOut = dt;
     const soft = boxBlur(dt, w, h, 1, 1);
@@ -231,23 +264,51 @@ export function tensorField(
     if (t > maxTr) maxTr = t;
   }
   const eps = biasWeight * maxTr + 1e-9;
+  // dt source: the orientation over a wide neighbourhood (three times the radius)
+  let sxx: Float32Array | null = null;
+  let sxy: Float32Array | null = null;
+  let syy: Float32Array | null = null;
+  if (source === 'dt') {
+    const R = Math.max(6, radius * 3);
+    sxx = boxBlur(jxx, w, h, R, 2);
+    sxy = boxBlur(jxy, w, h, R, 2);
+    syy = boxBlur(jyy, w, h, R, 2);
+  }
   // label-dependent bias, spread a little so it changes smoothly between letters
   for (let i = 0; i < n; i++) {
     const l = c.lab[i];
     const [dx, dy] = biasFor(l);
-    // Where edges disagree (junctions, serifs) coherence is low: lean on the
-    // bias angle there so the area fills as one calm patch, not a tangle.
+    // Where edges disagree (junctions, serifs) coherence is low. With a
+    // distance field, lean on the wide-area orientation there: the junction is
+    // stitched as a continuation of the stroke that dominates it (a stem runs
+    // on into its bracket), the way a digitiser extends a column. Otherwise
+    // lean on the bias angle so the area fills as one calm patch, not a tangle.
     const a = bxx[i];
     const b = bxy[i];
     const cc = byy[i];
     const tr = a + cc;
     const coh = tr > 1e-12 ? Math.sqrt((a - cc) * (a - cc) + 4 * b * b) / tr : 0;
-    const w = eps + tr * Math.max(0, 0.45 - coh) * 4;
-    bxx[i] += w * dx * dx;
-    bxy[i] += w * dx * dy;
-    byy[i] += w * dy * dy;
+    const wj = tr * Math.max(0, 0.45 - coh) * 4;
+    if (sxx && sxy && syy) {
+      const st = sxx[i] + syy[i];
+      if (st > 1e-12) {
+        const k = wj / st;
+        bxx[i] += k * sxx[i];
+        bxy[i] += k * sxy[i];
+        byy[i] += k * syy[i];
+      }
+      bxx[i] += eps * dx * dx;
+      bxy[i] += eps * dx * dy;
+      byy[i] += eps * dy * dy;
+    } else {
+      const wt = eps + wj;
+      bxx[i] += wt * dx * dx;
+      bxy[i] += wt * dx * dy;
+      byy[i] += wt * dy * dy;
+    }
   }
-  return { w, h, f: c.f, jxx: bxx, jxy: bxy, jyy: byy, dt: dtOut };
+  const smooth = sxx && sxy && syy ? { w, h, f: c.f, jxx: sxx, jxy: sxy, jyy: syy } : undefined;
+  return { w, h, f: c.f, jxx: bxx, jxy: bxy, jyy: byy, dt: dtOut, smooth };
 }
 
 /** Major eigenvector of [[a,b],[b,c]] as a unit vector (sign arbitrary). */
