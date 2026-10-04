@@ -87,16 +87,32 @@ class LabelPainter {
     this.ctx = ctx;
     this.labels = new Uint8Array(W * H);
   }
-  /** Paint one element with `draw`, then claim its pixels as a new label. */
+  queued: (() => void)[] = [];
+  /**
+   * Queue one element: `draw` paints it, then its pixels are claimed as a new
+   * label. Painting happens in flush(), one element per slice of work.
+   */
   element(bounds: [number, number, number, number], draw: (ctx: Ctx) => void): number {
+    const id = this.next++;
+    this.queued.push(() => this.paint(id, bounds, draw));
+    return id;
+  }
+  /** Paint the queued elements in order, yielding between them. */
+  async flush(pause?: () => Promise<void> | void) {
+    for (const job of this.queued) {
+      job();
+      if (pause) await pause();
+    }
+    this.queued = [];
+  }
+  private paint(id: number, bounds: [number, number, number, number], draw: (ctx: Ctx) => void) {
     const ctx = this.ctx;
     const pad = 6;
     const x0 = Math.max(0, Math.floor(bounds[0] - pad));
     const y0 = Math.max(0, Math.floor(bounds[1] - pad));
     const x1 = Math.min(this.W, Math.ceil(bounds[2] + pad));
     const y1 = Math.min(this.H, Math.ceil(bounds[3] + pad));
-    const id = this.next++;
-    if (x1 <= x0 || y1 <= y0) return id;
+    if (x1 <= x0 || y1 <= y0) return;
     ctx.save();
     ctx.fillStyle = '#000';
     ctx.strokeStyle = '#000';
@@ -112,7 +128,6 @@ class LabelPainter {
       }
     }
     ctx.clearRect(x0, y0, x1 - x0, y1 - y0);
-    return id;
   }
 }
 
@@ -166,12 +181,17 @@ function taperedCurve(ctx: Ctx, p: [number, number][], maxW: number, minW: numbe
 
 const DEG = Math.PI / 180;
 
-/** Build the label map for a design. Fonts load lazily here. */
+/**
+ * Build the label map for a design. Fonts load lazily here. `pause` is called
+ * between elements so the main thread can breathe (each one is a glyph paint
+ * and a pixel read-back).
+ */
 export async function layoutDesign(
   rawText: string,
   style: StyleKey,
   W: number,
   H: number,
+  pause?: () => Promise<void> | void,
 ): Promise<Layout> {
   const text = normaliseText(rawText);
   const face = STYLE_FACE[style];
@@ -347,5 +367,6 @@ export async function layoutDesign(
     letterH = Math.max(letterH, R * 0.55);
   }
   out.letterH = letterH;
+  await lp.flush(pause);
   return out;
 }

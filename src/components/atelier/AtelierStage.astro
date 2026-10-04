@@ -3,13 +3,20 @@
 //
 // Renders a fabric-coloured block with the initials as plain text first, so
 // layout and LCP never wait on the engine; the canvas fades in over it once the
-// first frame is drawn. The engine itself is code-split and only imported when
-// the stage comes near the viewport.
+// first frame is drawn. The engine itself is code-split: it is imported when
+// the stage comes within 300px of the viewport, or on idle after load if the
+// stage is rendered, whichever is sooner (`lazy` drops the idle path). A stage
+// that is not rendered (display:none, a hidden panel) is never imported until it
+// shows. Stitching starts on first sight and pauses while off-screen. The heavy
+// work runs in a worker (src/lib/atelier/compute.ts).
 //
 // Other components drive it through the element:
 //   el.__atelier                    the engine (setDesign / replay / toBlob ...)
 //   'atelier:ready'   CustomEvent   detail.atelier, fired once the engine exists
 //   'atelier:progress' CustomEvent  detail.progress 0..1 while stitching
+// setDesign is safe at any time (the latest call wins). A script may also just
+// write the data-* attributes before the engine has drawn: they are read on
+// first sight and checked again on the first frame.
 // Keep the canvas aria-label in step with the design (it is the text alternative).
 import AtelierStageScript from './AtelierStageScript.astro';
 
@@ -33,6 +40,11 @@ interface Props {
   id?: string;
   /** set false to show the finished piece without the stitching animation */
   autoplay?: boolean;
+  /**
+   * true: load the engine only when the stage nears the viewport, never on idle
+   * (for stages that may never be looked at, such as the quote form's preview)
+   */
+  lazy?: boolean;
 }
 
 const {
@@ -47,6 +59,7 @@ const {
   aspect = '4 / 3',
   id,
   autoplay = true,
+  lazy = false,
 } = Astro.props;
 
 const initials = Array.from(String(text).toLocaleUpperCase())
@@ -66,6 +79,7 @@ const initials = Array.from(String(text).toLocaleUpperCase())
   data-texture={fabricTexture}
   data-quality={quality}
   data-autoplay={autoplay ? 'true' : 'false'}
+  data-lazy={lazy ? 'true' : undefined}
   style={`--atelier-fabric:${fabric};--atelier-thread:${thread};aspect-ratio:${aspect};`}
 >
   <div class="atelier-stage__fallback" aria-hidden="true">

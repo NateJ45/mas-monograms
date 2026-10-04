@@ -235,20 +235,27 @@ export function colorize(
   }
 }
 
-/** Specular-only white layer (alpha = sheen) used for the finishing glint. */
-export function sheenMask(b: ThreadBuffers, out: Uint8ClampedArray) {
-  const { L, S, A } = b;
-  void L;
-  for (let k = 0, o = 0; k < A.length; k++, o += 4) {
-    const a = A[k];
-    if (a <= 0.002) {
-      out[o + 3] = 0;
-      continue;
+/** Specular-only white layer (alpha = sheen) used for the finishing glint; `rect` limits it. */
+export function sheenMask(b: ThreadBuffers, out: Uint8ClampedArray, rect?: Rect) {
+  const { W, H, S, A } = b;
+  const x0 = rect ? Math.max(0, rect.x0) : 0;
+  const y0 = rect ? Math.max(0, rect.y0) : 0;
+  const x1 = rect ? Math.min(W, rect.x1) : W;
+  const y1 = rect ? Math.min(H, rect.y1) : H;
+  for (let y = y0; y < y1; y++) {
+    let k = y * W + x0;
+    let o = k * 4;
+    for (let x = x0; x < x1; x++, k++, o += 4) {
+      const a = A[k];
+      if (a <= 0.002) {
+        out[o + 3] = 0;
+        continue;
+      }
+      const s = (S[k] / a) * 2.2 + 0.4;
+      out[o] = 255;
+      out[o + 1] = 250;
+      out[o + 2] = 238;
+      out[o + 3] = Math.min(1, s) * a * 255;
     }
-    const s = (S[k] / a) * 2.2 + 0.4;
-    out[o] = 255;
-    out[o + 1] = 250;
-    out[o + 2] = 238;
-    out[o + 3] = Math.min(1, s) * a * 255;
   }
 }

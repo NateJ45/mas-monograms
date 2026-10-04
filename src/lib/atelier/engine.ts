@@ -1,34 +1,28 @@
 // The Monogram Atelier: a procedural embroidery renderer.
 //
 // Pipeline for one design:
-//   layout (lettering -> label map, fonts loaded lazily)
+//   layout (lettering -> label map, fonts loaded lazily)            main thread, sliced
 //   -> fields (coverage, structure-tensor stitch direction, padded relief, sewing order)
 //   -> stitches (evenly spaced satin rows, tatami split, edge fuzz, running ring)
+//                                                                   worker (geometry.ts)
 //   -> raster (each stitch shaded as lit thread into L/S/A float buffers)
 //   -> colour (thread palette applied to the buffers; cheap, so recolouring is instant)
 //   -> compose (woven fabric + contact and ambient shadow + thread + needle/glint)
 //
+// Main-thread budget: the heavy pure steps (geometry, the woven fabric) run in a
+// module worker (compute.ts; main-thread fallback in short slices). Everything
+// left on the main thread is cut into slices of about 8 to 10ms, so no single
+// task blocks input. The latest setDesign always wins: a newer design supersedes
+// an older one at any stage, and a colour-only change made while a design is
+// still being prepared is folded into that run instead of restarting it.
+//
 // The engine contract is fixed in docs/superpowers/specs/2026-10-04-atelier-direction.md.
 
 import { fabricLinear, threadPalette, type ThreadPalette } from './color.ts';
-import {
-  fabricJob,
-  fabricRows,
-  isFabricTexture,
-  tintFabric,
-  type FabricTexture,
-} from './fabric.ts';
-import {
-  boxBlur,
-  downsample,
-  erodeLabels,
-  geodesic,
-  relief as makeRelief,
-  tensorField,
-  type Relief,
-} from './field.ts';
+import { createCompute, slicer } from './compute.ts';
+import { isFabricTexture, type FabricTexture } from './fabric.ts';
+import type { GeometryResult } from './geometry.ts';
 import { isStyleKey, layoutDesign, normaliseText, type StyleKey } from './layout.ts';
-import { seedOf } from './noise.ts';
 import {
   clearBuffers,
   colorize,
@@ -39,16 +33,6 @@ import {
   type Rect,
   type ThreadBuffers,
 } from './raster.ts';
-import {
-  KIND_FUZZ,
-  KIND_UNDER,
-  addFuzz,
-  addRunningRing,
-  fillRegions,
-  makeStitches,
-  orderStitches,
-  type Stitches,
-} from './stitches.ts';
 
 export type { StyleKey } from './layout.ts';
 export type { FabricTexture } from './fabric.ts';
@@ -91,44 +75,23 @@ const DEFAULT_DESIGN: Design = {
 };
 
 const CAPS = {
-  studio: { maxW: 1600, maxH: 1200, maxPx: 1600 * 1200 },
-  hero: { maxW: 900, maxH: 900, maxPx: 900 * 700 },
+  studio: { maxW: 1600, maxH: 1200, maxPx: 1600 * 1200, dpr: 2 },
+  // the hero is decorative and animates often: a smaller backing store
+  hero: { maxW: 720, maxH: 720, maxPx: 640 * 640, dpr: 1.5 },
 };
 
 const HEX = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
 const normHex = (v: unknown, fb: string) =>
   typeof v === 'string' && HEX.test(v.trim()) ? '#' + v.trim().replace(/^#/, '').toLowerCase() : fb;
 
-interface Geometry {
-  key: string;
-  W: number;
-  H: number;
-  stitches: Stitches;
-  relief: Relief | null;
-  /** stitches whose kind is real thread (excludes fuzz) count, for progress */
-  dsep: number;
-  empty: boolean;
+interface Geometry extends GeometryResult {
+  /** bounding box of every stitch: the only pixels colour passes need to touch */
+  ink: Rect;
 }
 
+type Phase = 'idle' | 'prep' | 'finishing' | 'animating';
+
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
-/** Yield to the event loop (not rAF: a hidden tab must still finish a static render). */
-// MessageChannel rather than setTimeout: timers are clamped (and throttled to
-// 1s in background tabs), message tasks are not.
-let yieldChannel: MessageChannel | null = null;
-const yieldQueue: (() => void)[] = [];
-const nextFrame = () =>
-  new Promise<void>((r) => {
-    if (typeof MessageChannel !== 'function') {
-      setTimeout(r, 0);
-      return;
-    }
-    if (!yieldChannel) {
-      yieldChannel = new MessageChannel();
-      yieldChannel.port1.onmessage = () => yieldQueue.shift()?.();
-    }
-    yieldQueue.push(r);
-    yieldChannel.port2.postMessage(0);
-  });
 
 function makeCanvas(w: number, h: number): HTMLCanvasElement {
   const c = document.createElement('canvas');
@@ -156,11 +119,29 @@ function canFilter(): boolean {
   return filterSupport;
 }
 
+function inkOf(g: GeometryResult): Rect {
+  const s = g.stitches;
+  const r = emptyRect();
+  for (let i = 0; i < s.count; i++) {
+    const pad = s.w[i] * 0.5 + 2;
+    r.x0 = Math.min(r.x0, s.x0[i] - pad, s.x1[i] - pad);
+    r.y0 = Math.min(r.y0, s.y0[i] - pad, s.y1[i] - pad);
+    r.x1 = Math.max(r.x1, s.x0[i] + pad, s.x1[i] + pad);
+    r.y1 = Math.max(r.y1, s.y0[i] + pad, s.y1[i] + pad);
+  }
+  r.x0 = Math.max(0, Math.floor(r.x0));
+  r.y0 = Math.max(0, Math.floor(r.y0));
+  r.x1 = Math.min(g.W, Math.ceil(r.x1));
+  r.y1 = Math.min(g.H, Math.ceil(r.y1));
+  return r;
+}
+
 /** Build a renderer bound to `canvas`. */
 export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = {}): Atelier {
   const quality = opts.quality === 'hero' ? 'hero' : 'studio';
   const cap = CAPS[quality];
   const main = ctx2d(canvas);
+  const compute = createCompute();
 
   let design: Design = { ...DEFAULT_DESIGN };
   let destroyed = false;
@@ -173,7 +154,7 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
   let stitchImg: ImageData | null = null;
   let fabricCanvas: HTMLCanvasElement | null = null;
   let fabricKey = '';
-  const shadeCache = new Map<string, Float32Array>();
+  let fabricBusy: Promise<void> | null = null;
   let ambient: HTMLCanvasElement | null = null;
   let contact: HTMLCanvasElement | null = null;
   let sheenCanvas: HTMLCanvasElement | null = null;
@@ -182,8 +163,12 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
   /** how many stitches are rasterised into the buffers */
   let drawn = 0;
 
-  // animation
+  // lifecycle
   let seq = 0;
+  let phase: Phase = 'idle';
+  /** the render being prepared (layout, geometry, fabric), if any */
+  let prepJob: { token: number; animate: boolean } | null = null;
+  let renderPromise: Promise<void> | null = null;
   let raf = 0;
   let paused = false;
   let running: null | {
@@ -207,7 +192,8 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
       ch = canvas.height || 600;
       return fit(cw, ch);
     }
-    return fit(cw * Math.min(dpr, 2), ch * Math.min(dpr, 2));
+    const k = Math.min(dpr, cap.dpr);
+    return fit(cw * k, ch * k);
   }
   function fit(w: number, h: number): [number, number] {
     let s = Math.min(1, cap.maxW / w, cap.maxH / h, Math.sqrt(cap.maxPx / (w * h)));
@@ -237,186 +223,62 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
   }
 
   // ---------- fabric ----------
-  async function ensureFabric(token: number) {
-    const tex: FabricTexture = design.fabricTexture ?? 'linen';
-    const key = `${tex}|${design.fabric}|${W}x${H}`;
-    if (key === fabricKey) return;
-    const shadeKey = `${tex}|${W}x${H}`;
-    let shade = shadeCache.get(shadeKey);
-    if (!shade) {
-      const pitch = Math.max(2.2, Math.min(W, H) / (quality === 'hero' ? 210 : 230));
-      const job = fabricJob(tex, W, H, pitch, 7);
-      let t0 = now();
-      for (let y = 0; y < H; y += 32) {
-        fabricRows(job, y, Math.min(H, y + 32));
-        if (now() - t0 > 24) {
-          await nextFrame();
-          if (token !== seq || destroyed) return;
-          t0 = now();
-        }
+  const fabricWanted = () => `${design.fabricTexture ?? 'linen'}|${design.fabric}|${W}x${H}`;
+
+  /** Make the fabric canvas match the current design (single flight, latest wins). */
+  async function ensureFabric(): Promise<void> {
+    while (!destroyed && fabricCanvas && fabricWanted() !== fabricKey) {
+      if (fabricBusy) {
+        await fabricBusy;
+        continue;
       }
-      shade = job.shade;
-      // normalise so the fabric reads as its own colour, whatever the weave contrast
-      let sum = 0;
-      for (let i = 0; i < shade.length; i += 7) sum += shade[i];
-      const gain = 0.97 / (sum / Math.ceil(shade.length / 7));
-      for (let i = 0; i < shade.length; i++) shade[i] *= gain;
-      shadeCache.set(shadeKey, shade);
-      // keep the cache small: the current size, every texture
-      for (const k of shadeCache.keys()) if (!k.endsWith(`${W}x${H}`)) shadeCache.delete(k);
+      const key = fabricWanted();
+      const tex: FabricTexture = design.fabricTexture ?? 'linen';
+      const w = W;
+      const h = H;
+      const target = fabricCanvas;
+      const pitch = Math.max(2.2, Math.min(w, h) / (quality === 'hero' ? 210 : 230));
+      fabricBusy = (async () => {
+        const px = await compute.fabric(
+          { tex, W: w, H: h, pitch, lin: fabricLinear(design.fabric) },
+          () => !destroyed && fabricWanted() === key,
+        );
+        if (!px || destroyed || target !== fabricCanvas || px.length !== w * h * 4) return;
+        ctx2d(target).putImageData(new ImageData(px as Uint8ClampedArray<ArrayBuffer>, w, h), 0, 0);
+        fabricKey = key;
+      })();
+      try {
+        await fabricBusy;
+      } finally {
+        fabricBusy = null;
+      }
     }
-    const img = new ImageData(W, H);
-    tintFabric(shade, fabricLinear(design.fabric), img.data);
-    ctx2d(fabricCanvas as HTMLCanvasElement).putImageData(img, 0, 0);
-    fabricKey = key;
   }
 
   // ---------- geometry ----------
   async function ensureGeometry(token: number): Promise<boolean> {
     const key = `${design.text}|${design.style}|${W}x${H}|${quality}`;
     if (geo && geo.key === key) return true;
-    const lay = await layoutDesign(design.text, design.style, W, H);
-    if (token !== seq || destroyed) return false;
-    const seed = seedOf(key);
-    if (!lay.order.length) {
-      geo = { key, W, H, stitches: makeStitches(1), relief: null, dsep: 3, empty: true };
-      return true;
-    }
-    const f = 2;
-    const coarse = downsample(lay.labels, W, H, f);
-    // stroke width estimate: 2 * area / perimeter
-    let area = 0;
-    let perim = 0;
-    for (let y = 1; y < coarse.h - 1; y++) {
-      for (let x = 1; x < coarse.w - 1; x++) {
-        const i = y * coarse.w + x;
-        area += coarse.cov[i];
-        perim +=
-          Math.hypot(
-            coarse.cov[i + 1] - coarse.cov[i - 1],
-            coarse.cov[i + coarse.w] - coarse.cov[i - coarse.w],
-          ) * 0.5;
-      }
-    }
-    const strokeW = perim > 0 ? (2 * area * f) / perim : 20;
-    const dsep = Math.max(
-      quality === 'hero' ? 1.9 : 3.2,
-      Math.min(quality === 'hero' ? 4 : 5.6, lay.letterH / 105),
-    );
-    const tensorR = Math.max(2, Math.min(10, Math.round((strokeW * 0.22) / f)));
-    const angles = lay.fillAngle;
-    const dirOf = (l: number, turn = 0): [number, number] => {
-      const a = (angles.get(l) ?? 0.66) + turn;
-      return [Math.cos(a), Math.sin(a)];
-    };
-    const field = tensorField(coarse, tensorR, (l) => dirOf(l), 0.015, 'dt');
-    await nextFrame();
-    if (token !== seq || destroyed) return false;
-
-    const maxSatin = Math.max(dsep * 8, lay.letterH * 0.42);
-    const fillLabels = lay.order.filter((l) => l !== lay.ringLabel);
-
-    // Underlay: a sparse, inset lattice laid first (as a digitiser would), so any
-    // gap between top stitches shows thread, never bare fabric.
-    const underLabels = erodeLabels(lay.labels, W, H, dsep * 1.2);
-    const underField = tensorField(coarse, 1, (l) => dirOf(l, Math.PI / 2), 1e4);
-    let stitches = fillRegions(underLabels, W, H, underField, {
-      dsep: dsep * 2.6,
-      maxSatin: maxSatin * 1.6,
-      fillLen: maxSatin * 0.9,
-      widthRatio: 0.55,
-      fillDir: (l) => dirOf(l, Math.PI / 2),
-      seed: seed ^ 0x1234,
-      labels: fillLabels,
-      kind: KIND_UNDER,
-      tick: () => token === seq && !destroyed,
-    });
-    if (!stitches || token !== seq || destroyed) return false;
-    stitches = fillRegions(
-      lay.labels,
-      W,
-      H,
-      field,
+    const alive = () => token === seq && !destroyed;
+    const lay = await layoutDesign(design.text, design.style, W, H, slicer(10));
+    if (!alive()) return false;
+    const res = await compute.geometry(
       {
-        dsep,
-        maxSatin,
-        fillLen: maxSatin * 0.42,
-        widthRatio: 1.45,
-        fillDir: (l) => {
-          const a = angles.get(l) ?? 0.66;
-          return [Math.cos(a), Math.sin(a)];
-        },
-        seed,
-        labels: fillLabels,
-        tick: () => token === seq && !destroyed,
+        key,
+        quality,
+        W,
+        H,
+        labels: lay.labels,
+        order: lay.order,
+        fillAngle: [...lay.fillAngle],
+        letterH: lay.letterH,
+        ring: lay.ring,
+        ringLabel: lay.ringLabel,
       },
-      stitches,
+      alive,
     );
-    if (!stitches || token !== seq || destroyed) return false;
-    stitches = addFuzz(
-      stitches,
-      coarse.cov,
-      coarse.lab,
-      coarse.w,
-      coarse.h,
-      f,
-      quality === 'hero' ? 0.05 : 0.1,
-      dsep * 1.1,
-      seed,
-    );
-
-    // sewing order: element rank, then geodesic distance along the strokes
-    const geod = geodesic(coarse);
-    const rank = new Map<number, number>();
-    lay.order.forEach((l, k) => rank.set(l, k));
-    const span = 1e6;
-    const lookup = (x: number, y: number, l: number) => {
-      const cx = Math.min(coarse.w - 1, Math.max(0, (x / f) | 0));
-      const cy = Math.min(coarse.h - 1, Math.max(0, (y / f) | 0));
-      const i = cy * coarse.w + cx;
-      return coarse.lab[i] === l ? geod[i] : -1;
-    };
-    let fallback = 0;
-    for (let i = 0; i < stitches.count; i++) {
-      const l = stitches.label[i];
-      const mx = (stitches.x0[i] + stitches.x1[i]) * 0.5;
-      const my = (stitches.y0[i] + stitches.y1[i]) * 0.5;
-      let d = lookup(mx, my, l);
-      if (d < 0) d = lookup(stitches.x0[i], stitches.y0[i], l);
-      if (d < 0) d = lookup(stitches.x1[i], stitches.y1[i], l);
-      if (d < 0) d = fallback;
-      else fallback = d;
-      // fuzz lands a moment after the stitches around it
-      if (stitches.kind[i] === KIND_FUZZ) d += 6;
-      // a digitiser lays the whole underlay of an element first, then the top
-      const top = stitches.kind[i] === KIND_UNDER ? 0 : span / 2;
-      stitches.key[i] = (rank.get(l) ?? 0) * span + top + d;
-    }
-    if (lay.ring && lay.ringLabel) {
-      const before = stitches.count;
-      const runW = dsep * 1.7;
-      stitches = addRunningRing(
-        stitches,
-        lay.ring.cx,
-        lay.ring.cy,
-        lay.ring.r,
-        dsep * 5.5,
-        dsep * 3.2,
-        runW,
-        lay.ringLabel,
-        seed,
-      );
-      const r = (rank.get(lay.ringLabel) ?? 0) * span;
-      for (let i = before; i < stitches.count; i++) stitches.key[i] = r + stitches.key[i] * 1000;
-    }
-    stitches = orderStitches(stitches);
-
-    const reliefR = Math.max(1, Math.min(10, Math.round((strokeW * 0.32) / f)));
-    const rel = makeRelief(coarse, reliefR, reliefR * 1.5);
-    // keep a little relief smoothing so the padding never shows grid steps
-    rel.gx = boxBlur(rel.gx, rel.w, rel.h, 1, 1);
-    rel.gy = boxBlur(rel.gy, rel.w, rel.h, 1, 1);
-    geo = { key, W, H, stitches, relief: rel, dsep, empty: false };
+    if (!res || !alive()) return false;
+    geo = { ...res, ink: inkOf(res) };
     drawn = 0;
     return true;
   }
@@ -425,10 +287,10 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
   function pushStitchPixels(rect: Rect | null) {
     if (!buffers || !stitchImg || !stitchCanvas) return;
     const c = ctx2d(stitchCanvas);
+    // null = the whole stitched area (a recolour)
     if (!rect) {
-      colorize(buffers, palette, stitchImg.data);
-      c.putImageData(stitchImg, 0, 0);
-      return;
+      if (!geo) return;
+      rect = geo.ink;
     }
     if (rect.x1 <= rect.x0 || rect.y1 <= rect.y0) return;
     const x0 = Math.max(0, rect.x0);
@@ -572,12 +434,46 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
     main.fill();
   }
 
-  function ensureSheen() {
-    if (sheenCanvas || !buffers) return;
+  /**
+   * Build the glint's sheen layer a band of rows at a time (it is a full pass
+   * over the stitched area). Returns true once complete.
+   */
+  let sheenImg: ImageData | null = null;
+  let sheenRow = 0;
+  function sheenStep(budgetMs: number): boolean {
+    if (sheenCanvas || !buffers || !geo) return true;
+    const ink = geo.ink;
+    if (!sheenImg || sheenImg.width !== W || sheenImg.height !== H) {
+      sheenImg = new ImageData(W, H);
+      sheenRow = ink.y0;
+    }
+    if (sheenRow < ink.y0) sheenRow = ink.y0;
+    const end = now() + budgetMs;
+    const band = Math.max(4, Math.floor(30000 / Math.max(1, ink.x1 - ink.x0)));
+    while (sheenRow < ink.y1) {
+      const y1 = Math.min(ink.y1, sheenRow + band);
+      sheenMask(buffers, sheenImg.data, { x0: ink.x0, y0: sheenRow, x1: ink.x1, y1 });
+      sheenRow = y1;
+      if (now() > end) break;
+    }
+    if (sheenRow < ink.y1) return false;
     sheenCanvas = makeCanvas(W, H);
-    const img = new ImageData(W, H);
-    sheenMask(buffers, img.data);
-    ctx2d(sheenCanvas).putImageData(img, 0, 0);
+    ctx2d(sheenCanvas).putImageData(
+      sheenImg,
+      0,
+      0,
+      ink.x0,
+      ink.y0,
+      ink.x1 - ink.x0,
+      ink.y1 - ink.y0,
+    );
+    sheenRow = 0;
+    return true;
+  }
+  function resetSheen() {
+    sheenCanvas = null;
+    sheenRow = 0;
+    if (sheenImg) sheenImg.data.fill(0);
   }
 
   function drawGlint(p: number) {
@@ -605,17 +501,65 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
     main.globalCompositeOperation = 'source-over';
   }
 
-  /** Rasterise everything left and show the finished piece. */
-  function finishInstant() {
-    if (!geo || !buffers) return;
-    if (drawn < geo.stitches.count) {
-      const r = emptyRect();
-      rasterize(buffers, geo.stitches, drawn, geo.stitches.count, geo.relief, r);
-      drawn = geo.stitches.count;
+  /** Empty thread buffers and stitch layer (a fresh piece of cloth). */
+  function clearStitches() {
+    if (!buffers || !stitchImg || !stitchCanvas) return;
+    clearBuffers(buffers);
+    stitchImg.data.fill(0);
+    ctx2d(stitchCanvas).clearRect(0, 0, W, H);
+    drawn = 0;
+    resetSheen();
+  }
+
+  /** Colour the whole stitched area, a band of rows per slice. */
+  async function colorizeSliced(alive: () => boolean): Promise<boolean> {
+    if (!geo || !buffers || !stitchImg || !stitchCanvas) return false;
+    const ink = geo.ink;
+    const tick = slicer(8);
+    const band = Math.max(4, Math.floor(40000 / Math.max(1, ink.x1 - ink.x0)));
+    for (let y = ink.y0; y < ink.y1; y += band) {
+      const r = { x0: ink.x0, y0: y, x1: ink.x1, y1: Math.min(ink.y1, y + band) };
+      colorize(buffers, palette, stitchImg.data, r);
+      await tick();
+      if (!alive()) return false;
     }
-    pushStitchPixels(null);
+    if (ink.x1 > ink.x0 && ink.y1 > ink.y0) {
+      ctx2d(stitchCanvas).putImageData(
+        stitchImg,
+        0,
+        0,
+        ink.x0,
+        ink.y0,
+        ink.x1 - ink.x0,
+        ink.y1 - ink.y0,
+      );
+    }
+    return true;
+  }
+
+  /** Rasterise everything left, in slices, and show the finished piece. */
+  async function finishSliced(token: number): Promise<boolean> {
+    const alive = () => token === seq && !destroyed;
+    if (!geo || !buffers) return false;
+    const g = geo;
+    const b = buffers;
+    const N = g.stitches.count;
+    const tick = slicer(8);
+    const r = emptyRect();
+    while (drawn < N) {
+      const step = Math.min(N, drawn + 64);
+      rasterize(b, g.stitches, drawn, step, g.relief, r);
+      drawn = step;
+      await tick();
+      if (!alive()) return false;
+    }
+    if (!(await colorizeSliced(alive))) return false;
+    // a colour change made while finishing lands here
+    await ensureFabric();
+    if (!alive()) return false;
     updateShadows();
     compose();
+    return true;
   }
 
   function stopRunning() {
@@ -640,23 +584,20 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
       if (!geo || !buffers) return resolve();
       const g = geo;
       const b = buffers;
-      clearBuffers(b);
-      drawn = 0;
-      sheenCanvas = null;
-      pushStitchPixels(null);
+      clearStitches();
       const N = g.stitches.count;
       const letters = Math.max(1, Array.from(design.text).length);
       const stitchMs = Math.min(3600, 2500 + letters * 280);
       const glintMs = 950;
       let elapsed = 0;
-      let phase: 'stitch' | 'glint' = 'stitch';
+      let step: 'stitch' | 'sheen' | 'glint' = 'stitch';
       let glintT = 0;
       let frameNo = 0;
       lastFrame = 0;
       const tick = (t: number) => {
         const dt = lastFrame ? Math.min(50, t - lastFrame) : 16;
         lastFrame = t;
-        if (phase === 'stitch') {
+        if (step === 'stitch') {
           elapsed += dt;
           const p = Math.min(1, elapsed / stitchMs);
           // mostly linear, softened at both ends
@@ -665,9 +606,9 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
           const r = emptyRect();
           const budget = now() + 6;
           while (drawn < target) {
-            const step = Math.min(target, drawn + 24);
-            rasterize(b, g.stitches, drawn, step, g.relief, r);
-            drawn = step;
+            const next = Math.min(target, drawn + 24);
+            rasterize(b, g.stitches, drawn, next, g.relief, r);
+            drawn = next;
             if (now() > budget) break;
           }
           pushStitchPixels(r);
@@ -679,10 +620,10 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
             drawNeedle(g.stitches.x1[k], g.stitches.y1[k], t);
           }
           opts.onProgress?.(Math.min(0.999, drawn / Math.max(1, N)));
-          if (drawn >= N && p >= 1) {
-            phase = 'glint';
-            ensureSheen();
-          }
+          if (drawn >= N && p >= 1) step = 'sheen';
+        } else if (step === 'sheen') {
+          // the finished piece holds still for a frame or two while its sheen is measured
+          if (sheenStep(6)) step = 'glint';
         } else {
           glintT += dt;
           const p = Math.min(1, glintT / glintMs);
@@ -693,12 +634,14 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
             opts.onProgress?.(1);
             if (running && running.token === token) {
               running = null;
+              phase = 'idle';
               resolve();
             }
           }
         }
       };
       running = { token, resolve, tick };
+      phase = 'animating';
       if (!paused) raf = requestAnimationFrame(loop);
     });
   }
@@ -708,33 +651,51 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
     const token = ++seq;
     if (destroyed) return;
     if (!canvas.isConnected && !canvas.width) return;
-    ensureSize();
-    if (forceGeometry) geo = null;
-    const prevGeo = geo;
-    await ensureFabric(token);
-    if (token !== seq || destroyed) return;
-    const ok = await ensureGeometry(token);
-    if (!ok || token !== seq || destroyed || !geo || !buffers) return;
-    const g = geo as Geometry;
-    if (g !== prevGeo) {
-      clearBuffers(buffers);
-      drawn = 0;
-      sheenCanvas = null;
+    phase = 'prep';
+    const job = { token, animate: animateIt };
+    prepJob = job;
+    const alive = () => token === seq && !destroyed;
+    try {
+      ensureSize();
+      if (forceGeometry) geo = null;
+      const prevGeo = geo;
+      await ensureFabric();
+      if (!alive()) return;
+      const ok = await ensureGeometry(token);
+      if (!ok || !alive() || !geo || !buffers) return;
+      // a colour change made while the geometry was prepared
+      await ensureFabric();
+      if (!alive() || !geo) return;
+      if (geo !== prevGeo) clearStitches();
+    } finally {
+      if (prepJob === job) prepJob = null;
+      if (token === seq && phase === 'prep') phase = 'idle';
     }
+    const g = geo as Geometry;
     if (g.empty) {
-      clearBuffers(buffers);
-      pushStitchPixels(null);
+      clearStitches();
       updateShadows();
       compose();
       opts.onProgress?.(1);
       return;
     }
-    if (animateIt && !reduced()) {
+    if (job.animate && !reduced()) {
       await animate(token);
     } else {
-      finishInstant();
-      opts.onProgress?.(1);
+      phase = 'finishing';
+      const done = await finishSliced(token);
+      if (token === seq) phase = 'idle';
+      if (done) opts.onProgress?.(1);
     }
+  }
+
+  function startRender(animateIt: boolean, forceGeometry = false): Promise<void> {
+    const p = render(animateIt, forceGeometry);
+    renderPromise = p;
+    void p.finally(() => {
+      if (renderPromise === p) renderPromise = null;
+    });
+    return p;
   }
 
   // ---------- resize ----------
@@ -747,8 +708,10 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
           resizeTimer = setTimeout(() => {
             const [w, h] = measure();
             if (Math.abs(w - W) < 3 && Math.abs(h - H) < 3) return;
-            const wasRunning = !!running;
-            void render(wasRunning);
+            // nothing drawn yet: the first setDesign will size the canvas itself
+            if (!W && !renderPromise) return;
+            const wasRunning = !!running || !!prepJob?.animate;
+            void startRender(wasRunning);
           }, 160);
         })
       : null;
@@ -770,36 +733,38 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
     async setDesign(d, o) {
       if (destroyed) return;
       const next = normalise(d);
-      const geoChanged = next.text !== design.text || next.style !== design.style || !geo;
+      const geoChanged = next.text !== design.text || next.style !== design.style;
       const threadChanged = next.thread !== design.thread;
-      const fabricChanged =
-        next.fabric !== design.fabric || next.fabricTexture !== design.fabricTexture;
       design = next;
       if (threadChanged) palette = threadPalette(design.thread);
-      const animateIt = o?.animate ?? geoChanged;
-      // colour-only change on a finished piece: recolour in place, no relayout
-      if (!geoChanged && !animateIt && geo && buffers && !running) {
-        const token = ++seq;
+      const hasPiece = !!geo || phase === 'prep';
+      const animateIt = o?.animate ?? (geoChanged || !hasPiece);
+
+      if (!geoChanged && hasPiece && phase === 'prep' && prepJob) {
+        // the piece being prepared already has this lettering: it picks the
+        // new colours up itself, so do not restart it
+        if (o?.animate) prepJob.animate = true;
+        return renderPromise ?? undefined;
+      }
+      if (!geoChanged && !animateIt && hasPiece) {
         const [w, h] = measure();
-        if (w === W && h === H) {
-          if (fabricChanged) await ensureFabric(token);
-          if (token !== seq || destroyed) return;
-          if (threadChanged) pushStitchPixels(null);
-          compose();
+        if (phase !== 'idle' || (w === W && h === H)) {
+          // colour-only change: recolour in place, no relayout, no restitch
+          await ensureFabric();
+          if (destroyed) return;
+          if (phase === 'animating' || phase === 'idle') {
+            if (threadChanged) pushStitchPixels(null);
+            if (phase === 'idle') compose();
+          }
+          // 'finishing' recolours and composes itself at its end
           return;
         }
       }
-      if (!geoChanged && !animateIt && running) {
-        // mid-animation recolour: keep stitching, just swap colours
-        if (fabricChanged) await ensureFabric(seq);
-        if (threadChanged) pushStitchPixels(null);
-        return;
-      }
-      await render(animateIt);
+      await startRender(animateIt);
     },
     replay() {
       if (destroyed) return Promise.resolve();
-      return render(true);
+      return startRender(true);
     },
     toBlob(type = 'image/png') {
       return new Promise<Blob>((resolve, reject) => {
@@ -823,6 +788,7 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
       stopRunning();
       destroyed = true;
       seq++;
+      compute.destroy();
       ro?.disconnect();
       if (resizeTimer) clearTimeout(resizeTimer);
       for (const c of [stitchCanvas, fabricCanvas, ambient, contact, sheenCanvas, glintCanvas]) {
@@ -831,8 +797,8 @@ export function createAtelier(canvas: HTMLCanvasElement, opts: AtelierOptions = 
       stitchCanvas = fabricCanvas = ambient = contact = sheenCanvas = glintCanvas = null;
       buffers = null;
       stitchImg = null;
+      sheenImg = null;
       geo = null;
-      shadeCache.clear();
     },
     getDesign() {
       return { ...design };

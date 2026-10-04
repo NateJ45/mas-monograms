@@ -145,21 +145,6 @@
       render({ animate: true });
     });
 
-    // Workaround (reported as an AtelierStageScript gap): when a stage starts
-    // off-screen, the stage script pauses the engine, and on first sight it
-    // calls setDesign without resume(), so the stitching never runs. Resume
-    // whenever the stage is on screen (resume() is a no-op when not paused).
-    new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) if (e.isIntersecting) stage.__atelier?.resume();
-      },
-      { rootMargin: '120px 0px' },
-    ).observe(stage);
-    stage.addEventListener('atelier:ready', () => {
-      const r = stage.getBoundingClientRect();
-      if (r.bottom > -120 && r.top < window.innerHeight + 120) stage.__atelier?.resume();
-    });
-
     // first paint uses the server defaults; keep the text alternative honest
     sync();
   }
