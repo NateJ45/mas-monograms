@@ -21,6 +21,5 @@
 SANITY_TOKEN=
 
 # ── Quote form Worker (already required by POST /api/quote) ────────────────────
-# RESEND_API_KEY=
-# QUOTE_OWNER_EMAIL=
+# QUOTE_OWNER_EMAIL=   (a var in wrangler.jsonc; override here for local dev)
 # TURNSTILE_SECRET_KEY=

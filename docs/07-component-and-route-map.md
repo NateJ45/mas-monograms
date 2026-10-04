@@ -30,7 +30,7 @@ src/
     robots.txt.ts               build-time robots.txt endpoint
     preview/                    SSR draft preview for the Presentation tool
     api/
-      quote.ts                  quote-form Worker (Turnstile → R2 backup → Resend); prerender = false
+      quote.ts                  quote-form Worker (Turnstile → R2 backup → Email Service); prerender = false
       draft-mode/               draft mode on/off for the preview
   components/
     Header.astro                header + dropdown folders (indigo eyebrow strip)

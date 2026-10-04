@@ -6,8 +6,8 @@
  *  2. Validate Turnstile token (if TURNSTILE_SECRET_KEY is set)
  *  3. Validate required fields
  *  4. Back up form data + attachments to R2 (QUOTE_BACKUP binding)
- *  5. Send owner notification email via Resend
- *  6. Send customer confirmation email via Resend
+ *  5. Send owner notification email via the Cloudflare Email Service binding (EMAIL)
+ *  6. Send customer confirmation email via the same binding
  *  7. Redirect → /thank-you (303)
  */
 
@@ -15,12 +15,31 @@ import type { APIContext } from 'astro';
 
 export const prerender = false;
 
+interface EmailMessage {
+  to: string | string[];
+  from: string | { email: string; name?: string };
+  subject: string;
+  html?: string;
+  text?: string;
+  replyTo?: string;
+}
+
 interface Env {
-  RESEND_API_KEY: string;
-  QUOTE_OWNER_EMAIL: string;
+  /** Cloudflare Email Service `send_email` binding (wrangler.jsonc). */
+  EMAIL?: { send(message: EmailMessage): Promise<{ messageId?: string }> };
+  QUOTE_OWNER_EMAIL?: string;
   TURNSTILE_SECRET_KEY?: string;
   QUOTE_BACKUP?: R2Bucket;
 }
+
+/** Must match data-action on the widget in request-a-quote.astro. */
+const TURNSTILE_ACTION = 'quote';
+/** Frontend hostnames that may mint a token for this form (never localhost in production). */
+const TURNSTILE_HOSTNAMES = new Set([
+  'mas-monograms.com',
+  'www.mas-monograms.com',
+  'mas-monograms.nathanjnixon86.workers.dev',
+]);
 
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -46,13 +65,34 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     const token = formData.get('cf-turnstile-response') as string | null;
     if (!token) return jsonError('Missing CAPTCHA token', 400);
 
-    const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: env.TURNSTILE_SECRET_KEY, response: token }),
-    });
-    const tsBody = (await tsRes.json()) as { success: boolean };
-    if (!tsBody.success) return jsonError('CAPTCHA verification failed', 400);
+    // Fail closed on network errors, non-2xx and non-JSON replies. A token is only
+    // accepted for THIS form (action) on one of OUR hostnames, so a token minted on
+    // another site's widget or another form cannot be replayed here.
+    let tsBody: { success?: boolean; action?: string; hostname?: string } = {};
+    try {
+      const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(10_000),
+        body: JSON.stringify({
+          secret: env.TURNSTILE_SECRET_KEY,
+          response: token,
+          remoteip: request.headers.get('CF-Connecting-IP') ?? undefined,
+        }),
+      });
+      if (!tsRes.ok) throw new Error(`siteverify ${tsRes.status}`);
+      tsBody = await tsRes.json();
+    } catch (err) {
+      console.error('Turnstile siteverify failed:', err);
+      return jsonError('CAPTCHA verification failed', 400);
+    }
+    if (
+      !tsBody.success ||
+      tsBody.action !== TURNSTILE_ACTION ||
+      !TURNSTILE_HOSTNAMES.has(tsBody.hostname ?? '')
+    ) {
+      return jsonError('CAPTCHA verification failed', 400);
+    }
   }
 
   // ── 2. Validate required fields ────────────────────────────────────────────
@@ -158,10 +198,13 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     }
   }
 
-  // ── 6. Send emails via Resend ─────────────────────────────────────────────
-  if (!env.RESEND_API_KEY || !env.QUOTE_OWNER_EMAIL) {
-    console.error('Resend not configured — missing RESEND_API_KEY or QUOTE_OWNER_EMAIL');
-    return new Response(null, { status: 303, headers: { Location: '/thank-you' } });
+  // ── 6. Send emails via Cloudflare Email Service ───────────────────────────
+  // The request is already safe in R2 above, but a visitor must never be shown
+  // "Thank you" for a quote Mary Ann was not told about. If the owner email is
+  // not configured or fails, say so (502) so the form shows its error state.
+  if (!env.EMAIL || !env.QUOTE_OWNER_EMAIL) {
+    console.error('Email not configured — missing EMAIL binding or QUOTE_OWNER_EMAIL');
+    return jsonError('We could not send your request. Please email us directly.', 502);
   }
 
   // All values below originate from the public form, so every interpolation
@@ -253,44 +296,57 @@ ${isRush ? `<p><strong>Rush requested:</strong> Yes — a rush fee may apply.</p
 </body></html>
 `;
 
-  const resendRequests = [
-    // Owner notification
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'MAS Monograms <noreply@mas-monograms.com>',
-        to: [env.QUOTE_OWNER_EMAIL],
-        reply_to: email,
-        subject: `New Quote Request from ${name}`,
-        html: ownerHtml,
-      }),
+  const from = { email: 'noreply@mas-monograms.com', name: 'MAS Monograms' };
+  const results = await Promise.allSettled([
+    // Owner notification (index 0)
+    env.EMAIL.send({
+      from,
+      to: env.QUOTE_OWNER_EMAIL,
+      replyTo: email,
+      subject: `New Quote Request from ${name}`,
+      html: ownerHtml,
+      text: htmlToText(ownerHtml),
     }),
-    // Customer confirmation
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'MAS Monograms <noreply@mas-monograms.com>',
-        to: [email],
-        subject: 'We got your quote request! — MAS Monograms',
-        html: customerHtml,
-      }),
+    // Customer confirmation (index 1)
+    env.EMAIL.send({
+      from,
+      to: email,
+      subject: 'We got your quote request! — MAS Monograms',
+      html: customerHtml,
+      text: htmlToText(customerHtml),
     }),
-  ];
-
-  const results = await Promise.allSettled(resendRequests);
+  ]);
   results.forEach((r, i) => {
-    if (r.status === 'rejected') console.error(`Resend email ${i} failed:`, r.reason);
+    if (r.status === 'rejected') {
+      console.error(
+        `Email ${i === 0 ? 'owner notification' : 'customer confirmation'} failed:`,
+        r.reason,
+      );
+    }
   });
+  // Mary Ann's copy is the one that matters. If it failed, do not claim success.
+  if (results[0].status === 'rejected') {
+    return jsonError('We could not send your request. Please email us directly.', 502);
+  }
 
   return new Response(null, { status: 303, headers: { Location: '/thank-you' } });
+}
+
+/** Plain-text twin of the HTML bodies (helps deliverability and text-only clients). */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<(style|script)[\s\S]*?<\/\1>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|h[1-6]|div|tr)>/gi, '\n')
+    .replace(/<hr[^>]*>/gi, '\n---\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function jsonError(error: string, status: number) {

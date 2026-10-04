@@ -7,7 +7,7 @@ interface Env {
   // R2 bucket for quote submission backups
   QUOTE_BACKUP: R2Bucket;
   // Wrangler secrets — set via `wrangler secret put`
-  RESEND_API_KEY: string;
+  EMAIL: { send(message: Record<string, unknown>): Promise<{ messageId?: string }> };
   QUOTE_OWNER_EMAIL: string;
   TURNSTILE_SECRET_KEY: string;
   SANITY_API_READ_TOKEN: string;

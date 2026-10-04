@@ -99,8 +99,8 @@ Cloudflare Pages Function  /functions/api/quote.js   (or .ts)
    │  1. parse + validate
    │  2. (optional) store the file in R2, get a link
    │  3. (optional) save the submission (R2 / KV / D1) as a backup
-   │  4. send owner email  ── Resend ──▶  Mary Ann's inbox
-   │  5. send confirmation ── Resend ──▶  customer's inbox
+   │  4. send owner email  ── Email Service ──▶  Mary Ann's inbox
+   │  5. send confirmation ── Email Service ──▶  customer's inbox
    ▼
    303 redirect ─▶ /thank-you
 ```
@@ -108,30 +108,23 @@ Cloudflare Pages Function  /functions/api/quote.js   (or .ts)
 **Why a Pages Function, not just a static form.** A static site cannot receive a POST. Pages
 Functions are Workers that run on the same Cloudflare deploy, so the form posts to a same-origin path
 like `/api/quote` with no separate service to host. (Note: Pages Functions configure bindings through
-the Cloudflare dashboard, not a `wrangler.toml`. With Resend you mostly just need one secret, so this
-is simple.)
+the Cloudflare dashboard, not a `wrangler.toml`. The email binding is declared in `wrangler.jsonc`.)
 
-**Email provider: Resend.** Decided after confirming the old free MailChannels-for-Workers path was
-sunset on Aug 31, 2024. Cloudflare's current docs recommend Resend for sending mail from
-Workers/Pages, and there is a published Cloudflare + Resend tutorial to follow. Workers cannot use
-SMTP (no raw TCP), so this is an HTTPS API call via `fetch`, which Resend supports directly. Steps:
+**Email provider: Cloudflare Email Service (since 2026-10-04).** The Worker sends both emails through
+the `send_email` binding named `EMAIL` (declared in `wrangler.jsonc`), so there is no API key and no
+third-party account. Email Sending can mail any recipient, so it covers both the owner notification
+and the customer confirmation. (Resend was used before; it was never configured in production, which
+meant requests were saved to R2 but nobody was emailed.) Setup, one time, in the Cloudflare dashboard:
 
-1. Create a Resend account, add and verify the domain `mas-monograms.com` (add the SPF and DKIM DNS
-   records Resend gives you). Verifying the domain is what keeps these emails out of spam.
-2. Create an API key. Store it as a Cloudflare secret / Pages environment variable named e.g.
-   `RESEND_API_KEY`. **Never commit it to the repo.** Put a placeholder in `.dev.vars` for local dev
-   and add `.dev.vars` to `.gitignore`.
-3. From the Function, POST to Resend's send endpoint with `from` set to a verified address on the
-   domain (e.g. `quotes@mas-monograms.com`), `to` set to Mary Ann's real inbox, a clear subject
-   ("New quote request from {name}"), and a body built from the form fields.
-4. Send a second email to the customer's address confirming receipt and restating the 1-business-day
-   response promise. (If you ever want to skip a provider for this, note that Cloudflare's own Email
-   Routing binding can only send to pre-verified addresses, so it could cover the owner notification
-   but not the customer confirmation. Resend covers both, so just use Resend for both.)
-
-Cloudflare also has a native Email Sending product, but as of early–mid 2026 it is still in beta with
-noted API instability, so Resend is the safer default for a live business. Revisit once it reaches
-general availability.
+1. Compute > Email Service > Email Sending > onboard `mas-monograms.com`. Cloudflare adds the SPF and
+   DKIM records itself because the zone is on Cloudflare DNS. Wait for the domain to show verified.
+2. `QUOTE_OWNER_EMAIL` is a plain var in `wrangler.jsonc` (Mary Ann's published address). Change it
+   there if her address changes.
+3. Messages go from `noreply@mas-monograms.com` ("MAS Monograms") with `replyTo` set to the customer
+   on the owner email, plus an auto plain-text twin of each HTML body.
+4. Failure behaviour: the submission is saved to R2 first. If the owner email cannot be sent (binding
+   missing, domain not onboarded, rate limit) the Worker answers 502 and the form shows its error
+   state, instead of the old silent "Thank you". A failed customer confirmation is logged only.
 
 **File upload.** Two options:
 
@@ -165,7 +158,7 @@ if the JS never loads. This keeps the most important page on the site resilient.
 - [ ] `QuoteForm.astro` renders all six groups, dropdowns sourced from Sanity
 - [ ] Honeypot + Turnstile in place
 - [ ] `/functions/api/quote.{js,ts}` parses, validates, and escapes input
-- [ ] `RESEND_API_KEY` stored as a secret; domain verified (SPF + DKIM) on mas-monograms.com
+- [ ] Email Sending onboarded for mas-monograms.com (SPF + DKIM added by Cloudflare)
 - [ ] Owner email + customer confirmation both send and land in the inbox (check spam on first test)
 - [ ] File upload stored (R2) or attached, with type + size limits enforced server-side
 - [ ] Submission backed up (R2/D1/KV) as insurance

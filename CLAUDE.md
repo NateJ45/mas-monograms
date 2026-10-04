@@ -74,7 +74,7 @@ Run from the repo root. Node scripts are in `package.json`.
   worker (main-thread sliced fallback), lettering fonts lazy-loaded via `FontFace` from `@fontsource`
   great-vibes / playfair-display / cinzel. No animation or smooth-scroll library.
 - **Tailwind CSS 4** via `@tailwindcss/vite`
-- **Resend** — transactional email from the quote form Worker
+- **Cloudflare Email Service** — transactional email from the quote form Worker (`send_email` binding `EMAIL`, no API key; replaced Resend 2026-10-04)
 - **Cloudflare R2** (`QUOTE_BACKUP` binding → `mas-monograms-quotes` bucket)
 - **Cloudflare Turnstile** — CAPTCHA on quote form
 
@@ -103,7 +103,7 @@ never real people's names.
 
 ### No Web3Forms
 
-The quote form backend is a Cloudflare Worker + Resend. Do not use Web3Forms.
+The quote form backend is a Cloudflare Worker + Cloudflare Email Service. Do not use Web3Forms or Resend.
 
 ### Clearance items — Stripe Payment Links only
 
@@ -112,7 +112,7 @@ The buy button is a plain `<a href={...}>` that links to Stripe.
 
 ### Worker secrets — never in the repo
 
-`RESEND_API_KEY`, `QUOTE_OWNER_EMAIL`, `TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN`
+`TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN`
 are set via `wrangler secret put`. Never write them into `.env` or commit them.
 
 ## Branch, CI and deploy

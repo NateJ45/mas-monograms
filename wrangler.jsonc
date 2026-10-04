@@ -48,9 +48,13 @@
       "bucket_name": "mas-monograms-quotes",
     },
   ],
+  // Quote-form email goes out through Cloudflare Email Service (Workers binding,
+  // no API key). The sending domain mas-monograms.com must be onboarded under
+  // Compute > Email Service > Email Sending in the dashboard. QUOTE_OWNER_EMAIL is
+  // where new quote requests land (Mary Ann's published contact address).
+  "send_email": [{ "name": "EMAIL" }],
+  "vars": { "QUOTE_OWNER_EMAIL": "mastone37@gmail.com" },
   // Secrets (set via: wrangler secret put SECRET_NAME) — never in this file:
-  //   RESEND_API_KEY        — Resend email API key
-  //   QUOTE_OWNER_EMAIL     — Mary Ann's email address
   //   SANITY_API_READ_TOKEN — Sanity viewer token for build-time reads
   //   TURNSTILE_SECRET_KEY  — Cloudflare Turnstile CAPTCHA secret
 }
