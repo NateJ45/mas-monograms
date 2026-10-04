@@ -99,8 +99,6 @@ in `.dev.vars` (gitignored; see `.dev.vars.example`), which is a different file 
 
 | Secret                      | Purpose                                              |
 | --------------------------- | ---------------------------------------------------- |
-| `RESEND_API_KEY`            | Send owner + customer emails                         |
-| `QUOTE_OWNER_EMAIL`         | Where quote notifications go (Mary Ann)              |
 | `TURNSTILE_SECRET_KEY`      | Server-side CAPTCHA verification                     |
 | `QUOTE_BACKUP` (R2 binding) | Bucket `mas-monograms-quotes` for submission backups |
 
@@ -160,9 +158,9 @@ collage, style gallery, and category images are populated.
 - [ ] Fill the remaining image gaps in the Studio (About portrait, OG/social images, any missing font previews)
 - [ ] Confirm social URLs and replace the starter thread-color inventory (contact info + photos already done)
 - [ ] Create R2 bucket: `wrangler r2 bucket create mas-monograms-quotes`
-- [ ] Set quote-form runtime secrets (`RESEND_API_KEY`, `QUOTE_OWNER_EMAIL`, `TURNSTILE_SECRET_KEY`)
+- [ ] Set the quote-form runtime secret `TURNSTILE_SECRET_KEY` (`QUOTE_OWNER_EMAIL` is a var in wrangler.jsonc; email uses the `EMAIL` binding)
 - [ ] Set Turnstile build var (`PUBLIC_TURNSTILE_SITE_KEY`) + create the Turnstile widget
-- [ ] Verify Resend domain (SPF + DKIM) on `mas-monograms.com`
+- [ ] Onboard `mas-monograms.com` under Email Service > Email Sending (dashboard) so the `EMAIL` binding can send
 - [ ] Test the quote form end-to-end on a preview deploy (owner + customer email land)
 - [ ] (Recommended) Wire a Sanity webhook → Cloudflare deploy hook for content-triggered rebuilds
 - [ ] Point `mas-monograms.com` DNS at the Worker; confirm `_redirects` from old Squarespace URLs

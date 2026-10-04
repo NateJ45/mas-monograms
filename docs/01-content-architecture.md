@@ -294,7 +294,7 @@ End with a CTA to the quote form.
 ## Request a Quote (`/request-a-quote`)
 
 The conversion page and the single most important build. Full field list, validation, and the
-Cloudflare + Resend backend are in `docs/05-quote-form-and-backend.md`. Page copy keeps the
+Cloudflare Email Service backend are in `docs/05-quote-form-and-backend.md`. Page copy keeps the
 reassurance front and center: free, about 2 minutes, reply within 1 business day, no payment now.
 
 ---

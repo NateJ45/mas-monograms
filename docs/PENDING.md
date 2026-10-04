@@ -196,10 +196,19 @@ This file tracks the things that have no other home.
   full fidelity for free. Worth doing for Home first if Mary Ann ever asks to
   reorder page sections herself.
 
+- **Quote emails need one dashboard step before they work (2026-10-04, PR email/cloudflare-quote).**
+  The Worker now sends through the Cloudflare Email Service `EMAIL` binding. Until `mas-monograms.com`
+  is onboarded under Compute > Email Service > Email Sending (Nathan, dashboard; the wrangler token
+  lacks Email Sending permission), the owner send fails and the form shows an error (the request is
+  still saved in R2). Then send one real test quote and confirm both emails land.
+- **Turnstile is not live (2026-10-04).** No `TURNSTILE_SECRET_KEY` secret and no
+  `PUBLIC_TURNSTILE_SITE_KEY` build var exist, so the quote form has no bot check. Create the widget
+  (dashboard or API), set the site key as a Workers Builds variable and the secret with
+  `wrangler secret put`.
+
 ## Standing risks (not tasks)
 
-- **Worker secrets live only in Cloudflare.** `RESEND_API_KEY`,
-  `QUOTE_OWNER_EMAIL`, `TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN` are set
+- **Worker secrets live only in Cloudflare.** `TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN` are set
   via `wrangler secret put` and are in no repo and no backup. Losing the
   Cloudflare account loses them.
 - **Sanity refuses to delete a document other documents reference.** Cleanup

@@ -61,7 +61,7 @@ page now does (brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`):
 - Validates Turnstile token server-side
 - Validates uploaded files (type + size)
 - Saves submission JSON to R2 (`QUOTE_BACKUP` binding)
-- Sends two emails via Resend: owner notification + customer confirmation
+- Sends two emails via the Cloudflare Email Service `EMAIL` binding: owner notification (a failure returns 502 so the form shows an error) + customer confirmation
 - On success: redirects to `/thank-you`
 
 ## Query-string contract on `/request-a-quote`
