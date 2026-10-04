@@ -201,10 +201,12 @@ This file tracks the things that have no other home.
   is onboarded under Compute > Email Service > Email Sending (Nathan, dashboard; the wrangler token
   lacks Email Sending permission), the owner send fails and the form shows an error (the request is
   still saved in R2). Then send one real test quote and confirm both emails land.
-- **Turnstile is not live (2026-10-04).** No `TURNSTILE_SECRET_KEY` secret and no
-  `PUBLIC_TURNSTILE_SITE_KEY` build var exist, so the quote form has no bot check. Create the widget
-  (dashboard or API), set the site key as a Workers Builds variable and the secret with
-  `wrangler secret put`.
+- **Turnstile is wired but not live (2026-10-04).** `/api/quote` now verifies the token with the
+  action `quote` and our hostnames only (fail closed on any siteverify error), and the widget carries
+  `data-action="quote"`. Still missing: the widget itself (the wrangler API token can list but not
+  create widgets: it needs `Account.Turnstile:Edit`), the `TURNSTILE_SECRET_KEY` Worker secret, and the
+  public site key as `PUBLIC_TURNSTILE_SITE_KEY` in a build env file. Until the secret exists the
+  Worker skips the check, and until the site key exists the form shows no widget.
 
 ## Standing risks (not tasks)
 

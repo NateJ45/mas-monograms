@@ -32,6 +32,15 @@ interface Env {
   QUOTE_BACKUP?: R2Bucket;
 }
 
+/** Must match data-action on the widget in request-a-quote.astro. */
+const TURNSTILE_ACTION = 'quote';
+/** Frontend hostnames that may mint a token for this form (never localhost in production). */
+const TURNSTILE_HOSTNAMES = new Set([
+  'mas-monograms.com',
+  'www.mas-monograms.com',
+  'mas-monograms.nathanjnixon86.workers.dev',
+]);
+
 const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -56,13 +65,34 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     const token = formData.get('cf-turnstile-response') as string | null;
     if (!token) return jsonError('Missing CAPTCHA token', 400);
 
-    const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: env.TURNSTILE_SECRET_KEY, response: token }),
-    });
-    const tsBody = (await tsRes.json()) as { success: boolean };
-    if (!tsBody.success) return jsonError('CAPTCHA verification failed', 400);
+    // Fail closed on network errors, non-2xx and non-JSON replies. A token is only
+    // accepted for THIS form (action) on one of OUR hostnames, so a token minted on
+    // another site's widget or another form cannot be replayed here.
+    let tsBody: { success?: boolean; action?: string; hostname?: string } = {};
+    try {
+      const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: AbortSignal.timeout(10_000),
+        body: JSON.stringify({
+          secret: env.TURNSTILE_SECRET_KEY,
+          response: token,
+          remoteip: request.headers.get('CF-Connecting-IP') ?? undefined,
+        }),
+      });
+      if (!tsRes.ok) throw new Error(`siteverify ${tsRes.status}`);
+      tsBody = await tsRes.json();
+    } catch (err) {
+      console.error('Turnstile siteverify failed:', err);
+      return jsonError('CAPTCHA verification failed', 400);
+    }
+    if (
+      !tsBody.success ||
+      tsBody.action !== TURNSTILE_ACTION ||
+      !TURNSTILE_HOSTNAMES.has(tsBody.hostname ?? '')
+    ) {
+      return jsonError('CAPTCHA verification failed', 400);
+    }
   }
 
   // ── 2. Validate required fields ────────────────────────────────────────────
