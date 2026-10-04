@@ -199,7 +199,7 @@ function socialIcon(platform: string | undefined) {
         {
           columns.map((col) => (
             <div>
-              <p class="eyebrow mb-s justify-center sm:justify-start">{col.title}</p>
+              <p class="eyebrow site-footer__coltitle mb-s">{col.title}</p>
               <ul class="list-none p-0 text-sm">
                 {col.links.map((link) => (
                   <li>
@@ -324,6 +324,28 @@ function socialIcon(platform: string | undefined) {
 </footer>
 
 <style>
+  /* Column titles: under sm the two-up grid gives each column ~130px, narrower
+     than the dash + tracked caps on one line (333px page at 320px, 2026-10-04).
+     So the dash stacks above the title, centred, and the title may wrap. From sm
+     up it is the usual dash-then-title row. */
+  .site-footer__coltitle {
+    flex-direction: column;
+    gap: 0.4rem;
+    max-width: 100%;
+    min-width: 0;
+    text-align: center;
+    letter-spacing: 0.2em;
+    overflow-wrap: anywhere;
+  }
+  @media (min-width: 40rem) {
+    .site-footer__coltitle {
+      flex-direction: row;
+      gap: 0.75rem;
+      text-align: left;
+      letter-spacing: 0.24em;
+      justify-content: flex-start;
+    }
+  }
   .site-footer__wordmark svg {
     display: block;
     width: 100%;

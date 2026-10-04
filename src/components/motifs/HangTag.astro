@@ -13,6 +13,8 @@
 // tone: kraft (default, Ink text), paper, or midnight (a dark ground; gold
 // eyebrow, light text). The tag itself is a CSS clip-path + mask (the hole is
 // real, the ground shows through it), so the shadow lives on the wrapper.
+// Tilt: --tag-tilt-base from the prop; a parent can override with --tag-tilt (e.g. 0deg on hover).
+// Extra attributes (data-*, aria-*, id) pass through to the outer element.
 
 interface Props {
   eyebrow?: string | null;
@@ -29,6 +31,10 @@ interface Props {
   string?: boolean;
   size?: 'sm' | 'md';
   class?: string;
+  /** Extra inline style, appended after the tilt variable. */
+  style?: string;
+  /** Any other attribute (data-*, aria-*, id, role...) lands on the outer element. */
+  [attr: string]: unknown;
 }
 
 const {
@@ -42,12 +48,15 @@ const {
   string = true,
   size = 'md',
   class: className = '',
+  style: extraStyle,
+  ...rest
 } = Astro.props as Props;
 ---
 
 <div
+  {...rest}
   class:list={['hangtag', `hangtag--${size}`, string && 'hangtag--strung', className]}
-  style={`--tag-tilt:${tilt}deg`}
+  style={`--tag-tilt-base:${tilt}deg${extraStyle ? `;${extraStyle}` : ''}`}
 >
   {
     string && (
@@ -110,7 +119,7 @@ const {
     flex-direction: column;
     align-items: center;
     width: min(var(--tag-w), 100%);
-    transform: rotate(var(--tag-tilt));
+    transform: rotate(var(--tag-tilt, var(--tag-tilt-base, 0deg)));
     transform-origin: 50% 0;
     filter: drop-shadow(0 16px 16px rgba(15, 27, 45, 0.18))
       drop-shadow(0 2px 2px rgba(15, 27, 45, 0.16));

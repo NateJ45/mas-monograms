@@ -156,6 +156,45 @@ function terryAt(x: number, y: number, p: number, seed: number): number {
   return 0.6 + 0.28 * best + 0.2 * terryLit;
 }
 
+export interface FabricRequest {
+  tex: FabricTexture;
+  W: number;
+  H: number;
+  pitch: number;
+  /** linear RGB of the fabric colour */
+  lin: RGB;
+}
+
+/** Normalise so the fabric reads as its own colour, whatever the weave contrast. */
+export function normaliseShade(shade: Float32Array) {
+  let sum = 0;
+  for (let i = 0; i < shade.length; i += 7) sum += shade[i];
+  const gain = 0.97 / (sum / Math.ceil(shade.length / 7));
+  for (let i = 0; i < shade.length; i++) shade[i] *= gain;
+}
+
+// The weave for the last few sizes and textures (the worker keeps these, so a
+// fabric colour change is only a tint pass).
+const shadeCache = new Map<string, Float32Array>();
+
+/** The finished RGBA pixels of a fabric (weave generated once per texture and size). */
+export function fabricPixels(r: FabricRequest): Uint8ClampedArray {
+  const key = `${r.tex}|${r.W}x${r.H}|${r.pitch.toFixed(3)}`;
+  let shade = shadeCache.get(key);
+  if (!shade) {
+    const job = fabricJob(r.tex, r.W, r.H, r.pitch, 7);
+    fabricRows(job, 0, r.H);
+    shade = job.shade;
+    normaliseShade(shade);
+    // keep the cache small: the current size, every texture
+    for (const k of shadeCache.keys()) if (!k.includes(`|${r.W}x${r.H}|`)) shadeCache.delete(k);
+    shadeCache.set(key, shade);
+  }
+  const out = new Uint8ClampedArray(r.W * r.H * 4);
+  tintFabric(shade, r.lin, out);
+  return out;
+}
+
 /** Tint the shade map with the fabric colour into an RGBA buffer. */
 export function tintFabric(shade: Float32Array, lin: RGB, out: Uint8ClampedArray) {
   const lut = toneLut();

@@ -49,6 +49,7 @@ export const schemaTypes = [
 
   // ── Singleton pages ──────────────────────────────────────────────────────────
   siteSettings,
+  atelierSettings,
   homePage,
   howItWorksPage,
   pricingPage,
@@ -61,7 +62,6 @@ export const schemaTypes = [
   clearancePage,
   thankYouPage,
   notFoundPage,
-  atelierSettings,
 
   // ── Collections ──────────────────────────────────────────────────────────────
   itemCategory,

@@ -10,6 +10,13 @@
 //   <HoopFrame image={item.image} size="lg" />
 //   <HoopFrame image={cat.heroImage} size={360} focal={{ x: 0.5, y: 0.35 }} tilt={-3} />
 //   <HoopFrame image={null} size="sm" />      an empty hoop on linen (placeholder)
+//   <HoopFrame image={null}><span>Your initials</span></HoopFrame>   default slot: content
+//                                             centred inside an EMPTY hoop's fabric (ignored
+//                                             when a photo is set)
+//
+// Tilt is a CSS variable: the prop sets --hoop-tilt-base on the wrapper, the body rotates by
+// `var(--hoop-tilt, var(--hoop-tilt-base))`. A parent straightens it with
+// `.card:hover { --hoop-tilt: 0deg }`. Extra attributes (data-*, aria-*, id) pass through.
 //
 // Focal point: when the Sanity image has a hotspot or crop, Sanity crops the
 // square around it. Otherwise `focal` (0..1) drives object-position.
@@ -43,6 +50,10 @@ interface Props {
   loading?: 'lazy' | 'eager';
   fetchpriority?: 'high' | 'low' | 'auto';
   class?: string;
+  /** Extra inline style, appended after the size and tilt variables. */
+  style?: string;
+  /** Any other attribute (data-*, aria-*, id...) lands on the wrapper element. */
+  [attr: string]: unknown;
 }
 
 const {
@@ -56,6 +67,8 @@ const {
   loading = 'lazy',
   fetchpriority,
   class: className = '',
+  style: extraStyle,
+  ...rest
 } = Astro.props as Props;
 
 const SIZES = { sm: 200, md: 300, lg: 420, xl: 560 } as const;
@@ -71,8 +84,9 @@ const brassId = motifId('hb');
 ---
 
 <Tag
+  {...rest}
   class:list={['hoop', tone && 'hoop--graded', className]}
-  style={`--hoop:${px}px;--hoop-tilt:${tilt}deg`}
+  style={`--hoop:${px}px;--hoop-tilt-base:${tilt}deg${extraStyle ? `;${extraStyle}` : ''}`}
 >
   <div class="hoop__body">
     <div class="hoop__ring" aria-hidden="true"></div>
@@ -90,6 +104,13 @@ const brassId = motifId('hb');
             class="hoop__img"
             style={objectPosition}
           />
+        )
+      }
+      {
+        !hasPhoto && Astro.slots.has('default') && (
+          <div class="hoop__slot">
+            <slot />
+          </div>
         )
       }
       <span class="hoop__grade" aria-hidden="true"></span>
@@ -128,7 +149,7 @@ const brassId = motifId('hb');
     width: 100%;
     aspect-ratio: 1;
     margin-top: 5%;
-    transform: rotate(var(--hoop-tilt));
+    transform: rotate(var(--hoop-tilt, var(--hoop-tilt-base, 0deg)));
     transition: transform 700ms var(--ease-thread);
   }
   /* Outer and inner rings: turned wood, lit from the top left. */
@@ -177,6 +198,15 @@ const brassId = motifId('hb');
     overflow: hidden;
     background-color: var(--color-bg);
     box-shadow: 0 0 0 1px rgba(60, 35, 14, 0.5);
+  }
+  .hoop__slot {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 12%;
+    text-align: center;
+    z-index: 1;
   }
   .hoop__fabric :global(.hoop__img) {
     width: 100%;

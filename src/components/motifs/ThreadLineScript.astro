@@ -3,6 +3,7 @@
 // Drives ThreadLine.astro. Per page (astro:page-load):
 //   build()  on load and on <main> resize: measure once, write the S-curve path
 //            in real pixels, and keep a lookup table of points along it.
+//   buildMask() after build(): dims the thread behind lines of text (see ThreadLine.astro).
 //   update() on scroll, rAF-throttled: clip the thread to the "tip" (62% down
 //            the viewport) and move the needle there. Reads only scrollY and
 //            innerHeight; writes only clip-path and transform.
@@ -111,6 +112,96 @@
       for (const p of paths) p.setAttribute('d', d);
     }
 
+    const maskEl = svg.querySelector<SVGMaskElement>('#thread-line-mask');
+    const maskOuter = svg.querySelector<SVGGElement>('[data-thread-mask-outer]');
+    const maskInner = svg.querySelector<SVGGElement>('[data-thread-mask-inner]');
+    const maskBase = maskEl?.querySelector<SVGRectElement>(':scope > rect');
+
+    /** Index of the first LUT point at or below y (the path only ever descends). */
+    function lutFrom(y: number) {
+      let lo = 0;
+      let hi = lut.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (lut[mid].y < y) lo = mid + 1;
+        else hi = mid;
+      }
+      return lo;
+    }
+
+    /** Dim the thread behind text. Reads layout once (Range rects), writes the mask once. */
+    function buildMask() {
+      if (!maskEl || !maskOuter || !maskInner || !maskBase) return;
+      maskOuter.replaceChildren();
+      maskInner.replaceChildren();
+      maskEl.setAttribute('width', String(W));
+      maskEl.setAttribute('height', String(H));
+      maskBase.setAttribute('width', String(W));
+      maskBase.setAttribute('height', String(H));
+      if (!wide.matches || lut.length < 2) return;
+
+      const hostRect = host!.getBoundingClientRect();
+      const range = document.createRange();
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const el = n.parentElement;
+          if (!el || host!.contains(el) || el.closest('script,style,noscript,svg,[hidden]')) {
+            return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      // Scroll reveals park their element 1.75rem low until visible; undo that
+      // so the zones sit where the text will be, not where it is waiting.
+      const shift = new Map<Element, number>();
+      const dyOf = (el: Element) => {
+        const r = el.closest('[data-reveal]');
+        if (!r) return 0;
+        if (!shift.has(r)) {
+          const t = getComputedStyle(r).translate;
+          const parts = t && t !== 'none' ? t.split(' ') : [];
+          shift.set(r, parts.length > 1 ? parseFloat(parts[1]) || 0 : 0);
+        }
+        return shift.get(r)!;
+      };
+
+      const PAD_IN = 5;
+      const PAD_OUT = 15;
+      const REACH = PAD_OUT + 6;
+      const outer: string[] = [];
+      const inner: string[] = [];
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        range.selectNodeContents(n);
+        const dy = dyOf(n.parentElement!);
+        for (const r of Array.from(range.getClientRects())) {
+          if (r.width < 2 || r.height < 2) continue;
+          const x = r.left - hostRect.left;
+          const y = r.top - hostRect.top - dy;
+          // Only the lines the thread actually passes behind.
+          let hit = false;
+          for (
+            let i = lutFrom(y - REACH);
+            i < lut.length && lut[i].y <= y + r.height + REACH;
+            i++
+          ) {
+            if (lut[i].x > x - REACH && lut[i].x < x + r.width + REACH) {
+              hit = true;
+              break;
+            }
+          }
+          if (!hit) continue;
+          const rect = (pad: number, rx: number) =>
+            `<rect x="${(x - pad).toFixed(1)}" y="${(y - pad).toFixed(1)}" width="${(r.width + pad * 2).toFixed(1)}" height="${(r.height + pad * 2).toFixed(1)}" rx="${rx}"/>`;
+          outer.push(rect(PAD_OUT, 16));
+          inner.push(rect(PAD_IN, 8));
+        }
+      }
+      // innerHTML on an SVG <g> parses in the SVG namespace in current engines.
+      maskOuter.innerHTML = outer.join('');
+      maskInner.innerHTML = inner.join('');
+    }
+
     /** Point and heading on the thread at height y (the path only ever descends). */
     function pointAt(y: number): { x: number; y: number; deg: number } | null {
       if (lut.length < 2) return null;
@@ -166,11 +257,20 @@
       requestAnimationFrame(() => {
         resizeQueued = false;
         build();
+        buildMask();
         if (!reduce) update();
       });
     });
 
     build();
+    buildMask();
+    const rebuildAll = () => {
+      lastKey = '';
+      build();
+      buildMask();
+    };
+    window.addEventListener('load', rebuildAll, { once: true });
+    document.fonts?.ready.then(rebuildAll);
     if (reduce) {
       svg.style.clipPath = 'none';
       stitch.style.clipPath = 'none';
@@ -183,6 +283,7 @@
         svg.style.clipPath = '';
         stitch.style.clipPath = '';
         build();
+        buildMask();
         update();
       });
     }

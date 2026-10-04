@@ -19,6 +19,13 @@
 // Ending: put data-thread-end on the element the thread should finish at
 // (CtaBanner does this on its button row); otherwise it ends bottom-centre.
 //
+// Legibility: the thread paints under the words but can still read as "on top of"
+// them. ThreadLineScript measures every line of text (Range client rects) the
+// thread passes behind and dims the thread there with an SVG luminance mask
+// (a wide soft zone plus a tighter darker one, no blur filter), so it stays
+// bright in the gaps between blocks and recedes behind copy. Desktop only; the
+// mobile stitch lives in the gutter, clear of the text column.
+//
 // Motion: ThreadLineScript reveals the thread with a rectangular clip-path
 // and moves the needle with a transform, from ONE rAF-throttled passive
 // scroll listener (no per-frame layout reads). Reduced motion: drawn in full,
@@ -51,7 +58,18 @@ for (let i = 1; i < XS.length; i++) {
     height="100%"
     focusable="false"
   >
-    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <defs>
+      {
+        /* Legibility mask: ThreadLineScript fills it with dim zones over every line of
+          text the thread passes behind. Until then (and without JS) it is plain white. */
+      }
+      <mask id="thread-line-mask" maskUnits="userSpaceOnUse" x="0" y="0" width={VB_W} height={VB_H}>
+        <rect x="0" y="0" width={VB_W} height={VB_H} fill="#fff"></rect>
+        <g data-thread-mask-outer fill="#a8a8a8"></g>
+        <g data-thread-mask-inner fill="#4d4d4d"></g>
+      </mask>
+    </defs>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round" mask="url(#thread-line-mask)">
       <path
         data-thread-path
         d={d}

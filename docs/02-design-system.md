@@ -130,6 +130,10 @@ hijacking, all vanilla CSS/TS.
 - **ThreadLine**: one rAF-throttled passive scroll listener; reveals with a rectangular clip-path
   and moves the needle with a transform (no per-frame layout reads). ResizeObserver rebuilds the
   path. Reduced motion: drawn in full, no needle, no listener. No JS: the server path, drawn in full.
+  Legibility (desktop): after each build the script measures every line of text the thread passes
+  behind (Range client rects, reveal translate undone) and writes two dim zones per line into an SVG
+  luminance mask on the thread group (wide soft ring, tighter darker core, no blur filter), so the
+  thread stays bright in the gaps and recedes behind copy.
 - **Header**: condenses and solidifies on scroll (it no longer hides on scroll-down).
 - **Marquee**: CSS animation, pauses on hover/focus and via its button; still under reduced motion.
 - Hover/focus: the button fill sweep, the stitched link sewing solid, card lifts.
@@ -164,7 +168,8 @@ All strings come from Sanity through props; short neutral fallbacks only where n
 - **`CtaLink.astro`**: `cta`, `variant?: 'primary'|'secondary'`, `onDark?` (forces the dark
   treatment over a photo or non-surface dark), `arrow?`, `fallbackHref?`, `fallbackLabel?`, `class?`.
 - **`CtaBanner.astro`**: `eyebrow?`, `headline?`, `swash?`, `subhead?`, `ctaLabel?`, `ctaHref?`,
-  `secondaryLabel?`, `secondaryHref?`. Midnight band, stitched frame, `data-thread-end` on the
+  `secondaryLabel?`, `secondaryHref?`. The `subhead` fallback is a neutral line with no response-time
+  promise (the page supplies any real claim from Sanity). Midnight band, stitched frame, `data-thread-end` on the
   buttons. Keep it a direct child of `<main>`.
 - **Classes**: `.btn` + `.btn-primary` / `.btn-secondary` (+ `.btn__arrow`), `.link-stitch`,
   `.display`, `.display-sm`, `.swash`, `.swash-gold`, `.eyebrow`, `.lede`, `.stitch-x`,
@@ -178,14 +183,21 @@ All strings come from Sanity through props; short neutral fallbacks only where n
 - **`HoopFrame.astro`**: `image` (Sanity image or null for an empty linen hoop), `alt?`,
   `size?: 'sm'|'md'|'lg'|'xl'|number` (200/300/420/560px; shrinks to fit), `focal?: {x,y}` (0..1, for
   photos without a Sanity hotspot), `tone?: boolean` (the shared warm grade, default on), `tilt?`,
-  `caption?` (renders a `<figure>` with a stitched caption), `loading?`, `fetchpriority?`, `class?`.
+  `caption?` (renders a `<figure>` with a stitched caption), `loading?`, `fetchpriority?`, `class?`,
+  `style?`, any other attribute (data-_, aria-_) passes through to the wrapper. Default slot: content
+  centred inside an EMPTY hoop's fabric (ignored when a photo is set). Tilt is the CSS variable
+  `--hoop-tilt` (falls back to the prop's `--hoop-tilt-base`), so a parent can straighten it on hover.
 - **`SwatchCard.astro`**: slots `media` (edge to edge) and default (padded body);
   `tone?: 'paper'|'linen'|'blush'|'sage'|'kraft'|'midnight'`, `stitched?` (default true),
   `pinked?` (default true), `tilt?`, `interactive?` (lift on hover/focus-within),
-  `as?: 'div'|'article'|'li'|'figure'`, `bodyClass?`, `class?`.
+  `as?: 'div'|'article'|'li'|'figure'`, `bodyClass?`, `class?` (merged), `style?`, and any other
+  attribute (data-_, aria-_, id) passes through to the wrapper. Tilt: `--swatch-tilt` overrides the
+  prop's `--swatch-tilt-base`.
 - **`HangTag.astro`**: `eyebrow?`, `title?`, `titleTag?: 'h2'|'h3'|'h4'|'p'`, `value?`, `note?`,
   `tone?: 'kraft'|'paper'|'midnight'`, `tilt?`, `string?` (twine loop, default true),
-  `size?: 'sm'|'md'`, default slot for extra details, `class?`.
+  `size?: 'sm'|'md'`, default slot for extra details, `class?` (merged), `style?`, and any other
+  attribute (data-_, aria-_, id) passes through to the outer element. Tilt: `--tag-tilt` overrides
+  the prop's `--tag-tilt-base`.
 - **`Spool.astro`**: `color` (hex), `label?`, `sublabel?`, `size?: 'sm'|'md'|'lg'|number`
   (56/84/120px), `title?` (accessible name when there is no visible label; otherwise decorative),
   `tail?` (default true), `tilt?`, `class?`.
