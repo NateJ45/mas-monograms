@@ -222,7 +222,7 @@ lists, and class strings are byte-faithful in the snapshots.
 `npm run sync-check` walks this repo for files whose first lines carry
 `PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record`
 and byte-diffs each against the starter's copy (line endings normalized).
-Currently marked (31 as of 2026-09-29, all SAME; `npm run sync-check` prints the full set, the
+Currently marked (33 as of 2026-10-03, all SAME; `npm run sync-check` prints the full set, the
 original six are named here): `scripts/free-dist.mjs`,
 `scripts/with-workerd.mjs`, `scripts/lib/loadEnv.mjs`, `scripts/lib/sanity-lib.mjs`,
 `scripts/sync-check.mjs`, `src/lib/contrast.ts`. `src/lib/sanity-dedupe-alias.ts` and its spec
@@ -233,6 +233,9 @@ identical, only the marker line was missing.
 Since 2026-09-06 this is a CI gate, not only a hand-run check: the build job
 checks the starter out at `.ncs-starter` and runs `node scripts/sync-check.mjs`
 against it on every push and PR (see the starter's PORTS.md card 36).
+
+It skips `node_modules`, `dist`, `.git`, `worktrees` and `_worktrees` folders, so live git worktrees
+under `_worktrees/` do not double the count (PORTS.md card 80).
 
 Point it at the library with `NCS_STARTER_DIR`, or leave it to find a sibling
 `ncs-astro-sanity-starter` directory. Drift means: either fold this repo's
