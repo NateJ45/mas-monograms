@@ -1,10 +1,23 @@
 ---
+// /how-it-works (Direction D, "The Atelier", 2026-10-04).
+// A Midnight intro with a stitched index of the steps, then the four steps
+// laid along a running-stitch path that sews itself down the page as you
+// scroll (a needle at its tip), each step paired with a line illustration,
+// then the FAQ on Indigo and the closing CTA. All copy is Sanity
+// (howItWorksPage + faqItem); the FAQPage JSON-LD is unchanged.
+//
+// The path: with no JS it is a straight dashed spine through the numbered
+// nodes (CSS). The script below swaps in an SVG S-curve measured in real
+// pixels, a faint "pencil guide" plus the sewn thread, clipped to the scroll
+// position. Reduced motion: drawn in full, no needle, no scroll listener.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import FaqAccordion from '@/components/FaqAccordion';
 import CtaBanner from '@/components/CtaBanner.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { faqPageSchema } from '@/lib/schemas';
 import { getSiteSettings, getHowItWorksPage, getFaqItemsForHowItWorks } from '@/lib/queries';
 
@@ -21,89 +34,204 @@ const description =
 
 // FAQPage rich-result schema — only emit when there are FAQs to describe.
 const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
+
+const steps: any[] = (page?.steps ?? []).filter((s: any) => s?.label);
+const stepNum = (s: any, i: number) => {
+  const raw = s?.number;
+  if (raw !== undefined && raw !== null && String(raw).trim() !== '') return String(raw).trim();
+  return String(i + 1).padStart(2, '0');
+};
+// Rendering logic only: the italic swash falls on a word already in the
+// Sanity headline (first match wins); no match means no swash.
+const pickSwash = (text: string | undefined, candidates: string[]) =>
+  candidates.find((c) => text?.includes(c));
+const heroSwash = pickSwash(page?.heroHeadline, ['exactly', 'works']);
+const stepsSwash = pickSwash(page?.stepsHeadline, ['simple', 'steps']);
+const faqSwash = pickSwash(page?.faqHeadline, ['answers', 'questions']);
+
+let heroBefore = page?.heroHeadline ?? 'How It Works';
+let heroAfter = '';
+if (heroSwash) {
+  const i = heroBefore.indexOf(heroSwash);
+  heroAfter = heroBefore.slice(i + heroSwash.length);
+  heroBefore = heroBefore.slice(0, i);
+}
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-        {page?.heroHeadline ?? 'How It Works'}
-      </h1>
-      {
-        page?.heroSubhead && (
-          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
-        )
-      }
-    </div>
-  </section>
-
-  {/* Process Steps */}
-  <section class="py-section-lg">
+{
+  /* thread={false}: the stitched step path IS this page's thread; the global
+    gold ThreadLine crossed it and read as two threads fighting. */
+}
+<BaseLayout
+  {title}
+  {description}
+  seoImage={page?.seoImage}
+  {siteSettings}
+  schemas={pageSchemas}
+  thread={false}
+>
+  {/* Intro: Midnight, the headline at display scale, and a stitched index of the steps. */}
+  <section class="hiw-hero surface-midnight py-section-lg" aria-labelledby="hiw-heading">
     <div class="mx-auto max-w-content px-m">
+      <div class="mx-auto max-w-5xl text-center">
+        {
+          page?.heroEyebrow && (
+            <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+              {page.heroEyebrow}
+            </p>
+          )
+        }
+        <h1 id="hiw-heading" class="display-sm mx-auto" data-reveal>
+          {heroBefore}
+          {heroSwash && <em class="swash">{heroSwash}</em>}
+          {heroAfter}
+        </h1>
+        {
+          page?.heroSubhead && (
+            <p
+              class="lede mx-auto mt-l max-w-[44ch] text-center"
+              data-reveal
+              style="--reveal-delay: 120ms"
+            >
+              {page.heroSubhead}
+            </p>
+          )
+        }
+      </div>
+
       {
-        page?.stepsHeadline && (
-          <h2 class="mb-l text-center font-display text-h2 text-foreground">
-            {page.stepsHeadline}
-          </h2>
-        )
-      }
-      {
-        (page?.steps ?? []).length > 0 && (
-          <ol class="space-y-section-md">
-            {(page.steps as any[]).map((step: any, i: number) => (
-              <li class="grid grid-cols-1 items-start gap-l md:grid-cols-[auto_1fr]">
-                <div class="flex items-center gap-m md:flex-col md:items-center md:gap-s">
-                  <span class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-primary font-display text-h4 text-white">
-                    {step.number ?? i + 1}
-                  </span>
-                  {i < (page.steps as any[]).length - 1 && (
-                    <div
-                      class="step-connector hidden min-h-[3rem] w-px flex-1 md:block"
-                      aria-hidden="true"
-                    />
-                  )}
-                </div>
-                <div class="pb-l">
-                  <h3 class="mb-s font-display text-h3 text-foreground">{step.label}</h3>
-                  {step.body && (
-                    <div class="prose prose-sm max-w-none text-[var(--color-text-secondary)]">
-                      <PortableText client:visible value={step.body} />
-                    </div>
-                  )}
-                  {step.image?.asset && (
-                    <div class="mt-m overflow-hidden rounded-xl">
-                      <SanityImage
-                        source={step.image}
-                        width={800}
-                        sizes="(max-width: 768px) 100vw, 800px"
-                        class="h-auto w-full object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ol>
+        steps.length > 0 && (
+          <nav
+            class="hiw-index mx-auto mt-section-md max-w-5xl"
+            aria-labelledby={page?.stepsHeadline ? 'hiw-steps-heading' : 'hiw-heading'}
+            data-reveal
+            style="--reveal-delay: 220ms"
+          >
+            <ol class="hiw-index__list">
+              {steps.map((s, i) => (
+                <li>
+                  <a href={`#step-${i + 1}`} class="hiw-index__link">
+                    <span class="hiw-index__num" aria-hidden="true">
+                      {stepNum(s, i)}
+                    </span>
+                    <span class="hiw-index__label">{s.label}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
         )
       }
     </div>
   </section>
 
-  {/* FAQ */}
+  {/* The stitched path. */}
+  <section class="surface-linen py-section-lg" aria-labelledby="hiw-steps-heading">
+    <div class="mx-auto max-w-content px-m">
+      <SectionHeading
+        headingId="hiw-steps-heading"
+        headline={page?.stepsHeadline ?? undefined}
+        swash={stepsSwash}
+        size="lg"
+        align="center"
+        class="mb-section-md"
+      />
+
+      {
+        steps.length > 0 && (
+          <div class="process-path" data-process-path>
+            <svg
+              class="process-path__svg process-path__svg--guide"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path data-pp-guide fill="none" />
+            </svg>
+            <svg
+              class="process-path__svg process-path__svg--sewn"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path data-pp-sewn fill="none" />
+            </svg>
+            <svg
+              class="process-path__needle"
+              viewBox="0 0 12 56"
+              width="12"
+              height="56"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <defs>
+                <linearGradient id="pp-steel" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="#6d747c" />
+                  <stop offset="0.4" stop-color="#f4f6f8" />
+                  <stop offset="0.6" stop-color="#b9c0c7" />
+                  <stop offset="1" stop-color="#565c63" />
+                </linearGradient>
+              </defs>
+              <path d="M5 3 Q6 0 7 3 L7.4 40 Q6.6 50 6 56 Q5.4 50 4.6 40 Z" fill="url(#pp-steel)" />
+              <rect x="5.5" y="4" width="1" height="8" rx="0.5" fill="#f4eee3" />
+            </svg>
+
+            <ol class="process-path__list">
+              {steps.map((step: any, i: number) => (
+                <li
+                  id={`step-${i + 1}`}
+                  class:list={['process-step', i % 2 === 1 && 'process-step--flip']}
+                  data-pp-step
+                >
+                  <div class="process-step__node" data-pp-node>
+                    <span class="process-step__num">{stepNum(step, i)}</span>
+                  </div>
+                  <div class="process-step__art" data-reveal="fade">
+                    {step.image?.asset ? (
+                      <div class="process-step__photo">
+                        <SanityImage
+                          source={step.image}
+                          width={720}
+                          sizes="(max-width: 768px) 100vw, 420px"
+                          class="h-auto w-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div class="process-step__plate">
+                        <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={176} />
+                      </div>
+                    )}
+                  </div>
+                  <div class="process-step__text" data-reveal>
+                    <h3 class="process-step__title">{step.label}</h3>
+                    {step.body && (
+                      <div class="process-step__body">
+                        <PortableText client:visible value={step.body} />
+                      </div>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  {/* FAQ on Indigo, the new accordion. */}
   {
     faqs.length > 0 && (
-      <section class="bg-tertiary py-section-lg">
-        <div class="mx-auto max-w-content px-m">
-          {page?.faqHeadline && (
-            <h2 class="mb-s text-center font-display text-h2 text-foreground">
-              {page.faqHeadline}
-            </h2>
-          )}
-          {page?.faqSubhead && (
-            <p class="mb-l text-center text-[var(--color-text-secondary)]">{page.faqSubhead}</p>
-          )}
+      <section class="surface-indigo py-section-lg" aria-labelledby="hiw-faq-heading">
+        <div class="mx-auto grid max-w-content gap-l px-m lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-section-md">
+          <div class="lg:sticky lg:top-32 lg:self-start" data-reveal>
+            <SectionHeading
+              headingId="hiw-faq-heading"
+              headline={page?.faqHeadline ?? undefined}
+              swash={faqSwash}
+              subhead={page?.faqSubhead ?? undefined}
+              size="lg"
+            />
+            <RunningStitch ornament="needle" class="mt-l hidden lg:flex" length="12rem" />
+          </div>
           <div>
             <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
           </div>
@@ -115,8 +243,410 @@ const pageSchemas = faqs.length > 0 ? [faqPageSchema(faqs)] : [];
   <CtaBanner
     eyebrow={page?.ctaEyebrow}
     headline={page?.ctaHeadline}
+    swash={pickSwash(page?.ctaHeadline, ['started', 'get started'])}
     subhead={page?.ctaSubhead}
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
+
+<script>
+  type Pt = { x: number; y: number };
+
+  function initProcessPath() {
+    const list = document.querySelector<HTMLElement>('[data-process-path]');
+    if (!list || list.dataset.bound) return;
+    list.dataset.bound = '1';
+    const guide = list.querySelector<SVGPathElement>('[data-pp-guide]');
+    const sewn = list.querySelector<SVGPathElement>('[data-pp-sewn]');
+    const sewnSvg = sewn?.ownerSVGElement as SVGSVGElement | null;
+    const guideSvg = guide?.ownerSVGElement as SVGSVGElement | null;
+    const needle = list.querySelector<SVGSVGElement>('.process-path__needle');
+    const nodes = Array.from(list.querySelectorAll<HTMLElement>('[data-pp-node]'));
+    if (!guide || !sewn || !sewnSvg || !guideSvg || !needle || nodes.length === 0) return;
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let W = 0;
+    let H = 0;
+    let centres: Pt[] = [];
+    let lut: Pt[] = [];
+    let ticking = false;
+
+    function build() {
+      W = list!.clientWidth;
+      H = list!.clientHeight;
+      if (!W || !H) return;
+      const box = list!.getBoundingClientRect();
+      centres = nodes.map((n) => {
+        const r = n.getBoundingClientRect();
+        return { x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top };
+      });
+      const wide = W >= 768;
+      const bulge = wide ? Math.min(90, W * 0.08) : 18;
+      // Start a little above the first node (the thread comes in from above)
+      // and finish a little past the last one, tied off.
+      const first = centres[0];
+      const last = centres[centres.length - 1];
+      let d = `M ${first.x} ${Math.max(0, first.y - 70)} L ${first.x} ${first.y}`;
+      for (let i = 1; i < centres.length; i++) {
+        const a = centres[i - 1];
+        const b = centres[i];
+        const side = i % 2 === 1 ? 1 : -1;
+        const dy = b.y - a.y;
+        d += ` C ${a.x + bulge * side} ${a.y + dy * 0.38}, ${b.x + bulge * side} ${b.y - dy * 0.38}, ${b.x} ${b.y}`;
+      }
+      d += ` L ${last.x} ${Math.min(H, last.y + 60)}`;
+      for (const svg of [guideSvg!, sewnSvg!]) {
+        svg.setAttribute('width', String(W));
+        svg.setAttribute('height', String(H));
+        svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      }
+      guide!.setAttribute('d', d);
+      sewn!.setAttribute('d', d);
+      // A lookup table of points, so the needle can find the tip by height.
+      const len = sewn!.getTotalLength();
+      const n = Math.max(40, Math.round(len / 6));
+      lut = [];
+      for (let i = 0; i <= n; i++) {
+        const p = sewn!.getPointAtLength((len * i) / n);
+        lut.push({ x: p.x, y: p.y });
+      }
+      list!.dataset.ready = '';
+      update();
+    }
+
+    function pointAt(y: number): { p: Pt; angle: number } {
+      if (!lut.length) return { p: { x: 0, y }, angle: 0 };
+      let i = lut.findIndex((pt) => pt.y >= y);
+      if (i <= 0) i = i === 0 ? 1 : lut.length - 1;
+      const a = lut[i - 1];
+      const b = lut[i];
+      const t = b.y === a.y ? 0 : (y - a.y) / (b.y - a.y);
+      const p = { x: a.x + (b.x - a.x) * t, y };
+      const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI - 90;
+      return { p, angle };
+    }
+
+    function update() {
+      ticking = false;
+      if (!H) return;
+      if (reduce) {
+        sewnSvg!.style.clipPath = 'none';
+        nodes.forEach((n) => n.classList.add('is-sewn'));
+        return;
+      }
+      const top = list!.getBoundingClientRect().top;
+      const tip = Math.max(0, Math.min(H, window.innerHeight * 0.62 - top));
+      sewnSvg!.style.clipPath = `inset(0 0 ${Math.max(0, H - tip)}px 0)`;
+      centres.forEach((c, i) => nodes[i].classList.toggle('is-sewn', c.y <= tip + 4));
+      const done = tip >= H - 2 || tip <= 0;
+      list!.toggleAttribute('data-needle', !done);
+      if (!done) {
+        const { p, angle } = pointAt(tip);
+        needle!.style.transform = `translate(${p.x - 6}px, ${p.y - 56}px) rotate(${angle}deg)`;
+      }
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+
+    build();
+    const ro = new ResizeObserver(() => build());
+    ro.observe(list);
+    if (!reduce) {
+      window.addEventListener('scroll', onScroll, { passive: true });
+      document.addEventListener(
+        'astro:before-swap',
+        () => {
+          window.removeEventListener('scroll', onScroll);
+          ro.disconnect();
+        },
+        { once: true },
+      );
+    }
+  }
+
+  document.addEventListener('astro:page-load', initProcessPath);
+</script>
+
+<style>
+  /* ---------- Intro index ---------- */
+  .hiw-index__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    border-top: 1.5px dashed rgba(217, 177, 95, 0.45);
+  }
+  .hiw-index__list > li {
+    border-bottom: 1.5px dashed rgba(217, 177, 95, 0.45);
+  }
+  .hiw-index__link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    min-height: 44px;
+    height: 100%;
+    padding: 1.1rem 0.75rem;
+    color: var(--foreground);
+    text-decoration: none;
+    transition: color 440ms var(--ease-thread);
+  }
+  .hiw-index__link:hover,
+  .hiw-index__link:focus-visible {
+    color: var(--color-gold-light);
+  }
+  .hiw-index__num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--color-gold);
+  }
+  .hiw-index__label {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+  @media (min-width: 64rem) {
+    .hiw-index__list > li + li {
+      border-left: 1.5px dashed rgba(217, 177, 95, 0.3);
+    }
+    .hiw-index__link {
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1.4rem 1.25rem;
+    }
+  }
+
+  /* ---------- The stitched path ---------- */
+  .process-path {
+    --node: 3.25rem;
+    --rail: 4rem;
+    position: relative;
+    max-width: 68rem;
+    margin-inline: auto;
+  }
+  .process-path__list {
+    position: relative;
+    display: grid;
+    gap: clamp(3.5rem, 8vw, 7rem);
+    max-width: 68rem;
+    margin-inline: auto;
+    list-style: none;
+    padding: 0;
+  }
+  .process-path__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+  }
+  .process-path[data-ready] .process-path__svg {
+    display: block;
+  }
+  .process-path__svg--guide path {
+    stroke: var(--color-secondary);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 9;
+    stroke-linecap: round;
+    opacity: 0.55;
+  }
+  .process-path__svg--sewn path {
+    stroke: var(--color-rust-cta);
+    stroke-width: 2.6;
+    stroke-dasharray: 12 8;
+    stroke-linecap: round;
+  }
+  .process-path__needle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    transform-origin: 6px 56px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms var(--ease-thread);
+    filter: drop-shadow(1px 2px 1.5px rgba(15, 27, 45, 0.3));
+  }
+  .process-path[data-needle] .process-path__needle {
+    opacity: 1;
+  }
+
+  .process-step {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    grid-template-areas:
+      'node art'
+      'node text';
+    column-gap: 1rem;
+    row-gap: 1.25rem;
+    scroll-margin-top: 8rem;
+  }
+  /* No-JS spine: a straight running stitch down the rail, node to node. */
+  .process-step:not(:last-of-type)::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--rail) / 2 - 1px);
+    top: calc(var(--node) + 0.5rem);
+    bottom: calc(-1 * clamp(3.5rem, 8vw, 7rem));
+    width: 2px;
+    background-image: repeating-linear-gradient(
+      180deg,
+      var(--color-rust-cta) 0 10px,
+      transparent 10px 17px
+    );
+    border-radius: 2px;
+  }
+  .process-path[data-ready] .process-step::before {
+    display: none;
+  }
+  .process-step__node {
+    grid-area: node;
+    justify-self: center;
+    align-self: start;
+    display: grid;
+    place-items: center;
+    width: var(--node);
+    height: var(--node);
+    border-radius: 50%;
+    background-color: var(--color-paper);
+    box-shadow:
+      0 10px 20px -12px rgba(15, 27, 45, 0.45),
+      inset 0 0 0 1px rgba(131, 90, 36, 0.25);
+    position: relative;
+    transition:
+      background-color 520ms var(--ease-thread),
+      box-shadow 520ms var(--ease-thread);
+  }
+  .process-step__node::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--color-secondary);
+    transition: border-color 520ms var(--ease-thread);
+  }
+  .process-step__num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 380;
+    font-size: 1.25rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-rust-cta);
+    transition: color 520ms var(--ease-thread);
+  }
+  .process-step__node.is-sewn {
+    background-color: var(--color-rust-cta);
+  }
+  .process-step__node.is-sewn::after {
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+  .process-step__node.is-sewn .process-step__num {
+    color: #fff;
+  }
+
+  .process-step__art {
+    grid-area: art;
+  }
+  .process-step__plate {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(100%, 11rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    box-shadow:
+      0 24px 40px -28px rgba(15, 27, 45, 0.55),
+      inset 0 0 0 1px rgba(131, 90, 36, 0.18);
+  }
+  .process-step__plate::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--stitch-color);
+    opacity: 0.7;
+  }
+  .process-step__plate :global(.step-illo) {
+    width: 72%;
+    height: auto;
+  }
+  .process-step__photo {
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 24px 40px -28px rgba(15, 27, 45, 0.55);
+  }
+  .process-step__text {
+    grid-area: text;
+    max-width: 34rem;
+  }
+  .process-step__title {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 440;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    color: var(--foreground);
+    text-wrap: balance;
+  }
+  .process-step__body {
+    margin-top: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+  .process-step__body :global(p) {
+    color: var(--color-text-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+
+  @media (min-width: 48rem) {
+    .process-path {
+      --node: 4.75rem;
+      --rail: 8rem;
+    }
+    .process-step {
+      grid-template-columns: minmax(0, 1fr) var(--rail) minmax(0, 1fr);
+      grid-template-areas: 'art node text';
+      column-gap: clamp(1.5rem, 4vw, 3.5rem);
+      align-items: center;
+    }
+    .process-step--flip {
+      grid-template-areas: 'text node art';
+    }
+    .process-step:not(:last-of-type)::before {
+      left: calc(50% - 1px);
+      top: calc(50% + var(--node) / 2 + 0.5rem);
+      bottom: calc(-1 * clamp(3.5rem, 8vw, 7rem) - 50%);
+    }
+    .process-step__node {
+      align-self: center;
+    }
+    .process-step__num {
+      font-size: 1.85rem;
+    }
+    .process-step__art {
+      justify-self: end;
+    }
+    .process-step--flip .process-step__art {
+      justify-self: start;
+    }
+    .process-step__plate {
+      width: clamp(11rem, 18vw, 15rem);
+    }
+    .process-step--flip .process-step__text {
+      justify-self: end;
+    }
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+// Client wiring for ProcessPath: ties the running stitch's drawn length to how
+// far the steps have scrolled through the viewport. One passive, rAF-throttled
+// scroll listener, attached only while the section is near the screen. No JS
+// or reduced motion: the stitch stays fully drawn (the CSS default).
+---
+
+<script>
+  function init(section: HTMLElement) {
+    if (section.dataset.processInit) return;
+    section.dataset.processInit = '1';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const track = section.querySelector<HTMLElement>('.process__track');
+    if (!track) return;
+
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const r = track.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      // starts as the track's top passes 85% of the screen, done at 40%
+      const start = vh * 0.85;
+      const end = vh * 0.4 - r.height * 0.6;
+      const p = Math.min(1, Math.max(0, (start - r.top) / (start - end)));
+      section.style.setProperty('--draw', p.toFixed(4));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            window.addEventListener('scroll', onScroll, { passive: true });
+            window.addEventListener('resize', onScroll, { passive: true });
+            onScroll();
+          } else {
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', onScroll);
+            update();
+          }
+        }
+      },
+      { rootMargin: '200px 0px' },
+    ).observe(section);
+  }
+  function initAll() {
+    document.querySelectorAll<HTMLElement>('[data-process]').forEach(init);
+  }
+  initAll();
+  document.addEventListener('astro:page-load', initAll);
+</script>

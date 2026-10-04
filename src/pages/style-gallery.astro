@@ -4,6 +4,10 @@ import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
 import CtaLink from '@/components/CtaLink.astro';
+import SwatchCard from '@/components/motifs/SwatchCard.astro';
+import GallerySwatch from '@/components/gallery/GallerySwatch.astro';
+import Lightbox from '@/components/gallery/Lightbox.astro';
+import { splitSwash } from '@/components/gallery/swash';
 import { getSiteSettings, getStyleGalleryPage, getAllGalleryItems } from '@/lib/queries';
 
 const [siteSettings, page, items] = await Promise.all([
@@ -96,33 +100,86 @@ const hasFilters = renderGroups.length > 0;
 const MAX_VISIBLE = 8; // tags shown before the "+ more" toggle kicks in
 
 const filterAllLabel = page?.filterAllLabel ?? 'All';
+
+const headline = splitSwash(page?.heroHeadline ?? 'Style Gallery');
+const withPhotos = (items as any[]).filter((i) => i?.image?.asset);
+const total = withPhotos.length;
+// Three swatches fanned beside the intro: featured photos first. Decorative
+// (the same photos are on the wall below with their alt text).
+const fan = [
+  ...withPhotos.filter((i) => i.featured),
+  ...withPhotos.filter((i) => !i.featured),
+].slice(0, 3);
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-        {page?.heroHeadline ?? 'Style Gallery'}
-      </h1>
+  {
+    /* Direction D: a Midnight opening band, display headline with the swash,
+      and three swatches fanned out beside it like samples on the cutting
+      table. Then the swatch WALL on linen: every photo a pinked fabric swatch
+      that opens the lightbox. */
+  }
+  <section class="gallery-intro surface-midnight py-section-lg" aria-labelledby="gallery-heading">
+    <div
+      class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
+    >
+      <div>
+        {
+          page?.heroEyebrow && (
+            <div data-reveal="fade">
+              <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
+            </div>
+          )
+        }
+        <h1 id="gallery-heading" class="display-sm max-w-[14ch]" data-reveal>
+          {headline.before}<em class="swash">{headline.word}</em>{headline.after}
+        </h1>
+        {
+          page?.heroSubhead && (
+            <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
+              {page.heroSubhead}
+            </p>
+          )
+        }
+        {
+          /* Photo → quote bridge: a visible path from browsing inspiration to
+            starting a real request, right under the intro. */
+        }
+        <div class="mt-l" data-reveal style="--reveal-delay: 200ms">
+          <CtaLink
+            cta={{ label: 'Start your quote', href: '/request-a-quote' }}
+            variant="primary"
+          />
+        </div>
+      </div>
       {
-        page?.heroSubhead && (
-          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        fan.length === 3 && (
+          <div class="gallery-fan" aria-hidden="true" data-reveal="fade">
+            {fan.map((item: any, i: number) => (
+              <SwatchCard
+                tone={(['paper', 'blush', 'sage'] as const)[i]}
+                tilt={[-7, 3, 9][i]}
+                class={`gallery-fan__card gallery-fan__card--${i}`}
+              >
+                <SanityImage
+                  slot="media"
+                  source={item.image}
+                  width={360}
+                  height={440}
+                  alt=""
+                  loading={i === 1 ? 'eager' : 'lazy'}
+                  sizes="(max-width: 1024px) 40vw, 18rem"
+                />
+              </SwatchCard>
+            ))}
+          </div>
         )
       }
-      {
-        /* Photo → quote bridge: a visible path from browsing inspiration to
-          starting a real request, right under the intro. */
-      }
-      <div class="mt-l flex justify-center">
-        <CtaLink cta={{ label: 'Start your quote', href: '/request-a-quote' }} variant="primary" />
-      </div>
     </div>
   </section>
 
-  {/* Gallery with client-side filter */}
-  <section class="py-section-lg">
+  {/* The swatch wall, with the client-side filter */}
+  <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {
         /* Grouped filters. On mobile the whole block collapses behind one
@@ -135,7 +192,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
       {
         hasFilters && (
           <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
-            <summary class="hit-44 relative mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-link uppercase select-none sm:hidden">
+            <summary class="chip hit-44 relative mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs px-m py-xs select-none sm:hidden">
               <span>{filterAllLabel === 'All' ? 'Filter' : filterAllLabel}</span>
               <svg
                 class="h-3 w-3 transition-transform group-open:rotate-180"
@@ -154,16 +211,22 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
             </summary>
 
             <div id="gallery-filters" role="group" aria-label="Filter gallery">
-              {/* "All" reset button */}
-              <div class="mb-m flex justify-center">
+              {/* "All" reset button, with the running count beside it */}
+              <div class="mb-m flex items-center justify-center gap-m">
                 <button
                   type="button"
                   data-filter="all"
-                  class="gallery-filter active-filter hit-44 relative rounded-full border border-primary bg-primary px-m py-xs text-xs tracking-eyebrow text-white uppercase transition-colors"
+                  class="gallery-filter chip active-filter hit-44 relative px-m py-xs"
                   aria-pressed="true"
                 >
                   {filterAllLabel}
                 </button>
+                <p class="gallery-count" aria-hidden="true">
+                  <span class="gallery-count__n" data-gallery-count>
+                    {total}
+                  </span>
+                  <span class="gallery-count__of">/ {total}</span>
+                </p>
               </div>
 
               {/* One labelled block per group */}
@@ -173,15 +236,13 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                   const overflow = grp.tags.slice(MAX_VISIBLE);
                   return (
                     <div class="text-center">
-                      <p class="mb-s text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase">
-                        {grp.label}
-                      </p>
+                      <p class="eyebrow eyebrow--center mb-s justify-center">{grp.label}</p>
                       <div class="flex flex-wrap justify-center gap-x-s gap-y-5">
                         {visible.map((tag) => (
                           <button
                             type="button"
                             data-filter={tag}
-                            class="gallery-filter hit-44 relative rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
+                            class="gallery-filter chip hit-44 relative px-m py-xs"
                             aria-pressed="false"
                           >
                             {titleCase(tag)}
@@ -189,7 +250,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                         ))}
                         {overflow.length > 0 && (
                           <details class="more-tags group/more inline">
-                            <summary class="gallery-more-toggle hit-44 relative inline-flex cursor-pointer list-none items-center rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-tertiary)] uppercase transition-colors select-none hover:border-primary hover:text-link">
+                            <summary class="gallery-more-toggle chip chip--quiet hit-44 relative inline-flex cursor-pointer list-none items-center px-m py-xs select-none">
                               <span class="group-open/more:hidden">+ {overflow.length} more</span>
                               <span class="hidden group-open/more:inline">Less</span>
                             </summary>
@@ -198,7 +259,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
                                 <button
                                   type="button"
                                   data-filter={tag}
-                                  class="gallery-filter hit-44 relative my-[9px] ml-s rounded-full border border-border px-m py-xs text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase transition-colors hover:border-primary hover:text-link"
+                                  class="gallery-filter chip hit-44 relative my-[9px] ml-s px-m py-xs"
                                   aria-pressed="false"
                                 >
                                   {titleCase(tag)}
@@ -216,55 +277,13 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
           </details>
         )
       }
+      <p class="sr-only" role="status" id="gallery-status" data-total={total}></p>
 
       {
         items.length > 0 ? (
-          <div class="columns-2 gap-m space-y-m sm:columns-3 lg:columns-4" id="gallery-grid">
-            {(items as any[]).map((item) => (
-              <div
-                class="gallery-item group break-inside-avoid"
-                data-tags={JSON.stringify(cleanTags(item.tags))}
-              >
-                {/* Direction C imagery pass: frameless photo, quiet caption below
-                  on the page ground — the brass mat + card chrome are retired
-                  (the mat treatment is reserved for the hero's pinned
-                  snapshots; grids stay frameless like the reference sites). */}
-                {item.image?.asset && (
-                  <div class="img-zoom relative overflow-hidden rounded-xl">
-                    <SanityImage
-                      source={item.image}
-                      width={400}
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      class="h-auto w-full object-cover"
-                    />
-                    <div class="img-tint" aria-hidden="true" />
-                  </div>
-                )}
-                {(item.relatedCategory?.name || item.relatedFont?.name) && (
-                  <div class="pt-xs pb-s">
-                    {item.relatedCategory?.name && (
-                      <p class="text-xs text-[var(--color-text-secondary)]">
-                        {item.relatedCategory.name}
-                      </p>
-                    )}
-                    {item.relatedFont?.name && (
-                      <p class="text-xs text-[var(--color-text-tertiary)] italic">
-                        {item.relatedFont.name} font
-                      </p>
-                    )}
-                    {/* Per-photo quote bridge — only when we can deep-link the
-                      item type into the form. */}
-                    {item.relatedCategory?.slug?.current && (
-                      <a
-                        href={`/request-a-quote?item=${item.relatedCategory.slug.current}`}
-                        class="hit-44 relative mt-xs inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase hover:underline"
-                      >
-                        Request this <span aria-hidden="true">→</span>
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
+          <div class="gallery-wall columns-2 gap-m sm:columns-3 lg:columns-4" id="gallery-grid">
+            {(items as any[]).map((item, i) => (
+              <GallerySwatch item={item} index={i} tags={cleanTags(item.tags)} />
             ))}
           </div>
         ) : (
@@ -274,7 +293,7 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
         )
       }
       <div id="gallery-empty" class="hidden py-l text-center">
-        <p class="text-[var(--color-text-secondary)]">
+        <p class="lede mx-auto">
           {page?.emptyStateMessage ?? 'No items match that filter.'}
         </p>
       </div>
@@ -284,13 +303,99 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
   <CtaBanner
     eyebrow={page?.ctaEyebrow}
     headline={page?.ctaHeadline}
+    swash={page?.ctaHeadline ? splitSwash(page.ctaHeadline).word : undefined}
     subhead={page?.ctaSubhead}
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
+  <Lightbox />
 </BaseLayout>
 
 <style>
+  /* Three swatches fanned like samples laid on the cutting table. */
+  .gallery-fan {
+    position: relative;
+    height: clamp(17rem, 34vw, 27rem);
+    max-width: 30rem;
+    width: 100%;
+    margin-inline: auto;
+  }
+  .gallery-fan :global(.gallery-fan__card) {
+    position: absolute;
+    width: 56%;
+    top: 50%;
+    left: 50%;
+  }
+  .gallery-fan :global(.gallery-fan__card img) {
+    aspect-ratio: 36 / 44;
+    object-fit: cover;
+  }
+  @media (max-width: 639px) {
+    .gallery-fan {
+      height: 15rem;
+    }
+    .gallery-fan :global(.gallery-fan__card) {
+      width: 44%;
+    }
+  }
+  .gallery-fan :global(.gallery-fan__card--0) {
+    translate: -92% -50%;
+  }
+  .gallery-fan :global(.gallery-fan__card--1) {
+    translate: -50% -56%;
+    z-index: 1;
+  }
+  .gallery-fan :global(.gallery-fan__card--2) {
+    translate: -8% -44%;
+  }
+
+  /* Stitched filter chips: a dashed brass running stitch at rest, Claret
+     cloth when pressed. 44px tap areas come from .hit-44 (PR #72). */
+  .chip {
+    border-radius: 999px;
+    border: 1.5px dashed var(--color-brass-text);
+    background: rgba(251, 248, 241, 0.6);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .chip:hover {
+    border-style: solid;
+    color: var(--foreground);
+    background: var(--color-paper);
+  }
+  .chip[aria-pressed='true'] {
+    border: 1.5px solid var(--color-rust-cta, #8c3a2e);
+    background: var(--color-rust-cta, #8c3a2e);
+    color: var(--color-paper);
+    box-shadow:
+      inset 0 0 0 3px var(--color-rust-cta, #8c3a2e),
+      inset 0 0 0 4px rgba(251, 248, 241, 0.55);
+  }
+  .chip--quiet {
+    background: transparent;
+  }
+  .gallery-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-family: var(--font-display);
+    color: var(--color-text-secondary);
+  }
+  .gallery-count__n {
+    font-style: italic;
+    font-size: 1.75rem;
+    line-height: 1;
+    color: var(--foreground);
+    font-variant-numeric: tabular-nums;
+  }
+  .gallery-count__of {
+    font-size: 0.95rem;
+  }
+
   /* Hide the default disclosure triangle on our filter summaries. */
   .gallery-filter-panel > summary::-webkit-details-marker,
   .more-tags > summary::-webkit-details-marker {
@@ -299,13 +404,13 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
   /* Smooth the fade back IN when a tile stops being filtered out (the tile is a
      plain div, so it has no default transition). The fade OUT is driven by
      `.is-filtered-out` in globals.css. */
-  .gallery-item {
+  .gallery-wall :global(.gallery-item) {
     transition:
       opacity 360ms cubic-bezier(0.16, 1, 0.3, 1),
       transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   @media (prefers-reduced-motion: reduce) {
-    .gallery-item {
+    .gallery-wall :global(.gallery-item) {
       transition: none;
     }
   }
@@ -325,6 +430,8 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
     const filters = document.querySelectorAll<HTMLButtonElement>('.gallery-filter');
     const items = document.querySelectorAll<HTMLElement>('.gallery-item');
     const emptyMsg = document.getElementById('gallery-empty');
+    const countEl = document.querySelector<HTMLElement>('[data-gallery-count]');
+    const status = document.getElementById('gallery-status');
     if (!filters.length || !items.length) return;
 
     // The panel is rendered `open` (so it reserves height on desktop, where the
@@ -339,15 +446,11 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
       btn.addEventListener('click', () => {
         const tag = btn.dataset.filter ?? 'all';
 
-        // Update button states across every group.
+        // Update button states across every group (the chip style keys off aria-pressed).
         filters.forEach((b) => {
           const active = b.dataset.filter === tag;
           b.setAttribute('aria-pressed', String(active));
           b.classList.toggle('active-filter', active);
-          b.classList.toggle('bg-primary', active);
-          b.classList.toggle('text-white', active);
-          b.classList.toggle('border-primary', active);
-          b.classList.toggle('text-[var(--color-text-secondary)]', !active);
         });
 
         // Filter items with a fade instead of a hard pop. `display` can't be
@@ -394,6 +497,13 @@ const filterAllLabel = page?.filterAllLabel ?? 'All';
           }
         });
         if (emptyMsg) emptyMsg.classList.toggle('hidden', visible > 0);
+        if (countEl) countEl.textContent = String(visible);
+        // Screen readers hear the new count (the visible counter is aria-hidden).
+        if (status) {
+          const total = status.dataset.total ?? String(items.length);
+          const name = (btn.textContent ?? '').trim();
+          status.textContent = `${name}: ${visible} / ${total}`;
+        }
       });
     });
   }

@@ -1,9 +1,19 @@
 ---
+// /about (Direction D, "The Atelier", 2026-10-04).
+// Linen opening with Mary Ann in an arched, stitched portrait frame; her own
+// quoted line (lifted from the story in Sanity) as a big serif pull-quote on
+// Midnight; the story set editorially on Paper with the studio facts beside
+// it; recent work stretched in hoops on Midnight; the values as hang tags on
+// Linen; the closing CTA. Every string is Sanity (aboutPage + gallery items).
+// No invented history: the facts list is the heroEyebrow split on its " · ".
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
+import SectionHeading from '@/components/SectionHeading.astro';
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import HangTag from '@/components/motifs/HangTag.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { getSiteSettings, getAboutPage, getFeaturedGalleryItems } from '@/lib/queries';
 
 const [siteSettings, page, recentWork] = await Promise.all([
@@ -12,9 +22,6 @@ const [siteSettings, page, recentWork] = await Promise.all([
   getFeaturedGalleryItems(3),
 ]);
 
-// The About page has no portrait (deliberately absent), so it can read as an
-// imagery void. Fill it with real work that already exists — up to three
-// featured gallery photos, frameless (Direction C imagery grammar).
 const recentWorkPhotos = (recentWork ?? []).filter((item: any) => item?.image?.asset).slice(0, 3);
 const recentWorkHeadline = page?.recentWorkHeadline ?? 'Recent work from the studio';
 
@@ -22,180 +29,450 @@ const title = page?.seoTitle ?? 'About — MAS Monograms';
 const description =
   page?.seoDescription ??
   'Meet Mary Ann Stone, the maker behind MAS Monograms. One-woman embroidery studio in St. Matthews, SC.';
+
+// Rendering logic only: the swash falls on a phrase already in the headline.
+const pickSwash = (text: string | undefined, candidates: string[]) =>
+  candidates.find((c) => text?.includes(c));
+const split = (text: string, swash?: string) => {
+  if (!swash) return { before: text, word: '', after: '' };
+  const i = text.indexOf(swash);
+  return { before: text.slice(0, i), word: swash, after: text.slice(i + swash.length) };
+};
+const heroHeadline = page?.heroHeadline ?? 'About MAS Monograms';
+const hero = split(heroHeadline, pickSwash(heroHeadline, ['every stitch', 'stitch']));
+
+// The pull-quote: a story paragraph Mary Ann wrote inside quotation marks is
+// her own words, so it is lifted out and set large. The rest stays the story.
+const blockText = (b: any) =>
+  b?._type === 'block' && Array.isArray(b.children)
+    ? b.children.map((c: any) => c?.text ?? '').join('')
+    : '';
+const story: any[] = Array.isArray(page?.storyContent) ? page.storyContent : [];
+const quoteIdx = story.findIndex((b) => /^\s*[“"]/.test(blockText(b)));
+const pullQuote =
+  quoteIdx >= 0
+    ? blockText(story[quoteIdx])
+        .trim()
+        .replace(/^[“"]\s*/, '')
+        .replace(/\s*[”"]$/, '')
+    : null;
+const storyBody = quoteIdx >= 0 ? story.filter((_, i) => i !== quoteIdx) : story;
+
+// Facts: the hero eyebrow is already a "·"-separated list of true facts.
+const facts: string[] = (page?.heroEyebrow ?? '')
+  .split(/\s*[·•|]\s*/)
+  .map((s: string) => s.trim())
+  .filter(Boolean);
+
+const values: any[] = (page?.values ?? []).filter((v: any) => v?.label);
+const TILTS = [-2.5, 2, -1, 3, -3, 1.5];
+const TONES = ['kraft', 'paper', 'kraft', 'paper', 'kraft', 'paper'] as const;
+const hasPortrait = !!page?.makerPhoto?.asset || !!page?.heroImage?.asset;
+const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-  {
-    /* Hero. The two-column grid only exists when Sanity has a heroImage —
-      without one, reserving the right half stranded the headline against a
-      screen-wide void (the "accidental empty space" problem). Centered text
-      is the composed no-photo fallback, matching the other interior heroes. */
-  }
-  <section class="bg-tertiary py-section-lg">
+  {/* Opening: the arched portrait. */}
+  <section class="surface-linen about-hero py-section-lg" aria-labelledby="about-heading">
     <div
       class:list={[
-        'mx-auto max-w-content px-m',
-        page?.heroImage?.asset
-          ? 'grid grid-cols-1 items-center gap-section-md lg:grid-cols-2'
-          : 'text-center',
+        'mx-auto grid max-w-content items-center gap-section-md px-m',
+        hasPortrait && 'lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)]',
       ]}
     >
-      <div class:list={[!page?.heroImage?.asset && 'mx-auto max-w-2xl']}>
-        {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-        <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-          {page?.heroHeadline ?? 'About MAS Monograms'}
+      <div class:list={[!hasPortrait && 'mx-auto max-w-4xl text-center']}>
+        {
+          facts.length > 0 && (
+            <ul class="about-facts" data-reveal="fade" role="list">
+              {facts.map((f) => (
+                <li>{f}</li>
+              ))}
+            </ul>
+          )
+        }
+        <h1 id="about-heading" class="display mt-l" data-reveal>
+          {hero.before}
+          {hero.word && <em class="swash">{hero.word}</em>}
+          {hero.after}
         </h1>
         {
           page?.heroSubhead && (
             <p
-              class:list={[
-                'max-w-xl text-[var(--color-text-secondary)]',
-                !page?.heroImage?.asset && 'mx-auto',
-              ]}
+              class:list={['lede mt-l', !hasPortrait && 'mx-auto']}
+              data-reveal
+              style="--reveal-delay: 120ms"
             >
               {page.heroSubhead}
             </p>
           )
         }
       </div>
+
       {
-        page?.heroImage?.asset && (
-          <div class="overflow-hidden rounded-2xl shadow-xl">
-            <SanityImage
-              source={page.heroImage}
-              width={700}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              class="h-auto w-full object-cover"
-              loading="eager"
-              fetchpriority="high"
-            />
-          </div>
+        hasPortrait && (
+          <figure class="arch" data-reveal="fade" style="--reveal-delay: 160ms">
+            <div class="arch__frame">
+              <div class="arch__photo">
+                <SanityImage
+                  source={portrait}
+                  width={760}
+                  height={950}
+                  sizes="(max-width: 1024px) 80vw, 420px"
+                  class="arch__img"
+                  loading="eager"
+                  fetchpriority="high"
+                />
+              </div>
+            </div>
+            {page?.makerAttribution && (
+              <figcaption class="arch__caption">{page.makerAttribution}</figcaption>
+            )}
+          </figure>
         )
       }
     </div>
   </section>
 
+  {/* Her words, large. */}
   {
-    /* Story — photo-optional. With a makerPhoto it's a two-column layout;
-      without one (current state) the prose runs as a single centered column
-      instead of stranding in a half-width block. The signed maker
-      attribution renders beneath the prose in BOTH cases so the
-      "Mary Ann Stone · Founder" signature always shows. */
-  }
-  {
-    (page?.storyContent || page?.makerPhoto) && (
-      <section class="py-section-lg">
-        <div
-          class:list={[
-            'mx-auto max-w-content px-m',
-            page?.makerPhoto?.asset
-              ? 'grid grid-cols-1 items-start gap-section-md lg:grid-cols-2'
-              : '',
-          ]}
-        >
-          {page?.makerPhoto?.asset && (
-            <div class="relative">
-              <div class="overflow-hidden rounded-2xl">
-                <SanityImage
-                  source={page.makerPhoto}
-                  width={700}
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  class="h-auto w-full object-cover"
-                />
-              </div>
-            </div>
+    pullQuote && (
+      <section class="surface-midnight py-section-lg">
+        <figure class="mx-auto max-w-5xl px-m text-center" data-reveal>
+          <span class="pull-mark" aria-hidden="true">
+            &ldquo;
+          </span>
+          <blockquote class="pull-quote">
+            <p>{pullQuote}</p>
+          </blockquote>
+          {page?.makerAttribution && (
+            <figcaption class="eyebrow eyebrow--center mt-l justify-center">
+              {page.makerAttribution}
+            </figcaption>
           )}
-          <div class:list={[!page?.makerPhoto?.asset && 'mx-auto max-w-3xl']}>
+        </figure>
+      </section>
+    )
+  }
+
+  {/* The story, set editorially. */}
+  {
+    (storyBody.length > 0 || page?.storyHeadline) && (
+      <section class="surface-paper py-section-lg" aria-labelledby="story-heading">
+        <div class="mx-auto grid max-w-content gap-section-md px-m lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
+          <div class="story mx-auto w-full max-w-[40rem] lg:mx-0 lg:justify-self-end">
             {page?.storyHeadline && (
-              <h2 class="mb-m font-display text-h2 leading-headline-tight text-foreground">
+              <h2 id="story-heading" class="story__kicker" data-reveal>
                 {page.storyHeadline}
               </h2>
             )}
-            {page?.storyContent && (
-              <div class="text-[var(--color-text-secondary)]">
-                <PortableText client:idle value={page.storyContent} />
-              </div>
-            )}
-            {page?.makerAttribution && (
-              <p class="mt-l font-display text-lg text-primary italic">{page.makerAttribution}</p>
-            )}
-            {page?.studioNote && (
-              <div class="mt-l rounded-xl bg-tertiary p-l">
-                <p class="font-display text-h4 text-foreground/85 italic">{page.studioNote}</p>
+            {storyBody.length > 0 && (
+              <div class="story__body" data-reveal>
+                <PortableText client:idle value={storyBody} />
               </div>
             )}
           </div>
+          {(page?.studioNote || facts.length > 0) && (
+            <aside class="studio-card lg:self-center" data-reveal style="--reveal-delay: 140ms">
+              {page?.studioNote && <p class="studio-card__note">{page.studioNote}</p>}
+              {facts.length > 0 && (
+                <ul class="studio-card__facts" role="list">
+                  {facts.map((f) => (
+                    <li>{f}</li>
+                  ))}
+                </ul>
+              )}
+            </aside>
+          )}
         </div>
       </section>
     )
   }
 
-  {
-    /* Recent work strip — real featured gallery photos, frameless. Fills the
-      imagery gap on this otherwise text-heavy page using assets that already
-      exist (no new photography). */
-  }
+  {/* Recent work, stretched in hoops. */}
   {
     recentWorkPhotos.length > 0 && (
-      <section class="py-section-lg">
+      <section class="surface-midnight py-section-lg" aria-labelledby="recent-heading">
         <div class="mx-auto max-w-content px-m">
-          <h2 class="mb-l text-center font-display text-h2 text-foreground">
-            {recentWorkHeadline}
-          </h2>
-          <div class="mx-auto grid max-w-4xl grid-cols-1 gap-m sm:grid-cols-3">
-            {recentWorkPhotos.map((item: any) => (
-              <div>
-                <div class="aspect-square overflow-hidden rounded-xl">
-                  <SanityImage
-                    source={item.image}
-                    width={500}
-                    height={500}
-                    sizes="(max-width: 640px) 100vw, 33vw"
-                    class="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
+          <SectionHeading
+            headingId="recent-heading"
+            headline={recentWorkHeadline}
+            swash={pickSwash(recentWorkHeadline, ['work', 'studio'])}
+            size="lg"
+            align="center"
+          />
+          <ul class="hoop-row mt-section-md" role="list" data-reveal-stagger="120">
+            {recentWorkPhotos.map((item: any, i: number) => (
+              <li>
+                <HoopFrame image={item.image} size={300} tilt={[-3, 2, -1.5][i % 3]} />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
     )
   }
 
-  {/* Values */}
+  {/* Values as hang tags. */}
   {
-    (page?.values ?? []).length > 0 && (
-      <section class="bg-tertiary py-section-lg">
+    values.length > 0 && (
+      <section class="surface-linen py-section-lg" aria-labelledby="values-heading">
         <div class="mx-auto max-w-content px-m">
-          {page?.valuesHeadline && (
-            <h2 class="mb-l text-center font-display text-h2 text-foreground">
-              {page.valuesHeadline}
-            </h2>
-          )}
-          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 lg:grid-cols-3">
-            {(page.values as any[]).map((v: any) => (
-              <div class="rounded-xl border border-border bg-background p-l">
-                <h3 class="mb-s font-display text-h4 text-foreground">{v.label}</h3>
-                <p class="text-[var(--color-text-secondary)]">{v.body}</p>
-              </div>
+          <SectionHeading
+            headingId="values-heading"
+            headline={page?.valuesHeadline ?? undefined}
+            swash={pickSwash(page?.valuesHeadline, ['different'])}
+            size="lg"
+            align="center"
+          />
+          <ul class="value-tags mt-section-md" role="list" data-reveal-stagger="90">
+            {values.map((v: any, i: number) => (
+              <li>
+                <HangTag
+                  title={v.label}
+                  titleTag="h3"
+                  tone={TONES[i % TONES.length]}
+                  tilt={TILTS[i % TILTS.length]}
+                  class="value-tag"
+                >
+                  <p>{v.body}</p>
+                </HangTag>
+              </li>
             ))}
-          </div>
+          </ul>
+          <RunningStitch ornament="knot" class="mx-auto mt-section-md" length="min(14rem, 60%)" />
         </div>
       </section>
     )
-  }
-
-  {
-    /* Testimonials section removed 2026-07-03 — same placeholder quotes we pulled
-      from the homepage. Mary Ann has no real reviews to publish yet, and we don't
-      invent them. Re-add when genuine ones exist. */
   }
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}
     headline={page?.ctaHeadline}
+    swash={pickSwash(page?.ctaHeadline, ['personal'])}
     subhead={page?.ctaSubhead}
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
+
+<style>
+  /* ---------- Facts ---------- */
+  .about-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    list-style: none;
+    padding: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--eyebrow-color);
+  }
+  .about-facts li {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .about-facts li + li::before {
+    content: '';
+    width: 9px;
+    height: 9px;
+    background:
+      linear-gradient(45deg, transparent 40%, currentColor 40% 60%, transparent 60%),
+      linear-gradient(-45deg, transparent 40%, currentColor 40% 60%, transparent 60%);
+    margin-left: -0.6rem;
+  }
+
+  /* ---------- The arched portrait ---------- */
+  .arch {
+    justify-self: center;
+    width: min(100%, 30rem);
+  }
+  .arch__frame {
+    position: relative;
+    padding: 0.85rem;
+    border-radius: 999px 999px 6px 6px;
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    box-shadow:
+      0 40px 60px -40px rgba(15, 27, 45, 0.6),
+      0 10px 20px -14px rgba(15, 27, 45, 0.35);
+    rotate: 1.5deg;
+  }
+  /* The stitched outline, sewn just inside the frame's edge. */
+  .arch__frame::after {
+    content: '';
+    position: absolute;
+    inset: 0.4rem;
+    border-radius: 999px 999px 4px 4px;
+    border: 1.5px dashed var(--color-rust-cta);
+    pointer-events: none;
+    opacity: 0.75;
+  }
+  .arch__photo {
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    border-radius: 999px 999px 2px 2px;
+  }
+  .arch__photo :global(.arch__img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+    filter: sepia(0.1) saturate(0.94) contrast(0.97) brightness(1.03);
+  }
+  .arch__caption {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    color: var(--foreground);
+  }
+  .arch__caption::before {
+    content: '';
+    display: block;
+    width: 3rem;
+    height: 2px;
+    margin: 0 auto 0.85rem;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--stitch-color) 0 6px,
+      transparent 6px 10px
+    );
+  }
+
+  /* ---------- Pull-quote ---------- */
+  .pull-mark {
+    display: block;
+    height: 0.55em;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(6rem, 12vw, 10rem);
+    line-height: 1;
+    color: var(--color-gold);
+  }
+  .pull-quote p {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 330;
+    font-variation-settings:
+      'SOFT' 100,
+      'WONK' 1;
+    font-size: clamp(1.9rem, 1.2rem + 2.8vw, 3.6rem);
+    line-height: 1.16;
+    letter-spacing: -0.015em;
+    color: var(--foreground);
+    text-wrap: balance;
+  }
+
+  /* ---------- Story ---------- */
+  .story__kicker {
+    font-family: var(--font-monogram, var(--font-script));
+    font-size: clamp(3rem, 2.2rem + 3vw, 4.75rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--color-rust-cta);
+    rotate: -2deg;
+    margin-bottom: 1.5rem;
+  }
+  .story__body :global(p) {
+    font-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+    line-height: 1.8;
+    color: var(--foreground);
+    text-wrap: pretty;
+  }
+  .studio-card {
+    position: relative;
+    padding: 2rem 1.75rem;
+    background-color: var(--color-bg);
+    background-image: var(--tex-linen);
+    background-size: var(--tex-linen-size);
+    outline: 1.5px dashed var(--stitch-color);
+    outline-offset: -10px;
+    box-shadow: 0 24px 40px -32px rgba(15, 27, 45, 0.5);
+    rotate: -1deg;
+    max-width: 22rem;
+    justify-self: center;
+  }
+  .studio-card__note {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.45rem;
+    line-height: 1.25;
+    color: var(--foreground);
+  }
+  .studio-card__facts {
+    margin-top: 1.25rem;
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .studio-card__facts li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+  }
+  .studio-card__facts li::before {
+    content: '';
+    flex: none;
+    width: 10px;
+    height: 10px;
+    background:
+      linear-gradient(45deg, transparent 40%, var(--color-rust-cta) 40% 60%, transparent 60%),
+      linear-gradient(-45deg, transparent 40%, var(--color-rust-cta) 40% 60%, transparent 60%);
+  }
+
+  /* ---------- Hoops ---------- */
+  .hoop-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    list-style: none;
+    padding: 0;
+  }
+  .hoop-row > li {
+    width: min(42vw, 300px);
+    display: flex;
+    justify-content: center;
+  }
+  .hoop-row > li:nth-child(2) {
+    margin-top: clamp(0rem, 4vw, 3rem);
+  }
+
+  /* ---------- Value tags ---------- */
+  .value-tags {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: clamp(2rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2.5rem);
+    list-style: none;
+    padding: 0;
+    max-width: 66rem;
+    margin-inline: auto;
+  }
+  .value-tags > li {
+    display: flex;
+    justify-content: center;
+  }
+  .value-tags :global(.value-tag) {
+    --tag-w: 18rem;
+  }
+  .value-tags :global(.hangtag__card) {
+    min-height: 15rem;
+  }
+  .value-tags :global(.hangtag__title) {
+    font-size: 1.4rem;
+    text-wrap: balance;
+  }
+  .value-tags :global(.hangtag__extra) {
+    text-align: center;
+    font-size: 0.92rem;
+  }
+</style>

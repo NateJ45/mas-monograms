@@ -1,8 +1,15 @@
 ---
+// /thank-you (Direction D, "The Atelier", 2026-10-04): the delight moment.
+// An empty linen hoop (or the Sanity image, if one is set) where a running
+// stitch sews a check mark, ties itself off in a French knot and leaves a
+// tail that sways. Pure CSS/SVG. The resting (un-animated) state IS the
+// finished drawing, so reduced motion, the tests' settle() and no-CSS-animation
+// all show the tied-off stitch. Copy is all Sanity (thankYouPage).
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ScriptKicker from '@/components/ScriptKicker.astro';
-import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { getSiteSettings, getThankYouPage } from '@/lib/queries';
 
 const [siteSettings, page] = await Promise.all([getSiteSettings(), getThankYouPage()]);
@@ -10,94 +17,248 @@ const [siteSettings, page] = await Promise.all([getSiteSettings(), getThankYouPa
 const title = page?.seoTitle ?? 'Thank You — MAS Monograms';
 const description =
   page?.seoDescription ?? 'Your quote request has been received. Mary Ann will be in touch soon!';
+
+const headline = page?.headline ?? 'Thank You!';
+const swash = ['Thank you', 'Thank You'].find((c) => headline.includes(c));
+const i = swash ? headline.indexOf(swash) : -1;
+const before = i >= 0 ? headline.slice(0, i) : headline;
+const after = i >= 0 ? headline.slice(i + (swash?.length ?? 0)) : '';
+const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
 ---
 
-<BaseLayout {title} {description} {siteSettings} noindex>
-  <section class="flex min-h-[70vh] items-center py-section-lg">
-    <div class="mx-auto max-w-content px-m">
-      <div class="grid grid-cols-1 items-center gap-section-md lg:grid-cols-2">
-        {/* Text */}
-        <div>
-          {page?.eyebrow && <ScriptKicker text={page.eyebrow} class="mb-xs" />}
-          <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-            {page?.headline ?? 'Thank You!'}
-          </h1>
-          {
-            page?.body && (
-              <div class="mb-l text-[var(--color-text-secondary)]">
-                <PortableText client:idle value={page.body} />
-              </div>
-            )
-          }
-          {
-            page?.expectedResponseTime && (
-              <div class="mb-l rounded-xl bg-tertiary p-m">
-                <p class="text-sm text-[var(--color-text-secondary)]">
-                  <strong class="text-foreground">Expected response time:</strong>{' '}
-                  {page.expectedResponseTime}
-                </p>
-              </div>
-            )
-          }
-          {
-            (page?.nextSteps ?? []).length > 0 && (
-              <div class="mb-l">
-                <p class="mb-s text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
-                  What's next
-                </p>
-                <ol class="list-none space-y-s">
-                  {(page.nextSteps as string[]).map((step: string, i: number) => (
-                    <li class="flex items-start gap-m">
-                      <span class="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
-                        {i + 1}
-                      </span>
-                      <span class="text-[var(--color-text-secondary)]">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )
-          }
-          {
-            ((page?.ctaLabel && page?.ctaHref) ||
-              (page?.secondaryCtaLabel && page?.secondaryCtaHref)) && (
-              <div class="flex flex-col gap-m sm:flex-row sm:items-center">
-                {page?.ctaLabel && page?.ctaHref && (
-                  <a
-                    href={page.ctaHref}
-                    class="press-tactile inline-flex items-center rounded-md bg-primary px-l py-m text-sm font-semibold tracking-eyebrow text-white uppercase transition-colors hover:bg-primary-dark"
-                  >
-                    {page.ctaLabel}
-                  </a>
-                )}
-                {page?.secondaryCtaLabel && page?.secondaryCtaHref && (
-                  <a
-                    href={page.secondaryCtaHref}
-                    class="text-sm font-semibold text-link underline transition-colors hover:text-primary-dark"
-                  >
-                    {page.secondaryCtaLabel} →
-                  </a>
-                )}
-              </div>
-            )
-          }
-        </div>
+<BaseLayout {title} {description} {siteSettings} noindex thread={false}>
+  <section class="surface-linen py-section-lg" aria-labelledby="ty-heading">
+    <div
+      class="mx-auto grid max-w-content items-center gap-section-md px-m lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]"
+    >
+      {/* The tie-off. */}
+      <div class="tie mx-auto" aria-hidden="true">
+        <HoopFrame image={page?.image?.asset ? page.image : null} alt="" size={420} tilt={-3} />
+        <svg class="tie__svg" viewBox="0 0 200 200" focusable="false">
+          <defs>
+            <mask id="tie-draw" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200">
+              <path
+                class="tie__mask"
+                d="M52 104 C 62 114, 72 124, 84 136 C 104 112, 124 88, 146 66"
+                pathLength="1"
+                fill="none"
+                stroke="#fff"
+                stroke-width="12"
+                stroke-linecap="round"></path>
+            </mask>
+          </defs>
+          {/* Needle holes, the pencil guide. */}
+          <path
+            d="M52 104 C 62 114, 72 124, 84 136 C 104 112, 124 88, 146 66"
+            fill="none"
+            stroke="rgba(131, 90, 36, 0.35)"
+            stroke-width="1"
+            stroke-dasharray="1 9"
+            stroke-linecap="round"></path>
+          {/* The sewn check. */}
+          <path
+            mask="url(#tie-draw)"
+            d="M52 104 C 62 114, 72 124, 84 136 C 104 112, 124 88, 146 66"
+            fill="none"
+            stroke="#8c3a2e"
+            stroke-width="4.2"
+            stroke-dasharray="9 6"
+            stroke-linecap="round"></path>
+          {/* The French knot. */}
+          <g class="tie__knot">
+            <circle cx="150" cy="62" r="5.4" fill="#8c3a2e"></circle>
+            <path
+              d="M145.5 60 C 147 55, 154 55, 155 60 C 156 66, 148 68, 146 64"
+              fill="none"
+              stroke="#b35a48"
+              stroke-width="1.4"
+              stroke-linecap="round"></path>
+            <circle cx="148.6" cy="60.4" r="1.3" fill="#d98a74"></circle>
+          </g>
+          {/* The tail, snipped. */}
+          <g class="tie__tail">
+            <path
+              class="tie__tail-path"
+              d="M152 64 C 162 74, 160 90, 168 100 C 174 108, 172 118, 178 124"
+              pathLength="1"
+              fill="none"
+              stroke="#8c3a2e"
+              stroke-width="2"
+              stroke-linecap="round"></path>
+            <path
+              d="M178 124 l2 4 M178 124 l-1 4.5"
+              stroke="#8c3a2e"
+              stroke-width="1"
+              stroke-linecap="round"></path>
+          </g>
+        </svg>
+      </div>
 
-        {/* Image */}
+      <div class="max-w-[38rem]">
+        {page?.eyebrow && <ScriptKicker text={page.eyebrow} class="mb-s" />}
+        <h1 id="ty-heading" class="display-sm" data-reveal>
+          {before}
+          {swash && <em class="swash">{swash}</em>}
+          {after}
+        </h1>
         {
-          page?.image?.asset && (
-            <div class="overflow-hidden rounded-2xl shadow-xl">
-              <SanityImage
-                source={page.image}
-                width={700}
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                class="h-auto w-full object-cover"
-                fetchpriority="high"
-              />
+          page?.body && (
+            <div class="ty-body mt-l" data-reveal style="--reveal-delay: 100ms">
+              <PortableText client:idle value={page.body} />
             </div>
           )
         }
+        {
+          page?.expectedResponseTime && (
+            <p class="ty-promise mt-l" data-reveal style="--reveal-delay: 160ms">
+              {page.expectedResponseTime}
+            </p>
+          )
+        }
+        {
+          steps.length > 0 && (
+            <ol class="ty-steps mt-l" data-reveal-stagger="90">
+              {steps.map((step, n) => (
+                <li>
+                  <span class="ty-steps__num" aria-hidden="true">
+                    {String(n + 1).padStart(2, '0')}
+                  </span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ol>
+          )
+        }
+        {
+          ((page?.ctaLabel && page?.ctaHref) ||
+            (page?.secondaryCtaLabel && page?.secondaryCtaHref)) && (
+            <div class="mt-l flex flex-wrap items-center gap-x-l gap-y-m">
+              {page?.ctaLabel && page?.ctaHref && (
+                <a href={page.ctaHref} class="btn btn-primary">
+                  <span>{page.ctaLabel}</span>
+                  <span class="btn__arrow" aria-hidden="true">
+                    &rarr;
+                  </span>
+                </a>
+              )}
+              {page?.secondaryCtaLabel && page?.secondaryCtaHref && (
+                <a href={page.secondaryCtaHref} class="link-stitch hit-44 relative font-semibold">
+                  {page.secondaryCtaLabel}
+                </a>
+              )}
+            </div>
+          )
+        }
+        <RunningStitch ornament="knot" tone="brass" class="mt-section-md" length="12rem" />
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .tie {
+    position: relative;
+    width: min(100%, 72vw, 420px);
+  }
+  .tie :global(.hoop) {
+    width: 100%;
+  }
+  /* The SVG sits over the hoop's fabric (HoopFrame insets the cloth ~6.6%
+     inside a body that starts 5% down). */
+  .tie__svg {
+    position: absolute;
+    left: 6.6%;
+    right: 6.6%;
+    top: calc(5% + 6.6%);
+    width: 86.8%;
+    aspect-ratio: 1;
+    rotate: -3deg;
+    overflow: visible;
+    filter: drop-shadow(0 1.5px 0.6px rgba(60, 20, 10, 0.35));
+  }
+  .tie__mask {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 0;
+    animation: tie-draw 1700ms var(--ease-thread) 400ms both;
+  }
+  .tie__knot {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: tie-knot 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 2000ms both;
+  }
+  .tie__tail-path {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 0;
+    animation: tie-draw 600ms ease-out 2500ms both;
+  }
+  .tie__tail {
+    transform-origin: 152px 64px;
+    animation: tie-sway 3.6s ease-in-out 3100ms infinite;
+  }
+  @keyframes tie-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes tie-knot {
+    from {
+      transform: scale(0) rotate(-120deg);
+    }
+    to {
+      transform: scale(1) rotate(0deg);
+    }
+  }
+  @keyframes tie-sway {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(7deg);
+    }
+  }
+
+  .ty-body :global(p) {
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+  }
+  .ty-promise {
+    position: relative;
+    padding: 1.1rem 1.4rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2rem;
+    line-height: 1.4;
+    color: var(--foreground);
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    outline: 1.5px dashed var(--stitch-color);
+    outline-offset: -7px;
+    box-shadow: 0 18px 30px -24px rgba(15, 27, 45, 0.5);
+  }
+  .ty-steps {
+    display: grid;
+    gap: 0.9rem;
+    list-style: none;
+    padding: 0;
+  }
+  .ty-steps li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    align-items: baseline;
+    gap: 0.5rem;
+    color: var(--color-text-secondary);
+    line-height: 1.55;
+  }
+  .ty-steps__num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--color-rust-cta);
+  }
+</style>

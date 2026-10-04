@@ -1,123 +1,174 @@
 ---
+// /thread-color-chart (Direction D, 2026-10-04): the spool rack IS the page.
+// A Midnight intro, then every threadColor as a wooden spool on a shelf in hue
+// order, beside one live AtelierStage that restitches the sample monogram in
+// the chosen thread on the chosen cloth. Strings: threadChartPage +
+// atelierSettings (Sanity). Rendering logic (hue sort, fabric -> weave) lives
+// in src/components/thread/threadData.ts.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ScriptKicker from '@/components/ScriptKicker.astro';
-import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
 import CtaBanner from '@/components/CtaBanner.astro';
-import { getSiteSettings, getThreadChartPage, getAllThreadColors } from '@/lib/queries';
+import Spool from '@/components/motifs/Spool.astro';
+import SpoolRack from '@/components/thread/SpoolRack.astro';
+import StitchPanel from '@/components/thread/StitchPanel.astro';
+import ThreadChartScript from '@/components/thread/ThreadChartScript.astro';
+import {
+  normHex,
+  sortThreads,
+  textureForFabric,
+  rgbDistance,
+  cleanInitials,
+} from '@/components/thread/threadData';
+import {
+  getSiteSettings,
+  getThreadChartPage,
+  getAllThreadColors,
+  getAtelierSettings,
+} from '@/lib/queries';
 
-const [siteSettings, page, colors] = await Promise.all([
+const [siteSettings, page, colors, atelier] = await Promise.all([
   getSiteSettings(),
   getThreadChartPage(),
   getAllThreadColors(),
+  getAtelierSettings(),
 ]);
 
-const title = page?.seoTitle ?? 'Thread Color Chart — MAS Monograms';
+const title = page?.seoTitle ?? 'Thread Color Chart | MAS Monograms';
 const description =
   page?.seoDescription ??
-  'Browse the full thread color chart for MAS Monograms embroidery. See all available colors with DMC numbers and photo swatches.';
+  'Browse the thread colors MAS Monograms stitches with, and see each one stitched live on fabric.';
 
-// Group colors by colorFamily
-const familyGroups = colors.reduce(
-  (acc: Record<string, any[]>, c: any) => {
-    const key = c.colorFamily ?? 'Other';
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(c);
-    return acc;
-  },
-  {} as Record<string, any[]>,
-);
+// Spools need a real colour; a thread without a hex has nothing to show here.
+const rack = sortThreads(
+  (colors ?? [])
+    .map((c: any) => ({ ...c, hex: normHex(c.hexColor) ?? '' }))
+    .filter((c: any) => c.hex && c.slug && c.name),
+) as Array<any>;
+
+// Default thread: the one closest to the brand Claret, so the first stitch
+// already looks like MAS.
+const first = rack.length
+  ? rack.reduce((best, c) =>
+      rgbDistance(c.hex, '#8c3a2e') < rgbDistance(best.hex, '#8c3a2e') ? c : best,
+    )
+  : null;
+
+const fabrics = (atelier?.fabrics ?? [])
+  .map((f) => ({
+    key: f.key,
+    label: f.label,
+    color: normHex(f.color) ?? '',
+    texture: textureForFabric(f.key),
+    note: f.note ?? null,
+  }))
+  .filter((f) => f.key && f.label && f.color);
+
+const initials = cleanInitials(atelier?.sampleMonograms?.[0] ?? '') || 'MAS';
+
+// Headline swash: the last word in the gold italic.
+const headline: string = page?.heroHeadline ?? 'Thread Color Chart';
+const hWords = headline.trim().split(/\s+/);
+const hLast = hWords.pop() ?? '';
+const hLead = hWords.join(' ');
+
+// A few spools for the intro, spread across the rack's hue order.
+const heroSpools = rack.length
+  ? [0.05, 0.3, 0.55, 0.8, 0.97].map(
+      (p) => rack[Math.min(rack.length - 1, Math.floor(p * rack.length))],
+    )
+  : [];
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-      <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-        {page?.heroHeadline ?? 'Thread Color Chart'}
-      </h1>
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} header="overlay">
+  {/* Midnight intro */}
+  <section
+    class="surface-midnight pt-header overflow-hidden pb-section-lg"
+    aria-labelledby="chart-title"
+  >
+    <div
+      class="mx-auto grid max-w-content grid-cols-[minmax(0,1fr)] items-end gap-l px-m lg:grid-cols-[1.25fr_1fr]"
+    >
+      <div data-reveal>
+        {page?.heroEyebrow && <p class="eyebrow mb-m">{page.heroEyebrow}</p>}
+        <h1 id="chart-title" class="display-sm mb-l">
+          {hLead && <>{hLead} </>}<em class="swash">{hLast}</em>
+        </h1>
+        {page?.heroSubhead && <p class="lede">{page.heroSubhead}</p>}
+      </div>
       {
-        page?.heroSubhead && (
-          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
+        heroSpools.length > 0 && (
+          <div class="chart-hero__spools" aria-hidden="true" data-reveal="fade">
+            {heroSpools.map((c, i) => (
+              <Spool
+                color={c.hex}
+                size={i === 2 ? 128 : i % 2 ? 92 : 104}
+                tilt={[-8, 5, -2, 7, -5][i]}
+              />
+            ))}
+            <span class="chart-hero__shelf" />
+          </div>
         )
       }
     </div>
   </section>
 
-  {/* Intro */}
-  {
-    page?.intro && (
-      <section class="py-section-md">
-        <div class="mx-auto max-w-3xl px-m">
-          <PortableText client:idle value={page.intro} />
-        </div>
-      </section>
-    )
-  }
-
-  {/* Color Chart */}
-  <section class="py-section-lg">
+  {/* The rack and the live stitch */}
+  <section class="surface-linen py-section-lg" aria-labelledby="rack-title">
     <div class="mx-auto max-w-content px-m">
       {
-        colors.length > 0 ? (
-          Object.entries(familyGroups).map(([family, familyColors]) => (
-            <div class="mb-section-lg">
-              <h2 class="mb-m border-b border-border-soft pb-s text-xs tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
-                {family}
-              </h2>
-              <div class="grid grid-cols-3 gap-s sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10">
-                {(familyColors as any[]).map((color: any) => (
-                  <div
-                    class="group flex flex-col items-center gap-xs text-center"
-                    title={`${color.name}${color.dmcNumber ? ` (DMC ${color.dmcNumber})` : ''}`}
-                  >
-                    {/* Color swatch — photo if available, hex fill as fallback */}
-                    {color.swatchImage?.asset ? (
-                      <div class="h-12 w-12 overflow-hidden rounded-full border-2 border-border transition-transform group-hover:scale-110">
-                        <SanityImage
-                          source={color.swatchImage}
-                          width={48}
-                          height={48}
-                          sizes="48px"
-                          class="h-full w-full object-cover"
-                        />
-                      </div>
-                    ) : color.hexColor ? (
-                      <div
-                        role="img"
-                        class="h-12 w-12 rounded-full border-2 border-border transition-transform group-hover:scale-110"
-                        style={`background-color: ${color.hexColor};`}
-                        aria-label={color.name}
-                      />
-                    ) : (
-                      <div class="h-12 w-12 rounded-full border-2 border-border bg-border-soft" />
-                    )}
-                    <p class="text-xs leading-tight font-medium text-foreground">{color.name}</p>
-                    {color.dmcNumber && (
-                      <p class="text-xs text-[var(--color-text-tertiary)]">DMC {color.dmcNumber}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))
-        ) : (
-          <p class="py-l text-center text-[var(--color-text-secondary)]">
-            Thread color chart coming soon.
-          </p>
+        page?.intro && (
+          <div class="chart-intro mb-section-md" data-reveal>
+            <h2 id="rack-title" class="sr-only">
+              {atelier?.threadLabel ?? page?.heroEyebrow ?? headline}
+            </h2>
+            <PortableText client:idle value={page.intro} />
+          </div>
+        )
+      }
+      {
+        !page?.intro && (
+          <h2 id="rack-title" class="sr-only">
+            {atelier?.threadLabel ?? page?.heroEyebrow ?? headline}
+          </h2>
         )
       }
 
       {
-        /* One custom-color note only. `customColorNote` intentionally not rendered —
-          it duplicated `matchingNote`; keep the more detailed `matchingNote`. */
-      }
-      {
-        page?.matchingNote && (
-          <div class="mt-l rounded-xl border border-[var(--color-secondary,#B98A3E)]/20 bg-tertiary p-l">
-            <p class="text-[var(--color-text-secondary)]">{page.matchingNote}</p>
+        rack.length > 0 && first ? (
+          <div class="chart-grid">
+            <StitchPanel
+              initials={initials}
+              thread={{ slug: first.slug, name: first.name, hex: first.hex }}
+              fabrics={fabrics}
+              threadLabel={atelier?.threadLabel ?? 'Thread'}
+              fabricLabel={atelier?.fabricLabel}
+              initialsLabel={atelier?.initialsLabel}
+              initialsHint={atelier?.initialsHint}
+              replayLabel={atelier?.replayLabel}
+              ctaLabel={atelier?.ctaLabel ?? page?.ctaLabel}
+              disclaimer={atelier?.disclaimer}
+              quoteHref="/request-a-quote"
+            />
+            <div class="chart-grid__rack">
+              <SpoolRack
+                colors={rack}
+                selected={first.slug}
+                legend={atelier?.threadLabel ?? 'Thread'}
+                filterLabel={page?.filterLabel ?? 'Search colors'}
+                emptyNote={page?.customColorNote ?? page?.matchingNote}
+              />
+              {page?.matchingNote && (
+                <p class="chart-note">
+                  <span class="chart-note__mark" aria-hidden="true">
+                    +
+                  </span>
+                  {page.matchingNote}
+                </p>
+              )}
+            </div>
           </div>
+        ) : (
+          page?.matchingNote && <p class="chart-note">{page.matchingNote}</p>
         )
       }
     </div>
@@ -131,3 +182,80 @@ const familyGroups = colors.reduce(
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
+<ThreadChartScript />
+
+<style>
+  .chart-hero__spools {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0 1rem 1.1rem;
+  }
+  .chart-hero__spools :global(.spool) {
+    width: auto;
+    min-width: 0;
+  }
+  @media (max-width: 40rem) {
+    .chart-hero__spools :global(.spool__art) {
+      width: 17vw;
+      height: auto;
+    }
+  }
+  .chart-hero__shelf {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.35rem;
+    height: 0.85rem;
+    border-radius: 2px;
+    background:
+      linear-gradient(180deg, #f0d6ad 0 2px, transparent 2px),
+      linear-gradient(180deg, #d4a873, #b98450 55%, #8a5a2f);
+    box-shadow: 0 16px 22px -10px rgb(0 0 0 / 0.6);
+    z-index: -1;
+  }
+  .chart-intro {
+    max-width: 46rem;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-text-secondary);
+  }
+  .chart-grid {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  @media (min-width: 64rem) {
+    .chart-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 25rem);
+      gap: 3rem;
+    }
+    /* panel is first in the DOM (it is what the choices change); it sits on
+       the right so the rack leads the eye */
+    .chart-grid > :global([data-stitch-panel]) {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .chart-grid__rack {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+  .chart-note {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    max-width: 46rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+  .chart-note__mark {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #8c3a2e;
+  }
+</style>

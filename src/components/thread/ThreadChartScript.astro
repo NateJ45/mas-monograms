@@ -1,0 +1,186 @@
+---
+// Client wiring for /thread-color-chart: the spool rack's radio group, the
+// search field, the fabric swatches and the initials field all drive the one
+// AtelierStage (#thread-stage). A thread or fabric change uses the engine's
+// colour-only fast path (no relayout, no restitch); new initials restitch.
+// Before the engine has started (stage still off-screen) the choice is written
+// to the stage's data-* attributes, which is what it reads on first paint.
+---
+
+<script>
+  import type { Atelier } from '@/lib/atelier/engine';
+
+  type StageEl = HTMLElement & { __atelier?: Atelier };
+
+  function clean(v: string) {
+    return Array.from(v.toLocaleUpperCase())
+      .filter((c) => /[\p{L}\p{N}&]/u.test(c))
+      .slice(0, 3)
+      .join('');
+  }
+
+  function init() {
+    const stage = document.getElementById('thread-stage') as StageEl | null;
+    const rack = document.querySelector<HTMLElement>('[data-rack]');
+    const panel = document.querySelector<HTMLElement>('[data-stitch-panel]');
+    if (!stage || !rack || !panel || rack.dataset.wired) return;
+    rack.dataset.wired = '1';
+
+    const canvas = stage.querySelector('canvas');
+    const nowName = panel.querySelector<HTMLElement>('[data-now-name]');
+    const nowDot = panel.querySelector<HTMLElement>('[data-now-dot]');
+    const fabricNote = panel.querySelector<HTMLElement>('[data-fabric-note]');
+    const initialsInput = panel.querySelector<HTMLInputElement>('[data-initials]');
+    const cta = panel.querySelector<HTMLAnchorElement>('[data-thread-cta]');
+    const replay = panel.querySelector<HTMLButtonElement>('[data-replay]');
+    const labels = {
+      thread: nowName?.previousElementSibling?.textContent?.trim() ?? '',
+      fabric: panel.querySelector('.panel__fabrics legend')?.textContent?.trim() ?? '',
+      initials: panel.querySelector('label[for="thread-initials"]')?.textContent?.trim() ?? '',
+    };
+    const fabricNotes = new Map<string, string>();
+    panel.querySelectorAll<HTMLLabelElement>('label.fabric').forEach((l) => {
+      const r = l.querySelector<HTMLInputElement>('input');
+      if (r) fabricNotes.set(r.value, l.title ?? '');
+    });
+
+    const current = () => {
+      const t = rack.querySelector<HTMLInputElement>('input[name="thread"]:checked');
+      const f = panel.querySelector<HTMLInputElement>('input[name="fabric"]:checked');
+      return {
+        thread: t,
+        fabric: f,
+        initials: stage.dataset.text ?? '',
+      };
+    };
+
+    function syncLabels() {
+      const { thread, fabric, initials } = current();
+      const parts = [
+        labels.initials && initials ? `${labels.initials}: ${initials}` : '',
+        thread ? `${labels.thread}: ${thread.dataset.name}` : '',
+        fabric && labels.fabric ? `${labels.fabric}: ${fabric.dataset.label}` : '',
+      ].filter(Boolean);
+      canvas?.setAttribute('aria-label', parts.join('. '));
+      if (cta) {
+        const p = new URLSearchParams();
+        if (initials) p.set('initials', initials);
+        p.set('style', stage.dataset.style || 'classic');
+        if (thread?.value) p.set('thread', thread.value);
+        if (fabric?.value) p.set('fabric', fabric.value);
+        cta.href = `${cta.dataset.quoteHref ?? '/request-a-quote'}?${p.toString()}`;
+      }
+    }
+
+    function apply(design: Record<string, string>, animate: boolean) {
+      // keep the data-* in step so a not-yet-started stage paints the choice
+      if (design.text !== undefined) stage!.dataset.text = design.text;
+      if (design.thread) {
+        stage!.dataset.thread = design.thread;
+        stage!.style.setProperty('--atelier-thread', design.thread);
+      }
+      if (design.fabric) {
+        stage!.dataset.fabric = design.fabric;
+        stage!.style.setProperty('--atelier-fabric', design.fabric);
+      }
+      if (design.fabricTexture) stage!.dataset.texture = design.fabricTexture;
+      const fallback = stage!.querySelector('.atelier-stage__initials');
+      if (fallback && design.text !== undefined) fallback.textContent = design.text;
+      const a = stage!.__atelier;
+      if (a && stage!.dataset.ready) {
+        void a.setDesign(
+          design as Parameters<Atelier['setDesign']>[0],
+          animate ? undefined : { animate: false },
+        );
+      }
+      syncLabels();
+    }
+
+    rack.addEventListener('change', (e) => {
+      const r = e.target as HTMLInputElement;
+      if (r.name !== 'thread' || !r.checked) return;
+      const hex = r.dataset.hex ?? '';
+      if (nowName) nowName.textContent = r.dataset.name ?? '';
+      nowDot?.style.setProperty('--dot', hex);
+      apply({ thread: hex }, false);
+    });
+
+    panel.addEventListener('change', (e) => {
+      const r = e.target as HTMLInputElement;
+      if (r.name !== 'fabric' || !r.checked) return;
+      if (fabricNote) fabricNote.textContent = fabricNotes.get(r.value) ?? '';
+      apply({ fabric: r.dataset.color ?? '', fabricTexture: r.dataset.texture ?? 'linen' }, false);
+    });
+
+    let timer = 0;
+    initialsInput?.addEventListener('input', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const text = clean(initialsInput.value);
+        if (!text || text === stage.dataset.text) return;
+        apply({ text }, true);
+      }, 420);
+    });
+
+    // A choice made in the instant between the engine starting and its first
+    // frame only reached the data-* attributes: reconcile once it is drawing.
+    stage.addEventListener(
+      'atelier:progress',
+      () => {
+        const a = stage.__atelier;
+        if (!a) return;
+        const d = a.getDesign();
+        const want = stage.dataset;
+        if (d.thread !== want.thread || d.fabric !== want.fabric || d.text !== want.text) {
+          void a.setDesign({
+            text: want.text,
+            thread: want.thread,
+            fabric: want.fabric,
+            fabricTexture: want.texture as 'linen',
+          });
+        }
+      },
+      { once: true },
+    );
+
+    replay?.addEventListener('click', () => {
+      const a = stage.__atelier;
+      if (a) void a.replay();
+    });
+
+    // Search: hide cells that do not match; announce the count.
+    const filter = rack.querySelector<HTMLInputElement>('[data-rack-filter]');
+    const cells = Array.from(rack.querySelectorAll<HTMLElement>('[data-rack-cell]'));
+    const shown = rack.querySelector<HTMLElement>('[data-rack-shown]');
+    const empty = rack.querySelector<HTMLElement>('[data-rack-empty]');
+    const list = rack.querySelector<HTMLElement>('[data-rack-list]');
+    filter?.addEventListener('input', () => {
+      const q = filter.value.trim().toLowerCase().slice(0, 40);
+      let n = 0;
+      for (const c of cells) {
+        const hit = !q || (c.dataset.search ?? '').includes(q);
+        c.hidden = !hit;
+        if (hit) n++;
+      }
+      if (shown) shown.textContent = String(n);
+      if (empty) empty.hidden = n > 0;
+      if (list) list.hidden = n === 0;
+    });
+
+    // ?thread=<slug> on this page pre-selects that spool.
+    const wanted = new URLSearchParams(location.search).get('thread');
+    if (wanted && /^[a-z0-9-]{1,64}$/i.test(wanted)) {
+      const r = rack.querySelector<HTMLInputElement>(
+        `input[name="thread"][value="${wanted.toLowerCase()}"]`,
+      );
+      if (r && !r.checked) {
+        r.checked = true;
+        r.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    syncLabels();
+  }
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>

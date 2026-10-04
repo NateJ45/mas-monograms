@@ -1,0 +1,143 @@
+---
+// The quote form's section index: the four fieldset legends (Sanity) as a
+// numbered, stitched list of in-page links. On large screens it sits in the
+// sticky aside and marks the section in view (aria-current="location"); the
+// numerals are decoration. Without JS it is a plain table of contents.
+interface Props {
+  steps: Array<{ id: string; label: string }>;
+  label?: string | null;
+}
+const { steps, label } = Astro.props as Props;
+---
+
+<nav class="qs" aria-label={label ?? undefined} data-quote-steps>
+  <ol class="qs__list">
+    {
+      steps.map((s, i) => (
+        <li>
+          <a href={`#${s.id}`} class="qs__link" data-step-link={s.id}>
+            <span class="qs__num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span class="qs__label">{s.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script>
+  function init() {
+    const nav = document.querySelector<HTMLElement>('[data-quote-steps]');
+    if (!nav || nav.dataset.wired) return;
+    nav.dataset.wired = '1';
+    const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('[data-step-link]'));
+    const targets = links
+      .map((a) => document.getElementById(a.dataset.stepLink ?? ''))
+      .filter((t): t is HTMLElement => !!t);
+    if (!targets.length || !('IntersectionObserver' in window)) return;
+    const visible = new Set<string>();
+    const mark = () => {
+      const first = targets.find((t) => visible.has(t.id));
+      if (!first) return;
+      for (const a of links) {
+        if (a.dataset.stepLink === first.id) a.setAttribute('aria-current', 'location');
+        else a.removeAttribute('aria-current');
+      }
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        }
+        mark();
+      },
+      { rootMargin: '-30% 0px -55% 0px' },
+    );
+    targets.forEach((t) => io.observe(t));
+    document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
+  }
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .qs__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .qs__link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 48px;
+    padding: 0.35rem 0.5rem 0.35rem 0;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 320ms var(--ease-thread);
+  }
+  .qs__list li + li .qs__link::before {
+    /* the running stitch that joins one step to the next */
+    content: '';
+    position: absolute;
+    left: 1.05rem;
+    top: -0.55rem;
+    height: 1.1rem;
+    width: 2px;
+    background-image: repeating-linear-gradient(
+      180deg,
+      var(--stitch-color) 0 4px,
+      transparent 4px 7px
+    );
+  }
+  .qs__num {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1.5px solid var(--color-border-interactive);
+    border-radius: 50%;
+    background: var(--color-paper);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--foreground);
+    transition:
+      background-color 320ms var(--ease-thread),
+      border-color 320ms var(--ease-thread),
+      color 320ms var(--ease-thread);
+  }
+  .qs__label {
+    font-size: 0.9375rem;
+    line-height: 1.3;
+  }
+  .qs__link:hover,
+  .qs__link[aria-current] {
+    color: var(--foreground);
+  }
+  .qs__link[aria-current] .qs__num {
+    border-color: #8c3a2e;
+    background: #8c3a2e;
+    color: #fff;
+  }
+  .qs__link[aria-current] .qs__label {
+    font-weight: 700;
+  }
+  .qs__link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .qs__link,
+    .qs__num {
+      transition: none;
+    }
+  }
+</style>

@@ -1,11 +1,26 @@
 ---
 // Safe to edit by hand
-// A single item-category card: hoop-ring-framed image + name, linking to
-// /{slug}. Extracted from index.astro's Category Grid section (Phase B1)
-// so both Home's grid and category pages' "Explore Other Items" cross-sell
-// (Phase C) share one implementation — same markup, same visual treatment.
+// One item category as a hoop on the wall (Direction D, "The Atelier"): the
+// card photo stretched in an embroidery hoop (HoopFrame, warm grade on),
+// hung from a brass nail by a twine wire, with a kraft hang tag tied under
+// it carrying the category name (and a starting price when Sanity has one).
+// The whole piece is one link to /{slug}; hover and keyboard focus lift it
+// and straighten the tilt.
+//
+// Used by /shop-by-item (the hoop wall), the home page category grid and the
+// category pages' "explore other items" cross-sell, so the props stay
+// backwards compatible: name, slug and cardImage are all a caller must pass.
+//
+//   <CategoryCard name={cat.name} slug={cat.slug.current} cardImage={cat.cardImage} />
+//   <CategoryCard ... size={340} tilt={-2.5} priceHint="Starting at $16" />
+//
+// A category with no card image (e.g. "Bring Your Own Item") gets an empty
+// linen hoop with a half-sewn cross-stitch heart and a threaded needle.
+// The photo is decorative here (alt=""): the tag text names the link.
 
-import SanityImage from '@/components/SanityImage.astro';
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import HangTag from '@/components/motifs/HangTag.astro';
+import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
 
 interface CardImage {
   asset?: { _ref?: string; _id?: string };
@@ -18,91 +33,157 @@ interface Props {
   name: string;
   slug: string;
   cardImage?: CardImage | null;
+  /** Hoop diameter: sm 200, md 300, lg 420, or px. Shrinks to fit its column. Default 260. */
+  size?: 'sm' | 'md' | 'lg' | number;
+  /** Rotation of the hanging piece in degrees. */
+  tilt?: number;
+  /** Rotation of the tag relative to the hoop. Default is a small counter-swing. */
+  tagTilt?: number;
+  /** Short price line from Sanity (e.g. "Starting at $16"). */
+  priceHint?: string | null;
+  /** Draw the nail and hanging wire above the hoop. Default true. */
+  hung?: boolean;
+  tagTone?: 'kraft' | 'paper';
+  class?: string;
 }
 
-const { name, slug, cardImage } = Astro.props as Props;
+const {
+  name,
+  slug,
+  cardImage,
+  size = 260,
+  tilt = 0,
+  tagTilt,
+  priceHint,
+  hung = true,
+  tagTone = 'kraft',
+  class: className = '',
+} = Astro.props as Props;
+
+const hasImage = !!cardImage?.asset;
+// Embroidery in these phone photos sits near the centre, a little high.
+const focal = cardImage?.hotspot ? null : { x: 0.5, y: 0.42 };
+const swing = tagTilt ?? (tilt === 0 ? -3 : -tilt * 1.6);
+const SIZES = { sm: 200, md: 300, lg: 420 } as const;
+const px = typeof size === 'number' ? size : SIZES[size];
 ---
 
-{
-  /* Direction C imagery pass (2026-07-03): the brass frame + brass caption bar
-    are retired — every premium reference lets product photos sit frameless
-    with a quiet label BELOW the image. The photo is the card; the only hover
-    chrome is the existing img-zoom + tint. */
-}
-<a href={`/${slug}`} class="group block">
-  {
-    cardImage?.asset ? (
-      <div class="img-zoom relative aspect-square overflow-hidden rounded-xl">
-        <SanityImage
-          source={cardImage}
-          width={400}
-          height={400}
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          class="h-full w-full object-cover"
-        />
-        <div class="img-tint" aria-hidden="true" />
-      </div>
-    ) : (
-      /* No-photo fallback (e.g. "Bring Your Own Item"): an intentional tile with
-       a hand-built embroidery-hoop + needle-and-thread motif on a Paper ground,
-       not a blank rectangle. The hoop ring is drawn in Brass (decorative use)
-       and the needle/thread in Heritage Indigo. The category name repeats below
-       the tile, so no text is needed inside the motif. */
-      <div class="flex aspect-square items-center justify-center rounded-xl border border-border-soft bg-card">
-        <svg
-          viewBox="0 0 100 100"
-          class="h-1/2 w-1/2 opacity-90 transition-transform duration-500 group-hover:scale-105"
-          fill="none"
-          aria-hidden="true"
-        >
-          {/* Embroidery hoop — outer + inner ring in Brass */}
-          <circle cx="50" cy="52" r="30" stroke="var(--color-secondary)" stroke-width="3" />
-          <circle
-            cx="50"
-            cy="52"
-            r="24"
-            stroke="var(--color-secondary)"
-            stroke-width="1.5"
-            opacity="0.7"
-          />
-          {/* Hoop tension bracket at the top */}
-          <rect
-            x="44"
-            y="16"
-            width="12"
-            height="8"
-            rx="2"
-            stroke="var(--color-secondary)"
-            stroke-width="2"
-          />
-          {/* Needle + thread in Heritage Indigo, stitched across the hoop */}
-          <line
-            x1="34"
-            y1="66"
-            x2="66"
-            y2="40"
-            stroke="var(--color-primary)"
-            stroke-width="2.5"
-            stroke-linecap="round"
-          />
+<a
+  href={`/${slug}`}
+  class:list={['cat-hoop', hung && 'cat-hoop--hung', className]}
+  style={`--cat-tilt:${tilt}deg`}
+>
+  <span class="cat-hoop__swing">
+    {
+      hung && (
+        <svg class="cat-hoop__wire" viewBox="0 0 40 44" aria-hidden="true" focusable="false">
           <path
-            d="M34 66 q-6 6 -2 12"
-            stroke="var(--color-primary)"
-            stroke-width="1.75"
+            d="M20 5 L9 44 M20 5 L31 44"
+            stroke="#a98a5f"
+            stroke-width="1.4"
+            fill="none"
             stroke-linecap="round"
-            opacity="0.75"
           />
-          {/* Needle eye */}
-          <circle cx="65" cy="41" r="2" stroke="var(--color-primary)" stroke-width="1.5" />
+          <circle cx="20" cy="5" r="4" fill="#8a6a34" />
+          <circle cx="19" cy="4" r="1.6" fill="#e8cf8f" />
         </svg>
-      </div>
-    )
-  }
-  <div class="pt-s text-center">
-    <p
-      class="font-display text-base [font-weight:560] text-foreground transition-colors group-hover:text-link"
-    >
-      {name}
-    </p>
-  </div>
+      )
+    }
+    <span class="cat-hoop__frame" style={`--cat-hoop:${px}px`}>
+      <HoopFrame image={hasImage ? cardImage : null} alt="" size={size} focal={focal} />
+      {!hasImage && <EmptyHoopOrnament class="cat-hoop__ornament" />}
+    </span>
+    <HangTag
+      size="sm"
+      tone={tagTone}
+      title={name}
+      note={priceHint ?? null}
+      tilt={swing}
+      class="cat-hoop__tag"
+    />
+  </span>
 </a>
+
+<style>
+  .cat-hoop {
+    display: block;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 1.5rem;
+    outline-offset: 6px;
+  }
+  .cat-hoop__swing {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: rotate(var(--cat-tilt));
+    transform-origin: 50% 0;
+    transition: transform 700ms var(--ease-thread);
+  }
+  .cat-hoop--hung .cat-hoop__swing {
+    padding-top: 2.4rem;
+  }
+  .cat-hoop:hover .cat-hoop__swing,
+  .cat-hoop:focus-visible .cat-hoop__swing {
+    transform: rotate(0deg) translateY(-8px);
+  }
+  .cat-hoop__wire {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2.6rem;
+    height: 2.9rem;
+    translate: -50% 0;
+    overflow: visible;
+  }
+  .cat-hoop__frame {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: min(var(--cat-hoop), 100%);
+  }
+  /* The empty hoop's ornament, centred on the fabric (the hoop body starts
+     5% of its width down, so the fabric centre is at 0.55 of the width). */
+  .cat-hoop__frame :global(.cat-hoop__ornament) {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 62%;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    margin-top: 24%;
+    pointer-events: none;
+  }
+  .cat-hoop__frame :global(.hoop) {
+    transition: filter 700ms var(--ease-thread);
+  }
+  .cat-hoop:hover .cat-hoop__frame :global(.hoop),
+  .cat-hoop:focus-visible .cat-hoop__frame :global(.hoop) {
+    filter: drop-shadow(0 22px 22px rgba(15, 27, 45, 0.22));
+  }
+  .cat-hoop :global(.cat-hoop__tag) {
+    margin-top: -2.4rem;
+    width: min(11.5rem, 88%);
+    transition: transform 900ms var(--ease-thread);
+    transform-origin: 50% 0;
+  }
+  .cat-hoop:hover :global(.cat-hoop__tag),
+  .cat-hoop:focus-visible :global(.cat-hoop__tag) {
+    transform: rotate(0deg);
+  }
+  .cat-hoop :global(.hangtag__title) {
+    font-size: 1.15rem;
+    transition: color 440ms var(--ease-thread);
+  }
+  .cat-hoop:hover :global(.hangtag__title) {
+    color: var(--color-rust-cta, #8c3a2e);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cat-hoop:hover .cat-hoop__swing,
+    .cat-hoop:focus-visible .cat-hoop__swing {
+      transform: rotate(var(--cat-tilt));
+    }
+  }
+</style>

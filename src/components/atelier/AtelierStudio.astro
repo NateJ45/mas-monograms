@@ -1,0 +1,756 @@
+---
+// AtelierStudio: the full Monogram Atelier (Direction D's standout feature).
+// A large live stage on a pinked fabric swatch, real form controls (initials,
+// style, fabric, and a rack of thread spools from the threadColor documents),
+// Replay, a live text alternative, the "it's a preview" disclaimer, and the
+// hand-off to the quote form.
+//
+// It is a real GET form to /request-a-quote, so the hand-off works with no JS:
+//   /request-a-quote?initials=MAS&style=classic&fabric=natural-linen&thread=burgundy#quote-form
+// Param names are a contract with the quote form: initials, style, thread
+// (threadColor slug, or its name when it has no slug), fabric (atelierSettings
+// fabric key). With JS, every change re-stitches or recolours the stage.
+//
+// All copy comes in as props from Sanity (atelierSettings); the only logic in
+// code is rendering logic (weave per fabric, default pairings).
+import AtelierStage from './AtelierStage.astro';
+import AtelierStudioScript from './AtelierStudioScript.astro';
+import Spool from '@/components/motifs/Spool.astro';
+import {
+  cleanFabrics,
+  cleanThreads,
+  describeDesign,
+  nearestThread,
+  textureFor,
+  threadId,
+  type StyleKey,
+  type ThreadOption,
+} from './atelierStudioData';
+import type { AtelierSettings } from '@/lib/queries';
+
+interface Props {
+  settings: AtelierSettings | null;
+  threads: ThreadOption[];
+  headingId?: string;
+  /** Where the hand-off goes. */
+  action?: string;
+  /** Fragment on the quote page to land on. */
+  anchor?: string;
+  class?: string;
+}
+
+const {
+  settings,
+  threads: threadsIn,
+  headingId = 'atelier-heading',
+  action = '/request-a-quote',
+  anchor = 'quote-form',
+  class: className = '',
+} = Astro.props as Props;
+
+const styles = (settings?.styles ?? []).filter((s) => s?.key && s?.label);
+const fabrics = cleanFabrics(settings?.fabrics as any);
+const threads = cleanThreads(threadsIn);
+
+const firstSample = (settings?.sampleMonograms ?? [])
+  .map((s) =>
+    Array.from(String(s).toLocaleUpperCase())
+      .filter((c) => /\p{L}/u.test(c))
+      .slice(0, 3)
+      .join(''),
+  )
+  .find(Boolean);
+const initials = firstSample ?? '';
+const style: StyleKey = (styles.find((s) => s.key === 'classic')?.key ??
+  styles[0]?.key ??
+  'classic') as StyleKey;
+const fabric = fabrics.find((f) => f.key === 'natural-linen') ?? fabrics[0];
+const thread = nearestThread(threads, '#8c3a2e') ?? threads[0];
+const threadHex = thread?.hexColor ?? '#8c3a2e';
+const fabricHex = fabric?.color ?? '#e8dcc8';
+const styleLabel = styles.find((s) => s.key === style)?.label;
+const label = describeDesign(initials, style, styleLabel, thread?.name, fabric?.label);
+
+// The headline's last word is the swash (rendering choice; the words are Sanity's).
+const headline = settings?.headline ?? '';
+const cut = headline.trimEnd().lastIndexOf(' ');
+const headBefore = cut > 0 ? headline.slice(0, cut + 1) : '';
+const headSwash = cut > 0 ? headline.slice(cut + 1) : headline;
+
+const ids = {
+  initials: `${headingId}-initials`,
+  hint: `${headingId}-hint`,
+  status: `${headingId}-status`,
+  disclaimer: `${headingId}-disclaimer`,
+  threadName: `${headingId}-thread-name`,
+};
+---
+
+<div class:list={['atelier-studio', className]} data-atelier-studio>
+  {
+    (settings?.eyebrow || headline || settings?.subhead) && (
+      <header class="atelier-studio__head mx-auto mb-section-md max-w-3xl text-center">
+        {settings?.eyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {settings.eyebrow}
+          </p>
+        )}
+        {headline && (
+          <h2 id={headingId} class="display-sm" data-reveal>
+            {headBefore}
+            <em class="swash">{headSwash}</em>
+          </h2>
+        )}
+        {settings?.subhead && (
+          <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+            {settings.subhead}
+          </p>
+        )}
+      </header>
+    )
+  }
+
+  <form
+    class="atelier-studio__form"
+    method="get"
+    action={`${action}#${anchor}`}
+    data-atelier-form
+    aria-labelledby={headline ? headingId : undefined}
+  >
+    <div class="atelier-studio__grid">
+      {/* ---- the stage ---- */}
+      <div class="atelier-studio__stage-col">
+        <div class="atelier-studio__swatch">
+          <div class="atelier-studio__cloth">
+            <AtelierStage
+              text={initials}
+              style={style}
+              thread={threadHex}
+              fabric={fabricHex}
+              fabricTexture={fabric ? textureFor(fabric) : 'linen'}
+              quality="studio"
+              aspect="4 / 3"
+              label={label}
+              class="atelier-studio__stage"
+            />
+          </div>
+          <span class="atelier-studio__pin" aria-hidden="true"></span>
+        </div>
+        <div class="atelier-studio__under">
+          <p
+            id={ids.status}
+            class="atelier-studio__status"
+            role="status"
+            aria-live="polite"
+            data-atelier-status
+          >
+            {label}
+          </p>
+          {
+            settings?.replayLabel && (
+              <button
+                type="button"
+                class="btn btn-secondary atelier-studio__replay"
+                data-atelier-replay
+              >
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path
+                    d="M4 10a6 6 0 1 0 1.8-4.3M4 3.5v3.2h3.2"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <span>{settings.replayLabel}</span>
+              </button>
+            )
+          }
+        </div>
+        {
+          settings?.disclaimer && (
+            <p id={ids.disclaimer} class="atelier-studio__disclaimer">
+              {settings.disclaimer}
+            </p>
+          )
+        }
+      </div>
+
+      {/* ---- the controls ---- */}
+      <div class="atelier-studio__controls">
+        <div class="atelier-studio__field">
+          <label for={ids.initials} class="atelier-studio__label">
+            {settings?.initialsLabel}
+          </label>
+          <input
+            id={ids.initials}
+            name="initials"
+            class="atelier-studio__initials"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="3"
+            value={initials}
+            aria-describedby={settings?.initialsHint ? ids.hint : undefined}
+            data-atelier-initials
+          />
+          {
+            settings?.initialsHint && (
+              <p id={ids.hint} class="atelier-studio__hint">
+                {settings.initialsHint}
+              </p>
+            )
+          }
+        </div>
+
+        {
+          styles.length > 0 && (
+            <fieldset class="atelier-studio__field">
+              <legend class="atelier-studio__label">{settings?.styleLabel}</legend>
+              <div class="atelier-studio__styles">
+                {styles.map((s) => (
+                  <label class="atelier-studio__style">
+                    <input
+                      type="radio"
+                      name="style"
+                      value={s.key}
+                      checked={s.key === style}
+                      aria-describedby={`${headingId}-style-${s.key}`}
+                      data-label={s.label}
+                    />
+                    <span>{s.label}</span>
+                  </label>
+                ))}
+              </div>
+              {styles.map((s) => (
+                <p
+                  id={`${headingId}-style-${s.key}`}
+                  class="atelier-studio__hint atelier-studio__blurb"
+                  hidden={s.key !== style}
+                  data-style-blurb={s.key}
+                >
+                  {s.blurb}
+                </p>
+              ))}
+            </fieldset>
+          )
+        }
+
+        {
+          fabrics.length > 0 && (
+            <fieldset class="atelier-studio__field">
+              <legend class="atelier-studio__label">{settings?.fabricLabel}</legend>
+              <div class="atelier-studio__fabrics">
+                {fabrics.map((f) => (
+                  <label class="atelier-studio__fabric" style={`--chip:${f.color}`}>
+                    <input
+                      type="radio"
+                      name="fabric"
+                      value={f.key}
+                      checked={f.key === fabric?.key}
+                      aria-describedby={f.note ? `${headingId}-fabric-${f.key}` : undefined}
+                      data-hex={f.color}
+                      data-texture={textureFor(f)}
+                      data-label={f.label}
+                    />
+                    <span
+                      class:list={[
+                        'atelier-studio__chip',
+                        `atelier-studio__chip--${textureFor(f)}`,
+                      ]}
+                      aria-hidden="true"
+                    />
+                    <span class="atelier-studio__fabric-name">{f.label}</span>
+                  </label>
+                ))}
+              </div>
+              {fabrics.map(
+                (f) =>
+                  f.note && (
+                    <p
+                      id={`${headingId}-fabric-${f.key}`}
+                      class="atelier-studio__hint"
+                      hidden={f.key !== fabric?.key}
+                      data-fabric-note={f.key}
+                    >
+                      {f.note}
+                    </p>
+                  ),
+              )}
+            </fieldset>
+          )
+        }
+
+        {
+          settings?.ctaLabel && (
+            <div class="atelier-studio__cta">
+              <button type="submit" class="btn btn-primary">
+                <span>{settings.ctaLabel}</span>
+                <span class="btn__arrow" aria-hidden="true">
+                  &rarr;
+                </span>
+              </button>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    {
+      threads.length > 0 && (
+        <fieldset class="atelier-studio__rack-field">
+          <legend class="atelier-studio__label atelier-studio__rack-legend">
+            {settings?.threadLabel}
+          </legend>
+          <p class="atelier-studio__thread-name" id={ids.threadName}>
+            <span class="atelier-studio__thread-dot" style={`--dot:${threadHex}`} data-thread-dot />
+            <span data-thread-name>{thread?.name}</span>
+          </p>
+          <div class="atelier-studio__rack">
+            <div
+              class="atelier-studio__spools"
+              style={`--cols2:${Math.ceil(threads.length / 2)};--cols3:${Math.ceil(threads.length / 3)}`}
+            >
+              {threads.map((t) => (
+                <label class="atelier-studio__spool" title={t.name}>
+                  <input
+                    type="radio"
+                    name="thread"
+                    value={threadId(t)}
+                    checked={thread ? threadId(t) === threadId(thread) : false}
+                    data-hex={t.hexColor}
+                    data-label={t.name}
+                  />
+                  <Spool color={t.hexColor as string} size={46} tail={false} />
+                  <span class="sr-only">{t.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </fieldset>
+      )
+    }
+  </form>
+</div>
+<AtelierStudioScript />
+
+<style>
+  .atelier-studio__form {
+    display: grid;
+    gap: var(--spacing-section-md);
+  }
+  .atelier-studio__grid {
+    display: grid;
+    gap: var(--spacing-l);
+    align-items: start;
+  }
+  @media (min-width: 1024px) {
+    .atelier-studio__grid {
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      gap: var(--spacing-section-md);
+    }
+  }
+
+  /* ---- stage on a pinked swatch ---- */
+  .atelier-studio__swatch {
+    --pink: 14px;
+    position: relative;
+    isolation: isolate;
+    rotate: -0.8deg;
+  }
+  /* A static shadow layer (not a filter: a filter would re-run on every
+     stitched frame of the canvas above it). */
+  .atelier-studio__swatch::before {
+    content: '';
+    position: absolute;
+    inset: 12px 4px 2px;
+    z-index: -1;
+    border-radius: 4px;
+    box-shadow:
+      0 30px 40px -18px rgb(15 27 45 / 0.38),
+      0 4px 8px rgb(15 27 45 / 0.16);
+  }
+  .atelier-studio__cloth {
+    position: relative;
+    -webkit-mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+        var(--pink) 51% repeat-x,
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--pink) 51%
+        repeat-x;
+    mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom /
+        var(--pink) 51% repeat-x,
+      conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--pink) 51%
+        repeat-x;
+  }
+  .atelier-studio__cloth::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--pink) * 0.5 + 10px) 12px;
+    border: 1.5px dashed rgb(185 138 62 / 0.75);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .atelier-studio__pin {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f3d8a4, #b98a3e 45%, #6b4c1c 100%);
+    box-shadow: 0 3px 4px rgb(15 27 45 / 0.35);
+  }
+  .atelier-studio__under {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-s) var(--spacing-m);
+    margin-top: var(--spacing-l);
+  }
+  .atelier-studio__status {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.125rem;
+    color: var(--foreground);
+  }
+  .atelier-studio__replay svg {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .atelier-studio__disclaimer {
+    margin-top: var(--spacing-m);
+    padding-left: 1rem;
+    border-left: 2px dashed var(--stitch-color);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    max-width: 60ch;
+  }
+
+  /* ---- controls ---- */
+  .atelier-studio__controls {
+    display: grid;
+    gap: var(--spacing-l);
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    border-radius: 3px;
+    box-shadow:
+      0 24px 40px -30px rgb(15 27 45 / 0.4),
+      0 1px 0 rgb(15 27 45 / 0.06);
+    outline: 1.5px dashed var(--stitch-color);
+    outline-offset: -10px;
+  }
+  .atelier-studio__field {
+    display: grid;
+    gap: 0.6rem;
+    min-width: 0;
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .atelier-studio__label {
+    padding: 0;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-brass-text);
+  }
+  .atelier-studio__hint {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+  }
+  .atelier-studio__blurb,
+  .atelier-studio__field > [data-fabric-note] {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 0.975rem;
+  }
+  .atelier-studio__initials {
+    width: 100%;
+    max-width: 14rem;
+    min-height: 3.5rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    background: var(--color-bg);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--foreground);
+  }
+  .atelier-studio__initials:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* shared: the native radio covers its label, invisible, so the whole chip
+     is the (>= 44px) target and arrow keys move through the group. */
+  .atelier-studio__style,
+  .atelier-studio__fabric,
+  .atelier-studio__spool {
+    position: relative;
+    cursor: pointer;
+  }
+  .atelier-studio__style input,
+  .atelier-studio__fabric input,
+  .atelier-studio__spool input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .atelier-studio__styles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .atelier-studio__style span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-bg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--foreground);
+    transition:
+      background-color 400ms var(--ease-thread),
+      color 400ms var(--ease-thread),
+      border-color 400ms var(--ease-thread);
+  }
+  .atelier-studio__style:hover span {
+    border-color: var(--color-rust-cta);
+  }
+  .atelier-studio__style:has(input:checked) span {
+    background: var(--color-rust-cta);
+    border-color: var(--color-rust-cta);
+    color: #fff;
+    box-shadow:
+      inset 0 0 0 3px var(--color-rust-cta),
+      inset 0 0 0 4px rgb(255 255 255 / 0.55);
+  }
+  .atelier-studio__style:has(input:focus-visible) span {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  .atelier-studio__fabrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 0.75rem;
+  }
+  .atelier-studio__fabric {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 44px;
+    padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+    border-radius: 999px;
+    transition: background-color 400ms var(--ease-thread);
+  }
+  .atelier-studio__fabric:hover {
+    background-color: rgb(38 49 46 / 0.05);
+  }
+  .atelier-studio__chip {
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: var(--chip);
+    background-image:
+      repeating-linear-gradient(0deg, rgb(0 0 0 / 0.07) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.09) 0 1px, transparent 1px 3px);
+    box-shadow:
+      inset 0 0 0 1px rgb(38 49 46 / 0.22),
+      inset 0 -3px 6px rgb(0 0 0 / 0.12);
+    transition: box-shadow 400ms var(--ease-thread);
+  }
+  .atelier-studio__chip--canvas {
+    background-image:
+      repeating-linear-gradient(45deg, rgb(0 0 0 / 0.1) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.08) 0 1px, transparent 1px 3px);
+  }
+  .atelier-studio__fabric-name {
+    font-size: 0.875rem;
+    line-height: 1.25;
+    color: var(--foreground);
+  }
+  .atelier-studio__fabric:has(input:checked) .atelier-studio__chip {
+    box-shadow:
+      inset 0 0 0 1px rgb(38 49 46 / 0.22),
+      0 0 0 3px var(--color-paper),
+      0 0 0 5px var(--color-rust-cta);
+  }
+  .atelier-studio__fabric:has(input:checked) .atelier-studio__fabric-name {
+    font-weight: 700;
+  }
+  .atelier-studio__fabric:has(input:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  .atelier-studio__cta .btn {
+    width: 100%;
+  }
+
+  /* ---- the spool rack ---- */
+  .atelier-studio__rack-field {
+    min-width: 0;
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .atelier-studio__rack-legend {
+    margin-bottom: 0.35rem;
+  }
+  .atelier-studio__thread-name {
+    margin-bottom: var(--spacing-s);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--foreground);
+  }
+  .atelier-studio__thread-dot {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    background: var(--dot);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.2);
+  }
+  .atelier-studio__rack {
+    --row: 96px;
+    position: relative;
+    padding: 0.5rem 0.75rem 0;
+    border-radius: 4px;
+    background-color: #ead9bb;
+    background-image:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0 calc(var(--row) - 12px),
+        #a8743d calc(var(--row) - 12px) calc(var(--row) - 9px),
+        #c69660 calc(var(--row) - 9px) calc(var(--row) - 4px),
+        #7b4f27 calc(var(--row) - 4px) var(--row)
+      ),
+      var(--tex-grain);
+    background-size:
+      auto,
+      200px 200px;
+    box-shadow:
+      inset 0 0 0 1px rgb(78 48 20 / 0.25),
+      inset 0 10px 24px -14px rgb(60 35 14 / 0.4),
+      0 22px 40px -30px rgb(15 27 45 / 0.5);
+  }
+  /* balanced shelves: the spools split evenly over 3 (tablet) or 2 (desktop)
+     rows, so no shelf holds a lone straggler */
+  .atelier-studio__spools {
+    display: grid;
+    grid-template-columns: repeat(var(--cols3), minmax(0, 1fr));
+    justify-items: center;
+  }
+  @media (min-width: 1200px) {
+    .atelier-studio__spools {
+      grid-template-columns: repeat(var(--cols2), minmax(0, 1fr));
+    }
+  }
+  .atelier-studio__spool {
+    display: grid;
+    place-items: end center;
+    width: 100%;
+    max-width: 58px;
+    min-width: 44px;
+    height: var(--row);
+    padding-bottom: 10px;
+    border-radius: 6px;
+  }
+  .atelier-studio__spool :global(.spool) {
+    transition:
+      transform 420ms var(--ease-thread),
+      filter 420ms var(--ease-thread);
+    pointer-events: none;
+  }
+  .atelier-studio__spool:hover :global(.spool) {
+    transform: translateY(-4px);
+  }
+  .atelier-studio__spool::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    width: 52px;
+    height: 16px;
+    translate: -50% 0;
+    border-radius: 50%;
+    border: 2px dashed transparent;
+    transition: border-color 300ms var(--ease-thread);
+  }
+  .atelier-studio__spool:has(input:checked) :global(.spool) {
+    transform: translateY(-12px) scale(1.08);
+    filter: drop-shadow(0 8px 6px rgb(60 35 14 / 0.35));
+  }
+  .atelier-studio__spool:has(input:checked)::before {
+    border-color: var(--color-rust-cta);
+  }
+  .atelier-studio__spool:has(input:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+  }
+
+  /* phones: one scrolling shelf with snap */
+  @media (max-width: 767px) {
+    .atelier-studio__rack {
+      padding-inline: 0;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity;
+      scroll-padding-inline: 1rem;
+      background-image:
+        linear-gradient(
+          to bottom,
+          transparent calc(100% - 12px),
+          #a8743d calc(100% - 12px) calc(100% - 9px),
+          #c69660 calc(100% - 9px) calc(100% - 4px),
+          #7b4f27 calc(100% - 4px)
+        ),
+        var(--tex-grain);
+    }
+    .atelier-studio__spools {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      width: max-content;
+      padding-inline: 0.75rem;
+    }
+    .atelier-studio__spool {
+      flex: none;
+      width: 58px;
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .atelier-studio__spool:has(input:checked) :global(.spool) {
+      transform: translateY(-8px);
+    }
+  }
+</style>

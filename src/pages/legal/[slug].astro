@@ -1,7 +1,15 @@
 ---
+// Legal / policy pages (Direction D, "The Atelier", 2026-10-04): calm and
+// readable. A short Midnight title band, then the policy on Paper in a
+// ~68ch measure with a sticky contents list built from its h2/h3 headings
+// (extractHeadings uses the same slugify as PortableText's heading ids, so
+// the anchors match). No heavy decoration: one running stitch, nothing more.
+// The contents list is labelled by the page title, so it adds no new copy.
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PortableText from '@/components/PortableText';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import { extractHeadings } from '@/lib/portable-text-headings';
 import { getSiteSettings, getAllLegalPages, getLegalPageBySlug } from '@/lib/queries';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -26,25 +34,146 @@ const updated = page?.lastUpdated
       year: 'numeric',
       month: 'long',
       day: 'numeric',
+      timeZone: 'UTC',
     })
   : null;
+const toc = extractHeadings(page?.body).filter((h) => h.level <= 3);
+const showToc = toc.length >= 2;
 ---
 
-<BaseLayout {title} {description} {siteSettings}>
-  <section class="bg-tertiary py-section-lg">
-    <div class="mx-auto max-w-3xl px-m text-center">
-      <h1 class="font-display text-h1 leading-headline-tight text-foreground">{page?.title}</h1>
+<BaseLayout {title} {description} {siteSettings} thread={false}>
+  <section class="surface-midnight pt-section-lg pb-section-md" aria-labelledby="legal-heading">
+    <div class="mx-auto max-w-content px-m">
+      <h1 id="legal-heading" class="display-sm max-w-4xl">{page?.title}</h1>
       {
         updated && (
-          <p class="mt-s text-sm text-[var(--color-text-secondary)]">Last updated {updated}</p>
+          <p class="mt-m text-sm tracking-[0.04em] text-[var(--color-text-secondary)]">
+            Last updated <time datetime={page?.lastUpdated}>{updated}</time>
+          </p>
         )
       }
+      <RunningStitch class="mt-l" length="10rem" />
     </div>
   </section>
 
-  <section class="py-section-lg">
-    <div class="mx-auto max-w-3xl px-m">
-      <PortableText client:idle value={page?.body} />
+  <section class="surface-paper py-section-lg">
+    <div
+      class:list={[
+        'mx-auto max-w-content px-m',
+        showToc && 'lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-section-md',
+      ]}
+    >
+      {
+        showToc && (
+          <nav class="legal-toc" aria-label={page?.title}>
+            <p class="legal-toc__title" aria-hidden="true">
+              {page?.title}
+            </p>
+            <ol>
+              {toc.map((h) => (
+                <li class:list={[h.level === 3 && 'legal-toc__sub']}>
+                  <a href={`#${h.id}`}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      <article class="legal-prose">
+        <PortableText client:idle value={page?.body} />
+      </article>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .legal-toc {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1.5px dashed var(--stitch-color);
+  }
+  @media (min-width: 64rem) {
+    .legal-toc {
+      position: sticky;
+      top: 7.5rem;
+      align-self: start;
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+      padding-left: 1.25rem;
+      border-left: 1.5px dashed var(--stitch-color);
+    }
+  }
+  .legal-toc__title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-brass-text);
+    margin-bottom: 0.5rem;
+  }
+  .legal-toc ol {
+    list-style: none;
+    padding: 0;
+  }
+  .legal-toc a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 0.35rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: color 400ms var(--ease-thread);
+  }
+  .legal-toc a:hover,
+  .legal-toc a:focus-visible {
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .legal-toc__sub a {
+    padding-left: 0.9rem;
+    font-size: 0.88rem;
+  }
+
+  .legal-prose {
+    max-width: 68ch;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .legal-prose :global(p),
+  .legal-prose :global(li) {
+    color: var(--foreground);
+    text-wrap: pretty;
+  }
+  .legal-prose > :global(div > :first-child) {
+    margin-top: 0;
+  }
+  .legal-prose :global(h2) {
+    margin-top: 3rem;
+    font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);
+    font-weight: 440;
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    scroll-margin-top: 8rem;
+  }
+  .legal-prose :global(h2)::before {
+    content: '';
+    display: block;
+    width: 2.5rem;
+    height: 2px;
+    margin-bottom: 1rem;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--stitch-color) 0 6px,
+      transparent 6px 10px
+    );
+  }
+  .legal-prose :global(h3) {
+    margin-top: 2rem;
+    font-size: 1.3rem;
+    scroll-margin-top: 8rem;
+  }
+</style>

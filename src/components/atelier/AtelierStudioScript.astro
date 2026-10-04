@@ -1,0 +1,157 @@
+---
+// Client wiring for AtelierStudio: every control drives the stage.
+//   initials  -> re-stitch (debounced 250ms; Enter renders at once)
+//   style     -> re-stitch
+//   thread    -> recolour in place (mid-stitch too)
+//   fabric    -> re-weave and recolour in place
+//   Replay    -> stitch the current design again
+// Keeps the canvas aria-label, the status line (aria-live), the thread name,
+// the style blurb and the fabric note in step. Listens for
+// 'atelier:use-initials' (the home hero hands its typed initials over).
+// Its own component: never a <script> in a JSX expression.
+---
+
+<script>
+  import type { Atelier } from '@/lib/atelier/engine';
+
+  type StageEl = HTMLElement & { __atelier?: Atelier };
+  const DEBOUNCE_MS = 250;
+
+  function cleanInitials(v: string): string {
+    return Array.from(v.normalize('NFC'))
+      .filter((c) => /\p{L}/u.test(c))
+      .map((c) => c.toLocaleUpperCase())
+      .slice(0, 3)
+      .join('');
+  }
+
+  function init(root: HTMLElement) {
+    if (root.dataset.studioInit) return;
+    root.dataset.studioInit = '1';
+    const form = root.querySelector<HTMLFormElement>('[data-atelier-form]');
+    const stage = root.querySelector<StageEl>('[data-atelier-stage]');
+    const input = root.querySelector<HTMLInputElement>('[data-atelier-initials]');
+    const status = root.querySelector<HTMLElement>('[data-atelier-status]');
+    const replay = root.querySelector<HTMLButtonElement>('[data-atelier-replay]');
+    const threadName = root.querySelector<HTMLElement>('[data-thread-name]');
+    const threadDot = root.querySelector<HTMLElement>('[data-thread-dot]');
+    if (!form || !stage) return;
+    const canvas = stage.querySelector('canvas');
+
+    const checked = (name: string) =>
+      form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`);
+
+    let text = cleanInitials(input?.value ?? '') || stage.dataset.text || '';
+    let typeTimer = 0;
+
+    function read() {
+      const s = checked('style');
+      const t = checked('thread');
+      const f = checked('fabric');
+      return {
+        style: s?.value ?? stage!.dataset.style ?? 'classic',
+        styleLabel: s?.dataset.label ?? '',
+        thread: t?.dataset.hex ?? stage!.dataset.thread ?? '#8c3a2e',
+        threadLabel: t?.dataset.label ?? '',
+        fabric: f?.dataset.hex ?? stage!.dataset.fabric ?? '#e8dcc8',
+        fabricKey: f?.value ?? '',
+        fabricLabel: f?.dataset.label ?? '',
+        texture: f?.dataset.texture ?? stage!.dataset.texture ?? 'linen',
+      };
+    }
+
+    function describe() {
+      const d = read();
+      const shown = d.style === 'single' ? Array.from(text).slice(0, 1).join('') : text;
+      return [shown, d.styleLabel, d.threadLabel, d.fabricLabel].filter(Boolean).join(', ');
+    }
+
+    function sync() {
+      const d = read();
+      stage!.dataset.text = text;
+      stage!.dataset.style = d.style;
+      stage!.dataset.thread = d.thread;
+      stage!.dataset.fabric = d.fabric;
+      stage!.dataset.texture = d.texture;
+      stage!.style.setProperty('--atelier-fabric', d.fabric);
+      stage!.style.setProperty('--atelier-thread', d.thread);
+      const label = describe();
+      canvas?.setAttribute('aria-label', label);
+      if (status && status.textContent !== label) status.textContent = label;
+      if (threadName) threadName.textContent = d.threadLabel;
+      threadDot?.style.setProperty('--dot', d.thread);
+      root.querySelectorAll<HTMLElement>('[data-style-blurb]').forEach((p) => {
+        p.hidden = p.dataset.styleBlurb !== d.style;
+      });
+      root.querySelectorAll<HTMLElement>('[data-fabric-note]').forEach((p) => {
+        p.hidden = p.dataset.fabricNote !== d.fabricKey;
+      });
+      return d;
+    }
+
+    function render(opts?: { animate?: boolean }) {
+      const d = sync();
+      const a = stage!.__atelier;
+      if (!a || !text) return;
+      void a.setDesign(
+        {
+          text,
+          style: d.style as never,
+          thread: d.thread,
+          fabric: d.fabric,
+          fabricTexture: d.texture as never,
+        },
+        opts,
+      );
+    }
+
+    form.addEventListener('change', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.name === 'style') render({ animate: true });
+      else if (el.name === 'thread' || el.name === 'fabric') render({ animate: false });
+    });
+
+    input?.addEventListener('input', () => {
+      const clean = cleanInitials(input.value);
+      if (input.value !== clean) input.value = clean;
+      window.clearTimeout(typeTimer);
+      if (!clean) return; // keep the last design until there is a letter
+      text = clean;
+      sync();
+      typeTimer = window.setTimeout(() => render({ animate: true }), DEBOUNCE_MS);
+    });
+    input?.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      // Enter previews; the button sends the request
+      e.preventDefault();
+      window.clearTimeout(typeTimer);
+      if (text) render({ animate: true });
+    });
+    form.addEventListener('submit', () => {
+      // never send an empty or messy initials value
+      if (input) input.value = text;
+    });
+
+    replay?.addEventListener('click', () => {
+      const a = stage!.__atelier;
+      if (a) void a.replay();
+    });
+
+    document.addEventListener('atelier:use-initials', (e) => {
+      const next = cleanInitials((e as CustomEvent<{ text: string }>).detail?.text ?? '');
+      if (!next) return;
+      text = next;
+      if (input) input.value = next;
+      render({ animate: true });
+    });
+
+    // first paint uses the server defaults; keep the text alternative honest
+    sync();
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>('[data-atelier-studio]').forEach(init);
+  }
+  initAll();
+  document.addEventListener('astro:page-load', initAll);
+</script>

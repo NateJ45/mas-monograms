@@ -1,102 +1,154 @@
 ---
+// Shop by Item (Direction D, "The Atelier", 2026-10-04): a Midnight opening
+// band with the display headline and a little rack of real thread spools,
+// then the HOOP WALL: every item category hung salon-style on a linen wall,
+// each photo stretched in a hoop with a kraft hang tag (CategoryCard.astro).
+// Hoops vary in size, drop and tilt so the wall reads as hung by hand, not
+// as a grid. All copy comes from shopIndexPage and the itemCategory docs.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ScriptKicker from '@/components/ScriptKicker.astro';
-import SanityImage from '@/components/SanityImage.astro';
+import CategoryCard from '@/components/CategoryCard.astro';
 import CtaBanner from '@/components/CtaBanner.astro';
-import { getSiteSettings, getShopIndexPage, getAllItemCategories } from '@/lib/queries';
+import Spool from '@/components/motifs/Spool.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import { splitSwash } from '@/components/gallery/swash';
+import {
+  getSiteSettings,
+  getShopIndexPage,
+  getAllItemCategories,
+  getAllThreadColors,
+} from '@/lib/queries';
 
-const [siteSettings, page, categories] = await Promise.all([
+const [siteSettings, page, categories, threads] = await Promise.all([
   getSiteSettings(),
   getShopIndexPage(),
   getAllItemCategories(),
+  getAllThreadColors(),
 ]);
 
 const title = page?.seoTitle ?? 'Shop by Item — MAS Monograms';
 const description =
   page?.seoDescription ??
   'Browse all the items Mary Ann can embroider — towels, bags, shirts, baby gifts, and more.';
+
+const headline = splitSwash(page?.heroHeadline ?? 'Shop by Item');
+
+// A small rack of REAL thread colours (Sanity threadColor hex), spread across
+// the chart so the rack shows range. Decorative.
+const threadHexes: string[] = (threads ?? [])
+  .map((t: any) => t?.hexColor)
+  .filter((h: unknown): h is string => typeof h === 'string' && /^#?[0-9a-f]{6}$/i.test(h));
+const RACK = 5;
+const rack =
+  threadHexes.length >= RACK
+    ? Array.from(
+        { length: RACK },
+        (_, i) => threadHexes[Math.floor((i * threadHexes.length) / RACK)],
+      )
+    : ['#8C3A2E', '#28486B', '#D9B15F', '#7C8B6F', '#E8B4A8'];
+
+// Salon hang: per-position hoop size (px), drop from the rail and tilt. The
+// pattern repeats every 8, so any number of categories hangs the same way.
+const SALON = [
+  { size: 290, drop: '0rem', tilt: -2.5 },
+  { size: 235, drop: '5rem', tilt: 2 },
+  { size: 270, drop: '1.5rem', tilt: -1 },
+  { size: 220, drop: '6.5rem', tilt: 3 },
+  { size: 260, drop: '2.5rem', tilt: -2 },
+  { size: 285, drop: '0rem', tilt: 1.5 },
+  { size: 235, drop: '4.5rem', tilt: -3 },
+  { size: 255, drop: '1rem', tilt: 2.5 },
+];
+
+// A short price line from Sanity: startingPrice, else the first trust item
+// that carries a dollar figure ("Starting at $16"). Never invented.
+function priceHint(cat: any): string | null {
+  if (cat?.startingPrice) return String(cat.startingPrice);
+  const hit = (cat?.trustItems ?? []).find((t: unknown) => typeof t === 'string' && /\$\d/.test(t));
+  return hit ?? null;
+}
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-  {
-    /* Hero — deliberately compact. The band is a headline plus one lead line,
-      not a tall empty parchment void over the grid. The subhead sits directly
-      under the headline; the longer gridIntro (if present) still leads the
-      grid below, so we don't duplicate the intro copy up here. */
-  }
-  <section class="bg-tertiary py-section-md">
-    <div class="mx-auto max-w-content px-m text-center">
-      {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-      <h1 class="mb-s font-display text-h1 leading-headline-tight text-foreground">
-        {page?.heroHeadline ?? 'Shop by Item'}
-      </h1>
-      {
-        page?.heroSubhead && (
-          <p class="mx-auto max-w-2xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
-        )
-      }
+  <section class="shop-intro surface-midnight py-section-lg" aria-labelledby="shop-heading">
+    <div
+      class="mx-auto grid max-w-content grid-cols-1 items-center gap-l px-m lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+    >
+      <div>
+        {
+          page?.heroEyebrow && (
+            <div data-reveal="fade">
+              <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
+            </div>
+          )
+        }
+        <h1 id="shop-heading" class="display-sm max-w-[16ch]" data-reveal>
+          {headline.before}<em class="swash">{headline.word}</em>{headline.after}
+        </h1>
+        {
+          page?.heroSubhead && (
+            <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
+              {page.heroSubhead}
+            </p>
+          )
+        }
+        <div class="mt-l max-w-[16rem]" data-reveal="stitch" style="--reveal-delay: 220ms">
+          <RunningStitch ornament="needle" />
+        </div>
+      </div>
+      <div class="shop-intro__rack" aria-hidden="true" data-reveal="fade">
+        {
+          rack.map((hex, i) => (
+            <Spool
+              color={hex.startsWith('#') ? hex : `#${hex}`}
+              size={i % 2 ? 78 : 96}
+              tilt={[-6, 4, -2, 7, -4][i % 5]}
+              tail={i === rack.length - 1}
+              class="shop-intro__spool"
+            />
+          ))
+        }
+      </div>
     </div>
   </section>
 
-  {/* Category Grid */}
-  <section class="py-section-lg">
+  <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
       {
         page?.gridIntro && (
-          <p class="mx-auto mb-l max-w-2xl text-center text-[var(--color-text-secondary)]">
+          <p class="lede mx-auto mb-l text-center" data-reveal>
             {page.gridIntro}
           </p>
         )
       }
       {
         categories.length > 0 ? (
-          <div class="grid grid-cols-1 gap-l sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((cat: any) => (
-              <a
-                href={`/${cat.slug?.current ?? ''}`}
-                class="group block overflow-hidden rounded-xl border border-border bg-background transition-shadow hover:shadow-lg"
-              >
-                {cat.cardImage?.asset ? (
-                  <div class="aspect-[4/3] overflow-hidden">
-                    <SanityImage
-                      source={cat.cardImage}
-                      width={600}
-                      height={450}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          <>
+            <div class="hoop-wall__rail" aria-hidden="true">
+              <RunningStitch tone="brass" ornament="cross" />
+            </div>
+            <ul class="hoop-wall" role="list" data-reveal-stagger="90">
+              {categories.map((cat: any, i: number) => {
+                const s = SALON[i % SALON.length];
+                return (
+                  <li
+                    class="hoop-wall__item"
+                    style={`--w:${s.size}px;--drop:${s.drop}`}
+                    data-reveal
+                  >
+                    <CategoryCard
+                      name={cat.name}
+                      slug={cat.slug?.current ?? ''}
+                      cardImage={cat.cardImage}
+                      size={s.size}
+                      tilt={s.tilt}
+                      priceHint={priceHint(cat)}
                     />
-                  </div>
-                ) : (
-                  <div class="flex aspect-[4/3] items-center justify-center bg-tertiary">
-                    <span class="text-sm text-[var(--color-text-secondary)]">No image</span>
-                  </div>
-                )}
-                <div class="p-m">
-                  {cat.eyebrow && (
-                    <p class="mb-xs text-xs tracking-eyebrow text-link uppercase">{cat.eyebrow}</p>
-                  )}
-                  <h2 class="mb-xs font-display text-h4 text-foreground transition-colors group-hover:text-link">
-                    {cat.name}
-                  </h2>
-                  {cat.description && (
-                    <p class="line-clamp-2 text-sm text-[var(--color-text-secondary)]">
-                      {cat.description}
-                    </p>
-                  )}
-                  <div class="mt-m flex items-center justify-between gap-m">
-                    <span class="inline-flex items-center gap-xs text-xs font-semibold tracking-eyebrow text-link uppercase">
-                      {cat.ctaLabel ?? 'View options'} <span aria-hidden="true">→</span>
-                    </span>
-                    {cat.startingPrice && (
-                      <span class="text-sm font-semibold whitespace-nowrap text-foreground">
-                        {cat.startingPrice}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         ) : (
           <p class="py-l text-center text-[var(--color-text-secondary)]">
             Item categories coming soon — check back or{' '}
@@ -113,8 +165,78 @@ const description =
   <CtaBanner
     eyebrow={page?.ctaEyebrow}
     headline={page?.ctaHeadline}
+    swash={page?.ctaHeadline ? splitSwash(page.ctaHeadline).word : undefined}
     subhead={page?.ctaSubhead}
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
 </BaseLayout>
+
+<style>
+  .shop-intro__rack {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: clamp(0.5rem, 2vw, 1.5rem);
+    padding-block: 1rem;
+  }
+  .shop-intro__rack :global(.shop-intro__spool:nth-child(even)) {
+    margin-bottom: 1.75rem;
+  }
+  @media (max-width: 1023px) {
+    .shop-intro__rack {
+      justify-content: flex-start;
+    }
+    .shop-intro__rack :global(.spool__art) {
+      width: clamp(2.6rem, 12vw, 4.5rem);
+      height: auto;
+    }
+  }
+
+  .hoop-wall__rail {
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+  }
+  /* Phone: two hanging columns, the right one dropped half a hoop, so the
+     wall still reads as hung rather than gridded. */
+  .hoop-wall {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1rem;
+    row-gap: 1.75rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .hoop-wall__item:nth-child(even) {
+    margin-top: 3.5rem;
+  }
+  .hoop-wall__item :global(.hangtag__title) {
+    font-size: 1rem;
+  }
+  @media (min-width: 768px) {
+    .hoop-wall {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      column-gap: clamp(1.25rem, 2.6vw, 2.25rem);
+      row-gap: 2.5rem;
+    }
+    .hoop-wall__item,
+    .hoop-wall__item:nth-child(even) {
+      width: min(var(--w), 44%);
+      margin-top: calc(var(--drop) * 0.6);
+    }
+    .hoop-wall__item :global(.hangtag__title) {
+      font-size: 1.15rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .hoop-wall__item,
+    .hoop-wall__item:nth-child(even) {
+      width: var(--w);
+      margin-top: var(--drop);
+    }
+  }
+</style>

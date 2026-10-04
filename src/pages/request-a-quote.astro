@@ -1,20 +1,38 @@
 ---
+// /request-a-quote (Direction D reskin, 2026-10-04). Same fields, names, ids,
+// validation, Turnstile, upload and POST /api/quote as before; the behaviour
+// lives in components/quote/QuoteFormScript.astro (moved, unchanged). New:
+// a Midnight intro, a paper form card with numbered sections and a sticky
+// section index, and the Atelier hand-off (QuotePrefillScript + QuotePreview:
+// ?initials=&style=&thread=&fabric=&item=&font= pre-fill the form and show a
+// live preview of the requested monogram).
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ScriptKicker from '@/components/ScriptKicker.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
+import HangTag from '@/components/motifs/HangTag.astro';
+import Spool from '@/components/motifs/Spool.astro';
+import Needle from '@/components/motifs/Needle.astro';
+import QuotePreview from '@/components/quote/QuotePreview.astro';
+import QuoteSteps from '@/components/quote/QuoteSteps.astro';
+import QuoteFormScript from '@/components/quote/QuoteFormScript.astro';
+import QuotePrefillScript from '@/components/quote/QuotePrefillScript.astro';
+import { normHex, textureForFabric } from '@/components/thread/threadData';
 import {
   getSiteSettings,
   getRequestAQuotePage,
   getAllItemCategories,
   getAllFonts,
+  getAtelierSettings,
+  getAllThreadColors,
 } from '@/lib/queries';
 
-const [siteSettings, page, itemCategories, fonts] = await Promise.all([
+const [siteSettings, page, itemCategories, fonts, atelier, threadColors] = await Promise.all([
   getSiteSettings(),
   getRequestAQuotePage(),
   getAllItemCategories(),
   getAllFonts(),
+  getAtelierSettings(),
+  getAllThreadColors(),
 ]);
 
 // ── Item-type dropdown options ──────────────────────────────────────────────
@@ -49,6 +67,7 @@ const fontOptions: string[] = [...fontNames, FONT_OTHER, FONT_RECOMMEND];
 // needs to edit them, promote each list to an array field on the
 // `requestAQuotePage` schema (mirroring `referralOptions`) and read it via
 // getRequestAQuotePage() — the render loop below won't need to change.
+// (QuotePrefillScript selects 'Three-letter monogram' for 3 initials.)
 const ownershipOptions: string[] = ['I have the item', 'Please source it for me', 'Not sure yet'];
 const monogramStyleOptions: string[] = [
   'Three-letter monogram',
@@ -164,27 +183,64 @@ const L = {
 };
 
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+
+// ── Atelier hand-off whitelist (validated client-side against the URL) ──────
+const prefillData = {
+  threads: (threadColors ?? [])
+    .map((t: any) => ({
+      slug: t?.slug ?? '',
+      name: t?.name ?? '',
+      hex: normHex(t?.hexColor) ?? '',
+    }))
+    .filter((t: { slug: string; name: string; hex: string }) => t.slug && t.name && t.hex),
+  fabrics: (atelier?.fabrics ?? [])
+    .map((f) => ({
+      key: f.key,
+      label: f.label,
+      color: normHex(f.color) ?? '',
+      texture: textureForFabric(f.key),
+    }))
+    .filter((f) => f.key && f.label && f.color),
+  styles: (atelier?.styles ?? [])
+    .filter((s) => s?.key && s?.label)
+    .map((s) => ({ key: s.key, label: s.label })),
+  labels: {
+    initials: atelier?.initialsLabel ?? '',
+    style: atelier?.styleLabel ?? '',
+    thread: atelier?.threadLabel ?? '',
+    fabric: atelier?.fabricLabel ?? '',
+  },
+};
+
+const steps = [
+  { id: 'q-order', label: L.orderInfoHeading },
+  { id: 'q-you', label: L.personalInfoHeading },
+  { id: 'q-photos', label: L.attachmentsHeading },
+  { id: 'q-notes', label: L.additionalHeading },
+];
+
+// Headline swash: the last word in the gold italic.
+const headline: string = page?.heroHeadline ?? 'Request a Custom Quote';
+const hWords = headline.trim().split(/\s+/);
+const hLast = hWords.pop() ?? '';
+const hLead = hWords.join(' ');
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
-  {/* Hero */}
-  <section class="bg-tertiary py-section-lg">
+<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} header="overlay">
+  {/* Intro */}
+  <section class="surface-midnight pt-header pb-section-lg" aria-labelledby="quote-title">
     <div
-      class="mx-auto grid max-w-content grid-cols-1 items-center gap-section-md px-m lg:grid-cols-2"
+      class="mx-auto grid max-w-content grid-cols-1 items-center gap-section-md px-m lg:grid-cols-[1.35fr_1fr]"
     >
-      <div>
-        {page?.heroEyebrow && <ScriptKicker text={page.heroEyebrow} class="mb-xs" />}
-        <h1 class="mb-m font-display text-h1 leading-headline-tight text-foreground">
-          {page?.heroHeadline ?? 'Request a Custom Quote'}
+      <div data-reveal>
+        {page?.heroEyebrow && <p class="eyebrow mb-m">{page.heroEyebrow}</p>}
+        <h1 id="quote-title" class="display-sm mb-l">
+          {hLead && <>{hLead} </>}<em class="swash">{hLast}</em>
         </h1>
-        {
-          page?.heroSubhead && (
-            <p class="max-w-xl text-[var(--color-text-secondary)]">{page.heroSubhead}</p>
-          )
-        }
+        {page?.heroSubhead && <p class="lede">{page.heroSubhead}</p>}
         {
           page?.heroBody && (
-            <div class="mt-m text-[var(--color-text-secondary)]">
+            <div class="mt-m max-w-[42rem] text-[var(--color-text-secondary)]">
               <PortableText client:idle value={page.heroBody} />
             </div>
           )
@@ -194,9 +250,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
             <ul class="mt-l list-none space-y-s">
               {(page.heroTrustItems as string[]).map((item: string) => (
                 <li class="flex items-start gap-s text-sm text-[var(--color-text-secondary)]">
-                  <span class="mt-0.5 text-primary" aria-hidden="true">
-                    ✓
-                  </span>
+                  <span class="quote-trust-mark" aria-hidden="true" />
                   {item}
                 </li>
               ))}
@@ -205,7 +259,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
         }
       </div>
       {
-        page?.heroImage?.asset && (
+        page?.heroImage?.asset ? (
           <div class="overflow-hidden rounded-2xl shadow-xl">
             <SanityImage
               source={page.heroImage}
@@ -216,526 +270,583 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
               fetchpriority="high"
             />
           </div>
+        ) : (
+          <div class="quote-hero-art" data-reveal="fade">
+            <div class="quote-hero-art__props" aria-hidden="true">
+              <Spool color="#8c3a2e" size={96} tilt={-6} />
+              <Spool color="#d9b15f" size={78} tilt={5} />
+              <Needle length={150} angle={-38} thread="#d9b15f" class="quote-hero-art__needle" />
+            </div>
+            {L.turnaroundCallout && (
+              <HangTag
+                title={L.turnaroundCallout}
+                tilt={-3}
+                size="md"
+                class="quote-hero-art__tag"
+              />
+            )}
+          </div>
         )
       }
     </div>
   </section>
 
   {/* Form */}
-  <section class="py-section-lg">
-    <div class="mx-auto max-w-3xl px-m">
-      <div
-        id="form-success"
-        class="mb-l hidden rounded-xl border border-primary/20 bg-primary/10 p-l text-primary"
-        role="alert"
-        aria-live="polite"
-      >
-        <p class="font-semibold">We got it!</p>
-        <p class="text-sm">Redirecting you to the confirmation page…</p>
-      </div>
-      <div
-        id="form-error"
-        class="mb-l hidden rounded-xl border border-error-border bg-error-surface p-l text-error-text"
-        role="alert"
-        aria-live="polite"
-      >
-        <p class="font-semibold">Something went wrong.</p>
-        <p id="form-error-msg" class="mt-xs text-sm">
-          Please try again or email Mary Ann directly.
-        </p>
-      </div>
-
-      <form
-        id="quote-form"
-        method="POST"
-        action="/api/quote"
-        enctype="multipart/form-data"
-        novalidate
-        class="space-y-section-md"
-      >
-        {
-          L.requiredFieldNote && (
-            <p class="text-sm text-[var(--color-text-secondary)]">{L.requiredFieldNote}</p>
-          )
-        }
-
-        {/* ── Order Information ── */}
-        <fieldset class="space-y-l">
-          <legend
-            class="mb-m w-full border-b border-border-soft pb-s font-display text-h3 text-foreground"
-          >
-            {L.orderInfoHeading}
-          </legend>
-
-          {/* Item type — real categories + a "not sure" escape */}
-          <div class="form-field">
-            <label for="itemType" class="form-label">
-              {L.itemTypeLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <select
-              id="itemType"
-              name="itemType"
-              required
-              aria-required="true"
-              aria-describedby="itemType-error"
-              class="form-input"
-            >
-              <option value="">— Select one —</option>
-              {
-                itemTypeOptions.map((opt: { name: string; slug: string }) => (
-                  <option value={opt.name} data-slug={opt.slug}>
-                    {opt.name}
-                  </option>
-                ))
-              }
-            </select>
-            {L.itemTypeHelp && <p class="form-help">{L.itemTypeHelp}</p>}
-            <p id="itemType-error" class="form-error hidden" data-error-for="itemType">
-              {L.itemTypeError}
-            </p>
-          </div>
-
-          {/* Do you own the item? */}
-          <div class="form-field">
-            <p id="ownership-label" class="form-label">
-              {L.ownershipLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </p>
-            <div
-              id="ownership"
-              class="mt-xs flex flex-col"
-              role="radiogroup"
-              aria-labelledby="ownership-label"
-              aria-required="true"
-              aria-describedby="ownership-error"
-            >
-              {
-                ownershipOptions.map((opt: string) => (
-                  <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
-                    <input
-                      type="radio"
-                      name="ownership"
-                      value={opt}
-                      class="choice-input hit-44"
-                      data-required-radio
-                    />
-                    <span>{opt}</span>
-                  </label>
-                ))
-              }
-            </div>
-            {L.ownershipHelp && <p class="form-help">{L.ownershipHelp}</p>}
-            <p id="ownership-error" class="form-error hidden" data-error-for="ownership">
-              {L.ownershipError}
-            </p>
-          </div>
-
-          {/* Item description (optional free text) */}
-          <div class="form-field">
-            <label for="itemDescription" class="form-label">{L.itemDescriptionLabel}</label>
-            <input
-              id="itemDescription"
-              name="itemDescription"
-              type="text"
-              placeholder={L.itemDescriptionPlaceholder}
-              class="form-input"
-            />
-            {L.itemDescriptionHelp && <p class="form-help">{L.itemDescriptionHelp}</p>}
-          </div>
-
-          <div class="form-field">
-            <label for="quantity" class="form-label">{L.quantityLabel}</label>
-            <input
-              id="quantity"
-              name="quantity"
-              type="number"
-              min="1"
-              inputmode="numeric"
-              placeholder={L.quantityPlaceholder}
-              class="form-input w-32"
-            />
-            {L.quantityHelp && <p class="form-help">{L.quantityHelp}</p>}
-          </div>
-
-          <div class="form-field">
-            <label for="personalization" class="form-label">
-              {L.personalizationLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <textarea
-              id="personalization"
-              name="personalization"
-              rows="3"
-              placeholder={L.personalizationPlaceholder}
-              required
-              aria-required="true"
-              aria-describedby="personalization-error"
-              class="form-input"></textarea>
-            {L.personalizationHelp && <p class="form-help">{L.personalizationHelp}</p>}
-            <p
-              id="personalization-error"
-              class="form-error hidden"
-              data-error-for="personalization"
-            >
-              {L.personalizationError}
-            </p>
-          </div>
-
-          {/* Monogram style */}
-          <div class="form-field">
-            <label for="monogramStyle" class="form-label">
-              {L.monogramStyleLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <select
-              id="monogramStyle"
-              name="monogramStyle"
-              required
-              aria-required="true"
-              aria-describedby="monogramStyle-error"
-              class="form-input"
-            >
-              <option value="">— Select one —</option>
-              {monogramStyleOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
-            </select>
-            {L.monogramStyleHelp && <p class="form-help">{L.monogramStyleHelp}</p>}
-            <p id="monogramStyle-error" class="form-error hidden" data-error-for="monogramStyle">
-              {L.monogramStyleError}
-            </p>
-          </div>
-
-          {/* Placement on item */}
-          <div class="form-field">
-            <label for="placement" class="form-label">
-              {L.placementSelectLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <select
-              id="placement"
-              name="placement"
-              required
-              aria-required="true"
-              aria-describedby="placement-error"
-              class="form-input"
-            >
-              <option value="">— Select one —</option>
-              {placementOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
-            </select>
-            {L.placementSelectHelp && <p class="form-help">{L.placementSelectHelp}</p>}
-            <p id="placement-error" class="form-error hidden" data-error-for="placement">
-              {L.placementSelectError}
-            </p>
-          </div>
-
-          {/* Approximate size */}
-          <div class="form-field">
-            <label for="size" class="form-label">
-              {L.sizeLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <select
-              id="size"
-              name="size"
-              required
-              aria-required="true"
-              aria-describedby="size-error"
-              class="form-input"
-            >
-              <option value="">— Select one —</option>
-              {sizeOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
-            </select>
-            {L.sizeHelp && <p class="form-help">{L.sizeHelp}</p>}
-            <p id="size-error" class="form-error hidden" data-error-for="size">{L.sizeError}</p>
-          </div>
-
-          {/* Number of thread colors */}
-          <div class="form-field">
-            <label for="threadCount" class="form-label">
-              {L.threadCountLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <select
-              id="threadCount"
-              name="threadCount"
-              required
-              aria-required="true"
-              aria-describedby="threadCount-error"
-              class="form-input w-48"
-            >
-              <option value="">— Select one —</option>
-              {threadCountOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
-            </select>
-            {L.threadCountHelp && <p class="form-help">{L.threadCountHelp}</p>}
-            <p id="threadCount-error" class="form-error hidden" data-error-for="threadCount">
-              {L.threadCountError}
-            </p>
-          </div>
-
-          {/* Font preference — real fonts + Other + Recommend */}
-          <div class="form-field">
-            <label for="fontPreference" class="form-label">{L.fontLabel}</label>
-            <select id="fontPreference" name="fontPreference" class="form-input">
-              <option value="">— Select one —</option>
-              {fontOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
-            </select>
-            {
-              L.fontHelp && (
-                <p class="form-help">
-                  {L.fontHelp}
-                  <a
-                    href="/font-lettering-guide"
-                    class="ml-xs text-link underline hover:text-primary-dark"
-                  >
-                    Font Guide →
-                  </a>
-                </p>
-              )
-            }
-          </div>
-
-          <div class="form-field">
-            <label for="threadColor" class="form-label">{L.threadLabel}</label>
-            <input
-              id="threadColor"
-              name="threadColor"
-              type="text"
-              placeholder={L.threadPlaceholder}
-              class="form-input"
-            />
-            {
-              L.threadHelp && (
-                <p class="form-help">
-                  {L.threadHelp}
-                  <a
-                    href="/thread-color-chart"
-                    class="ml-xs text-link underline hover:text-primary-dark"
-                  >
-                    Color Chart →
-                  </a>
-                </p>
-              )
-            }
-          </div>
-
-          <div class="form-field">
-            <label for="neededBy" class="form-label">{L.neededByLabel}</label>
-            <input id="neededBy" name="neededBy" type="date" class="form-input w-48" />
-            {L.neededByHelp && <p class="form-help">{L.neededByHelp}</p>}
-          </div>
-
-          {/* Rush turnaround */}
-          <div class="form-field">
-            <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
-              <input type="checkbox" name="rush" value="yes" class="choice-input hit-44" />
-              <span>{L.rushLabel}</span>
-            </label>
-            {L.rushHelp && <p class="form-help">{L.rushHelp}</p>}
-          </div>
-
-          <div class="form-field">
-            <p class="form-label">{L.giftLabel}</p>
-            <div class="mt-xs flex items-center gap-l">
-              <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
-                <input type="radio" name="isGift" value="yes" class="choice-input hit-44" />
-                <span>{L.giftOptionYes}</span>
-              </label>
-              <label class="flex min-h-[44px] cursor-pointer items-center gap-s text-sm">
-                <input type="radio" name="isGift" value="no" class="choice-input hit-44" checked />
-                <span>{L.giftOptionNo}</span>
-              </label>
-            </div>
-          </div>
-        </fieldset>
-
-        {/* ── Personal Info ── */}
-        <fieldset class="space-y-l">
-          <legend
-            class="mb-m w-full border-b border-border-soft pb-s font-display text-h3 text-foreground"
-          >
-            {L.personalInfoHeading}
-          </legend>
-
-          <div class="form-field">
-            <label for="name" class="form-label">
-              {L.nameLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              autocomplete="name"
-              placeholder={L.namePlaceholder}
-              required
-              aria-required="true"
-              aria-describedby="name-error"
-              class="form-input"
-            />
-            <p id="name-error" class="form-error hidden" data-error-for="name">{L.nameError}</p>
-          </div>
-
-          <div class="form-field">
-            <label for="email" class="form-label">
-              {L.emailLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autocomplete="email"
-              placeholder={L.emailPlaceholder}
-              required
-              aria-required="true"
-              aria-describedby="email-error"
-              class="form-input"
-            />
-            <p id="email-error" class="form-error hidden" data-error-for="email">{L.emailError}</p>
-          </div>
-
-          <div class="form-field">
-            <label for="phone" class="form-label">
-              {L.phoneLabel}
-              {' '}
-              <span class="text-error-text" aria-hidden="true">*</span>
-            </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              autocomplete="tel"
-              placeholder={L.phonePlaceholder}
-              required
-              aria-required="true"
-              aria-describedby="phone-error"
-              class="form-input w-56"
-            />
-            <p id="phone-error" class="form-error hidden" data-error-for="phone">{L.phoneError}</p>
-          </div>
-
-          {
-            L.referralOptions.length > 0 && (
-              <div class="form-field">
-                <label for="referral" class="form-label">
-                  {L.referralLabel}
-                </label>
-                <select id="referral" name="referral" class="form-input">
-                  <option value="">— Select one —</option>
-                  {L.referralOptions.map((opt: string) => (
-                    <option value={opt}>{opt}</option>
-                  ))}
-                </select>
-              </div>
-            )
-          }
-        </fieldset>
-
-        {/* ── Photos ── */}
-        <fieldset class="space-y-l">
-          <legend
-            class="mb-m w-full border-b border-border-soft pb-s font-display text-h3 text-foreground"
-          >
-            {L.attachmentsHeading}
-          </legend>
-          <div class="form-field">
-            <div
-              id="drop-zone"
-              class="relative cursor-pointer rounded-xl border-2 border-dashed border-border-interactive p-l text-center transition-colors hover:border-primary/40"
-            >
-              <input
-                id="attachments"
-                name="attachments"
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp"
-                multiple
-                class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                aria-label={L.attachmentsHeading}
-                aria-describedby="attachments-help"
-              />
-              <p class="text-sm text-[var(--color-text-secondary)]">
-                Drag & drop photos here, or <span class="text-link underline">click to browse</span>
-              </p>
-              <p id="attachments-help" class="mt-xs text-xs text-[var(--color-text-secondary)]">
-                {L.attachmentsHelp}
-              </p>
-            </div>
-            <ul id="file-list" class="mt-s list-none space-y-xs" aria-live="polite"></ul>
-            <p id="attachments-error" class="form-error hidden" data-error-for="attachments">
-              {L.attachmentsError}
-            </p>
-          </div>
-        </fieldset>
-
-        {/* ── Notes ── */}
-        <fieldset>
-          <legend
-            class="mb-m w-full border-b border-border-soft pb-s font-display text-h3 text-foreground"
-          >
-            {L.additionalHeading}
-          </legend>
-          <div class="form-field">
-            <label for="notes" class="form-label">{L.notesLabel}</label>
-            <textarea
-              id="notes"
-              name="notes"
-              rows="4"
-              placeholder={L.notesPlaceholder}
-              class="form-input"></textarea>
-          </div>
-        </fieldset>
-
-        {/* Turnstile */}
-        {
-          turnstileSiteKey && (
-            <div
-              class="cf-turnstile"
-              data-sitekey={turnstileSiteKey}
-              data-callback="onTurnstileSuccess"
-              data-theme="light"
-            />
-          )
-        }
-
-        {/* Turnaround reassurance */}
-        {
-          L.turnaroundCallout && (
-            <p class="flex items-start gap-s rounded-lg border border-primary/20 bg-primary/10 px-m py-s text-sm font-semibold text-primary">
-              <span class="mt-0.5" aria-hidden="true">
-                ⏱
-              </span>
-              <span>{L.turnaroundCallout}</span>
-            </p>
-          )
-        }
-
-        {/* Submit */}
-        <div>
-          <button
-            id="submit-btn"
-            type="submit"
-            data-label={L.submitLabel}
-            data-submitting={L.submittingLabel}
-            class="press-tactile inline-flex min-h-[44px] w-full items-center justify-center rounded-sm bg-[var(--color-rust-cta,#8C3A2E)] px-l py-s text-xs font-semibold tracking-[0.18em] text-white uppercase transition-colors hover:bg-[var(--color-rust-cta-hover,#722C22)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-          >
-            <span id="submit-label">{L.submitLabel}</span>
-          </button>
-          {
-            L.privacyNote && (
-              <p class="mt-m text-xs text-[var(--color-text-secondary)]">{L.privacyNote}</p>
-            )
-          }
+  <section class="surface-linen py-section-lg">
+    <div class="quote-layout mx-auto max-w-content px-m">
+      <div class="quote-aside">
+        <QuotePreview
+          data={prefillData}
+          heading={atelier?.eyebrow ?? atelier?.ctaLabel}
+          disclaimer={atelier?.disclaimer}
+        />
+        <div class="quote-aside__steps">
+          <QuoteSteps steps={steps} label={headline} />
         </div>
-      </form>
+      </div>
+
+      <div class="quote-card">
+        <div
+          id="form-success"
+          class="quote-status quote-status--ok hidden"
+          role="alert"
+          aria-live="polite"
+        >
+          <p class="font-semibold">We got it!</p>
+          <p class="text-sm">Redirecting you to the confirmation page…</p>
+        </div>
+        <div
+          id="form-error"
+          class="quote-status quote-status--error hidden"
+          role="alert"
+          aria-live="polite"
+        >
+          <p class="font-semibold">Something went wrong.</p>
+          <p id="form-error-msg" class="mt-xs text-sm">
+            Please try again or email Mary Ann directly.
+          </p>
+        </div>
+
+        <form
+          id="quote-form"
+          method="POST"
+          action="/api/quote"
+          enctype="multipart/form-data"
+          novalidate
+          class="quote-form"
+        >
+          {L.requiredFieldNote && <p class="quote-required">{L.requiredFieldNote}</p>}
+
+          {/* ── Order Information ── */}
+          <fieldset id="q-order" class="quote-set">
+            <legend class="quote-legend">
+              <span class="quote-legend__num" aria-hidden="true">01</span>
+              <span>{L.orderInfoHeading}</span>
+            </legend>
+
+            {/* Item type — real categories + a "not sure" escape */}
+            <div class="form-field">
+              <label for="itemType" class="form-label">
+                {L.itemTypeLabel}
+                {' '}
+                <span class="form-req" aria-hidden="true">*</span>
+              </label>
+              <select
+                id="itemType"
+                name="itemType"
+                required
+                aria-required="true"
+                aria-describedby="itemType-error"
+                class="form-input"
+              >
+                <option value="">— Select one —</option>
+                {
+                  itemTypeOptions.map((opt: { name: string; slug: string }) => (
+                    <option value={opt.name} data-slug={opt.slug}>
+                      {opt.name}
+                    </option>
+                  ))
+                }
+              </select>
+              {L.itemTypeHelp && <p class="form-help">{L.itemTypeHelp}</p>}
+              <p id="itemType-error" class="form-error hidden" data-error-for="itemType">
+                {L.itemTypeError}
+              </p>
+            </div>
+
+            {/* Do you own the item? */}
+            <div class="form-field">
+              <p id="ownership-label" class="form-label">
+                {L.ownershipLabel}
+                {' '}
+                <span class="form-req" aria-hidden="true">*</span>
+              </p>
+              <div
+                id="ownership"
+                class="choice-row"
+                role="radiogroup"
+                aria-labelledby="ownership-label"
+                aria-required="true"
+                aria-describedby="ownership-error"
+              >
+                {
+                  ownershipOptions.map((opt: string) => (
+                    <label class="choice">
+                      <input
+                        type="radio"
+                        name="ownership"
+                        value={opt}
+                        class="choice-input hit-44"
+                        data-required-radio
+                      />
+                      <span>{opt}</span>
+                    </label>
+                  ))
+                }
+              </div>
+              {L.ownershipHelp && <p class="form-help">{L.ownershipHelp}</p>}
+              <p id="ownership-error" class="form-error hidden" data-error-for="ownership">
+                {L.ownershipError}
+              </p>
+            </div>
+
+            <div class="form-grid">
+              {/* Item description (optional free text) */}
+              <div class="form-field form-field--wide">
+                <label for="itemDescription" class="form-label">{L.itemDescriptionLabel}</label>
+                <input
+                  id="itemDescription"
+                  name="itemDescription"
+                  type="text"
+                  placeholder={L.itemDescriptionPlaceholder}
+                  class="form-input"
+                />
+                {L.itemDescriptionHelp && <p class="form-help">{L.itemDescriptionHelp}</p>}
+              </div>
+
+              <div class="form-field">
+                <label for="quantity" class="form-label">{L.quantityLabel}</label>
+                <input
+                  id="quantity"
+                  name="quantity"
+                  type="number"
+                  min="1"
+                  inputmode="numeric"
+                  placeholder={L.quantityPlaceholder}
+                  class="form-input form-input--short"
+                />
+                {L.quantityHelp && <p class="form-help">{L.quantityHelp}</p>}
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="personalization" class="form-label">
+                {L.personalizationLabel}
+                {' '}
+                <span class="form-req" aria-hidden="true">*</span>
+              </label>
+              <textarea
+                id="personalization"
+                name="personalization"
+                rows="3"
+                placeholder={L.personalizationPlaceholder}
+                required
+                aria-required="true"
+                aria-describedby="personalization-error"
+                class="form-input"></textarea>
+              {L.personalizationHelp && <p class="form-help">{L.personalizationHelp}</p>}
+              <p
+                id="personalization-error"
+                class="form-error hidden"
+                data-error-for="personalization"
+              >
+                {L.personalizationError}
+              </p>
+            </div>
+
+            <div class="form-grid">
+              {/* Monogram style */}
+              <div class="form-field">
+                <label for="monogramStyle" class="form-label">
+                  {L.monogramStyleLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="monogramStyle"
+                  name="monogramStyle"
+                  required
+                  aria-required="true"
+                  aria-describedby="monogramStyle-error"
+                  class="form-input"
+                >
+                  <option value="">— Select one —</option>
+                  {monogramStyleOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                </select>
+                {L.monogramStyleHelp && <p class="form-help">{L.monogramStyleHelp}</p>}
+                <p
+                  id="monogramStyle-error"
+                  class="form-error hidden"
+                  data-error-for="monogramStyle"
+                >
+                  {L.monogramStyleError}
+                </p>
+              </div>
+
+              {/* Placement on item */}
+              <div class="form-field">
+                <label for="placement" class="form-label">
+                  {L.placementSelectLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="placement"
+                  name="placement"
+                  required
+                  aria-required="true"
+                  aria-describedby="placement-error"
+                  class="form-input"
+                >
+                  <option value="">— Select one —</option>
+                  {placementOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                </select>
+                {L.placementSelectHelp && <p class="form-help">{L.placementSelectHelp}</p>}
+                <p id="placement-error" class="form-error hidden" data-error-for="placement">
+                  {L.placementSelectError}
+                </p>
+              </div>
+
+              {/* Approximate size */}
+              <div class="form-field">
+                <label for="size" class="form-label">
+                  {L.sizeLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="size"
+                  name="size"
+                  required
+                  aria-required="true"
+                  aria-describedby="size-error"
+                  class="form-input"
+                >
+                  <option value="">— Select one —</option>
+                  {sizeOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                </select>
+                {L.sizeHelp && <p class="form-help">{L.sizeHelp}</p>}
+                <p id="size-error" class="form-error hidden" data-error-for="size">
+                  {L.sizeError}
+                </p>
+              </div>
+
+              {/* Number of thread colors */}
+              <div class="form-field">
+                <label for="threadCount" class="form-label">
+                  {L.threadCountLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="threadCount"
+                  name="threadCount"
+                  required
+                  aria-required="true"
+                  aria-describedby="threadCount-error"
+                  class="form-input"
+                >
+                  <option value="">— Select one —</option>
+                  {threadCountOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                </select>
+                {L.threadCountHelp && <p class="form-help">{L.threadCountHelp}</p>}
+                <p id="threadCount-error" class="form-error hidden" data-error-for="threadCount">
+                  {L.threadCountError}
+                </p>
+              </div>
+
+              {/* Font preference — real fonts + Other + Recommend */}
+              <div class="form-field">
+                <label for="fontPreference" class="form-label">{L.fontLabel}</label>
+                <select id="fontPreference" name="fontPreference" class="form-input">
+                  <option value="">— Select one —</option>
+                  {fontOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                </select>
+                {
+                  L.fontHelp && (
+                    <p class="form-help">
+                      {L.fontHelp}
+                      <a href="/font-lettering-guide" class="form-help__link">
+                        Font Guide →
+                      </a>
+                    </p>
+                  )
+                }
+              </div>
+
+              <div class="form-field">
+                <label for="threadColor" class="form-label">{L.threadLabel}</label>
+                <input
+                  id="threadColor"
+                  name="threadColor"
+                  type="text"
+                  placeholder={L.threadPlaceholder}
+                  class="form-input"
+                />
+                {
+                  L.threadHelp && (
+                    <p class="form-help">
+                      {L.threadHelp}
+                      <a href="/thread-color-chart" class="form-help__link">
+                        Color Chart →
+                      </a>
+                    </p>
+                  )
+                }
+              </div>
+
+              <div class="form-field">
+                <label for="neededBy" class="form-label">{L.neededByLabel}</label>
+                <input id="neededBy" name="neededBy" type="date" class="form-input" />
+                {L.neededByHelp && <p class="form-help">{L.neededByHelp}</p>}
+              </div>
+            </div>
+
+            {/* Rush turnaround */}
+            <div class="form-field">
+              <label class="choice">
+                <input type="checkbox" name="rush" value="yes" class="choice-input hit-44" />
+                <span>{L.rushLabel}</span>
+              </label>
+              {L.rushHelp && <p class="form-help">{L.rushHelp}</p>}
+            </div>
+
+            <div class="form-field">
+              <p class="form-label">{L.giftLabel}</p>
+              <div class="choice-row choice-row--inline">
+                <label class="choice">
+                  <input type="radio" name="isGift" value="yes" class="choice-input hit-44" />
+                  <span>{L.giftOptionYes}</span>
+                </label>
+                <label class="choice">
+                  <input
+                    type="radio"
+                    name="isGift"
+                    value="no"
+                    class="choice-input hit-44"
+                    checked
+                  />
+                  <span>{L.giftOptionNo}</span>
+                </label>
+              </div>
+            </div>
+          </fieldset>
+
+          {/* ── Personal Info ── */}
+          <fieldset id="q-you" class="quote-set">
+            <legend class="quote-legend">
+              <span class="quote-legend__num" aria-hidden="true">02</span>
+              <span>{L.personalInfoHeading}</span>
+            </legend>
+
+            <div class="form-grid">
+              <div class="form-field form-field--wide">
+                <label for="name" class="form-label">
+                  {L.nameLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autocomplete="name"
+                  placeholder={L.namePlaceholder}
+                  required
+                  aria-required="true"
+                  aria-describedby="name-error"
+                  class="form-input"
+                />
+                <p id="name-error" class="form-error hidden" data-error-for="name">
+                  {L.nameError}
+                </p>
+              </div>
+
+              <div class="form-field">
+                <label for="email" class="form-label">
+                  {L.emailLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder={L.emailPlaceholder}
+                  required
+                  aria-required="true"
+                  aria-describedby="email-error"
+                  class="form-input"
+                />
+                <p id="email-error" class="form-error hidden" data-error-for="email">
+                  {L.emailError}
+                </p>
+              </div>
+
+              <div class="form-field">
+                <label for="phone" class="form-label">
+                  {L.phoneLabel}
+                  {' '}
+                  <span class="form-req" aria-hidden="true">*</span>
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder={L.phonePlaceholder}
+                  required
+                  aria-required="true"
+                  aria-describedby="phone-error"
+                  class="form-input"
+                />
+                <p id="phone-error" class="form-error hidden" data-error-for="phone">
+                  {L.phoneError}
+                </p>
+              </div>
+
+              {
+                L.referralOptions.length > 0 && (
+                  <div class="form-field">
+                    <label for="referral" class="form-label">
+                      {L.referralLabel}
+                    </label>
+                    <select id="referral" name="referral" class="form-input">
+                      <option value="">— Select one —</option>
+                      {L.referralOptions.map((opt: string) => (
+                        <option value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                )
+              }
+            </div>
+          </fieldset>
+
+          {/* ── Photos ── */}
+          <fieldset id="q-photos" class="quote-set">
+            <legend class="quote-legend">
+              <span class="quote-legend__num" aria-hidden="true">03</span>
+              <span>{L.attachmentsHeading}</span>
+            </legend>
+            <div class="form-field">
+              <div id="drop-zone" class="drop-zone">
+                <input
+                  id="attachments"
+                  name="attachments"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  multiple
+                  class="drop-zone__input"
+                  aria-label={L.attachmentsHeading}
+                  aria-describedby="attachments-help"
+                />
+                <svg
+                  class="drop-zone__icon"
+                  viewBox="0 0 48 48"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="19"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-dasharray="4 4"
+                    stroke-linecap="round"></circle>
+                  <path
+                    d="M24 31V17m-6 6 6-6 6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+                <p class="text-sm text-[var(--color-text-secondary)]">
+                  Drag & drop photos here, or <span class="text-link underline"
+                    >click to browse</span
+                  >
+                </p>
+                <p id="attachments-help" class="mt-xs text-xs text-[var(--color-text-secondary)]">
+                  {L.attachmentsHelp}
+                </p>
+              </div>
+              <ul id="file-list" class="mt-s list-none space-y-xs" aria-live="polite"></ul>
+              <p id="attachments-error" class="form-error hidden" data-error-for="attachments">
+                {L.attachmentsError}
+              </p>
+            </div>
+          </fieldset>
+
+          {/* ── Notes ── */}
+          <fieldset id="q-notes" class="quote-set">
+            <legend class="quote-legend">
+              <span class="quote-legend__num" aria-hidden="true">04</span>
+              <span>{L.additionalHeading}</span>
+            </legend>
+            <div class="form-field">
+              <label for="notes" class="form-label">{L.notesLabel}</label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                placeholder={L.notesPlaceholder}
+                class="form-input"></textarea>
+            </div>
+          </fieldset>
+
+          <div class="quote-submit">
+            {/* Turnstile */}
+            {
+              turnstileSiteKey && (
+                <div
+                  class="cf-turnstile"
+                  data-sitekey={turnstileSiteKey}
+                  data-callback="onTurnstileSuccess"
+                  data-theme="light"
+                />
+              )
+            }
+
+            {/* Turnaround reassurance */}
+            {
+              L.turnaroundCallout && (
+                <p class="quote-turnaround">
+                  <span class="quote-turnaround__mark" aria-hidden="true" />
+                  <span>{L.turnaroundCallout}</span>
+                </p>
+              )
+            }
+
+            {/* Submit */}
+            <div>
+              <button
+                id="submit-btn"
+                type="submit"
+                data-label={L.submitLabel}
+                data-submitting={L.submittingLabel}
+                class="btn btn-primary quote-submit__btn"
+              >
+                <span id="submit-label">{L.submitLabel}</span>
+              </button>
+              {L.privacyNote && <p class="quote-privacy">{L.privacyNote}</p>}
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -745,286 +856,253 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline />
   )
 }
-
-<script>
-  // ── Pre-fill from the home "Preview Your Combination" deep link ──
-  // The ComboPreview CTA links here with ?item=&font=&thread=&initials=.
-  // item/font now map to <select> options; thread stays free text; initials
-  // append to the personalization textarea. Only act when a param is present,
-  // and never clobber anything the visitor has already chosen or typed.
-  (function prefillFromQuery() {
-    const params = new URLSearchParams(window.location.search);
-    if (![...params.keys()].length) return;
-
-    // Turn a category slug ("bath-towels") into a friendly label ("Bath Towels").
-    const humanize = (slug: string) =>
-      slug
-        .split(/[-_]/)
-        .filter(Boolean)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-
-    // Set a free-text field, but never overwrite existing user input.
-    const setTextValue = (id: string, value: string) => {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
-      if (!el || el.value.trim().length > 0) return;
-      el.value = value;
-    };
-
-    // Select a <select> option case-insensitively. Optional fallback value is
-    // chosen when no option text matches (used for font → "Other").
-    const selectOption = (id: string, wanted: string, fallback?: string) => {
-      const el = document.getElementById(id) as HTMLSelectElement | null;
-      if (!el || el.value.trim().length > 0) return; // don't override a chosen value
-      const target = wanted.trim().toLowerCase();
-      const match = Array.from(el.options).find(
-        (o) => o.value && o.value.trim().toLowerCase() === target,
-      );
-      if (match) {
-        el.value = match.value;
-      } else if (fallback) {
-        const fb = Array.from(el.options).find((o) => o.value === fallback);
-        if (fb) el.value = fb.value;
-      }
-    };
-
-    const item = params.get('item');
-    // The deep link passes a category slug ("hats-caps"); options are labelled by
-    // display name ("Hats & Caps") but carry data-slug. Match the slug first,
-    // then fall back to the humanized / raw text for older links.
-    if (item) {
-      const el = document.getElementById('itemType') as HTMLSelectElement | null;
-      if (el && el.value.trim().length === 0) {
-        const slug = item.trim().toLowerCase();
-        const humanized = humanize(item).toLowerCase();
-        const match = Array.from(el.options).find((o) => {
-          const optSlug = (o.getAttribute('data-slug') ?? '').trim().toLowerCase();
-          const optText = o.value.trim().toLowerCase();
-          return (optSlug && optSlug === slug) || optText === humanized || optText === slug;
-        });
-        if (match) el.value = match.value;
-      }
-    }
-
-    const font = params.get('font');
-    if (font) selectOption('fontPreference', font, 'Other');
-
-    const thread = params.get('thread');
-    if (thread) setTextValue('threadColor', thread);
-
-    const initials = params.get('initials');
-    if (initials) {
-      const field = document.getElementById('personalization') as HTMLTextAreaElement | null;
-      if (field) {
-        const line = `Initials: ${initials}`;
-        field.value = field.value.trim().length > 0 ? `${field.value.trim()}\n${line}` : line;
-      }
-    }
-  })();
-
-  let turnstileToken = '';
-  (window as any).onTurnstileSuccess = (token: string) => {
-    turnstileToken = token;
-  };
-
-  const attachmentsInput = document.getElementById('attachments') as HTMLInputElement | null;
-  const fileList = document.getElementById('file-list') as HTMLUListElement | null;
-  const fileErrorEl = document.querySelector(
-    '[data-error-for="attachments"]',
-  ) as HTMLElement | null;
-  const MAX_FILE_BYTES = 5 * 1024 * 1024;
-
-  function renderFileList() {
-    if (!fileList || !attachmentsInput) return;
-    while (fileList.firstChild) fileList.removeChild(fileList.firstChild);
-
-    let hasOversized = false;
-    Array.from(attachmentsInput.files ?? []).forEach((file) => {
-      const oversized = file.size > MAX_FILE_BYTES;
-      if (oversized) hasOversized = true;
-
-      const li = document.createElement('li');
-      const nameSpan = document.createElement('span');
-      const sizeSpan = document.createElement('span');
-      nameSpan.textContent = file.name;
-      sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ' — TOO LARGE' : ''}`;
-      li.className = `text-xs flex items-center gap-s ${oversized ? 'text-error-text' : 'text-[var(--color-text-secondary)]'}`;
-      li.appendChild(nameSpan);
-      li.appendChild(sizeSpan);
-      fileList.appendChild(li);
-    });
-
-    fileErrorEl?.classList.toggle('hidden', !hasOversized);
-  }
-
-  attachmentsInput?.addEventListener('change', renderFileList);
-
-  const form = document.getElementById('quote-form') as HTMLFormElement | null;
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
-  const submitLabel = document.getElementById('submit-label') as HTMLElement | null;
-  const successEl = document.getElementById('form-success') as HTMLElement | null;
-  const errorEl = document.getElementById('form-error') as HTMLElement | null;
-  const errorMsgEl = document.getElementById('form-error-msg') as HTMLElement | null;
-
-  function setFieldError(fieldId: string, visible: boolean) {
-    const field = document.getElementById(fieldId) as HTMLElement | null;
-    const errEl = document.querySelector(`[data-error-for="${fieldId}"]`) as HTMLElement | null;
-    errEl?.classList.toggle('hidden', !visible);
-    field?.classList.toggle('border-error-text', visible);
-    if (field) {
-      if (visible) field.setAttribute('aria-invalid', 'true');
-      else field.removeAttribute('aria-invalid');
-    }
-  }
-
-  // Clear a field's error as soon as the visitor edits it. Selects fire
-  // 'change'; text inputs/textarea fire 'input'. Attaching both is harmless.
-  [
-    'itemType',
-    'monogramStyle',
-    'placement',
-    'size',
-    'threadCount',
-    'personalization',
-    'name',
-    'email',
-    'phone',
-  ].forEach((id) => {
-    const el = document.getElementById(id);
-    el?.addEventListener('input', () => setFieldError(id, false));
-    el?.addEventListener('change', () => setFieldError(id, false));
-  });
-  // Ownership is a radio group — clear its error when any option is chosen.
-  document.querySelectorAll('input[name="ownership"]').forEach((el) => {
-    el.addEventListener('change', () => setFieldError('ownership', false));
-  });
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    let valid = true;
-    let firstInvalidId: string | null = null;
-    // For selects, a non-empty value is valid — "Recommend for me" / "Not sure"
-    // are legitimate submitted values, only the "— Select one —" placeholder
-    // (value "") is treated as empty.
-    const nonEmpty = (v: string) => v.trim().length > 0;
-    const required: Array<{ id: string; check: (v: string) => boolean }> = [
-      { id: 'itemType', check: nonEmpty },
-      { id: 'monogramStyle', check: nonEmpty },
-      { id: 'placement', check: nonEmpty },
-      { id: 'size', check: nonEmpty },
-      { id: 'threadCount', check: nonEmpty },
-      { id: 'personalization', check: nonEmpty },
-      { id: 'name', check: nonEmpty },
-      { id: 'email', check: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
-      { id: 'phone', check: nonEmpty },
-    ];
-    required.forEach(({ id, check }) => {
-      const el = document.getElementById(id) as
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
-      const ok = el ? check(el.value) : false;
-      setFieldError(id, !ok);
-      if (!ok) {
-        valid = false;
-        if (!firstInvalidId) firstInvalidId = id;
-      }
-    });
-
-    // Ownership radio group — required. The radiogroup <div> now carries
-    // id="ownership", so setFieldError toggles both the error message and
-    // aria-invalid on the group itself (mirroring single-input fields).
-    const ownershipChecked = !!(form.querySelector(
-      'input[name="ownership"]:checked',
-    ) as HTMLInputElement | null);
-    setFieldError('ownership', !ownershipChecked);
-    if (!ownershipChecked) {
-      valid = false;
-      if (!firstInvalidId) firstInvalidId = 'ownership';
-    }
-
-    const files = Array.from(attachmentsInput?.files ?? []);
-    if (files.some((f) => f.size > MAX_FILE_BYTES)) {
-      valid = false;
-      if (!firstInvalidId) firstInvalidId = 'attachments';
-    }
-    if (!valid) {
-      if (firstInvalidId) {
-        // Ownership + attachments have no element with a matching id — fall back
-        // to the first radio / the file input respectively.
-        const target = (
-          firstInvalidId === 'ownership'
-            ? form.querySelector('input[name="ownership"]')
-            : document.getElementById(firstInvalidId)
-        ) as HTMLElement | null;
-        target?.focus();
-        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
-
-    const data = new FormData(form);
-    if (turnstileToken) data.set('cf-turnstile-response', turnstileToken);
-
-    if (submitBtn) submitBtn.disabled = true;
-    if (submitLabel) submitLabel.textContent = submitBtn?.dataset.submitting ?? 'Sending…';
-    errorEl?.classList.add('hidden');
-
-    try {
-      const res = await fetch('/api/quote', { method: 'POST', body: data });
-      if (res.redirected || res.status === 303) {
-        const dest = res.redirected ? res.url : (res.headers.get('Location') ?? '/thank-you');
-        successEl?.classList.remove('hidden');
-        setTimeout(() => {
-          window.location.href = dest;
-        }, 1200);
-        return;
-      }
-      if (res.ok) {
-        successEl?.classList.remove('hidden');
-        setTimeout(() => {
-          window.location.href = '/thank-you';
-        }, 1200);
-      } else {
-        const body = await res.json().catch(() => ({}));
-        if (errorMsgEl)
-          errorMsgEl.textContent =
-            (body as { error?: string }).error ?? 'An unexpected error occurred.';
-        errorEl?.classList.remove('hidden');
-        if (submitBtn) submitBtn.disabled = false;
-        if (submitLabel)
-          submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
-      }
-    } catch {
-      if (errorMsgEl) errorMsgEl.textContent = 'Network error — please check your connection.';
-      errorEl?.classList.remove('hidden');
-      if (submitBtn) submitBtn.disabled = false;
-      if (submitLabel)
-        submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
-    }
-  });
-</script>
+<QuotePrefillScript />
+<QuoteFormScript />
 
 <style>
   @reference "../styles/globals.css";
 
+  /* ── Intro ─────────────────────────────────────────────────────────── */
+  .quote-trust-mark {
+    flex: none;
+    width: 0.9rem;
+    height: 0.5rem;
+    margin-top: 0.4rem;
+    border-left: 2px solid var(--color-gold);
+    border-bottom: 2px solid var(--color-gold);
+    transform: rotate(-45deg);
+  }
+  .quote-hero-art {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .quote-hero-art__props {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  .quote-hero-art__props :global(.spool) {
+    width: auto;
+  }
+  .quote-hero-art__props :global(.quote-hero-art__needle) {
+    position: absolute;
+    right: -4.5rem;
+    top: -1.5rem;
+  }
+  @media (max-width: 63.999rem) {
+    .quote-hero-art__props {
+      display: none;
+    }
+    .quote-hero-art {
+      align-items: flex-start;
+    }
+  }
+
+  /* ── Layout ────────────────────────────────────────────────────────── */
+  .quote-layout {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  .quote-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+  .quote-aside__steps {
+    display: none;
+  }
+  @media (min-width: 64rem) {
+    .quote-layout {
+      grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr);
+      gap: 3.5rem;
+    }
+    .quote-aside {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+    .quote-aside__steps {
+      display: block;
+    }
+  }
+
+  /* The form card: paper, a fine stitched inner edge, a soft lift. */
+  .quote-card {
+    position: relative;
+    padding: clamp(1.25rem, 0.6rem + 3vw, 3rem);
+    border-radius: 10px;
+    background-color: var(--color-paper);
+    background-image: var(--tex-paper);
+    background-size: var(--tex-paper-size);
+    box-shadow:
+      0 40px 70px -48px rgb(15 27 45 / 0.55),
+      0 0 0 1px rgb(38 49 46 / 0.08);
+  }
+  .quote-card::before {
+    content: '';
+    position: absolute;
+    inset: 0.6rem;
+    border: 1.5px dashed rgb(185 138 62 / 0.4);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+  .quote-status {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 6px;
+    border: 1px solid;
+  }
+  .quote-status--ok {
+    border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+    background: color-mix(in srgb, var(--color-primary) 9%, transparent);
+    color: var(--color-primary);
+  }
+  .quote-status--error {
+    @apply border-error-border bg-error-surface text-error-text;
+  }
+  .quote-form {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+  .quote-required {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+  .quote-set {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    scroll-margin-top: calc(var(--header-h) + 1.5rem);
+  }
+  .quote-legend {
+    display: flex;
+    align-items: baseline;
+    gap: 0.9rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    padding: 0 0 0.9rem;
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--foreground);
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--stitch-color) 0 8px,
+      transparent 8px 13px
+    );
+    background-size: 100% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+  }
+  .quote-legend__num {
+    font-style: italic;
+    font-size: 0.75em;
+    color: #8c3a2e;
+    font-variant-numeric: oldstyle-nums;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 1.5rem 1.25rem;
+  }
+  @media (min-width: 40rem) {
+    .form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .form-field--wide {
+      grid-column: span 2;
+    }
+  }
+  @media (min-width: 64rem) and (max-width: 74rem) {
+    .form-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .form-field--wide {
+      grid-column: auto;
+    }
+  }
+
+  /* ── Fields ────────────────────────────────────────────────────────── */
   .form-label {
     @apply mb-xs block text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase;
   }
+  .form-req {
+    color: #8c3a2e;
+  }
   .form-input {
     /* Interactive controls need a resting border that clears WCAG 1.4.11 (3:1)
-       against the Linen page bg, since the border is the only affordance. The
+       against the page bg, since the border is the only affordance. The
        global --border token (#B7AD99, 1.92:1) is for decorative hairlines and
        is intentionally left alone; here we use --color-border-interactive
        (3.68:1 on Linen). Focus ring carries its own indicator: a full-Indigo ring
        detached by a 2px offset (8.16:1), not a faint /30 tint. */
-    @apply block min-h-[44px] w-full rounded-md border border-border-interactive bg-background px-m py-s text-sm text-foreground transition-colors focus:border-primary focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)] focus:outline-none;
+    @apply block min-h-[48px] w-full rounded-[4px] border border-border-interactive bg-white px-m py-s text-base text-foreground transition-colors focus:border-primary focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2 focus:ring-offset-[var(--color-paper)] focus:outline-none;
+    box-shadow: inset 0 1px 2px rgb(38 49 46 / 0.06);
+  }
+  .form-input::placeholder {
+    color: var(--color-text-tertiary);
+  }
+  .form-input--short {
+    max-width: 10rem;
+  }
+  .form-input:hover {
+    border-color: var(--color-primary);
+  }
+  .form-input[aria-invalid='true'] {
+    border-color: var(--color-error-text, #9b2c22);
+    background-color: color-mix(in srgb, var(--color-error-surface, #fbeae7) 60%, white);
   }
   /* Radios and checkboxes. The native glyph is 13px and cannot carry the
      invisible 44px hit area (a native control has no ::after), so they are
-     drawn here, 18px, in the same Indigo the old accent-primary gave them. The
-     markup adds `hit-44` (globals.css, PORTS.md card 82) for the 44px area and
-     the surrounding <label> carries min-h-[44px]. High-contrast mode gets the
-     native control back. */
+     drawn here, 18px, in Indigo. The markup adds `hit-44` (globals.css,
+     PORTS.md card 82) for the 44px area and the surrounding <label> (.choice)
+     carries min-h 44px. High-contrast mode gets the native control back. */
+  .choice-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  @media (min-width: 40rem) {
+    .choice-row--inline {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 48px;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border-soft);
+    border-radius: 4px;
+    background: rgb(255 255 255 / 0.55);
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition:
+      border-color 320ms var(--ease-thread),
+      background-color 320ms var(--ease-thread);
+  }
+  .choice:hover {
+    border-color: var(--color-border-interactive);
+  }
+  .choice:has(.choice-input:checked) {
+    border-color: var(--color-primary);
+    background: #fff;
+    box-shadow: inset 3px 0 0 var(--color-primary);
+  }
   .choice-input {
     appearance: none;
     position: relative;
@@ -1034,7 +1112,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     margin: 0;
     cursor: pointer;
     border: 1.5px solid var(--color-border-interactive);
-    background-color: var(--background);
+    background-color: #fff;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100% 100%;
@@ -1050,7 +1128,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
     background-color: var(--color-primary);
   }
   .choice-input[type='radio']:checked {
-    box-shadow: inset 0 0 0 3px var(--background);
+    box-shadow: inset 0 0 0 3px #fff;
   }
   .choice-input[type='checkbox']:checked {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.5l3 3 6-6.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -1066,6 +1144,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
   }
   textarea.form-input {
     resize: vertical;
+    min-height: 6.5rem;
   }
   /* A <select> keeps the same box but draws its focus indicator as an OUTLINE.
      Tailwind's focus:ring-* compiles to a box-shadow, and WebKit renders
@@ -1083,25 +1162,131 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
      An outline paints on native controls in every engine and follows the
      border radius. Full Indigo at 2px, detached by a 2px offset, is exactly
      what the ring above draws (8.16:1 on Linen), so the indicator is
-     unchanged to look at and now actually exists. Do not swap it back. */
-  Written as plain CSS rather than `@apply focus:outline-2 ...` on purpose:
+     unchanged to look at and now actually exists. Do not swap it back.
+
+     Written as plain CSS rather than `@apply focus:outline-2 ...` on purpose:
      the utility form only sets `outline-style: var(--tw-outline-style)`, and
      the `focus:outline-none` already on `.form-input` has pinned that variable
      to `none`, so the outline would come out 2px wide and invisible. */
   select.form-input {
     @apply focus:ring-0 focus:ring-offset-0;
+    appearance: none;
+    padding-right: 2.75rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7.5l5 5 5-5' fill='none' stroke='%2328486b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 1.1rem;
   }
   select.form-input:focus {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
   .form-help {
-    @apply mt-xs text-xs text-[var(--color-text-secondary)];
+    @apply mt-xs text-sm text-[var(--color-text-secondary)];
+  }
+  .form-help__link {
+    margin-left: 0.35rem;
+    color: var(--link);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .form-help__link:hover {
+    color: var(--color-primary-dark);
   }
   .form-error {
-    @apply mt-xs text-xs text-error-text;
+    @apply mt-xs text-sm font-semibold text-error-text;
   }
   .form-field {
     @apply flex flex-col;
+    min-width: 0;
+  }
+
+  /* ── Upload ────────────────────────────────────────────────────────── */
+  .drop-zone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    border: 2px dashed var(--color-border-interactive);
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.5);
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 320ms var(--ease-thread),
+      background-color 320ms var(--ease-thread);
+  }
+  .drop-zone:hover,
+  .drop-zone:focus-within {
+    border-color: var(--color-primary);
+    background: #fff;
+  }
+  .drop-zone:focus-within {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  .drop-zone__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    opacity: 0;
+  }
+  .drop-zone__icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-brass-text);
+  }
+
+  /* ── Submit ────────────────────────────────────────────────────────── */
+  .quote-submit {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-top: 1.75rem;
+    border-top: 1.5px dashed var(--color-border-soft);
+  }
+  .quote-turnaround {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+  .quote-turnaround__mark {
+    flex: none;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: #8c3a2e;
+    box-shadow: 0 0 0 4px rgb(140 58 46 / 0.15);
+  }
+  .quote-submit__btn {
+    width: 100%;
+  }
+  @media (min-width: 40rem) {
+    .quote-submit__btn {
+      width: auto;
+      min-width: 18rem;
+    }
+  }
+  .quote-submit__btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .quote-privacy {
+    margin: 0.85rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--color-text-secondary);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .choice,
+    .drop-zone {
+      transition: none;
+    }
   }
 </style>

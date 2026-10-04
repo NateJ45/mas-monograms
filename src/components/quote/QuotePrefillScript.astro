@@ -1,0 +1,203 @@
+---
+// Pre-fills the quote form from a deep link and shows the Atelier preview.
+//
+// Query-string contract (every value capped at 64 characters, validated
+// against a whitelist, written with .value / textContent, never as HTML):
+//   ?item=<itemCategory slug>    selects that Item type option (data-slug,
+//                                then the humanised or raw name, as before)
+//   ?font=<font name>            selects that Font option, else "Other"
+//   ?thread=<threadColor slug>   Thread colour field <- the thread's Sanity
+//                                name (a thread name is accepted too)
+//   ?initials=<1-3 letters>      Personalization gets "<initialsLabel>: ABC";
+//                                3 letters also select "Three-letter monogram"
+//   ?style=classic|script|block|circle|single
+//                                Personalization gets "<styleLabel>: <label>"
+//   ?fabric=<atelierSettings fabric key>
+//                                Item description gets "<fabricLabel>: <label>"
+// Labels come from atelierSettings (Sanity). Nothing the visitor has already
+// typed or chosen is overwritten, and a line already present is not repeated.
+// With valid initials the preview (QuotePreview.astro) is revealed and the
+// stage is set to the requested design before it starts stitching.
+---
+
+<script>
+  import type { Atelier } from '@/lib/atelier/engine';
+
+  type Prefill = {
+    threads: Array<{ slug: string; name: string; hex: string }>;
+    fabrics: Array<{ key: string; label: string; color: string; texture: string }>;
+    styles: Array<{ key: string; label: string }>;
+    labels: { initials: string; style: string; thread: string; fabric: string };
+  };
+  type StageEl = HTMLElement & { __atelier?: Atelier };
+
+  const STYLE_KEYS = ['classic', 'script', 'block', 'circle', 'single'];
+  const MAX = 64;
+
+  function readData(el: HTMLElement | null): Prefill | null {
+    try {
+      const d = JSON.parse(el?.dataset.prefill ?? '');
+      return d && Array.isArray(d.threads) ? (d as Prefill) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function param(params: URLSearchParams, key: string): string {
+    return (params.get(key) ?? '').slice(0, MAX).trim();
+  }
+
+  const slugish = (v: string) => v.toLowerCase().replace(/[^a-z0-9-]/g, '');
+
+  function cleanInitials(v: string) {
+    // initials look like "ABC", "a.b.c" or "A B"; anything else is junk, not
+    // letters to salvage (so "<img ...>" never becomes "IMG")
+    if (!/^[\p{L}\p{N}&.\s-]*$/u.test(v)) return '';
+    return Array.from(v.toLocaleUpperCase())
+      .filter((c) => /[\p{L}\p{N}&]/u.test(c))
+      .slice(0, 3)
+      .join('');
+  }
+
+  function humanize(slug: string) {
+    return slug
+      .split(/[-_]/)
+      .filter(Boolean)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  function setText(id: string, value: string) {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+    if (!el || !value || el.value.trim().length > 0) return;
+    el.value = value;
+  }
+
+  function appendLine(id: string, line: string) {
+    const el = document.getElementById(id) as HTMLTextAreaElement | HTMLInputElement | null;
+    if (!el || !line) return;
+    const cur = el.value.trim();
+    if (cur.split('\n').some((l) => l.trim() === line)) return;
+    el.value = cur ? `${cur}\n${line}` : line;
+  }
+
+  function selectBy(id: string, match: (o: HTMLOptionElement) => boolean, fallback?: string) {
+    const el = document.getElementById(id) as HTMLSelectElement | null;
+    if (!el || el.value.trim().length > 0) return; // never override a choice
+    const hit = Array.from(el.options).find((o) => o.value && match(o));
+    if (hit) el.value = hit.value;
+    else if (fallback) {
+      const fb = Array.from(el.options).find((o) => o.value === fallback);
+      if (fb) el.value = fb.value;
+    }
+  }
+
+  function run() {
+    const preview = document.querySelector<HTMLElement>('[data-quote-preview]');
+    if (!document.getElementById('quote-form') || preview?.dataset.prefilled) return;
+    if (preview) preview.dataset.prefilled = '1';
+    const params = new URLSearchParams(window.location.search);
+    if (![...params.keys()].length) return;
+    const data = readData(preview);
+
+    // item: category slug first (options carry data-slug), then names
+    const item = param(params, 'item');
+    if (item) {
+      const slug = item.toLowerCase();
+      const human = humanize(item).toLowerCase();
+      selectBy('itemType', (o) => {
+        const s = (o.getAttribute('data-slug') ?? '').trim().toLowerCase();
+        const t = o.value.trim().toLowerCase();
+        return (!!s && s === slug) || t === human || t === slug;
+      });
+    }
+
+    const font = param(params, 'font');
+    if (font) {
+      const want = font.toLowerCase();
+      selectBy('fontPreference', (o) => o.value.trim().toLowerCase() === want, 'Other');
+    }
+
+    const threadRaw = param(params, 'thread');
+    const thread = threadRaw
+      ? data?.threads.find(
+          (t) => t.slug === slugish(threadRaw) || t.name.toLowerCase() === threadRaw.toLowerCase(),
+        )
+      : undefined;
+    if (thread) setText('threadColor', thread.name);
+
+    const initials = cleanInitials(param(params, 'initials'));
+    const styleKey = param(params, 'style').toLowerCase();
+    const style = STYLE_KEYS.includes(styleKey)
+      ? (data?.styles.find((s) => s.key === styleKey) ?? null)
+      : null;
+    const fabricRaw = slugish(param(params, 'fabric'));
+    const fabric = fabricRaw ? data?.fabrics.find((f) => f.key === fabricRaw) : undefined;
+    const L = data?.labels;
+
+    if (initials) {
+      appendLine('personalization', `${L?.initials || 'Initials'}: ${initials}`);
+      if (initials.length === 3)
+        selectBy('monogramStyle', (o) => o.value === 'Three-letter monogram');
+    }
+    if (style) appendLine('personalization', `${L?.style || 'Style'}: ${style.label}`);
+    if (fabric) setText('itemDescription', `${L?.fabric || 'Fabric'}: ${fabric.label}`);
+
+    if (!initials || !preview || !data) return;
+
+    // Reveal the preview with the requested design.
+    const stage = preview.querySelector<StageEl>('[data-atelier-stage]');
+    const spec = preview.querySelector<HTMLElement>('[data-qp-spec]');
+    const rows: Array<[string, string]> = [[L?.initials ?? '', initials]];
+    if (style) rows.push([L?.style ?? '', style.label]);
+    if (thread) rows.push([L?.thread ?? '', thread.name]);
+    if (fabric) rows.push([L?.fabric ?? '', fabric.label]);
+    if (spec) {
+      spec.replaceChildren();
+      for (const [k, v] of rows) {
+        if (!k) continue;
+        const dt = document.createElement('dt');
+        const dd = document.createElement('dd');
+        dt.textContent = k;
+        dd.textContent = v;
+        spec.append(dt, dd);
+      }
+    }
+    if (stage) {
+      const d = stage.dataset;
+      d.text = initials;
+      d.style = style?.key ?? 'classic';
+      if (thread) d.thread = thread.hex;
+      if (fabric) {
+        d.fabric = fabric.color;
+        d.texture = fabric.texture;
+      }
+      stage.style.setProperty('--atelier-thread', d.thread ?? '');
+      stage.style.setProperty('--atelier-fabric', d.fabric ?? '');
+      const fb = stage.querySelector('.atelier-stage__initials');
+      if (fb) fb.textContent = initials;
+      stage.querySelector('canvas')?.setAttribute(
+        'aria-label',
+        rows
+          .filter(([k]) => k)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join('. '),
+      );
+      // The engine reads data-* when it first comes into view; if it is
+      // already running, hand it the design directly.
+      if (stage.__atelier && stage.dataset.ready) {
+        void stage.__atelier.setDesign({
+          text: initials,
+          style: d.style as 'classic',
+          thread: d.thread,
+          fabric: d.fabric,
+          fabricTexture: d.texture as 'linen',
+        });
+      }
+    }
+    preview.hidden = false;
+  }
+
+  run();
+  document.addEventListener('astro:page-load', run);
+</script>

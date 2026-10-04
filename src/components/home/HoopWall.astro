@@ -1,0 +1,191 @@
+---
+// The hoop wall (home): every item category hung salon-style on the Midnight
+// ground, each photo stretched in a wooden hoop with a kraft hang tag carrying
+// its name. Hoops lift on hover and focus; each links to its category page.
+// A category without a photo (Bring Your Own Item) hangs as an empty linen
+// hoop with a half-sewn ornament. Copy from homePage (categories*).
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import HangTag from '@/components/motifs/HangTag.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
+import { swashSplit } from './swashSplit';
+
+interface Props {
+  page: any;
+  categories: any[];
+  headingId?: string;
+}
+const { page, categories, headingId = 'hoop-wall-heading' } = Astro.props as Props;
+
+const items = (categories ?? []).filter((c) => c?.name && c?.slug?.current).slice(0, 8);
+const head = swashSplit(page?.categoriesHeadline);
+
+// Salon hang: size (px), drop and tilt per position, so the wall reads as
+// hung by hand rather than gridded. Rendering choices only.
+const HANG = [
+  { size: 300, drop: 0, tilt: -3, tag: 4 },
+  { size: 236, drop: 84, tilt: 2.5, tag: -5 },
+  { size: 276, drop: 18, tilt: -1.5, tag: 3 },
+  { size: 228, drop: 104, tilt: 3, tag: -3 },
+  { size: 254, drop: 30, tilt: 2, tag: -4 },
+  { size: 292, drop: 0, tilt: -2.5, tag: 5 },
+  { size: 232, drop: 70, tilt: 1.5, tag: -2 },
+  { size: 268, drop: 12, tilt: -3, tag: 3 },
+];
+// Crops chosen by eye for the current card photos (no Sanity hotspots set).
+const FOCAL: Record<string, { x: number; y: number }> = {};
+---
+
+<section class="hoop-wall surface-midnight py-section-lg" aria-labelledby={headingId}>
+  <div class="mx-auto max-w-content px-m">
+    <header class="mx-auto mb-section-md max-w-3xl text-center">
+      {
+        page?.categoriesEyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {page.categoriesEyebrow}
+          </p>
+        )
+      }
+      {
+        (head.before || head.swash) && (
+          <h2 id={headingId} class="display-sm" data-reveal>
+            {head.before}
+            <em class="swash">{head.swash}</em>
+          </h2>
+        )
+      }
+      {
+        page?.categoriesSubhead && (
+          <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+            {page.categoriesSubhead}
+          </p>
+        )
+      }
+    </header>
+
+    <ul class="hoop-wall__list" role="list" data-reveal-stagger="90">
+      {
+        items.map((cat: any, i: number) => {
+          const h = HANG[i % HANG.length];
+          const slug = cat.slug.current;
+          const hasPhoto = !!cat.cardImage?.asset;
+          return (
+            <li class="hoop-wall__item" style={`--drop:${h.drop}px`} data-reveal>
+              <a href={`/${slug}`} class="hoop-wall__link">
+                <span class="hoop-wall__hoop" style={`--hs:${h.size}px`}>
+                  <HoopFrame
+                    image={hasPhoto ? cat.cardImage : null}
+                    alt=""
+                    size={h.size}
+                    tilt={h.tilt}
+                    focal={FOCAL[slug] ?? { x: 0.5, y: 0.5 }}
+                  />
+                  {!hasPhoto && <EmptyHoopOrnament class="hoop-wall__ornament" />}
+                </span>
+                <HangTag title={cat.name} size="sm" tilt={h.tag} class="hoop-wall__tag" />
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    {
+      page?.categoriesNote && (
+        <div class="hoop-wall__note mx-auto mt-section-md max-w-2xl text-center" data-reveal>
+          <RunningStitch ornament="cross" length="min(16rem, 70%)" class="mx-auto mb-m" />
+          <p class="font-display text-xl text-[var(--color-text-secondary)] italic">
+            {page.categoriesNote}
+          </p>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .hoop-wall__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 1rem;
+    align-items: start;
+  }
+  @media (min-width: 768px) {
+    .hoop-wall__list {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 3rem 1.5rem;
+    }
+    .hoop-wall__item {
+      margin-top: var(--drop);
+    }
+  }
+  .hoop-wall__item {
+    display: flex;
+    justify-content: center;
+  }
+  .hoop-wall__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 12px;
+  }
+  .hoop-wall__hoop {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    transition: transform 700ms var(--ease-thread);
+  }
+  .hoop-wall__link:hover .hoop-wall__hoop,
+  .hoop-wall__link:focus-visible .hoop-wall__hoop {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  .hoop-wall__link:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 8px;
+  }
+  .hoop-wall__hoop :global(.hoop__ring) {
+    transition: box-shadow 700ms var(--ease-thread);
+  }
+  .hoop-wall__link:hover .hoop-wall__hoop :global(.hoop__ring),
+  .hoop-wall__link:focus-visible .hoop-wall__hoop :global(.hoop__ring) {
+    box-shadow:
+      0 50px 60px -30px rgb(0 0 0 / 0.7),
+      0 0 0 6px rgb(240 213 138 / 0.12),
+      inset 0 0 0 1px rgb(78 48 20 / 0.4),
+      inset 0 2px 2px rgb(255 240 214 / 0.55);
+  }
+  /* the ornament sits on the empty hoop's linen (HoopFrame has no slot) */
+  .hoop-wall__hoop :global(.hoop-wall__ornament) {
+    position: absolute;
+    left: 50%;
+    bottom: 6.4%;
+    width: calc(min(100%, var(--hs)) * 0.868);
+    aspect-ratio: 1;
+    translate: -50% 0;
+    pointer-events: none;
+  }
+  .hoop-wall__link :global(.hoop-wall__tag) {
+    margin-top: -2.4rem;
+    z-index: 1;
+    transition: transform 700ms var(--ease-thread);
+  }
+  .hoop-wall__link:hover :global(.hoop-wall__tag),
+  .hoop-wall__link:focus-visible :global(.hoop-wall__tag) {
+    transform: rotate(0deg);
+  }
+  @media (max-width: 767px) {
+    .hoop-wall__link :global(.hangtag) {
+      --tag-w: 9.5rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hoop-wall__link:hover .hoop-wall__hoop,
+    .hoop-wall__link:focus-visible .hoop-wall__hoop {
+      transform: none;
+    }
+  }
+</style>
