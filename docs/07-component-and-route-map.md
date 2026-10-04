@@ -40,7 +40,7 @@ src/
                                 an idle moment, then swaps the real menu in (flushSync, no blank frame).
                                 Keeps React (~80 KB) off the first paint. tests/features.spec.ts covers it
     Footer.astro
-    Logo.astro                  the hybrid logo: Flourished-Initial lockup + Badge mark
+    Logo.astro                  the logo system: Hoop Seal (mark, seal) + Signature Thread wordmark
     Hero.astro                  legacy page hero; only the /preview shell and a unit test still use it
                                 (with HeroBackground, HeroFillScript, HeroSlideshowScript, HeroTriScript).
                                 The live pages use their own Direction D heroes

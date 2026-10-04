@@ -408,7 +408,14 @@ test.describe('FAQ accordion', () => {
     const trigger = triggers.first();
     await trigger.scrollIntoViewIfNeeded();
     const answer = page.locator('[data-slot="accordion-content"]').first();
-    // client:visible: wait for hydration before judging the closed state
+    // client:visible: wait for hydration before judging the closed state. The island's
+    // `ssr` attribute goes when React has hydrated; a click before that lands on static
+    // markup and does nothing (a load-dependent flake, 1 in 10 under 6 workers, 2026-10-04).
+    await expect(page.locator('astro-island[component-url*="FaqAccordion"]')).not.toHaveAttribute(
+      'ssr',
+      /.*/,
+      { timeout: 10_000 },
+    );
     await expect(answer).toBeHidden({ timeout: 10_000 });
     await trigger.click();
     await expect(answer).toBeVisible();

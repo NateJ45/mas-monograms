@@ -189,6 +189,32 @@ export default function BrandKit() {
           </Stack>
         </Card>
 
+        {/* ── Logo files (2026-10-04 logo system) ───────────────────────────── */}
+        <Card padding={4} radius={2} shadow={1} tone="default">
+          <Stack space={3}>
+            <Heading as="h2" size={1}>
+              Your logo
+            </Heading>
+            <Text size={1}>
+              Two pieces that work together. <strong>The Hoop Seal</strong> (your initials, with a
+              gold thread S sewn through them, in an embroidery hoop) is your main mark: use it for
+              stickers, tags, profile pictures and anywhere it can sit on its own.{' '}
+              <strong>The thread wordmark</strong> (MAS Monograms with a gold thread under it) is
+              for wide spaces like letterheads, email signatures and banners.
+            </Text>
+            <Text size={1}>
+              Download them here (right-click a link and choose Save link as): the{' '}
+              <a href="/brand/seal-light.svg">seal for light backgrounds</a>, the{' '}
+              <a href="/brand/seal-dark.svg">seal for dark backgrounds</a>, the{' '}
+              <a href="/brand/mark-light.svg">plain hoop mark (light)</a>, the{' '}
+              <a href="/brand/mark-dark.svg">plain hoop mark (dark)</a>, the{' '}
+              <a href="/brand/wordmark-light.svg">wordmark (light)</a> and the{' '}
+              <a href="/brand/wordmark-dark.svg">wordmark (dark)</a>. They are SVG files, so they
+              stay sharp at any size; Canva accepts them as uploads.
+            </Text>
+          </Stack>
+        </Card>
+
         {/* ── Colors ────────────────────────────────────────────────────────── */}
         <Box>
           <Heading as="h2" size={1} style={{ marginBottom: '1rem' }}>

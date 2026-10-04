@@ -3,8 +3,8 @@
   "short_name": "MAS",
   "start_url": "/",
   "display": "browser",
-  "background_color": "#F4EEE3",
-  "theme_color": "#F4EEE3",
+  "background_color": "#0F1B2D",
+  "theme_color": "#0F1B2D",
   "icons": [
     {
       "src": "/icon-192.png",

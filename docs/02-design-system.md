@@ -40,7 +40,7 @@ for every rule. Persuasion comes from craft and clarity, never from invented pro
 
 | Token                     | Hex       | Use                                                                         |
 | ------------------------- | --------- | --------------------------------------------------------------------------- |
-| `--color-midnight`        | `#0F1B2D` | The drench: dark sections, header strip, mobile menu, footer, BackToTop     |
+| `--color-midnight`        | `#0F1B2D` | The drench: dark sections, mobile menu, footer, BackToTop, theme-color      |
 | `--color-midnight-raised` | `#172A42` | A panel on Midnight (`--card` in a dark context)                            |
 | `--color-paper`           | `#FBF8F1` | Paper as a named token                                                      |
 | `--color-on-dark-muted`   | `#C8C0B0` | Secondary text on any dark ground (9.57:1 Midnight, 5.21:1 Indigo)          |
@@ -134,7 +134,9 @@ hijacking, all vanilla CSS/TS.
   behind (Range client rects, reveal translate undone) and writes two dim zones per line into an SVG
   luminance mask on the thread group (wide soft ring, tighter darker core, no blur filter), so the
   thread stays bright in the gaps and recedes behind copy.
-- **Header**: condenses and solidifies on scroll (it no longer hides on scroll-down).
+- **Header**: past 24px of scroll the full-width row detaches into a floating glass pill (the
+  Reid Design pattern) and the seal gives way to the wordmark; back at the top it returns. It
+  never hides on scroll-down. Reduced motion: the same states with no transition.
 - **Marquee**: CSS animation, pauses on hover/focus and via its button; still under reduced motion.
 - Hover/focus: the button fill sweep, the stitched link sewing solid, card lifts.
 - `prefers-reduced-motion` honoured everywhere (see gotcha 14 in `.claude/rules/design-system.md`).
@@ -151,13 +153,26 @@ All strings come from Sanity through props; short neutral fallbacks only where n
   `<main>` up under a transparent header and give their first, dark section `.pt-header`),
   `thread?: boolean` (default `true`). Sets `html.js` before first paint; renders `ThreadLine` and
   `RevealScript`.
-- **`Header.astro`**: `tone?: 'solid' | 'overlay'` (BaseLayout passes it). Midnight contact strip
-  (desktop, folds away on scroll), linen row, stitched hem; `[data-scrolled]` = paper glass, 4rem row.
-  The sticky outer box reserves `--header-h` (4.25rem mobile, 7.25rem desktop), so nothing shifts.
-- **`MobileNav.tsx`**: same props and behaviour; a full-screen Midnight panel, running-stitch
-  dividers, the active page in the swash, the paper `.btn` CTA.
-- **`Footer.astro`**: same props; Midnight statement footer with the brand name as a giant outline
-  sewn in a gold running stitch; all 44px rows kept.
+- **`Header.astro`** (2026-10-04 rework): `tone?: 'solid' | 'overlay'` (BaseLayout passes it). No top
+  rail. From 75rem (1200px): the Site Settings menu split either side of the centred Hoop Seal
+  (`<Logo mark />`, 5.1rem), the quote button at the right, a running-stitch hem with a gap under the
+  seal. Below 75rem: seal + wordmark at the left, the menu button at the right. `[data-scrolled]`
+  (past 24px) turns the row into an inset, rounded paper-glass pill (blur, hairline, a stitched inner
+  edge, soft shadow); on desktop the seal shrinks and fades as the wordmark draws in. The sticky outer
+  box reserves `--header-h` (4.5rem below 75rem, 6.5rem from it) in both states, so nothing shifts.
+  Overlay at rest is a dark context; the pill is a light one. No JS: a solid Midnight row. Dropdowns
+  are native `<details>` with the hover-intent / Escape / outside-click script; panels are paper cards
+  with a stitched edge. CSS: "Site header" in `globals.css`. Test: `tests/header.spec.ts`.
+- **`MobileNav.tsx`**: same props and behaviour plus `brandName`; a full-screen Midnight panel with
+  the wordmark in its top bar, running-stitch dividers, the active page in the swash, the paper `.btn`
+  CTA, and "At the bench" (phone and email from Site Settings; no hours) at the foot.
+- **`Footer.astro`** (compact rework 2026-10-04): same props. A pinked top edge and a gold
+  running-stitch hem ending in a thread tail and a small needle; the brand block (the Hoop Seal beside
+  the wordmark, both `public/brand/*-dark.svg`, the tagline, one contact cluster); the Site Settings
+  link columns side by side (a column of more than five links flows into two sub-columns; four on
+  tablets); one bottom row (copyright, small print, `footerCredit`). Phones: a two-column link grid.
+  The bottom row keeps clear of BackToTop. Heights on /pricing, before and after: 919 to 413px at
+  1440, 864 to 566 at 1024, 1097 to 619 at 768, 1288 to 994 at 390, 1343 to 1154 at 320. All rows 44px.
 - **`BackToTop.tsx`**: 48px Midnight button with a gold thread ring that winds with scroll progress.
 
 ### Typography and actions

@@ -1,15 +1,16 @@
 ---
-// MAS Monograms site footer.
-// Layout (Direction D, "The Atelier", 2026-10-04), a Midnight statement footer:
-//   1. Two-part main block: a brand column (logo + tagline + contact + social)
-//      on the left, the navigation link columns on the right
-//   2. The brand name as a giant outline sewn in a gold running stitch
-//   3. A full-width running stitch, then the bottom bar:
-//      copyright · legal links · site credit
-// Every row link keeps the 44px tap floor from PR #72 (PORTS cards 82, 83).
-// Link columns are editor-managed via siteSettings.footerColumns (with a
-// sensible fallback). Contact + social live in the brand column, so they show
-// whether or not custom columns are set.
+// MAS Monograms site footer (compact rework, 2026-10-04).
+// A Midnight band with a pinked top edge (cut like fabric with pinking shears) and a gold
+// running-stitch hem that ends in a thread tail and a small needle. Then:
+//   1. The brand block: the Hoop Seal (gold on Midnight) beside the Signature Thread
+//      wordmark, the tagline, and one tidy cluster of contact (place, email, phone).
+//   2. The link columns from Site Settings, side by side; a long column (the eight item
+//      categories) flows into two sub-columns, so nothing becomes one tall list.
+//   3. One bottom row: copyright, the small-print links, the site credit.
+// Every link keeps the 44px tap floor (PR #72, PORTS cards 82 and 83); on phones the
+// columns sit in a two-column grid. The bottom row keeps clear of the fixed BackToTop
+// button. Everything is data-driven: footerColumns, legalNav or the legal pages,
+// footerCredit/footerCreditUrl, socialLinks, address, email and phone.
 
 import { site } from '@/data/site';
 import {
@@ -19,8 +20,6 @@ import {
   IconLink,
 } from '@tabler/icons-react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import Logo from './Logo.astro';
-import RunningStitch from './motifs/RunningStitch.astro';
 import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
 import { resolveChrome, fallbackFooterColumns, type RawFooterColumn } from '@/lib/siteSettings';
@@ -62,9 +61,6 @@ const email = siteSettings?.email ?? '';
 const phone = siteSettings?.phone ?? '';
 const address = siteSettings?.address;
 const location = [address?.city, address?.state].filter(Boolean).join(', ');
-// Everything Site Settings can change about the footer: the link columns, the
-// small-print row, and the switch for the social buttons. All opt-in, so an
-// untouched Site Settings gives back exactly what this footer always showed.
 const chrome = resolveChrome(siteSettings);
 const socialLinks = chrome.showFooterSocials
   ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
@@ -74,18 +70,19 @@ const siteCredit = siteSettings?.footerCredit;
 const siteCreditUrl = siteSettings?.footerCreditUrl;
 const currentYear = new Date().getFullYear();
 
-// Navigation columns: editor-managed if present, otherwise the built-in ones
-// (both come from src/lib/siteSettings.ts, so the header and the footer share
-// one idea of what the pages of this site are). Contact + social are NOT
-// columns here — they live in the brand block.
-const columns = (chrome.footerColumns ?? fallbackFooterColumns(hasClearance)).map((c) => ({
-  title: c.title,
-  links: c.links.filter((l) => hasClearance || l.href !== '/clearance'),
-}));
+// Navigation columns: Mary Ann's from Site Settings, otherwise the built-in ones
+// (src/lib/siteSettings.ts). A column with more than five links is "long" and flows into
+// two sub-columns (and spans two grid tracks on phones).
+const columns = (chrome.footerColumns ?? fallbackFooterColumns(hasClearance)).map((c) => {
+  const links = c.links.filter((l) => hasClearance || l.href !== '/clearance');
+  return { title: c.title, links, long: links.length > 5 };
+});
 
-// The small-print row: Mary Ann's own links when she has set any, otherwise the
-// legal pages listed automatically (which is the normal case).
-const legalLinks = chrome.legalNav;
+// The small-print row: Mary Ann's own links when she has set any, otherwise the legal
+// pages listed automatically (which is the normal case).
+const smallPrint = chrome.legalNav
+  ? chrome.legalNav.map((l) => ({ label: l.label, href: l.href }))
+  : legal.map((lp) => ({ label: lp.title as string, href: `/legal/${lp.slug}` }));
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
@@ -102,83 +99,111 @@ function socialIcon(platform: string | undefined) {
 ---
 
 <footer class="site-footer surface-midnight">
-  <div class="mx-auto max-w-content px-m pt-section-lg pb-l">
-    <div class="grid grid-cols-1 gap-l gap-y-section-md lg:grid-cols-12">
-      {/* ── Brand column ─────────────────────────────────────────────────── */}
-      <div class="text-center sm:text-left lg:col-span-4 lg:pr-l">
-        <a
-          href="/"
-          aria-label={`${brandName} home`}
-          class="inline-block transition-opacity hover:opacity-80"
-        >
+  {/* The pinked top edge and the stitched hem with its thread tail and needle. */}
+  <div class="site-footer__pinking" aria-hidden="true"></div>
+  <div class="site-footer__hem" aria-hidden="true">
+    <span class="site-footer__hem-stitch"></span>
+    <svg class="site-footer__needle" viewBox="0 0 132 28" focusable="false">
+      <path
+        class="site-footer__tail"
+        d="M0 14C18 14 26 14 38 12S58 3 70 8 84 22 96 17 106 9 112 11"
+        fill="none"
+        stroke-width="1.6"
+        stroke-linecap="round"></path>
+      <path class="site-footer__steel" d="M104 12.6 131 9.6 131.6 10.6 105 14.2Z"></path>
+      <ellipse
+        class="site-footer__eye"
+        cx="110"
+        cy="12.4"
+        rx="2.3"
+        ry="0.75"
+        transform="rotate(-6 110 12.4)"></ellipse>
+    </svg>
+  </div>
+
+  <div class="mx-auto max-w-content px-m pt-l pb-m sm:pt-section-md">
+    <div class="site-footer__grid">
+      {/* ── Brand block ─────────────────────────────────────────────────── */}
+      <div class="site-footer__brandcol">
+        <a href="/" aria-label={`${brandName} home`} class="site-footer__brand">
           {
             customLogo ? (
-              <SanityImage
-                source={customLogo}
-                width={360}
-                alt={customLogo.alt || brandName}
-                class="h-14 w-auto"
-              />
+              <SanityImage source={customLogo} width={360} alt="" class="h-16 w-auto" />
             ) : (
-              <Logo variant="adaptive" class="h-14 w-auto" />
+              /* The cached standalone files from scripts/generate-favicons.mjs (the footer is
+                 always Midnight). Decorative: the link carries the name. */
+              <>
+                <img
+                  src="/brand/mark-dark.svg"
+                  width="200"
+                  height="200"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  class="site-footer__seal"
+                />
+                <img
+                  src="/brand/wordmark-dark.svg"
+                  width="724"
+                  height="102"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  class="site-footer__word"
+                />
+              </>
             )
           }
         </a>
-
         {
           siteSettings?.tagline && (
-            <p class="mx-auto mt-m max-w-[26rem] font-display text-lg leading-snug text-foreground/90 italic sm:mx-0">
-              {siteSettings.tagline}
-            </p>
+            <p class="site-footer__tagline font-display italic">{siteSettings.tagline}</p>
           )
         }
-
-        <div class="mt-m flex flex-col items-center gap-0 text-sm sm:items-start">
+        <ul class="site-footer__contact" role="list">
           {
             location && (
-              <p class="inline-flex min-h-[44px] items-center gap-xs text-[var(--color-text-secondary)]">
-                <MapPin size={14} aria-hidden="true" />
-                {location}
-              </p>
+              <li>
+                <span class="site-footer__contact-item text-[var(--color-text-secondary)]">
+                  <MapPin size={14} aria-hidden="true" />
+                  {location}
+                </span>
+              </li>
             )
           }
           {
             email && (
-              <a
-                href={`mailto:${email}`}
-                class="inline-flex min-h-[44px] items-center gap-xs text-foreground/90 transition-colors hover:text-link"
-              >
-                <Mail size={14} aria-hidden="true" />
-                {email}
-              </a>
+              <li>
+                <a href={`mailto:${email}`} class="site-footer__contact-item">
+                  <Mail size={14} aria-hidden="true" />
+                  {email}
+                </a>
+              </li>
             )
           }
           {
             phone && (
-              <a
-                href={telHref(phone)}
-                class="inline-flex min-h-[44px] items-center gap-xs text-foreground/90 transition-colors hover:text-link"
-              >
-                <Phone size={14} aria-hidden="true" />
-                {phone}
-              </a>
+              <li>
+                <a href={telHref(phone)} class="site-footer__contact-item">
+                  <Phone size={14} aria-hidden="true" />
+                  {phone}
+                </a>
+              </li>
             )
           }
-        </div>
-
+        </ul>
         {
           socialLinks.length > 0 && (
-            <ul class="mt-m flex list-none flex-wrap justify-center gap-s p-0 sm:justify-start">
+            <ul class="mt-s flex list-none flex-wrap gap-s p-0" role="list">
               {socialLinks.map((link) => {
                 const Icon = socialIcon(link.platform);
-                const ariaLabel = link.label ?? link.platform ?? 'Social link';
                 return (
                   <li>
                     <a
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={ariaLabel}
+                      aria-label={link.label ?? link.platform ?? 'Social link'}
                       class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[var(--color-gold)]/60 text-foreground transition-colors hover:border-solid hover:border-[var(--color-gold-light)] hover:bg-[var(--color-gold-light)] hover:text-[var(--color-midnight)]"
                     >
                       <Icon size={18} stroke={1.5} />
@@ -191,23 +216,19 @@ function socialIcon(platform: string | undefined) {
         }
       </div>
 
-      {/* ── Navigation columns ───────────────────────────────────────────── */}
-      <nav
-        aria-label="Footer"
-        class="grid grid-cols-2 gap-l text-center sm:grid-cols-4 sm:text-left lg:col-span-8"
-      >
+      {/* ── Link columns ─────────────────────────────────────────────────── */}
+      <nav aria-label="Footer" class="site-footer__cols">
         {
           columns.map((col) => (
-            <div>
-              <p class="eyebrow site-footer__coltitle mb-s">{col.title}</p>
-              <ul class="list-none p-0 text-sm">
+            <div class:list={['site-footer__col', col.long && 'site-footer__col--long']}>
+              <p class="site-footer__coltitle">{col.title}</p>
+              <ul class="site-footer__links" role="list">
                 {col.links.map((link) => (
                   <li>
                     <a
                       href={link.href}
                       target={isExternalHref(link.href) ? '_blank' : undefined}
                       rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-                      class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center text-foreground/90 transition-colors hover:text-link sm:justify-start"
                     >
                       {link.label}
                     </a>
@@ -221,89 +242,31 @@ function socialIcon(platform: string | undefined) {
     </div>
   </div>
 
-  {
-    /* ── The statement: the brand name as a giant stitched outline, sewn in
-      with a running stitch of gold thread (decorative; the logo link above
-      carries the name for assistive tech). The wipe-in is the shared
-      data-reveal="stitch" treatment, so it never hides content without JS. ── */
-  }
-  <div
-    class="site-footer__wordmark mx-auto max-w-content px-m"
-    aria-hidden="true"
-    data-reveal="stitch"
-  >
-    <svg viewBox="0 0 1200 230" focusable="false">
-      <text
-        x="600"
-        y="178"
-        text-anchor="middle"
-        textLength="1150"
-        lengthAdjust="spacingAndGlyphs"
-        class="site-footer__wordmark-fill">{brandName}</text
-      >
-      <text
-        x="600"
-        y="178"
-        text-anchor="middle"
-        textLength="1150"
-        lengthAdjust="spacingAndGlyphs"
-        class="site-footer__wordmark-stitch">{brandName}</text
-      >
-    </svg>
-  </div>
-
-  {
-    /* ── Bottom bar, under a full-width running stitch. On sm+ it's a
-      3-column grid so the legal links sit at the true horizontal centre. ── */
-  }
-  <RunningStitch class="mt-m" />
-  <div
-    class="mx-auto flex max-w-content flex-col items-center gap-0 px-m py-m text-center text-xs text-[var(--color-text-secondary)] sm:grid sm:grid-cols-3 sm:items-center sm:gap-m"
-  >
-    {
-      /* One expression on purpose: split across lines, Astro drops the space
-         between two adjacent {expressions} and the footer reads "2026MAS". */
-    }
-    <p class="inline-flex min-h-[44px] items-center sm:justify-self-start">
-      {`© ${currentYear} ${brandName} · ${location || 'St. Matthews, SC'}`}
-    </p>
-    {
-      legalLinks ? (
-        /* Site Settings -> Small-print links, when she has set any. */
-        <nav
-          aria-label="Legal"
-          class="flex flex-wrap items-center justify-center gap-x-m gap-y-0 sm:justify-self-center"
-        >
-          {legalLinks.map((link) => (
-            <a
-              href={link.href}
-              target={isExternalHref(link.href) ? '_blank' : undefined}
-              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-              class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors hover:text-link"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-      ) : legal.length > 0 ? (
-        <nav
-          aria-label="Legal"
-          class="flex flex-wrap items-center justify-center gap-x-m gap-y-0 sm:justify-self-center"
-        >
-          {legal.map((lp) => (
-            <a
-              href={`/legal/${lp.slug}`}
-              class="inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors hover:text-link"
-            >
-              {lp.title}
-            </a>
-          ))}
-        </nav>
-      ) : (
-        <span class="hidden sm:block" aria-hidden="true" />
-      )
-    }
-    <div class="flex items-center gap-m sm:justify-self-end">
+  {/* ── Bottom row ─────────────────────────────────────────────────────── */}
+  <div class="site-footer__bottom">
+    <div class="site-footer__bottom-inner mx-auto max-w-content px-m">
+      {
+        /* One expression on purpose: split across lines, Astro drops the space between two
+         adjacent {expressions} and the footer reads "2026MAS". */
+      }
+      <p class="site-footer__copy">
+        {`© ${currentYear} ${brandName} · ${location || 'St. Matthews, SC'}`}
+      </p>
+      {
+        smallPrint.length > 0 && (
+          <nav aria-label="Legal" class="site-footer__legal">
+            {smallPrint.map((link) => (
+              <a
+                href={link.href}
+                target={isExternalHref(link.href) ? '_blank' : undefined}
+                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        )
+      }
       {
         siteCredit &&
           (siteCreditUrl ? (
@@ -311,12 +274,12 @@ function socialIcon(platform: string | undefined) {
               href={siteCreditUrl}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex min-h-[44px] items-center underline decoration-dashed underline-offset-4 transition-colors hover:text-link"
+              class="site-footer__credit underline decoration-dashed underline-offset-4"
             >
               {siteCredit}
             </a>
           ) : (
-            <span>{siteCredit}</span>
+            <span class="site-footer__credit">{siteCredit}</span>
           ))
       }
     </div>
@@ -324,54 +287,277 @@ function socialIcon(platform: string | undefined) {
 </footer>
 
 <style>
-  /* Column titles: under sm the two-up grid gives each column ~130px, narrower
-     than the dash + tracked caps on one line (333px page at 320px, 2026-10-04).
-     So the dash stacks above the title, centred, and the title may wrap. From sm
-     up it is the usual dash-then-title row. */
-  .site-footer__coltitle {
-    flex-direction: column;
-    gap: 0.4rem;
-    max-width: 100%;
-    min-width: 0;
-    text-align: center;
-    letter-spacing: 0.2em;
-    overflow-wrap: anywhere;
+  .site-footer {
+    position: relative;
   }
-  @media (min-width: 40rem) {
-    .site-footer__coltitle {
-      flex-direction: row;
-      gap: 0.75rem;
-      text-align: left;
-      letter-spacing: 0.24em;
-      justify-content: flex-start;
+  /* Pinking-shear teeth along the top edge: Midnight triangles rising into the section
+     above, 16px apart. */
+  .site-footer__pinking {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -10px;
+    height: 11px;
+    background:
+      linear-gradient(135deg, transparent 50%, var(--color-midnight) 50%) 0 0 / 16px 11px repeat-x,
+      linear-gradient(225deg, transparent 50%, var(--color-midnight) 50%) 0 0 / 16px 11px repeat-x;
+    pointer-events: none;
+  }
+  /* The hem: a gold running stitch a little below the pinked edge, ending at the right in
+     a thread tail and a small needle. */
+  .site-footer__hem {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 14px;
+    display: flex;
+    align-items: center;
+    padding-right: clamp(0.5rem, 3vw, 2.5rem);
+    pointer-events: none;
+  }
+  .site-footer__hem-stitch {
+    flex: 1;
+    height: 2px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--color-gold) 0 9px,
+      transparent 9px 15px
+    );
+    opacity: 0.7;
+  }
+  .site-footer__needle {
+    flex: none;
+    width: 7.5rem;
+    height: auto;
+    margin-left: -2px;
+  }
+  .site-footer__tail {
+    stroke: var(--color-gold);
+    opacity: 0.85;
+  }
+  .site-footer__steel {
+    fill: #c8c0b0;
+  }
+  .site-footer__eye {
+    fill: var(--color-midnight);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    gap: var(--spacing-l);
+  }
+  @media (min-width: 80rem) {
+    .site-footer__grid {
+      grid-template-columns: minmax(0, 23rem) minmax(0, 1fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
     }
   }
-  .site-footer__wordmark svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
+
+  /* Brand block: the seal beside the wordmark, the tagline, the contact cluster. On
+     tablets and small laptops the lockup sits at the left and the words to its right. */
+  @media (min-width: 48rem) and (max-width: 79.99rem) {
+    .site-footer__brandcol {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: var(--spacing-l);
+      align-items: start;
+    }
+    .site-footer__brandcol > :not(.site-footer__brand) {
+      grid-column: 2;
+    }
+    .site-footer__brand {
+      grid-row: 1 / span 3;
+    }
+    .site-footer__tagline {
+      margin-top: 0;
+      max-width: none;
+    }
   }
-  .site-footer__wordmark text {
-    font-family: var(--font-display);
-    font-style: italic;
-    font-size: 196px;
-    font-weight: 300;
-    font-variation-settings:
-      'SOFT' 100,
-      'WONK' 1;
-    letter-spacing: -2px;
+  .site-footer__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 2px;
+    transition: opacity 300ms;
   }
-  .site-footer__wordmark-fill {
-    fill: rgba(240, 213, 138, 0.045);
-  }
-  .site-footer__wordmark-stitch {
-    fill: none;
-    stroke: var(--color-gold);
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 7 5;
+  .site-footer__brand:hover {
     opacity: 0.85;
+  }
+  .site-footer__seal {
+    width: 4.75rem;
+    height: auto;
+  }
+  .site-footer__word {
+    width: auto;
+    height: 1.9rem;
+    max-width: 100%;
+  }
+  .site-footer__brand > img:last-child {
+    min-width: 0;
+  }
+  @media (max-width: 23rem) {
+    .site-footer__seal {
+      width: 3.75rem;
+    }
+    .site-footer__word {
+      height: auto;
+      width: 11.5rem;
+    }
+  }
+  @media (min-width: 80rem) {
+    .site-footer__seal {
+      width: 5.75rem;
+    }
+    .site-footer__word {
+      height: 2.1rem;
+    }
+  }
+  .site-footer__tagline {
+    margin-top: var(--spacing-s);
+    max-width: 24rem;
+    font-size: 1.05rem;
+    line-height: 1.45;
+    color: var(--color-text-secondary);
+  }
+  .site-footer__contact {
+    margin-top: var(--spacing-xs);
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.25rem;
+    list-style: none;
+    padding: 0;
+    font-size: 0.875rem;
+  }
+  .site-footer__contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    color: color-mix(in srgb, var(--foreground) 90%, transparent);
+    transition: color 200ms;
+  }
+  a.site-footer__contact-item:hover {
+    color: var(--link);
+  }
+
+  /* Link columns. Phones: a two-column grid, a long column spans both and flows its links
+     into two sub-columns. Desktop: side by side, the long column twice as wide. */
+  .site-footer__cols {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-m) var(--spacing-m);
+  }
+  .site-footer__col--long {
+    grid-column: span 2;
+  }
+  .site-footer__col--long .site-footer__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-m);
+  }
+  /* Tablets and small laptops: the long column takes a full row in four sub-columns, the
+     rest sit three across under it. */
+  @media (min-width: 48rem) {
+    .site-footer__cols {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .site-footer__col--long {
+      grid-column: 1 / -1;
+    }
+    .site-footer__col--long .site-footer__links {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* Wide screens: beside the brand block, the long column twice as wide, in two. */
+  @media (min-width: 80rem) {
+    .site-footer__cols {
+      grid-template-columns: 2fr repeat(3, minmax(0, 1fr));
+    }
+    .site-footer__col--long {
+      grid-column: span 1;
+    }
+    .site-footer__col--long .site-footer__links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .site-footer__coltitle {
+    margin-bottom: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-gold);
+  }
+  .site-footer__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .site-footer__links a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    color: color-mix(in srgb, var(--foreground) 90%, transparent);
+    transition: color 200ms;
+  }
+  .site-footer__links a:hover {
+    color: var(--link);
+  }
+
+  /* Bottom row: copyright, small print, credit. It keeps clear of the fixed BackToTop
+     button (48px, 20px from the bottom-right corner): extra room at the right on wider
+     screens, room underneath on phones. */
+  .site-footer__bottom {
+    border-top: 1.5px dashed color-mix(in srgb, var(--color-gold) 45%, transparent);
+  }
+  .site-footer__bottom-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 1.25rem;
+    padding-top: 0.25rem;
+    /* Narrow phones: the centred credit would sit under the button, so leave room below. */
+    padding-bottom: 4.75rem;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+  }
+  .site-footer__copy,
+  .site-footer__legal a,
+  .site-footer__credit {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 1.1rem;
+  }
+  .site-footer__legal a,
+  a.site-footer__credit {
+    transition: color 200ms;
+  }
+  .site-footer__legal a:hover,
+  a.site-footer__credit:hover {
+    color: var(--link);
+  }
+  /* From 384px the centred credit clears the 48px button at the right edge. */
+  @media (min-width: 24rem) {
+    .site-footer__bottom-inner {
+      padding-bottom: 0.75rem;
+    }
+  }
+  @media (min-width: 48rem) {
+    .site-footer__bottom-inner {
+      justify-content: space-between;
+      padding-bottom: 0.25rem;
+      padding-right: calc(var(--spacing-m) + 4rem);
+      text-align: left;
+    }
   }
 </style>

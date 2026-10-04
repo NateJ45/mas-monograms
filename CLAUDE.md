@@ -31,6 +31,13 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
   69 gallery photos, seam polish on heavy block letters. All in `docs/PENDING.md`.
 - Studio for Mary Ann: Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first
   desk; new desk entry "Monogram Preview (live stitching)".
+- **Logo, header and footer rework (2026-10-04, branch `redesign/header-logo`).** New logo system in
+  blue and gold: the **Hoop Seal** (a script S sewn through a roman M and A, in embroidery hoops) is
+  the brand mark and the **Signature Thread** wordmark the horizontal lockup; both drawn by
+  `src/lib/brand/brandSvg.js` from outlined geometry, so `Logo.astro`, the favicons, `public/brand/*.svg`
+  and the OG cards share one drawing. The header lost its top rail and is now a centred editorial row
+  that becomes a glass pill on scroll; the footer is about half as tall. Detail and the regeneration
+  commands: `docs/logo-concepts/README.md`, `docs/02-design-system.md`, `.claude/rules/design-system.md`.
 
 - Live site: https://mas-monograms.nathanjnixon86.workers.dev (custom domain `mas-monograms.com` pending)
 - Studio (Mary Ann's editor): **`<site>/studio`** — embedded in the site build since
