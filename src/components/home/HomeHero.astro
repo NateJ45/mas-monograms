@@ -1,14 +1,16 @@
 ---
 // Home hero (Direction D, "The Atelier"): a huge Fraunces headline on the
-// Midnight drench, and on the right the LIVE stitching: an AtelierStage
-// (quality="hero") stretched in a turned-wood embroidery hoop, cycling the
-// sample monograms from atelierSettings. Visitors can type their own initials
-// under the hoop and watch them sewn.
+// Midnight drench, and on the right the LIVE stitching: the Atelier engine
+// (quality "hero") on a HeroAtelierStage stretched in a turned-wood hoop,
+// cycling the sample monograms from atelierSettings. Visitors can type their
+// own initials under the hoop and watch them sewn. HomeHeroScript starts the
+// engine on the first interaction or shortly after load, never during the
+// first paint (see HeroAtelierStage).
 //
 // LCP is the headline: the hero paints fully with no JS, no web font and no
 // photo (the stage shows a fabric block with the initials until the engine
 // draws). Every string comes from Sanity (homePage + atelierSettings).
-import AtelierStage from '@/components/atelier/AtelierStage.astro';
+import HeroAtelierStage from '@/components/atelier/HeroAtelierStage.astro';
 import HomeHeroScript from './HomeHeroScript.astro';
 import { motifId } from '@/components/motifs/uid';
 import {
@@ -127,14 +129,12 @@ const hintId = 'hero-try-hint';
             <div class="home-hero__float">
               <div class="home-hero__ring" aria-hidden="true" />
               <div class="home-hero__cloth">
-                <AtelierStage
+                <HeroAtelierStage
                   text={first.text}
                   style={first.style}
                   thread={first.thread}
                   fabric={first.fabric}
                   fabricTexture={first.texture}
-                  quality="hero"
-                  aspect="1 / 1"
                   label={first.label}
                   class="home-hero__stage"
                 />

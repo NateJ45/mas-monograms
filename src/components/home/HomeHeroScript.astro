@@ -1,7 +1,13 @@
 ---
-// Client wiring for HomeHero: cycles the sample monograms through the hero's
-// AtelierStage (stitch, hold, next), lets visitors type their own initials,
-// and hands those initials to the full studio (#atelier).
+// Client wiring for HomeHero: owns the hero's Atelier engine (on the
+// HeroAtelierStage), cycles the sample monograms through it (stitch, hold,
+// next), lets visitors type their own initials, and hands those initials to
+// the full studio (#atelier).
+//
+// The engine is imported and started on the first interaction (pointer, key,
+// touch, wheel, scroll) or 2.6s after load and the fonts, whichever comes
+// first, so its heavy layout work never lands on the first paint or the
+// headline's LCP.
 //
 // The cycle runs ONCE through the samples and then rests on the last piece.
 // It holds (never advances) while the hoop or the input is hovered or focused,
@@ -40,7 +46,7 @@
   function init(hero: HTMLElement) {
     if (hero.dataset.heroInit) return;
     hero.dataset.heroInit = '1';
-    const stage = hero.querySelector<StageEl>('[data-atelier-stage]');
+    const stage = hero.querySelector<StageEl>('[data-hero-stage]');
     const hoop = hero.querySelector<HTMLElement>('[data-hero-hoop]');
     const studio = hero.querySelector<HTMLElement>('[data-hero-studio]');
     const input = hero.querySelector<HTMLInputElement>('[data-hero-input]');
@@ -60,7 +66,7 @@
     let mode: 'cycle' | 'user' | 'done' = reduced || samples.length < 2 ? 'done' : 'cycle';
     let idx = 0;
     let current: Sample = samples[0];
-    let stitching = true; // the stage starts sample 0 itself on first sight
+    let stitching = true; // sample 0 stitches as soon as the engine starts
     let hovered = false;
     let focused = false;
     let offscreen = false;
@@ -69,6 +75,54 @@
     let typeTimer = 0;
 
     const held = () => hovered || focused || offscreen || hidden;
+
+    // ---- the engine: started late, so the headline (LCP) paints first ----
+    let atelier: Atelier | null = null;
+    let starting = false;
+    async function start() {
+      if (starting || !canvas) return;
+      starting = true;
+      const { createAtelier } = await import('@/lib/atelier/engine');
+      if (!stage!.isConnected) return;
+      atelier = createAtelier(canvas, {
+        quality: 'hero',
+        reducedMotion: reduced,
+        onProgress: (progress) => {
+          if (!stage!.dataset.ready) stage!.dataset.ready = '1';
+          stage!.dispatchEvent(new CustomEvent('atelier:progress', { detail: { progress } }));
+        },
+      });
+      stage!.__atelier = atelier;
+      if (offscreen || hidden) atelier.pause();
+      stage!.dispatchEvent(
+        new CustomEvent('atelier:ready', { detail: { atelier }, bubbles: true }),
+      );
+      const d = stage!.dataset;
+      void atelier.setDesign(
+        {
+          text: d.text ?? '',
+          style: d.style as never,
+          thread: d.thread,
+          fabric: d.fabric,
+          fabricTexture: d.texture as never,
+        },
+        { animate: !reduced },
+      );
+    }
+    const WAKE = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll'];
+    const wake = () => {
+      WAKE.forEach((t) => window.removeEventListener(t, wake));
+      void start();
+    };
+    WAKE.forEach((t) => window.addEventListener(t, wake, { passive: true, once: true }));
+    // no interaction yet: wait for load AND the web fonts (the headline's
+    // final paint is the LCP), then give the page a quiet moment
+    const later = () => {
+      const fonts = document.fonts?.ready ?? Promise.resolve();
+      void fonts.then(() => window.setTimeout(wake, 2600));
+    };
+    if (document.readyState === 'complete') later();
+    else window.addEventListener('load', later, { once: true });
 
     function apply(s: Sample, text = s.text) {
       // keep the data attributes in step: the stage reads them on first sight
@@ -85,8 +139,11 @@
         'aria-label',
         [shown, s.styleLabel, s.threadName, s.fabricLabel].filter(Boolean).join(', '),
       );
-      const a = stage!.__atelier;
-      if (!a) return;
+      const a = atelier;
+      if (!a) {
+        void start(); // reads the data attributes set above
+        return;
+      }
       stitching = true;
       void a.setDesign(
         {
@@ -155,8 +212,13 @@
     new IntersectionObserver((entries) => {
       for (const e of entries) {
         offscreen = !e.isIntersecting;
-        if (offscreen) clear();
-        else schedule();
+        if (offscreen) {
+          clear();
+          atelier?.pause();
+        } else {
+          atelier?.resume();
+          schedule();
+        }
       }
     }).observe(hoop);
 
