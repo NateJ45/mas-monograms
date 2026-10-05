@@ -14,6 +14,7 @@ export const styleGalleryPage = defineType({
     { name: 'seo', title: 'Google & sharing' },
     { name: 'hero', title: 'Top of the page', default: true },
     { name: 'filters', title: 'Filter labels' },
+    { name: 'viewer', title: 'Photo viewer' },
     { name: 'cta', title: 'CTA' },
   ],
   fieldsets: [
@@ -167,6 +168,67 @@ export const styleGalleryPage = defineType({
       description: 'Shown when no gallery items match the current filter.',
       initialValue: 'No photos for that filter yet — check back soon!',
       validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'filterToggleLabel',
+      title: 'Filter button on phones (optional)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'On a phone the filters fold away behind one button. These are the words on it, e.g. "Filter photos".',
+      validation: (R) => R.max(30),
+    }),
+    defineField({
+      name: 'resultsAnnouncement',
+      title: 'What screen readers hear after a filter (optional)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'Read aloud to people using a screen reader when they pick a filter. Use {filter} for the filter name, {count} for the photos shown and {total} for all photos, e.g. "{filter}: showing {count} of {total} photos".',
+      validation: (R) => R.max(120),
+    }),
+    defineField({
+      name: 'requestLabel',
+      title: '"Request this" link under each photo (optional)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'The small link under a photo that starts a quote for that kind of item, e.g. "Request this". Leave blank to use "Request this".',
+      validation: (R) => R.max(40),
+    }),
+
+    defineField({
+      name: 'lightboxLabel',
+      title: 'Name of the photo viewer (optional)',
+      type: 'string',
+      group: 'viewer',
+      description:
+        'Clicking a photo opens it large. Screen readers announce the viewer by this name, e.g. "Photo viewer". Also used on the shop category pages.',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'lightboxCloseLabel',
+      title: 'Close button (for screen readers)',
+      type: 'string',
+      group: 'viewer',
+      description: 'The button shows an ×; screen readers say these words, e.g. "Close".',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'lightboxPrevLabel',
+      title: 'Previous photo button (for screen readers)',
+      type: 'string',
+      group: 'viewer',
+      description: 'E.g. "Previous photo".',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'lightboxNextLabel',
+      title: 'Next photo button (for screen readers)',
+      type: 'string',
+      group: 'viewer',
+      description: 'E.g. "Next photo".',
+      validation: (R) => R.max(40),
     }),
 
     defineField({

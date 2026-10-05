@@ -245,6 +245,23 @@ export const atelierSettings = defineType({
         'Shown near the preview so nobody mistakes it for a final proof. Keep the idea that you confirm lettering and colors before stitching.',
       validation: (R) => R.required().max(300),
     }),
+    defineField({
+      name: 'pauseLabel',
+      title: 'Pause button (for moving things)',
+      type: 'string',
+      group: 'buttons',
+      description:
+        'Anything that moves on its own (the stitching on the home page, the scrolling ribbon of item names) has a small pause button. Screen readers say these words, e.g. "Pause".',
+      validation: (R) => R.max(30),
+    }),
+    defineField({
+      name: 'playLabel',
+      title: 'Play button (after pausing)',
+      type: 'string',
+      group: 'buttons',
+      description: 'The same button once it has been paused, e.g. "Play".',
+      validation: (R) => R.max(30),
+    }),
 
     // ── Home page try-it box ─────────────────────────────────────────────────
     defineField({

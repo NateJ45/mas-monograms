@@ -53,6 +53,14 @@ export const pricingTier = defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'highlightLabel',
+      title: 'Badge on the highlighted price (optional)',
+      type: 'string',
+      description:
+        'A few words shown on the highlighted price tag, e.g. "Most popular". Only shows when "Highlighted row" is on. Leave blank for no badge.',
+      validation: (Rule) => Rule.max(30),
+    }),
+    defineField({
       name: 'displayOrder',
       title: 'Display order',
       type: 'number',

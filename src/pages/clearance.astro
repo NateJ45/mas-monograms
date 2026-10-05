@@ -33,6 +33,8 @@ const inStockItems = items.filter((item: any) => !item.sold);
 const soldOutItems = items.filter((item: any) => item.sold);
 const buyLabel = page?.buyButtonLabel ?? 'Buy Now';
 const soldLabel = page?.soldOutLabel ?? 'Sold Out';
+// clearancePage.quantityLeftLabel, e.g. "{count} left"; blank hides the line.
+const leftLabel: string | undefined = page?.quantityLeftLabel || undefined;
 const headline = splitSwash(page?.heroHeadline ?? 'Clearance');
 const hasNotes = !!(page?.paymentNote || page?.pickupNote);
 
@@ -170,9 +172,9 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
                         {item.description}
                       </p>
                     )}
-                    {item.quantityAvailable && !isSold && (
+                    {leftLabel && item.quantityAvailable && !isSold && (
                       <p class="mt-xs text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
-                        {item.quantityAvailable} left
+                        {leftLabel.replaceAll('{count}', String(item.quantityAvailable))}
                       </p>
                     )}
                     {/* Buy button — Stripe Payment Link, no cart needed */}

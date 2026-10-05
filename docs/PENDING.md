@@ -119,47 +119,26 @@ This file tracks the things that have no other home.
 
 ### From the 2026-10-04 logo, header and footer rework (branch `redesign/header-logo`)
 
-- **Land the branch** and check the live header at the top and scrolled, the footer, and a shared link
-  preview (the OG card) after merge.
-- **The 16px favicon** is a gold ring with the cypher reduced to a texture: recognisable, not legible.
-  It is a known limit of a three-letter cypher at 16px; revisit only if Nathan wants a single-letter cut.
 - **Text in the logo is outlined**, so the brand name inside the drawing cannot come from Sanity; the
   accessible name does (`siteSettings.title`). If the business name ever changes, regenerate with
   `docs/logo-concepts/2026-10-04-atelier/generator/brand.mjs` (needs Python fontTools).
-- **Hard-coded words added with the rework:** the phone menu's "At the bench" eyebrow (the old "Get in
-  touch" was hard-coded too) and the Brand kit panel's logo paragraph (Studio handbook copy). Move the
-  eyebrow to Site Settings when the next Sanity field pass happens.
-- **`scripts/measure-tap-targets.mjs` reports 8 "stolen-tap" warnings at 390px** on /request-a-quote and
-  /style-gallery. They are the sticky header covering an element at one of the scan's scroll stops, not
-  a real overlap: hit-testing the same links scrolled to mid-screen finds nothing on top (2026-10-04).
+- **The Brand kit panel's logo paragraph is hard-coded** (Studio handbook copy in
+  `src/sanity/components/BrandKit.tsx`). Left in code on purpose (2026-10-04): the whole Brand kit panel
+  is static by design (colours, fonts and logo links, no fetch), and the paragraph is Studio-only, never
+  on the public site. Move it only if the panel ever becomes a document. (The phone menu's "At the
+  bench" eyebrow moved to `siteSettings.menuContactLabel` on 2026-10-04.)
 
 ### From the 2026-10-04 Direction D redesign ("The Atelier", branch `redesign/atelier`)
 
-- **Land the branch.** 8 commits ahead of `main`, no PR as of 2026-10-04. Needs a PR with green `build`
-  and `test`, then a live-site check after merge. Until then production is still the Direction C look.
-- **Confirm `scripts/seed-atelier.mjs` has been applied** to the production dataset (dry run is the
-  default; backup is `tmp/backups/production-2026-10-04.tar.gz`, gitignored). Until `atelierSettings`
-  exists, the Atelier pages fall back to short neutral strings in code.
-- **Sanity fields the page work wanted but could not add** (each is currently a neutral code fallback,
-  which breaks Sanity-first; add the field, query it, seed it, then drop the fallback):
-  - `pricingTier.highlightLabel`, `pricingPage.tierPricePrefix`
-  - `font.popularLabel` / `fontGuidePage.popularLabel`, and an `atelierStyle` key per font (so a font's
-    "try it" button can load the matching Atelier style)
-  - `legalPage.lastUpdatedLabel`
-  - `thankYouPage.nextStepsLabel`, `thankYouPage.responseTimeLabel`
-  - `notFoundPage`: `getNotFoundPage` should also fetch `seoTitle` / `seoDescription`
-  - `styleGalleryPage`: lightbox labels (dialog name, close, previous, next) and the announcement text
-  - `itemCategory`: `galleryHeading`, `requestSimilarLabel`, `crossSellHeading`
-  - `clearancePage.quantityLeftLabel`
-  - `threadChartPage.filterLabel`
-  - `atelierSettings`: pause and play labels for the hero and the Marquee (WCAG 2.2.2; `Marquee` falls
-    back to "Pause" / "Play" today)
-- **Set hotspots on the 69 gallery photos and the category card images.** None has one, so every hoop
-  and swatch crop defaults to the centre (`getGalleryItemsForWall` returns `hotspot: null`). `HoopFrame`
-  also takes a `focal` prop as a stopgap.
-- **Add the new Monogram Preview page to the Start Here handbook.** `scripts/seed-studio-guides.mjs` lists
-  the page singletons (line ~96) without "Monogram Preview (live stitching)", and still mentions a per-page
-  "Preview" tab. Patch through `scripts/lib/sanity-lib.mjs` (dry-run gate).
+- **A few hard-coded words are still left on `/style-gallery`** (found 2026-10-04 while paying off the
+  Sanity-field list, which is now done): the intro link "Start your quote", the "+ N more" / "Less" tag
+  toggle, the filter group's accessible name "Filter gallery", the "Filters" fallback group heading, and
+  the " font" suffix after a font name under each photo (`GallerySwatch`). Next field pass: add them to
+  `styleGalleryPage` and seed through `scripts/seed-pending-fields.mjs` (setIfMissing).
+- **The Start Here "Website pages" row still mentions a per-page "Preview" tab** (and the "You can always
+  undo" tip). That wording is owned by the unapplied `scripts/patch-studio-guide-presentation.mjs` (see the
+  activation step above). The Monogram Preview page itself was added to the handbook on 2026-10-04 (a map
+  row and a how-to, through `seed-studio-guides.mjs`'s add-only mode).
 - **Performance: mobile LCP is now 2.9 to 3.8s, still font bound.** Measured 2026-10-04 (gzip server,
   Lighthouse mobile, median of 5): perf 83 to 93 on the 12 audited URLs, TBT 0, CLS at most 0.002,
   accessibility 100 on every run. Slowest: `/about` 3.76s and `/style-gallery/` 3.61s (photo LCP),
@@ -169,21 +148,13 @@ This file tracks the things that have no other home.
   oblique for a beat and swaps to the real italic, which reads as a glitch on the headline itself. Not
   shipped. Revisit with a swash-only subset font (only the glyphs the swash words use, preloaded),
   which would keep the real italic on first paint at a fraction of the bytes.
-- **Quote form: the phone label says "(Optional)" but the field is required.** The Sanity
-  `requestAQuotePage.phoneLabel` reads "Phone Number (Optional)" while the input carries `required`
-  and `POST /api/quote` rejects an empty phone (same on `main`). Decide which is true: either change
-  the label in the Studio, or drop `required` from the input and the Worker check. Content or product
-  call, not a code bug in this branch.
 - **The quote form needs JavaScript to send.** With JS off every field renders and reads fine, but
   Turnstile cannot run, so the Worker rejects the post. The Atelier studio's hand-off (a GET form)
   and every link work without JS. Acceptable for now; noted so nobody assumes otherwise.
-- **Simplify the consumer workarounds** in `QuotePrefillScript` and `ThreadChartScript`: they guard against
-  the engine starting late (writing `data-*` and checking `stage.dataset.ready`). The engine now applies
-  the latest `setDesign` itself, so they can call it directly.
-- **Wire the `lazy` prop in `QuotePreview`** if wanted: its stage is hidden until initials arrive, and
-  `lazy` keeps the engine from loading on idle for a visitor who never uses the preview.
-- **Heavy block-letter seams.** Bowls of B, the arm of F and the leg of K in the `block` style still show
-  seams where tatami rows meet (`src/lib/atelier/stitches.ts`, `field.ts`).
+- **Atelier: a few heavy shapes still patch.** The satin-column rework (2026-10-04) fixed the B bowls, F
+  arm, K leg and every serif base, but the wide right leg of a block `A`, the diagonals of a block `M` and
+  the top terminal of an `S` still break into short patches where junctions cut their medial axis
+  (`src/lib/atelier/columns.ts`, see `.claude/rules/atelier-engine.md`).
 - **Removed on 2026-10-04: Lenis smooth scroll** (script, dependency, hero cue hook). Not an open item;
   recorded so nobody reintroduces it.
 
@@ -212,18 +183,6 @@ This file tracks the things that have no other home.
   full fidelity for free. Worth doing for Home first if Mary Ann ever asks to
   reorder page sections herself.
 
-- **Quote emails need one dashboard step before they work (2026-10-04, PR email/cloudflare-quote).**
-  The Worker now sends through the Cloudflare Email Service `EMAIL` binding. Until `mas-monograms.com`
-  is onboarded under Compute > Email Service > Email Sending (Nathan, dashboard; the wrangler token
-  lacks Email Sending permission), the owner send fails and the form shows an error (the request is
-  still saved in R2). Then send one real test quote and confirm both emails land.
-- **Turnstile is wired but not live (2026-10-04).** `/api/quote` now verifies the token with the
-  action `quote` and our hostnames only (fail closed on any siteverify error), and the widget carries
-  `data-action="quote"`. Still missing: the widget itself (the wrangler API token can list but not
-  create widgets: it needs `Account.Turnstile:Edit`), the `TURNSTILE_SECRET_KEY` Worker secret, and the
-  public site key as `PUBLIC_TURNSTILE_SITE_KEY` in a build env file. Until the secret exists the
-  Worker skips the check, and until the site key exists the form shows no widget.
-
 ## Standing risks (not tasks)
 
 - **Worker secrets live only in Cloudflare.** `TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN` are set
@@ -236,6 +195,8 @@ This file tracks the things that have no other home.
   included. Write tokens bare. (Also carried from WCP.)
 
 ## Recently closed
+
+- **2026-10-04: everything from the redesign day is closed.** Redesign, quote email (Cloudflare Email Service, Email Sending onboarded for mas-monograms.com), Turnstile (widget, secret, build variable, action and hostname checks), phone made optional, hotspots on all 76 gallery and category images (`scripts/set-hotspots.mjs`, decisions in `scripts/data/hotspots-2026-10-04.json`), label fields seeded, handbook entry added. The first real quote request is the live test of the email path.
 
 - 2026-10-04: **Logo, header and footer rework** (branch `redesign/header-logo`). The Hoop Seal and the
   Signature Thread wordmark replace the Flourished Initial and the Shopkeeper's Badge everywhere (header,
@@ -254,6 +215,15 @@ This file tracks the things that have no other home.
   thread crossing the header on overlay pages, the no-JS marquee (moved with no way to pause), the
   no-JS hero field (did nothing) and the no-JS FAQ (answers missing from the HTML) were fixed, and
   `tests/features.spec.ts` was added (see `docs/TESTING.md`).
+
+- 2026-10-04: **Atelier follow-ups closed.** Satin columns from the medial axis (`columns.ts`, straight
+  ray rows) replace the fanned seams in B, F, K and the serif bases; the quote and thread-chart scripts
+  call `setDesign` directly (no `dataset.ready` guard, no `atelier:progress` reconcile; 5 repeats green);
+  `QuotePreview` passes `lazy` (no engine fetch without initials); the 16 to 32px favicon is now the
+  hoop and a single gold M. The 8 "stolen-tap" warnings from `measure-tap-targets.mjs` at 390px are the
+  scan's own scroll stops (each element hit-tests as itself when centred), but a focus probe found two
+  gallery buttons landing under the sticky header on Shift+Tab: `html { scroll-padding-top }` from
+  `--header-h` fixed that (2 obscured before, 0 after on four routes).
 
 - 2026-10-04: **44px tap targets at 390px (PORTS cards 82 and 83).** Footer rows, contact and
   legal links, the arrow links, gallery filter chips, `.form-input` and the quote form's radios and

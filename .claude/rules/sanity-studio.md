@@ -46,9 +46,23 @@ generate`), not from a `studio/` workspace.
   A standalone bundle needs an explicit dir: `npx sanity build .studio-dist`.
 - Content was bulk-seeded via `node scripts/seed-content.mjs` (re-runnable, deterministic ids)
 - The "Start Here" studio guides (studioGuide/studioNotes/studioPlaybook singletons) are seeded via
-  `node scripts/seed-studio-guides.mjs` (idempotent createOrReplace). Do NOT run `scripts/seed-core.mjs`
+  `node scripts/seed-studio-guides.mjs`. Since 2026-10-04 it is dry run by default and its default mode
+  only ADDS the sections in `NEW_SECTIONS` (fixed `_key`s, insert-if-absent on `studioGuide` and any
+  `drafts.studioGuide`), because Mary Ann can edit the guides. To add a handbook section: put it in
+  `NEW_SECTIONS` with a new fixed `_key`, dry run, `--apply`. `--replace-all --apply` is the old full
+  createOrReplace and wipes her edits: fresh datasets only. Do NOT run `scripts/seed-core.mjs`
   — it is the leftover interior-design "Studio Starter" seed and would inject junk `service`/`journalEntry`
   docs.
+- **Label fields (2026-10-04).** The last hard-coded page labels became optional Sanity fields (table in
+  `docs/06-sanity-content-model.md`): `siteSettings.menuContactLabel`, `pricingTier.highlightLabel`,
+  `pricingPage.tierPricePrefix`, `font.atelierStyle`, `fontGuidePage.popularLabel`/`tryItLabel`,
+  `legalPage.lastUpdatedLabel`, `thankYouPage.responseTimeLabel`/`nextStepsLabel`, `styleGalleryPage`
+  filter, announcement (`{filter}`/`{count}`/`{total}` template) and "Photo viewer" lightbox labels,
+  `itemCategory.galleryHeading`/`requestSimilarLabel`/`crossSellHeading`/`banner*`,
+  `clearancePage.quantityLeftLabel` (`{count}`), `threadChartPage.filterLabel`,
+  `atelierSettings.pauseLabel`/`playLabel`. Seeded by **`scripts/seed-pending-fields.mjs`** (sanity-lib
+  dry-run gate, setIfMissing on each published doc and its draft; a second `--apply` reports 0 changes).
+  Add the next label pass to that script the same way. Backup: `tmp/backups/production-2026-10-04-pending.tar.gz`.
 - **Atelier content (2026-10-04).** `atelierSettings` is a new singleton (schema
   `src/sanity/schemaTypes/atelierSettings.ts`, desk entry "Monogram Preview (live stitching)" under
   Website pages, listed in both `SINGLETON_TYPES` sets: `src/sanity/structure.ts` and the repo-root

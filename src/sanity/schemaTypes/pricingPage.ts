@@ -101,6 +101,15 @@ export const pricingPage = defineType({
       description:
         'Explain the pricing model before the table. E.g. "Price per piece drops with quantity..."',
     }),
+    defineField({
+      name: 'tierPricePrefix',
+      title: 'Word before each price (optional)',
+      type: 'string',
+      group: 'tiers',
+      description:
+        'The small word above every price on the tags, e.g. "from" (as in "from $16"). Leave blank to show the price on its own.',
+      validation: (R) => R.max(20),
+    }),
 
     // Add-ons
     defineField({

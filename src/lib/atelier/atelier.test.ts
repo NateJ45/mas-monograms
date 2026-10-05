@@ -10,6 +10,15 @@ import {
   threadPalette,
 } from './color.ts';
 import { downsample, tensorField } from './field.ts';
+import {
+  chordLen,
+  columnField,
+  isJunction,
+  pruneSpurs,
+  settleRuns,
+  thinMask,
+  trimEnds,
+} from './columns.ts';
 import { KIND_FILL, KIND_SATIN, fillRegions, orderStitches } from './stitches.ts';
 import { clearBuffers, emptyRect, makeBuffers, rasterize } from './raster.ts';
 import { buildGeometry, dsepFor } from './geometry.ts';
@@ -189,4 +198,152 @@ test('stitch spacing stays inside each quality band', () => {
     assert.ok(hero >= 2.3 && hero <= 4.2);
     assert.ok(studio >= 3.2 && studio <= 5.6);
   }
+});
+
+/** A binary mask from a list of filled rectangles [x0, y0, x1, y1). */
+function rects(W: number, H: number, rs: [number, number, number, number][]) {
+  const m = new Uint8Array(W * H);
+  for (const [x0, y0, x1, y1] of rs)
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) m[y * W + x] = 1;
+  return m;
+}
+
+test('thinning reduces a bar to a one-cell centre line', () => {
+  const W = 60;
+  const H = 30;
+  const s = thinMask(rects(W, H, [[5, 10, 55, 20]]), W, H);
+  let n = 0;
+  for (let i = 0; i < W * H; i++) {
+    if (!s[i]) continue;
+    n++;
+    const y = (i / W) | 0;
+    assert.ok(y >= 13 && y <= 16, `axis cell off centre at y=${y}`);
+  }
+  assert.ok(n > 30, `axis long enough (${n})`);
+  // one cell wide: no column of the straight middle holds two axis cells
+  for (let x = 15; x < 45; x++) {
+    let col = 0;
+    for (let y = 0; y < H; y++) col += s[y * W + x];
+    assert.ok(col <= 1, `column ${x} has ${col} axis cells`);
+  }
+});
+
+test('junctions are counted by branches, not by staircase steps', () => {
+  const W = 9;
+  const s = new Uint8Array(W * W);
+  // a T: horizontal line with a vertical branch down from its middle
+  for (let x = 1; x < 8; x++) s[2 * W + x] = 1;
+  for (let y = 3; y < 8; y++) s[y * W + 4] = 1;
+  assert.equal(isJunction(s, W, 2 * W + 4), true);
+  assert.equal(isJunction(s, W, 2 * W + 2), false);
+  // a diagonal staircase cell is not a junction
+  const d = new Uint8Array(W * W);
+  d[1 * W + 1] = d[2 * W + 2] = d[2 * W + 3] = d[3 * W + 4] = 1;
+  assert.equal(isJunction(d, W, 2 * W + 3), false);
+});
+
+test('chord length measures straight across and along a bar', () => {
+  const W = 80;
+  const H = 40;
+  const m = rects(W, H, [[10, 10, 70, 30]]);
+  const inside = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < H && !!m[y * W + x];
+  assert.equal(chordLen(inside, 40, 20, 0, 1, 100), 20);
+  assert.equal(chordLen(inside, 40, 20, 1, 0, 100), 60);
+  assert.equal(chordLen(inside, 40, 20, 1, 0, 5), 11, 'each half stops at the cap');
+});
+
+test('short spurs are pruned, long branches kept', () => {
+  const W = 40;
+  const H = 30;
+  const s = new Uint8Array(W * H);
+  for (let x = 2; x < 38; x++) s[15 * W + x] = 1; // main line
+  for (let y = 12; y < 15; y++) s[y * W + 20] = 1; // 3-cell spur up from the middle
+  for (let y = 16; y < 28; y++) s[y * W + 10] = 1; // 12-cell branch down
+  pruneSpurs(s, W, H, () => 3, 1.6, 2);
+  assert.equal(s[12 * W + 20], 0, 'spur gone');
+  assert.equal(s[27 * W + 10], 1, 'long branch kept');
+  assert.equal(s[15 * W + 30], 1, 'main line kept');
+});
+
+test('bent axis tails are cut, straight ends kept', () => {
+  const W = 60;
+  const H = 60;
+  const s = new Uint8Array(W * H);
+  // a vertical axis whose bottom 8 cells bend off at 45 degrees
+  for (let y = 5; y < 45; y++) s[y * W + 30] = 1;
+  for (let k = 1; k <= 8; k++) s[(44 + k) * W + 30 - k] = 1;
+  trimEnds(s, W, H, () => 10, 2.2);
+  assert.equal(s[52 * W + 22], 0, 'bent tail removed');
+  assert.equal(s[30 * W + 30], 1, 'stem axis kept');
+  assert.equal(s[5 * W + 30], 1, 'straight top end kept');
+});
+
+test('collinear straight runs share one direction; short scraps stop steering', () => {
+  const W = 80;
+  const H = 20;
+  const s = new Uint8Array(W * H);
+  const bad = new Uint8Array(W * H);
+  for (let x = 2; x < 78; x++) s[10 * W + x] = 1;
+  // a junction zone splits the line in two, plus a 2-cell scrap elsewhere
+  for (let x = 38; x < 42; x++) bad[10 * W + x] = 1;
+  s[3 * W + 5] = s[3 * W + 6] = 1;
+  const tx = new Float32Array(W * H);
+  const ty = new Float32Array(W * H);
+  for (let x = 2; x < 38; x++) [tx[10 * W + x], ty[10 * W + x]] = [Math.cos(0.08), Math.sin(0.08)];
+  for (let x = 42; x < 78; x++)
+    [tx[10 * W + x], ty[10 * W + x]] = [Math.cos(-0.08), Math.sin(-0.08)];
+  tx[3 * W + 5] = tx[3 * W + 6] = 1;
+  settleRuns(s, W, H, bad, { tx, ty }, () => 4, 1, 0.98);
+  assert.equal(bad[3 * W + 5], 5, 'scrap flagged');
+  assert.ok(Math.abs(tx[10 * W + 10] - tx[10 * W + 70]) < 1e-6, 'one direction');
+  assert.ok(Math.abs(ty[10 * W + 10] - ty[10 * W + 70]) < 1e-6, 'one direction');
+});
+
+test('column field: a stem with a slab foot keeps its own rows to the end', () => {
+  // an L-free "T upside down": vertical stem 16 cells wide over a wide foot
+  const W = 80;
+  const H = 90;
+  const lab = rects(W, H, [
+    [32, 5, 48, 80],
+    [12, 74, 68, 84],
+  ]);
+  const c = downsample(lab, W, H, 1);
+  const dt = tensorField(c, 1, () => [1, 0], 0.015, 'dt').dt as Float32Array;
+  const cf = columnField(c.lab, W, H, dt);
+  // in the stem, well clear of the foot: rows run horizontally (across)
+  for (const y of [15, 40, 60]) {
+    const i = y * W + 40;
+    assert.ok(cf.jxx[i] > 0.95, `stem row at y=${y} not horizontal (${cf.jxx[i].toFixed(2)})`);
+  }
+  // the axis exists and some of it steers
+  let trusted = 0;
+  for (let i = 0; i < W * H; i++) if (cf.skel[i] === 2) trusted++;
+  assert.ok(trusted > 20);
+});
+
+test('ray satin: rows are straight edge-to-edge threads across a bar', () => {
+  const W = 200;
+  const H = 80;
+  const labels = bar(W, H, 30, 50, 20, 180);
+  const c = downsample(labels, W, H, 2);
+  const field = tensorField(c, 2, () => [1, 0], 0.015, 'column');
+  const s = fillRegions(labels, W, H, field, {
+    dsep: 3,
+    maxSatin: 40,
+    fillLen: 15,
+    widthRatio: 1.3,
+    fillDir: () => [1, 0],
+    seed: 4,
+    labels: [1],
+    rays: true,
+  });
+  assert.ok(s && s.count > 30);
+  let spanning = 0;
+  for (let i = 0; i < s.count; i++) {
+    const dy = Math.abs(s.y1[i] - s.y0[i]);
+    const dx = Math.abs(s.x1[i] - s.x0[i]);
+    if (dy >= 17 && dx < 2) spanning++;
+  }
+  // nearly every row spans the 20px stroke in one straight stitch
+  assert.ok(spanning / s.count > 0.8, `spanning ${spanning}/${s.count}`);
 });

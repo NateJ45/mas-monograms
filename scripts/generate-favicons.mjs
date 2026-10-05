@@ -5,7 +5,10 @@
 // Everything is drawn by src/lib/brand/brandSvg.js from outlined geometry
 // (src/lib/brand/brandPaths.js), so no fonts are needed here and favicons never depend on
 // webfonts.
-//   favicon.svg / favicon.ico   the tab cut: Midnight disc, one heavy gold hoop, heavy cypher
+//   favicon.svg / favicon.ico   the tab cut (16 to 32px): Midnight disc, one heavy gold hoop and
+//                               a single bold gold M. The three-letter cypher (tabIconSvg) turns
+//                               to texture at 16px, so the tab gets the M alone (compared at 16,
+//                               32 and 48px on 2026-10-04: the M reads, the cypher does not)
 //   apple-touch-icon, icon-192/512   the compact seal on a solid Midnight square (iOS puts
 //                                    transparency on black, so it must be opaque)
 //   brand/seal-*.svg, brand/mark-*.svg, brand/wordmark-*.svg   standalone files for the
@@ -14,7 +17,8 @@ import sharp from 'sharp';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { sealSvg, tabIconSvg, wordmarkSvg, LIGHT, DARK } from '../src/lib/brand/brandSvg.js';
+import { sealSvg, wordmarkSvg, LIGHT, DARK } from '../src/lib/brand/brandSvg.js';
+import { BRAND } from '../src/lib/brand/brandPaths.js';
 
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 const brandDir = join(publicDir, 'brand');
@@ -22,7 +26,30 @@ mkdirSync(brandDir, { recursive: true });
 
 const MIDNIGHT = '#0F1B2D';
 
-const faviconSvg = tabIconSvg({ idp: 'fi' }) + '\n';
+/**
+ * The browser-tab cut: what survives at 16px. A Midnight disc, one flat heavy gold hoop and
+ * the heavy roman M of the cypher (src/lib/brand/brandPaths.js) in gold-light, thickened with
+ * a same-colour stroke so its hairlines hold at 16px. Flat colours, no gradient or mask: at
+ * this size they only blur.
+ */
+function smallTabSvg() {
+  // bounding box of BRAND.cypher.heavy.M (x, y, w, h), measured with getBBox()
+  const [bx, by, bw, bh] = [-4, -210, 253.4, 210];
+  const s = 118 / bw;
+  const tx = 100 - (bx + bw / 2) * s;
+  const ty = 101 - (by + bh / 2) * s;
+  const r3 = (n) => Math.round(n * 1000) / 1000;
+  return (
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">' +
+    '<circle cx="100" cy="100" r="100" fill="#0F1B2D"/>' +
+    '<circle cx="100" cy="100" r="88" fill="none" stroke="#D9B15F" stroke-width="16"/>' +
+    `<g transform="translate(${r3(tx)} ${r3(ty)}) scale(${r3(s)})">` +
+    `<path d="${BRAND.cypher.heavy.M}" fill="#F0D58A" stroke="#F0D58A" stroke-width="${r3(10 / s)}" stroke-linejoin="round"/>` +
+    '</g></svg>'
+  );
+}
+
+const faviconSvg = smallTabSvg() + '\n';
 const appSvg = sealSvg({
   idp: 'ap',
   cut: 'bold',

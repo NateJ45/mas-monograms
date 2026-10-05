@@ -184,9 +184,9 @@
           .map(([k, v]) => `${k}: ${v}`)
           .join('. '),
       );
-      // The engine reads data-* when it first comes into view; if it is
-      // already running, hand it the design directly.
-      if (stage.__atelier && stage.dataset.ready) {
+      // The engine reads data-* when it first comes into view; if it already
+      // exists, hand it the design directly (the latest setDesign always wins).
+      if (stage.__atelier) {
         void stage.__atelier.setDesign({
           text: initials,
           style: d.style as 'classic',

@@ -193,7 +193,7 @@ const fan = [
         hasFilters && (
           <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
             <summary class="chip hit-44 relative mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs px-m py-xs select-none sm:hidden">
-              <span>{filterAllLabel === 'All' ? 'Filter' : filterAllLabel}</span>
+              <span>{page?.filterToggleLabel ?? 'Filter'}</span>
               <svg
                 class="h-3 w-3 transition-transform group-open:rotate-180"
                 viewBox="0 0 12 12"
@@ -277,13 +277,25 @@ const fan = [
           </details>
         )
       }
-      <p class="sr-only" role="status" id="gallery-status" data-total={total}></p>
+      <p
+        class="sr-only"
+        role="status"
+        id="gallery-status"
+        data-total={total}
+        data-template={page?.resultsAnnouncement ?? undefined}
+      >
+      </p>
 
       {
         items.length > 0 ? (
           <div class="gallery-wall columns-2 gap-m sm:columns-3 lg:columns-4" id="gallery-grid">
             {(items as any[]).map((item, i) => (
-              <GallerySwatch item={item} index={i} tags={cleanTags(item.tags)} />
+              <GallerySwatch
+                item={item}
+                index={i}
+                tags={cleanTags(item.tags)}
+                requestLabel={page?.requestLabel}
+              />
             ))}
           </div>
         ) : (
@@ -308,7 +320,12 @@ const fan = [
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-  <Lightbox />
+  <Lightbox
+    label={page?.lightboxLabel}
+    closeLabel={page?.lightboxCloseLabel}
+    prevLabel={page?.lightboxPrevLabel}
+    nextLabel={page?.lightboxNextLabel}
+  />
 </BaseLayout>
 
 <style>
@@ -505,7 +522,13 @@ const fan = [
         if (status) {
           const total = status.dataset.total ?? String(items.length);
           const name = (btn.textContent ?? '').trim();
-          status.textContent = `${name}: ${visible} / ${total}`;
+          // Sanity template (styleGalleryPage.resultsAnnouncement), e.g.
+          // "{filter}: showing {count} of {total} photos"; numbers-only fallback.
+          const template = status.dataset.template || '{filter}: {count} / {total}';
+          status.textContent = template
+            .replaceAll('{filter}', name)
+            .replaceAll('{count}', String(visible))
+            .replaceAll('{total}', total);
         }
       });
     });

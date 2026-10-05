@@ -40,6 +40,13 @@ export const legalPage = defineType({
       description: 'Shown near the top of the page so visitors know how current the policy is.',
     }),
     defineField({
+      name: 'lastUpdatedLabel',
+      title: 'Words before the date (optional)',
+      type: 'string',
+      description: 'Shown before the "Last updated" date, e.g. "Last updated".',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
       name: 'body',
       title: 'Body',
       type: 'array',

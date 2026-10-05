@@ -3,8 +3,9 @@
 // search field, the fabric swatches and the initials field all drive the one
 // AtelierStage (#thread-stage). A thread or fabric change uses the engine's
 // colour-only fast path (no relayout, no restitch); new initials restitch.
-// Before the engine has started (stage still off-screen) the choice is written
-// to the stage's data-* attributes, which is what it reads on first paint.
+// The choice is always written to the stage's data-* attributes (what the
+// engine reads when it first starts) and, once the engine exists, handed to it
+// as a whole design; the engine applies the latest call itself.
 ---
 
 <script>
@@ -86,10 +87,20 @@
       if (design.fabricTexture) stage!.dataset.texture = design.fabricTexture;
       const fallback = stage!.querySelector('.atelier-stage__initials');
       if (fallback && design.text !== undefined) fallback.textContent = design.text;
+      // Hand the engine the WHOLE design from data-* (not just the change), so a
+      // stage that exists but has not drawn yet still gets the right lettering.
+      // Before the engine exists, AtelierStageScript reads data-* on first sight.
       const a = stage!.__atelier;
-      if (a && stage!.dataset.ready) {
+      if (a) {
+        const d = stage!.dataset;
         void a.setDesign(
-          design as Parameters<Atelier['setDesign']>[0],
+          {
+            text: d.text ?? '',
+            style: (d.style || 'classic') as 'classic',
+            thread: d.thread,
+            fabric: d.fabric,
+            fabricTexture: (d.texture || 'linen') as 'linen',
+          },
           animate ? undefined : { animate: false },
         );
       }
@@ -121,27 +132,6 @@
         apply({ text }, true);
       }, 420);
     });
-
-    // A choice made in the instant between the engine starting and its first
-    // frame only reached the data-* attributes: reconcile once it is drawing.
-    stage.addEventListener(
-      'atelier:progress',
-      () => {
-        const a = stage.__atelier;
-        if (!a) return;
-        const d = a.getDesign();
-        const want = stage.dataset;
-        if (d.thread !== want.thread || d.fabric !== want.fabric || d.text !== want.text) {
-          void a.setDesign({
-            text: want.text,
-            thread: want.thread,
-            fabric: want.fabric,
-            fabricTexture: want.texture as 'linen',
-          });
-        }
-      },
-      { once: true },
-    );
 
     replay?.addEventListener('click', () => {
       const a = stage.__atelier;

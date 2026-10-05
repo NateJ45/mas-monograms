@@ -17,6 +17,8 @@
 // Extra attributes (data-*, aria-*, id) pass through to the outer element.
 
 interface Props {
+  /** A small stitched badge at the top of the card (e.g. a highlighted price). */
+  badge?: string | null;
   eyebrow?: string | null;
   title?: string | null;
   /** Heading level for the title. Default 'p' (not a heading). */
@@ -38,6 +40,7 @@ interface Props {
 }
 
 const {
+  badge,
   eyebrow,
   title,
   titleTag: TitleTag = 'p',
@@ -95,6 +98,7 @@ const {
     ]}
   >
     <span class="hangtag__eyelet" aria-hidden="true"></span>
+    {badge && <p class="hangtag__badge">{badge}</p>}
     {eyebrow && <p class="hangtag__eyebrow">{eyebrow}</p>}
     {title && <TitleTag class="hangtag__title">{title}</TitleTag>}
     {value && <p class="hangtag__value">{value}</p>}
@@ -201,6 +205,18 @@ const {
       #b48a3e 0.62rem,
       #6b4c1c 0.67rem
     );
+  }
+  .hangtag__badge {
+    order: -2;
+    margin-bottom: 0.6rem;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-brass-text);
+    outline: 1px dashed currentColor;
+    outline-offset: 1px;
   }
   .hangtag__eyebrow {
     font-size: 0.68rem;

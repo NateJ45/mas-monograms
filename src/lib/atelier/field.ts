@@ -4,6 +4,8 @@
 // by an integer factor) because the fields are smooth by construction and the
 // cost scales with pixel count.
 
+import { columnField } from './columns.ts';
+
 export interface Coarse {
   w: number;
   h: number;
@@ -163,6 +165,8 @@ export interface TensorField {
    * dominant direction of the strokes around a junction, used for gap rows.
    */
   smooth?: TensorField;
+  /** column source: the pruned medial axis (debugging) */
+  skel?: Uint8Array;
 }
 
 /**
@@ -177,15 +181,17 @@ export function tensorField(
   radius: number,
   biasFor: (label: number) => [number, number],
   biasWeight = 0.04,
-  source: 'cov' | 'dt' = 'cov',
+  source: 'cov' | 'dt' | 'column' = 'cov',
 ): TensorField {
   const { w, h } = c;
   const n = w * h;
-  const jxx = new Float32Array(n);
-  const jxy = new Float32Array(n);
-  const jyy = new Float32Array(n);
+  let jxx: Float32Array = new Float32Array(n);
+  let jxy: Float32Array = new Float32Array(n);
+  let jyy: Float32Array = new Float32Array(n);
   let dtOut: Float32Array | undefined;
-  if (source === 'dt') {
+  const wide = source !== 'cov';
+  let skel: Uint8Array | undefined;
+  if (wide) {
     // Distance-transform gradient points at the nearest edge from ANY depth, so
     // rows run straight across even very wide strokes, and where two strokes
     // meet the direction changes along a clean medial seam (as real satin
@@ -227,6 +233,12 @@ export function tensorField(
       }
     }
     dtOut = dt;
+  }
+  if (source === 'column') {
+    const cf = columnField(c.lab, w, h, dtOut as Float32Array);
+    ({ jxx, jxy, jyy, skel } = cf);
+  } else if (source === 'dt') {
+    const dt = dtOut as Float32Array;
     const soft = boxBlur(dt, w, h, 1, 1);
     for (let y = 1; y < h - 1; y++) {
       for (let x = 1; x < w - 1; x++) {
@@ -268,7 +280,7 @@ export function tensorField(
   let sxx: Float32Array | null = null;
   let sxy: Float32Array | null = null;
   let syy: Float32Array | null = null;
-  if (source === 'dt') {
+  if (wide) {
     const R = Math.max(6, radius * 3);
     sxx = boxBlur(jxx, w, h, R, 2);
     sxy = boxBlur(jxy, w, h, R, 2);
@@ -288,7 +300,8 @@ export function tensorField(
     const cc = byy[i];
     const tr = a + cc;
     const coh = tr > 1e-12 ? Math.sqrt((a - cc) * (a - cc) + 4 * b * b) / tr : 0;
-    const wj = tr * Math.max(0, 0.45 - coh) * 4;
+    // the column field is piecewise on purpose (columns butt at a mitre): no blending
+    const wj = source === 'column' ? 0 : tr * Math.max(0, 0.45 - coh) * 4;
     if (sxx && sxy && syy) {
       const st = sxx[i] + syy[i];
       if (st > 1e-12) {
@@ -308,7 +321,7 @@ export function tensorField(
     }
   }
   const smooth = sxx && sxy && syy ? { w, h, f: c.f, jxx: sxx, jxy: sxy, jyy: syy } : undefined;
-  return { w, h, f: c.f, jxx: bxx, jxy: bxy, jyy: byy, dt: dtOut, smooth };
+  return { w, h, f: c.f, jxx: bxx, jxy: bxy, jyy: byy, dt: dtOut, smooth, skel };
 }
 
 /** Major eigenvector of [[a,b],[b,c]] as a unit vector (sign arbitrary). */
@@ -330,6 +343,22 @@ export function majorEigen(a: number, b: number, c: number): [number, number] {
   vx2 = vx / n;
   vy2 = vy / n;
   return [vx2, vy2];
+}
+
+/**
+ * Coherence 0..1 of the field at full-resolution coordinates: 1 = one clear
+ * direction, near 0 = two directions cancel (the mitre line between two satin
+ * columns) or nothing is known.
+ */
+export function sampleCoh(t: TensorField, x: number, y: number): number {
+  const fx = Math.min(t.w - 1, Math.max(0, (x / t.f) | 0));
+  const fy = Math.min(t.h - 1, Math.max(0, (y / t.f) | 0));
+  const i = fy * t.w + fx;
+  const a = t.jxx[i];
+  const b = t.jxy[i];
+  const c = t.jyy[i];
+  const tr = a + c;
+  return tr > 1e-12 ? Math.sqrt((a - c) * (a - c) + 4 * b * b) / tr : 0;
 }
 
 /** Sample the field's direction at full-resolution coordinates (bilinear tensor). */

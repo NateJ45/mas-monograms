@@ -1,0 +1,690 @@
+{
+  "decided": "2026-10-04",
+  "note": "Hotspot centres picked from contact sheets; crop left unset.",
+  "decisions": [
+    {
+      "id": "galleryItem-20260308-151837",
+      "field": "image",
+      "x": 0.351,
+      "y": 0.635,
+      "width": 0.548,
+      "height": 0.292,
+      "reason": "He is Risen scalloped frame on sash"
+    },
+    {
+      "id": "galleryItem-20260314-104607",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.615,
+      "width": 0.556,
+      "height": 0.25,
+      "reason": "two star appliques on pockets"
+    },
+    {
+      "id": "galleryItem-20260316-165705",
+      "field": "image",
+      "x": 0.467,
+      "y": 0.442,
+      "width": 0.722,
+      "height": 0.466,
+      "reason": "bunny designs on both shirts"
+    },
+    {
+      "id": "galleryItem-applique-05",
+      "field": "image",
+      "x": 0.444,
+      "y": 0.51,
+      "width": 0.806,
+      "height": 0.458,
+      "reason": "MERRY Christmas applique text"
+    },
+    {
+      "id": "galleryItem-applique-06",
+      "field": "image",
+      "x": 0.361,
+      "y": 0.438,
+      "width": 0.306,
+      "height": 0.208,
+      "reason": "Grinch face on sleeve"
+    },
+    {
+      "id": "galleryItem-bunny-wreath-sash",
+      "field": "image",
+      "x": 0.259,
+      "y": 0.525,
+      "width": 0.407,
+      "height": 0.313,
+      "reason": "rabbit on gingham sash"
+    },
+    {
+      "id": "galleryItem-camo-over-the-collar",
+      "field": "image",
+      "x": 0.458,
+      "y": 0.5,
+      "width": 0.9,
+      "height": 0.9,
+      "reason": "four camo bandanas"
+    },
+    {
+      "id": "galleryItem-design-24",
+      "field": "image",
+      "x": 0.533,
+      "y": 0.438,
+      "width": 0.722,
+      "height": 0.271,
+      "reason": "NOPE not today text"
+    },
+    {
+      "id": "galleryItem-design-25",
+      "field": "image",
+      "x": 0.55,
+      "y": 0.448,
+      "width": 0.9,
+      "height": 0.625,
+      "reason": "gathered towel text circles"
+    },
+    {
+      "id": "galleryItem-design-26",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.396,
+      "width": 0.667,
+      "height": 0.354,
+      "reason": "Be Strong and courageous text"
+    },
+    {
+      "id": "galleryItem-design-27",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.438,
+      "width": 0.333,
+      "height": 0.25,
+      "reason": "sunburst Be the Light"
+    },
+    {
+      "id": "galleryItem-design-28",
+      "field": "image",
+      "x": 0.542,
+      "y": 0.5,
+      "width": 0.472,
+      "height": 0.417,
+      "reason": "palmetto and crescent"
+    },
+    {
+      "id": "galleryItem-design-29",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.438,
+      "width": 0.9,
+      "height": 0.625,
+      "reason": "God script close-up"
+    },
+    {
+      "id": "galleryItem-design-30",
+      "field": "image",
+      "x": 0.506,
+      "y": 0.525,
+      "width": 0.528,
+      "height": 0.458,
+      "reason": "topiary in ginger jar"
+    },
+    {
+      "id": "galleryItem-design-32",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.49,
+      "width": 0.861,
+      "height": 0.479,
+      "reason": "Gift from God text and feet"
+    },
+    {
+      "id": "galleryItem-design-33",
+      "field": "image",
+      "x": 0.606,
+      "y": 0.573,
+      "width": 0.278,
+      "height": 0.2,
+      "reason": "tiger paw on chest"
+    },
+    {
+      "id": "galleryItem-design-34",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.531,
+      "width": 0.9,
+      "height": 0.708,
+      "reason": "baseball bow"
+    },
+    {
+      "id": "galleryItem-design-35",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.51,
+      "width": 0.333,
+      "height": 0.229,
+      "reason": "shepherd and lamb on chest"
+    },
+    {
+      "id": "galleryItem-design-36",
+      "field": "image",
+      "x": 0.458,
+      "y": 0.448,
+      "width": 0.667,
+      "height": 0.583,
+      "reason": "Grady and Myles tags"
+    },
+    {
+      "id": "galleryItem-design-37",
+      "field": "image",
+      "x": 0.472,
+      "y": 0.448,
+      "width": 0.528,
+      "height": 0.438,
+      "reason": "floral crest and date"
+    },
+    {
+      "id": "galleryItem-design-38",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.51,
+      "width": 0.9,
+      "height": 0.563,
+      "reason": "P holly wreaths"
+    },
+    {
+      "id": "galleryItem-design-39",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.469,
+      "width": 0.889,
+      "height": 0.688,
+      "reason": "Jingle prints on both sweatshirts"
+    },
+    {
+      "id": "galleryItem-design-40",
+      "field": "image",
+      "x": 0.533,
+      "y": 0.558,
+      "width": 0.528,
+      "height": 0.417,
+      "reason": "dog line-art portrait"
+    },
+    {
+      "id": "galleryItem-design-41",
+      "field": "image",
+      "x": 0.494,
+      "y": 0.49,
+      "width": 0.444,
+      "height": 0.375,
+      "reason": "goldendoodle portrait"
+    },
+    {
+      "id": "galleryItem-design-42",
+      "field": "image",
+      "x": 0.397,
+      "y": 0.604,
+      "width": 0.361,
+      "height": 0.25,
+      "reason": "navy paw on beanie cuff"
+    },
+    {
+      "id": "galleryItem-design-43",
+      "field": "image",
+      "x": 0.606,
+      "y": 0.463,
+      "width": 0.389,
+      "height": 0.2,
+      "reason": "MAS monogram with dots on visor"
+    },
+    {
+      "id": "galleryItem-design-44",
+      "field": "image",
+      "x": 0.561,
+      "y": 0.588,
+      "width": 0.75,
+      "height": 0.458,
+      "reason": "NOPE not today on towel"
+    },
+    {
+      "id": "galleryItem-easter-t",
+      "field": "image",
+      "x": 0.478,
+      "y": 0.469,
+      "width": 0.278,
+      "height": 0.208,
+      "reason": "bunny on chest"
+    },
+    {
+      "id": "galleryItem-fob-05",
+      "field": "image",
+      "x": 0.542,
+      "y": 0.463,
+      "width": 0.861,
+      "height": 0.889,
+      "reason": "four key fobs"
+    },
+    {
+      "id": "galleryItem-fob-06",
+      "field": "image",
+      "x": 0.486,
+      "y": 0.49,
+      "width": 0.889,
+      "height": 0.708,
+      "reason": "four key fobs hanging"
+    },
+    {
+      "id": "galleryItem-greeting-card-03",
+      "field": "image",
+      "x": 0.464,
+      "y": 0.436,
+      "width": 0.694,
+      "height": 0.621,
+      "reason": "beagle illustration"
+    },
+    {
+      "id": "galleryItem-heat-transfer-vinyl-05",
+      "field": "image",
+      "x": 0.528,
+      "y": 0.521,
+      "width": 0.9,
+      "height": 0.9,
+      "reason": "tattooed hand HTV design"
+    },
+    {
+      "id": "galleryItem-heat-transfer-vinyl-06",
+      "field": "image",
+      "x": 0.528,
+      "y": 0.414,
+      "width": 0.889,
+      "height": 0.579,
+      "reason": "CMC vinyl monogram"
+    },
+    {
+      "id": "galleryItem-logo-12",
+      "field": "image",
+      "x": 0.403,
+      "y": 0.448,
+      "width": 0.444,
+      "height": 0.313,
+      "reason": "Singleton Stables logo"
+    },
+    {
+      "id": "galleryItem-logo-13",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.458,
+      "width": 0.806,
+      "height": 0.458,
+      "reason": "Brown Eyed Girl circle logo"
+    },
+    {
+      "id": "galleryItem-logo-14",
+      "field": "image",
+      "x": 0.661,
+      "y": 0.546,
+      "width": 0.361,
+      "height": 0.208,
+      "reason": "SPIRES logo on polo"
+    },
+    {
+      "id": "galleryItem-logo-15",
+      "field": "image",
+      "x": 0.536,
+      "y": 0.563,
+      "width": 0.444,
+      "height": 0.229,
+      "reason": "SPIRES logo on quarter-zip"
+    },
+    {
+      "id": "galleryItem-logo-16",
+      "field": "image",
+      "x": 0.472,
+      "y": 0.573,
+      "width": 0.722,
+      "height": 0.479,
+      "reason": "SPIRES logos on polos"
+    },
+    {
+      "id": "galleryItem-logo-17",
+      "field": "image",
+      "x": 0.528,
+      "y": 0.479,
+      "width": 0.278,
+      "height": 0.2,
+      "reason": "MM monogram"
+    },
+    {
+      "id": "galleryItem-logo-18",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.496,
+      "width": 0.889,
+      "height": 0.667,
+      "reason": "Roquemore Ranch logo"
+    },
+    {
+      "id": "galleryItem-logo-20",
+      "field": "image",
+      "x": 0.522,
+      "y": 0.51,
+      "width": 0.417,
+      "height": 0.229,
+      "reason": "Brown Eyed Girl logo on polo"
+    },
+    {
+      "id": "galleryItem-monogram-24",
+      "field": "image",
+      "x": 0.597,
+      "y": 0.433,
+      "width": 0.278,
+      "height": 0.2,
+      "reason": "pink script monogram on sweater"
+    },
+    {
+      "id": "galleryItem-monogram-25",
+      "field": "image",
+      "x": 0.528,
+      "y": 0.464,
+      "width": 0.75,
+      "height": 0.643,
+      "reason": "Hunter strap text and tag"
+    },
+    {
+      "id": "galleryItem-monogram-26",
+      "field": "image",
+      "x": 0.508,
+      "y": 0.695,
+      "width": 0.472,
+      "height": 0.262,
+      "reason": "Reese name on pink panel"
+    },
+    {
+      "id": "galleryItem-monogram-27",
+      "field": "image",
+      "x": 0.556,
+      "y": 0.481,
+      "width": 0.417,
+      "height": 0.262,
+      "reason": "JTP monogram on bib"
+    },
+    {
+      "id": "galleryItem-monogram-28",
+      "field": "image",
+      "x": 0.708,
+      "y": 0.441,
+      "width": 0.25,
+      "height": 0.2,
+      "reason": "ACG monogram on collar"
+    },
+    {
+      "id": "galleryItem-monogram-29",
+      "field": "image",
+      "x": 0.472,
+      "y": 0.313,
+      "width": 0.639,
+      "height": 0.271,
+      "reason": "Copeland on green cuff"
+    },
+    {
+      "id": "galleryItem-monogram-30",
+      "field": "image",
+      "x": 0.486,
+      "y": 0.595,
+      "width": 0.472,
+      "height": 0.286,
+      "reason": "ASHER on bucket"
+    },
+    {
+      "id": "galleryItem-monogram-31",
+      "field": "image",
+      "x": 0.444,
+      "y": 0.476,
+      "width": 0.472,
+      "height": 0.333,
+      "reason": "EJM monogram on bodice"
+    },
+    {
+      "id": "galleryItem-monogram-32",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.457,
+      "width": 0.361,
+      "height": 0.309,
+      "reason": "MSA bow monogram on tote"
+    },
+    {
+      "id": "galleryItem-monogram-33",
+      "field": "image",
+      "x": 0.506,
+      "y": 0.594,
+      "width": 0.556,
+      "height": 0.313,
+      "reason": "DOC on beanie"
+    },
+    {
+      "id": "galleryItem-monogram-34",
+      "field": "image",
+      "x": 0.458,
+      "y": 0.524,
+      "width": 0.806,
+      "height": 0.571,
+      "reason": "Dawson over dump truck"
+    },
+    {
+      "id": "galleryItem-monogram-35",
+      "field": "image",
+      "x": 0.472,
+      "y": 0.619,
+      "width": 0.333,
+      "height": 0.2,
+      "reason": "YCT on towel tote"
+    },
+    {
+      "id": "galleryItem-monogram-36",
+      "field": "image",
+      "x": 0.533,
+      "y": 0.568,
+      "width": 0.806,
+      "height": 0.483,
+      "reason": "TRB cloud tag"
+    },
+    {
+      "id": "galleryItem-monogram-37",
+      "field": "image",
+      "x": 0.458,
+      "y": 0.452,
+      "width": 0.833,
+      "height": 0.666,
+      "reason": "Sully text and tags"
+    },
+    {
+      "id": "galleryItem-monogram-38",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.464,
+      "width": 0.889,
+      "height": 0.762,
+      "reason": "Brunson name and B laurel"
+    },
+    {
+      "id": "galleryItem-monogram-39",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.479,
+      "width": 0.9,
+      "height": 0.688,
+      "reason": "burlap bags with names"
+    },
+    {
+      "id": "galleryItem-monogram-40",
+      "field": "image",
+      "x": 0.528,
+      "y": 0.417,
+      "width": 0.833,
+      "height": 0.479,
+      "reason": "Eliza and flamingos"
+    },
+    {
+      "id": "galleryItem-monogram-41",
+      "field": "image",
+      "x": 0.508,
+      "y": 0.512,
+      "width": 0.472,
+      "height": 0.238,
+      "reason": "MWA monogram on tote"
+    },
+    {
+      "id": "galleryItem-monogram-42",
+      "field": "image",
+      "x": 0.478,
+      "y": 0.448,
+      "width": 0.472,
+      "height": 0.452,
+      "reason": "script M on towel"
+    },
+    {
+      "id": "galleryItem-monogram-43",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.49,
+      "width": 0.556,
+      "height": 0.229,
+      "reason": "ASHER on sweatshirt"
+    },
+    {
+      "id": "galleryItem-monogram-44",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.471,
+      "width": 0.833,
+      "height": 0.643,
+      "reason": "S monograms on towels"
+    },
+    {
+      "id": "galleryItem-pet-06",
+      "field": "image",
+      "x": 0.542,
+      "y": 0.369,
+      "width": 0.722,
+      "height": 0.643,
+      "reason": "dog face and bandana"
+    },
+    {
+      "id": "galleryItem-pet-07",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.452,
+      "width": 0.889,
+      "height": 0.785,
+      "reason": "paisley bandana"
+    },
+    {
+      "id": "galleryItem-pet-08",
+      "field": "image",
+      "x": 0.486,
+      "y": 0.5,
+      "width": 0.75,
+      "height": 0.833,
+      "reason": "dog with Babe bandana"
+    },
+    {
+      "id": "galleryItem-wall-hanging-05",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.488,
+      "width": 0.583,
+      "height": 0.524,
+      "reason": "church wall hanging"
+    },
+    {
+      "id": "galleryItem-wall-hanging-06",
+      "field": "image",
+      "x": 0.5,
+      "y": 0.512,
+      "width": 0.9,
+      "height": 0.809,
+      "reason": "church close-up"
+    },
+    {
+      "id": "galleryItem-wreath-sash-05",
+      "field": "image",
+      "x": 0.514,
+      "y": 0.708,
+      "width": 0.528,
+      "height": 0.313,
+      "reason": "Once Was sash ribbon tail"
+    },
+    {
+      "id": "galleryItem-wreath-sash-06",
+      "field": "image",
+      "x": 0.472,
+      "y": 0.604,
+      "width": 0.75,
+      "height": 0.396,
+      "reason": "tree and C on sash"
+    },
+    {
+      "id": "category-baby-kids",
+      "field": "cardImage",
+      "x": 0.528,
+      "y": 0.496,
+      "width": 0.861,
+      "height": 0.5,
+      "reason": "Gift from God (category card)"
+    },
+    {
+      "id": "category-hats-caps",
+      "field": "cardImage",
+      "x": 0.653,
+      "y": 0.463,
+      "width": 0.444,
+      "height": 0.2,
+      "reason": "MS monogram on visor (category card)"
+    },
+    {
+      "id": "category-home-gifts",
+      "field": "cardImage",
+      "x": 0.494,
+      "y": 0.438,
+      "width": 0.528,
+      "height": 0.438,
+      "reason": "floral crest and date (category card)"
+    },
+    {
+      "id": "category-jackets-sweatshirts",
+      "field": "cardImage",
+      "x": 0.486,
+      "y": 0.49,
+      "width": 0.444,
+      "height": 0.375,
+      "reason": "goldendoodle portrait (category card)"
+    },
+    {
+      "id": "category-shirts-tops",
+      "field": "cardImage",
+      "x": 0.5,
+      "y": 0.51,
+      "width": 0.333,
+      "height": 0.229,
+      "reason": "shepherd and lamb (category card)"
+    },
+    {
+      "id": "category-tote-bags",
+      "field": "cardImage",
+      "x": 0.506,
+      "y": 0.457,
+      "width": 0.361,
+      "height": 0.309,
+      "reason": "MSA bow monogram (category card)"
+    },
+    {
+      "id": "category-towels-linens",
+      "field": "cardImage",
+      "x": 0.5,
+      "y": 0.448,
+      "width": 0.889,
+      "height": 0.5,
+      "reason": "Eliza name and flamingos (category card)"
+    }
+  ]
+}

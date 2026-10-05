@@ -189,6 +189,14 @@ All strings come from Sanity through props; short neutral fallbacks only where n
 - **Classes**: `.btn` + `.btn-primary` / `.btn-secondary` (+ `.btn__arrow`), `.link-stitch`,
   `.display`, `.display-sm`, `.swash`, `.swash-gold`, `.eyebrow`, `.lede`, `.stitch-x`,
   `.stitch-frame`, `.cross-corners`, `.hit-44`, `.pt-header`.
+- **Stitches follow their container's shape (2026-10-04).** An inner running stitch is drawn
+  concentric with the edge it sits inside: inner radius = outer radius minus the inset, never a
+  fixed small radius. `.btn` does this itself from two variables, `--btn-radius` (default 2px) and
+  `--btn-stitch-inset` (4px, 5px on hover and focus): to round a button set `--btn-radius` (the
+  scrolled header pill's quote button sets `999px`), never `border-radius` alone, or the stitch
+  stays square inside a pill. Other stitched frames: use `border-radius: inherit` when the host is a
+  pill (the header pill's inner edge does), `calc(<outer> - <inset>)` otherwise, or an
+  `outline` with a negative `outline-offset` (outlines follow the host radius on their own).
 - **`FaqAccordion.tsx`**: same props; stitched dividers, italic index numerals, a cross-stitch toggle.
 
 ### Motifs (`src/components/motifs/`)
@@ -215,7 +223,17 @@ All strings come from Sanity through props; short neutral fallbacks only where n
   the prop's `--tag-tilt-base`.
 - **`Spool.astro`**: `color` (hex), `label?`, `sublabel?`, `size?: 'sm'|'md'|'lg'|number`
   (56/84/120px), `title?` (accessible name when there is no visible label; otherwise decorative),
-  `tail?` (default true), `tilt?`, `class?`.
+  `tail?` (default true), `tilt?`, `class?`. The drawing (redrawn 2026-10-04 for realism) is a
+  turned wooden spool in a slight 3/4 view, lit from the upper left: flanges with a lit, chamfered
+  top face, a carved ring, faint grain, the spindle hole and a grooved rim; the thread is a cylinder
+  shaded from ramps mixed at build time from the one hex (edge, shade, mid, lit, sheen; pale and
+  near-black threads get their own ramps so white and black both read), fine wraps that curve with
+  the cylinder (one pattern tile per turn of thread), occlusion where it tucks under each flange, a
+  loose tail lying on the shelf and a contact shadow. Its base CSS (`div.spool`, `.spool__art`) lives
+  in `globals.css`, not a scoped `<style>`, so the ~45 SVG elements carry no `data-astro-cid`
+  attribute (about 5KB per spool, 40-odd spools on the thread chart). The home Atelier rack draws the
+  same geometry once as a shared `<symbol>` in `AtelierStudio.astro` (thread = `currentColor`, every
+  shade a colour-independent black or white overlay); keep the two in step.
 - **`RunningStitch.astro`**: `tone?: 'ground'|'gold'|'brass'|'claret'|'linen'|'ink'|'current'`
   (`ground` follows the surface), `orientation?: 'horizontal'|'vertical'`, `length?` (CSS length),
   `stitch?`, `gap?`, `weight?` (px), `ornament?: 'none'|'cross'|'knot'|'needle'`, `class?`.

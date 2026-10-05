@@ -13,7 +13,10 @@
 // It holds (never advances) while the hoop or the input is hovered or focused,
 // while the hero is off-screen, and while the tab is hidden; typing takes it
 // over completely. Under reduced motion it never cycles: the stage shows one
-// finished piece. Its own component (never a <script> in a JSX expression).
+// finished piece. WCAG 2.2.2: the Pause/Play button ([data-hero-pause]) is
+// shown only while the cycle runs; Pause stops the stitching where it is and
+// holds the cycle, Play carries on. It hides again once the cycle rests or the
+// visitor types (both end the motion). Its own component (never a <script> in a JSX expression).
 ---
 
 <script>
@@ -51,6 +54,7 @@
     const studio = hero.querySelector<HTMLElement>('[data-hero-studio]');
     const input = hero.querySelector<HTMLInputElement>('[data-hero-input]');
     const toStudio = hero.querySelector<HTMLAnchorElement>('[data-hero-to-studio]');
+    const pauseBtn = hero.querySelector<HTMLButtonElement>('[data-hero-pause]');
     if (!stage || !hoop || !studio) return;
     const canvas = stage.querySelector('canvas');
 
@@ -73,8 +77,34 @@
     let hidden = document.hidden;
     let timer = 0;
     let typeTimer = 0;
+    let paused = false;
 
-    const held = () => hovered || focused || offscreen || hidden;
+    const held = () => paused || hovered || focused || offscreen || hidden;
+
+    // ---- Pause / Play (WCAG 2.2.2) ----
+    function showPause(show: boolean) {
+      if (pauseBtn) pauseBtn.hidden = !show;
+    }
+    function setPaused(next: boolean) {
+      paused = next;
+      if (pauseBtn) {
+        pauseBtn.toggleAttribute('data-paused', paused);
+        pauseBtn.setAttribute(
+          'aria-label',
+          (paused ? pauseBtn.dataset.labelPlay : pauseBtn.dataset.labelPause) ??
+            (paused ? 'Play' : 'Pause'),
+        );
+      }
+      if (paused) {
+        clear();
+        atelier?.pause();
+      } else {
+        if (!offscreen && !hidden) atelier?.resume();
+        schedule();
+      }
+    }
+    pauseBtn?.addEventListener('click', () => setPaused(!paused));
+    showPause(mode === 'cycle');
 
     // ---- the engine: started late, so the headline (LCP) paints first ----
     let atelier: Atelier | null = null;
@@ -93,7 +123,7 @@
         },
       });
       stage!.__atelier = atelier;
-      if (offscreen || hidden) atelier.pause();
+      if (paused || offscreen || hidden) atelier.pause();
       stage!.dispatchEvent(
         new CustomEvent('atelier:ready', { detail: { atelier }, bubbles: true }),
       );
@@ -167,6 +197,7 @@
       if (mode !== 'cycle' || stitching || held()) return;
       if (idx >= samples.length - 1) {
         mode = 'done';
+        showPause(false);
         return;
       }
       timer = window.setTimeout(() => {
@@ -216,7 +247,7 @@
           clear();
           atelier?.pause();
         } else {
-          atelier?.resume();
+          if (!paused) atelier?.resume();
           schedule();
         }
       }
@@ -229,11 +260,17 @@
       window.clearTimeout(typeTimer);
       if (!clean) {
         // emptied: let the samples carry on once focus leaves
-        if (!reduced && idx < samples.length - 1) mode = 'cycle';
+        if (!reduced && idx < samples.length - 1) {
+          mode = 'cycle';
+          showPause(true);
+        }
         return;
       }
       mode = 'user';
       clear();
+      // typing ends the cycle: lift any pause so their initials can stitch
+      if (paused) setPaused(false);
+      showPause(false);
       typeTimer = window.setTimeout(() => apply(current, clean), DEBOUNCE_MS);
     });
 

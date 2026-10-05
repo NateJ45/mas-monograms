@@ -125,6 +125,15 @@ export const clearancePage = defineType({
       validation: (R) => R.required(),
     }),
     defineField({
+      name: 'quantityLeftLabel',
+      title: '"How many left" label (optional)',
+      type: 'string',
+      group: 'page',
+      description:
+        'Shown on an item when you have set how many are available. Use {count} for the number, e.g. "{count} left". Leave blank to hide it.',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
       name: 'buyButtonLabel',
       title: 'Buy button label',
       type: 'string',

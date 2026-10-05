@@ -3,7 +3,8 @@
 // prefill script (QuotePrefillScript.astro) fills it from the query string and
 // reveals it only when valid initials arrived (?initials=ABC from the Monogram
 // Atelier, the thread chart or a category page). One hero-quality
-// AtelierStage, a small spec list built from atelierSettings labels, and the
+// AtelierStage marked `lazy` (no idle import: the engine is fetched only when
+// the revealed stage nears the viewport, never for a visitor without initials), a small spec list built from atelierSettings labels, and the
 // atelierSettings disclaimer so nobody mistakes it for a proof.
 //
 // `data` is the whitelist the script validates the query against (thread
@@ -39,6 +40,7 @@ const { data, heading, disclaimer } = Astro.props as Props;
       id="quote-stage"
       text=""
       quality="hero"
+      lazy
       aspect="5 / 3"
       label={heading ?? ''}
       class="qp__stage"

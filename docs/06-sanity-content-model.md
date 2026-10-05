@@ -41,6 +41,21 @@ sets in both `src/sanity/structure.ts` and the repo-root `sanity.config.ts`, so 
 `finalSubhead` / `finalCtaLabel` / `finalCtaHref` (new "Closing thread banner" group). Existing fields are
 untouched. `makerFacts` must hold only true statements.
 
+**Label fields that replaced hard-coded words (2026-10-04, all optional, seeded by
+`scripts/seed-pending-fields.mjs`):**
+
+| Where              | Field(s)                                                                                                                                                               | Used by                                                                                                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `siteSettings`     | `menuContactLabel` (Navigation)                                                                                                                                        | the phone menu's contact eyebrow ("At the bench")                                                       |
+| `pricingPage`      | `tierPricePrefix` (Pricing tiers)                                                                                                                                      | the small word above each price tag ("from")                                                            |
+| `fontGuidePage`    | `popularLabel`, `tryItLabel`                                                                                                                                           | the popular-font badge; the "try it" link (blank label hides the links)                                 |
+| `thankYouPage`     | `responseTimeLabel`, `nextStepsLabel`                                                                                                                                  | the label inside the response-time box; the heading over the numbered steps                             |
+| `styleGalleryPage` | `filterToggleLabel`, `resultsAnnouncement` (`{filter}`, `{count}`, `{total}`), `requestLabel`; "Photo viewer" group: `lightboxLabel`, `lightbox{Close,Prev,Next}Label` | the phone filter button, the screen-reader status, the per-photo link, the lightbox (also on `/[slug]`) |
+| `clearancePage`    | `quantityLeftLabel` (`{count}`)                                                                                                                                        | "{count} left" on an item; blank hides it                                                               |
+| `threadChartPage`  | `filterLabel`                                                                                                                                                          | the colour search box label                                                                             |
+| `atelierSettings`  | `pauseLabel`, `playLabel` (Buttons & notice)                                                                                                                           | the home hero's Pause/Play button and the Marquee's (WCAG 2.2.2)                                        |
+| `notFoundPage`     | (existing) `seoTitle`, `seoDescription`                                                                                                                                | now actually read by `getNotFoundPage` and `404.astro`                                                  |
+
 **Query notes:** `getAllThreadColors()` now returns `slug` as a plain string (it was the `{current}` object; no
 caller used it). `getGalleryItemsForWall(limit)` returns featured items first with `hotspot`/`crop`; as of
 2026-10-04 none of the 69 gallery photos has a hotspot set, so the front end must default to the centre.
@@ -53,16 +68,16 @@ label, help line, placeholder, section heading, and the referral-source options.
 
 ## Collections
 
-| Type            | Drives                                                      | Notes                                                                                                       |
-| --------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `itemCategory`  | the `/[slug]` shop pages + the Shop-by-Item grid            | name, slug, description, hero images, card image, trust-strip lines, starting price, order, featured        |
-| `font`          | the Font & Lettering Guide + the quote form's font dropdown | name, `previewImage` (a photo of the stitched lettering — NOT a web font), `styleTag`, `bestFor`, `popular` |
-| `threadColor`   | the Thread Color Chart                                      | name, hex (approximate), DMC number, swatch image, color family                                             |
-| `galleryItem`   | the Style Gallery (and featured items on Home/About)        | image, related category, related font, tags, featured, order                                                |
-| `pricingTier`   | the Pricing page + "Business at a glance"                   | quantity/complexity label, price per piece, note, highlighted, order                                        |
-| `clearanceItem` | the Clearance page                                          | name, description, images, original + sale price, `stripePaymentLink`, quantity, sold, order                |
-| `faqItem`       | the How It Works + Pricing FAQs                             | question, answer (Portable Text), category, `showOnHowItWorks` / `showOnPricing` flags                      |
-| `legalPage`     | `/legal/[slug]` (Privacy, Terms, Accessibility)             | title, slug, body (Portable Text), last-updated                                                             |
+| Type            | Drives                                                      | Notes                                                                                                                                                                                                                                                                            |
+| --------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `itemCategory`  | the `/[slug]` shop pages + the Shop-by-Item grid            | name, slug, description, hero images, card image, trust-strip lines, starting price, order, featured; optional `galleryHeading`, `requestSimilarLabel`, `crossSellHeading`, and `bannerEyebrow`/`bannerHeadline`/`bannerSubhead` (blank banner = the Shop by Item page's banner) |
+| `font`          | the Font & Lettering Guide + the quote form's font dropdown | name, `previewImage` (a photo of the stitched lettering — NOT a web font), `styleTag`, `bestFor`, `popular`; optional `atelierStyle` (one of the 5 preview style keys: the card links to `/?style=<key>#atelier`, which preselects it)                                           |
+| `threadColor`   | the Thread Color Chart                                      | name, hex (approximate), DMC number, swatch image, color family                                                                                                                                                                                                                  |
+| `galleryItem`   | the Style Gallery (and featured items on Home/About)        | image, related category, related font, tags, featured, order                                                                                                                                                                                                                     |
+| `pricingTier`   | the Pricing page + "Business at a glance"                   | quantity/complexity label, price per piece, note, highlighted, optional `highlightLabel` (badge on a highlighted tag), order                                                                                                                                                     |
+| `clearanceItem` | the Clearance page                                          | name, description, images, original + sale price, `stripePaymentLink`, quantity, sold, order                                                                                                                                                                                     |
+| `faqItem`       | the How It Works + Pricing FAQs                             | question, answer (Portable Text), category, `showOnHowItWorks` / `showOnPricing` flags                                                                                                                                                                                           |
+| `legalPage`     | `/legal/[slug]` (Privacy, Terms, Accessibility)             | title, slug, body (Portable Text), last-updated, optional `lastUpdatedLabel`                                                                                                                                                                                                     |
 
 **Types that were removed** (do not reintroduce without real content): `testimonial`, `popularCombination`,
 and the old `stats` strip. There is also no `service` or `journal*` type — those were leftovers from the
@@ -78,8 +93,11 @@ Not rendered on the public site — they drive the onboarding handbook Mary Ann 
 - `studioNotes` — the editable business notes behind "Your business at a glance".
 - `studioPlaybook` — "Grow your studio" (Google Business, reviews, social, local marketing, keeping the site fresh).
 
-Seeded by `scripts/seed-studio-guides.mjs` (idempotent). See `docs/08` and the studio components in
-`src/sanity/components/`.
+Seeded by `scripts/seed-studio-guides.mjs`. Since 2026-10-04 its default mode (dry run, `--apply` to write)
+only ADDS the sections listed in `NEW_SECTIONS` (by fixed `_key`) to the live `studioGuide`, so Mary Ann's edits
+survive; `--replace-all --apply` is the old full createOrReplace and overwrites her edits. The
+"Monogram Preview (live stitching)" map row and how-to were added this way on 2026-10-04. See `docs/08` and
+the studio components in `src/sanity/components/`.
 
 ---
 

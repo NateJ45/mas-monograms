@@ -100,13 +100,15 @@ export async function buildGeometry(
   }
   const strokeW = perim > 0 ? (2 * area * f) / perim : 20;
   const dsep = dsepFor(quality, inp.letterH);
-  const tensorR = Math.max(2, Math.min(10, Math.round((strokeW * 0.22) / f)));
   const dirOf = (l: number, turn = 0): [number, number] => {
     const a = (angles.get(l) ?? 0.66) + turn;
     return [Math.cos(a), Math.sin(a)];
   };
   if (!(await step())) return null;
-  const field = tensorField(coarse, tensorR, (l) => dirOf(l), 0.015, 'dt');
+  // Satin COLUMNS from the medial axis (columns.ts): one direction per stroke,
+  // crisp mitres where strokes meet. The blur radius stays small (2 coarse
+  // cells) so a mitre stays a line, not a fan.
+  const field = tensorField(coarse, 2, (l) => dirOf(l), 0.015, 'column');
   if (!(await step())) return null;
 
   const maxSatin = Math.max(dsep * 8, inp.letterH * 0.42);
@@ -145,6 +147,7 @@ export async function buildGeometry(
         seed: seed + l * 7919,
         labels: [l],
         tick: alive,
+        rays: true,
       },
       stitches,
     );

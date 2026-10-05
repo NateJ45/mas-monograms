@@ -181,6 +181,7 @@ export type PricingTier = {
   pricePerPiece?: number;
   note?: string;
   highlighted?: boolean;
+  highlightLabel?: string;
   displayOrder?: number;
 };
 
@@ -269,6 +270,7 @@ export type Font = {
   description?: string;
   bestFor?: Array<string>;
   popular?: boolean;
+  atelierStyle?: 'classic' | 'script' | 'block' | 'circle' | 'single';
   displayOrder?: number;
 };
 
@@ -321,6 +323,8 @@ export type AtelierSettings = {
   replayLabel?: string;
   ctaLabel?: string;
   disclaimer?: string;
+  pauseLabel?: string;
+  playLabel?: string;
   heroTryLabel?: string;
   heroPlaceholder?: string;
 };
@@ -383,6 +387,7 @@ export type SiteSettings = {
       }
   >;
   quoteCtaLabel?: string;
+  menuContactLabel?: string;
   footerColumns?: Array<{
     title?: string;
     links?: Array<
@@ -555,6 +560,7 @@ export type LegalPage = {
   slug?: Slug;
   seoDescription?: string;
   lastUpdated?: string;
+  lastUpdatedLabel?: string;
   body?: Array<{
     children?: Array<{
       marks?: Array<string>;
@@ -606,6 +612,12 @@ export type ItemCategory = {
   trustItems?: Array<string>;
   startingPrice?: string;
   ctaLabel?: string;
+  galleryHeading?: string;
+  requestSimilarLabel?: string;
+  crossSellHeading?: string;
+  bannerEyebrow?: string;
+  bannerHeadline?: string;
+  bannerSubhead?: string;
   displayOrder?: number;
   featured?: boolean;
   seoTitle?: string;
@@ -644,6 +656,8 @@ export type ThankYouPage = {
     _key: string;
   }>;
   expectedResponseTime?: string;
+  responseTimeLabel?: string;
+  nextStepsLabel?: string;
   nextSteps?: Array<string>;
   image?: {
     asset?: SanityImageAssetReference;
@@ -695,6 +709,7 @@ export type ClearancePage = {
   paymentNote?: string;
   pickupNote?: string;
   soldOutLabel?: string;
+  quantityLeftLabel?: string;
   buyButtonLabel?: string;
   emptyStateMessage?: string;
   emptyStateCtaLabel?: string;
@@ -743,6 +758,7 @@ export type ThreadChartPage = {
   }>;
   matchingNote?: string;
   customColorNote?: string;
+  filterLabel?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
   ctaSubhead?: string;
@@ -785,6 +801,8 @@ export type FontGuidePage = {
   }>;
   fontGridEyebrow?: string;
   fontGridHeadline?: string;
+  popularLabel?: string;
+  tryItLabel?: string;
   customFontNote?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
@@ -826,6 +844,13 @@ export type StyleGalleryPage = {
     _key: string;
   }>;
   emptyStateMessage?: string;
+  filterToggleLabel?: string;
+  resultsAnnouncement?: string;
+  requestLabel?: string;
+  lightboxLabel?: string;
+  lightboxCloseLabel?: string;
+  lightboxPrevLabel?: string;
+  lightboxNextLabel?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
   ctaSubhead?: string;
@@ -1055,6 +1080,7 @@ export type PricingPage = {
   heroSubhead?: string;
   tiersHeadline?: string;
   tiersSubhead?: string;
+  tierPricePrefix?: string;
   addonsHeadline?: string;
   addons?: Array<{
     label?: string;

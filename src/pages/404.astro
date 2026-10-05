@@ -9,8 +9,9 @@ import { getSiteSettings, getNotFoundPage } from '@/lib/queries';
 
 const [siteSettings, page] = await Promise.all([getSiteSettings(), getNotFoundPage()]);
 
-const title = 'Page Not Found — MAS Monograms';
-const description = "The page you're looking for doesn't exist. Let's get you back on track.";
+const title = page?.seoTitle ?? 'Page Not Found — MAS Monograms';
+const description =
+  page?.seoDescription ?? "The page you're looking for doesn't exist. Let's get you back on track.";
 
 const headline = page?.headline ?? 'Page Not Found';
 const swash = ['wandered off', 'Not Found'].find((c) => headline.includes(c));

@@ -25,6 +25,15 @@
       .join('');
   }
 
+  function requestedStyle(): string | null {
+    const fromSearch = new URLSearchParams(window.location.search).get('style');
+    if (fromSearch) return fromSearch.slice(0, 16);
+    const hash = window.location.hash;
+    const q = hash.indexOf('?');
+    if (q < 0) return null;
+    return new URLSearchParams(hash.slice(q + 1)).get('style')?.slice(0, 16) ?? null;
+  }
+
   function init(root: HTMLElement) {
     if (root.dataset.studioInit) return;
     root.dataset.studioInit = '1';
@@ -144,6 +153,24 @@
       if (input) input.value = next;
       render({ animate: true });
     });
+
+    // A "try it" link from the font guide (/?style=script#atelier, or the
+    // /#atelier?style=script form) preselects that style. Only a key that is
+    // one of the rendered style radios is accepted; anything else is ignored.
+    const wanted = requestedStyle();
+    if (wanted) {
+      const radio = Array.from(form.querySelectorAll<HTMLInputElement>('input[name="style"]')).find(
+        (r) => r.value === wanted,
+      );
+      if (radio && !radio.checked) {
+        radio.checked = true;
+        render({ animate: true });
+      }
+      // the hash form is not an element id, so the browser did not scroll
+      if (window.location.hash.startsWith(`#${root.closest('[id]')?.id}?`)) {
+        root.closest('[id]')?.scrollIntoView();
+      }
+    }
 
     // first paint uses the server defaults; keep the text alternative honest
     sync();

@@ -140,4 +140,8 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
     sticky box). Overlay pages pull `<main>` up by it and their first section clears it with
     `.pt-header`. Change the row height and `--header-h` together, then run `tests/header.spec.ts`
     (it asserts the box height is equal in both states and the hero heading clears the header).
+    `html` carries `scroll-padding-top: calc(var(--header-h) + 0.5rem)` so focus scrolling, anchors and
+    `scrollIntoView` stop below the sticky header (WCAG 2.4.11). `measure-tap-targets.mjs` still prints
+    "stolen-tap" warnings for elements that sit under the header at one of ITS scroll stops; hit-test
+    them centred (`scrollIntoView({ block: 'center' })`) before believing one.
 <!-- prettier-ignore-end -->
