@@ -26,6 +26,7 @@
     "parity": "node scripts/page-parity.mjs",
     "sync-check": "node scripts/sync-check.mjs",
     "audit:studio": "node scripts/audit-studio.mjs",
+    "audit:data": "tsx scripts/audit-data-vs-schema.mjs",
     "lighthouse": "npm run build && npx lhci autorun",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
@@ -123,6 +124,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4.3.1",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0"
   }

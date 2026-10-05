@@ -45,6 +45,7 @@ Run from the repo root. Node scripts are in `package.json`.
 - `npm run typegen`: after ANY schema change, then commit `src/lib/sanity.types.ts`
 - `npm run test:unit` (node tests), `npm test` (Playwright smoke/axe/reflow), `npm run format:check`
 - `npm run parity` (render parity), `npm run sync-check` (PORTABLE drift)
+- `npm run audit:data`: read-only check of every stored value against the real compiled schema (untyped array items, undeclared keys, bad dropdown values, dangling references); must say "Data matches the schema." after any seed run or schema change
 - `npm run audit:studio`: read-only Studio audit (hidden-and-required, unknown keys, required-but-blank, banned words); must say "Studio is clean." after any schema change
 - `npm run brand-kit`: redraws Mary Ann's brand kit (`public/brand-kit/`, logos, social, print, fonts, colors, the versioned ZIP) after any logo, colour or tagline change; output is committed, not part of `build`. Bump the ZIP to `-v2` when its contents change (see `.claude/rules/sanity-studio.md`)
 - Full-page screenshots for review: scroll through the page first or `[data-reveal]` bands capture blank (`docs/TESTING.md`)
