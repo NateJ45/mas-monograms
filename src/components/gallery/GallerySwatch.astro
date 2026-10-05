@@ -156,7 +156,7 @@ const hasBody = !!(categoryName || fontName);
     padding-top: 0.35rem;
   }
   .gallery-swatch__cat {
-    font-size: 0.7rem;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -165,14 +165,14 @@ const hasBody = !!(categoryName || fontName);
   .gallery-swatch__font {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 1rem;
+    font-size: var(--text-body);
     line-height: 1.35;
     color: var(--foreground);
   }
   .gallery-swatch__req {
     align-self: flex-start;
     margin-top: 0.5rem;
-    font-size: 0.72rem;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -187,8 +187,8 @@ const hasBody = !!(categoryName || fontName);
       letter-spacing: 0.12em;
     }
     .gallery-swatch__req {
-      letter-spacing: 0.1em;
-      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      font-size: var(--text-label);
     }
   }
 </style>

@@ -117,6 +117,34 @@ This file tracks the things that have no other home.
 
 ## Open — code/content work queued
 
+### From the 2026-10-04 audit-fix pass (branch `chore/audit-fixes`)
+
+- **Content for Mary Ann (Sanity, not code).** Eyebrows long enough to read as all-caps body:
+  `/request-a-quote` "Free · About 2 minutes · No payment now" (39 characters) and `/how-it-works` "No cart.
+  No checkout. No guessing." (34); shorten them or move the line into the lede. Quote-form labels mix
+  Title Case ("Personalization Details", "Thread Color Preference (Optional)") with sentence case now that
+  they are no longer uppercased; make them sentence case. The Terms page body has em-dashes ("A quote is
+  an estimate — it does not..."); house style is commas or colons.
+- **The scrolled header pill's blur has never applied** (found 2026-10-04, same before and after this
+  pass): text behind the pill shows through the 90% Paper unblurred. Most likely the header's
+  `view-transition-name` makes it a backdrop root, so `backdrop-filter` on anything inside sees nothing.
+  Either drop the blur or move the view-transition name off the header and re-check the pinned header
+  during navigations.
+- **Swash fallback reflow on a slow first load** (pre-existing, now shorter). Until the 46 KB swash
+  subset arrives (~1.8s on a 1.6 Mbps throttle, was ~2.3s with the full italic) the swash word paints in
+  the system italic, which is wider and can rewrap the headline. Fallback metric overrides cannot fix it:
+  the swash's width against Georgia italic runs 0.78 to 0.92 across sizes (opsz). Options if it matters:
+  `font-display: block` for the swash face only (invisible for that window instead of restyled).
+- **Detector false positives left on URL scans** (not bugs, recorded so nobody chases them): low-contrast
+  on dark sections (their ground is a `::before`, so the tool composites against Linen), gradient-text on
+  the gold swash, hero-eyebrow-chip / kicker-above-heading (the eyebrow is the incumbent identity),
+  italic-serif-display, cream-palette, marquee, dark-glow, repeating-stripes-gradient (the linen weave),
+  buried-raster, nested-cards (swatch cards in a panel), shape-assembled-illustration (spools and hoops),
+  tight-leading on the about pull quote, gray-on-color for taupe text on Kraft (5.2:1, a palette pair).
+  Lighthouse and axe are the accessibility truth and both are clean.
+- **`DESIGN.md` and `PRODUCT.md` are not in the `@source not` list** in `globals.css`, so class names
+  they mention could keep utility rules alive. Add them in a render-neutral pass and re-capture parity.
+
 ### From the 2026-10-04 logo, header and footer rework (branch `redesign/header-logo`)
 
 - **Text in the logo is outlined**, so the brand name inside the drawing cannot come from Sanity; the
@@ -196,6 +224,15 @@ This file tracks the things that have no other home.
   included. Write tokens bare. (Also carried from WCP.)
 
 ## Recently closed
+
+- 2026-10-04: **Audit-fix pass** (branch `chore/audit-fixes`, after a 15/20 Impeccable audit). Phone menu
+  (a real-phone report): no needless scroll at 360x640 to 430x932, twill covers the whole scroll box, a
+  test guards it. Header morph is compositor-only (38 layouts per toggle to 1 to 6, layout shift 0). Italic
+  subsets: LCP on `/` 3384 to 3009ms. Typeset: labels at 0.75rem minimum, sentence-case form labels, hero
+  placeholder at full on-dark muted, reading measures about 70 characters, dead `.prose-blockquote` removed,
+  em-dashes out of the quote form's fallback copy. Extract: quote emails in Heirloom Coast, text-step /
+  radius / wood / white tokens, src detector findings 257 to 0 (`.impeccable/config.json` holds the reasoned
+  ignores). Detail: `docs/TESTING.md`, `docs/02-design-system.md`.
 
 - 2026-10-04: **Hoop crops, the no-JS quote note, concentric stitches** (branch `chore/leftover-fixes`).
   New `galleryItem.hoopFit` ("Show it in a round hoop?"); 9 photos that cannot make a round crop are flagged

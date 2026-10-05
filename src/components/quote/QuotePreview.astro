@@ -56,7 +56,7 @@ const { data, heading, disclaimer } = Astro.props as Props;
     flex-direction: column;
     gap: 0.85rem;
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: var(--radius-mount);
     background-color: var(--color-paper);
     background-image: var(--tex-paper);
     background-size: var(--tex-paper-size);
@@ -77,14 +77,13 @@ const { data, heading, disclaimer } = Astro.props as Props;
   }
   /* stitch concentric with the mount, same rule as .btn (clamps to 0 here) */
   .qp__frame {
-    --mount-radius: 8px;
+    --mount-radius: var(--radius-soft);
     --mount-stitch-inset: 0.95rem;
     position: relative;
     padding: 0.5rem;
     border-radius: var(--mount-radius);
     background:
-      linear-gradient(145deg, rgb(255 255 255 / 0.18), transparent 40%),
-      linear-gradient(180deg, #c79a63, #8a5a2f);
+      linear-gradient(145deg, rgb(255 255 255 / 0.18), transparent 40%), var(--wood-mount);
     box-shadow: 0 16px 28px -20px rgb(15 27 45 / 0.6);
   }
   .qp__frame::after {
@@ -103,10 +102,10 @@ const { data, heading, disclaimer } = Astro.props as Props;
     grid-template-columns: auto 1fr;
     gap: 0.3rem 1rem;
     margin: 0;
-    font-size: 0.875rem;
+    font-size: var(--text-small);
   }
   .qp__spec :global(dt) {
-    font-size: 0.6875rem;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -117,14 +116,14 @@ const { data, heading, disclaimer } = Astro.props as Props;
     margin: 0;
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 1.0625rem;
+    font-size: var(--text-reading);
     color: var(--foreground);
   }
   .qp__note {
     margin: 0;
     padding-top: 0.75rem;
     border-top: 1.5px dashed var(--color-border-soft);
-    font-size: 0.8125rem;
+    font-size: var(--text-meta);
     line-height: 1.5;
     color: var(--color-text-secondary);
   }

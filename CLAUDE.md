@@ -31,6 +31,9 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
   69 gallery photos, seam polish on heavy block letters. All in `docs/PENDING.md`.
 - Studio for Mary Ann: Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first
   desk; new desk entry "Monogram Preview (live stitching)".
+- **Audit-fix pass (2026-10-04, branch `chore/audit-fixes`):** phone-menu scroll fix, compositor-only header
+  morph, Fraunces italic subsets (LCP 3.38 to 3.01s on `/`), text-step/radius/wood tokens (detector src
+  findings 257 to 0), Heirloom Coast quote emails. What remains is in `docs/PENDING.md`.
 - **Logo, header and footer rework (2026-10-04, branch `redesign/header-logo`).** New logo system in
   blue and gold: the **Hoop Seal** (a script S sewn through a roman M and A, in embroidery hoops) is
   the brand mark and the **Signature Thread** wordmark the horizontal lockup; both drawn by

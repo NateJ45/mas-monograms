@@ -225,7 +225,7 @@ function priceHint(cat: any): string | null {
     margin-top: 3.5rem;
   }
   .hoop-wall__item :global(.hangtag__title) {
-    font-size: 1rem;
+    font-size: var(--text-body);
   }
   @media (min-width: 768px) {
     .hoop-wall {
@@ -242,7 +242,7 @@ function priceHint(cat: any): string | null {
       margin-top: calc(var(--drop) * 0.6);
     }
     .hoop-wall__item :global(.hangtag__title) {
-      font-size: 1.15rem;
+      font-size: var(--text-lead-sm);
     }
   }
   @media (min-width: 1024px) {

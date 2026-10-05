@@ -1,6 +1,6 @@
 # 02: Design System
 
-> **Status: current as of 2026-10-04.** The live system is **"Heirloom Coast"** (rebranded 2026-07-01)
+> **Status: current as of 2026-10-04 (audit-fix pass: text steps, radii, wood tokens, italic subsets, compositor-only header).** The live system is **"Heirloom Coast"** (rebranded 2026-07-01)
 > wearing **Direction D, "The Atelier"** (2026-10-04), which replaced Direction C, "The Sampler"
 > (2026-07-03). Tokens live in `src/styles/globals.css` (Tailwind v4 `@theme` block; there is no
 > `tokens.css`). Brief and hard rules: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
@@ -53,7 +53,10 @@ for every rule. Persuasion comes from craft and clarity, never from invented pro
 | `--color-border-on-dark`  | `#8A96A8` | A form field's edge on a dark ground (5.77:1)                               |
 | `--thread-gold` (`:root`) | gradient  | gold-deep, gold, gold-light, gold, gold-deep                                |
 
-Every pair above is asserted in `src/lib/theme-tokens.test.ts` (`npm run test:unit`).
+| `--color-white-pure` | `#FFFFFF` | The label on Claret; white form fields. Write the token, never `#fff` |
+| `--color-wood-*` | 5 hexes | Props only (shelf, mounts): `--wood-shelf`, `--wood-mount` gradients in `:root` |
+
+Every text pair above is asserted in `src/lib/theme-tokens.test.ts` (`npm run test:unit`); the wood tokens are decorative and only asserted as declared.
 
 ### Ground contexts (how one component works on both)
 
@@ -78,8 +81,20 @@ either ground with no extra props. There is still **no dark mode**: these are da
 | Body / UI | Mulish Variable; `.lede`          | `.lede` is the large opening paragraph (secondary ink, 42ch)                                                                                 |
 | Script    | Petemoss; `.font-script`          | Monogram artifacts and ONE `ScriptKicker` per page (2.75rem floor)                                                                           |
 
-The roman Fraunces is the opsz build; the italic is the **full** build (adds SOFT and WONK, about
-68KB, `font-display: swap`, downloaded only when a page sets italic).
+The roman Fraunces is the opsz build. Italic comes from two subsets of the **full** build (2026-10-04,
+`scripts/subset-fraunces-italic.py`, both `font-display: swap`, not preloaded): **Fraunces Swash**
+(`--font-swash`; SOFT 100 and WONK 1 pinned, wght 300 to 360, 46 KB) for `.swash` and every other SOFT
+100 italic, and the plain italic (SOFT 0, WONK 1, 56 KB). The 150 KB full italic is only the fallback for
+characters outside the subsets' unicode-range. Measured: mobile Lighthouse LCP on `/` 3384 to 3009 ms
+(median of 5, gzip), perf 87 to 91; a preload scored 2937 but held the roman back ~400 ms on a throttled
+real network, so it was dropped. Fallback metric overrides were not added: the swash's width against
+Georgia italic runs 0.78 to 0.92 across sizes (the opsz axis), so no single `size-adjust` fits.
+
+**Text steps** (`@theme`, write `var(--text-*)` in component CSS): `--text-label` 0.75rem (labels,
+eyebrows, tag flags; the floor for functional text), `--text-meta` 0.8125rem, `--text-small` 0.875rem,
+`--text-compact` 0.9375rem, `--text-body` 1rem, `--text-reading` 1.0625rem, `--text-lead-sm` 1.125rem.
+Reading measure about 70 characters (`52ch` to `56ch`). **Radii:** base 0.25rem, buttons 2px,
+`--radius-soft` 6px, `--radius-mount` 10px, `--radius-pill` 999px.
 
 **Embroidery fonts are different**: each `font` document carries a `previewImage`. See `docs/04`.
 
@@ -158,14 +173,23 @@ All strings come from Sanity through props; short neutral fallbacks only where n
   (`<Logo mark />`, 5.1rem), the quote button at the right, a running-stitch hem with a gap under the
   seal. Below 75rem: seal + wordmark at the left, the menu button at the right. `[data-scrolled]`
   (past 24px) turns the row into an inset, rounded paper-glass pill (blur, hairline, a stitched inner
-  edge, soft shadow); on desktop the seal shrinks and fades as the wordmark draws in. The sticky outer
+  edge, soft shadow); on desktop the seal shrinks and fades as the wordmark draws in. Compositor-only
+  (2026-10-04 optimize pass): the row never changes layout; `.site-header__ground` (the fill) closes to the
+  pill with a `clip-path`, `.site-header__pill` (shadow, hairline) and `header::after` (stitch) sit at the
+  pill rect (`--hdr-pill-*`) and fade, and the left menu, brand and right end glide with `translate`
+  (offsets in container units) while the seal and wordmark `scale`. The brand's `::after` is its hit
+  area and focus ring, sized to the old box in each state. Measured across the threshold: 38 layouts
+  per toggle to 1 to 6, layout-shift entries 24 (sum ~0.016) to 0 at 1440. A FLIP version was tried and
+  rejected: its one layout snap is itself reported as layout shift. The sticky outer
   box reserves `--header-h` (4.5rem below 75rem, 6.5rem from it) in both states, so nothing shifts.
   Overlay at rest is a dark context; the pill is a light one. No JS: a solid Midnight row. Dropdowns
   are native `<details>` with the hover-intent / Escape / outside-click script; panels are paper cards
   with a stitched edge. CSS: "Site header" in `globals.css`. Test: `tests/header.spec.ts`.
-- **`MobileNav.tsx`**: same props and behaviour plus `brandName`; a full-screen Midnight panel with
-  the wordmark in its top bar, running-stitch dividers, the active page in the swash, the paper `.btn`
-  CTA, and "At the bench" (phone and email from Site Settings; no hours) at the foot.
+- **`MobileNav.tsx`**: same props and behaviour plus `brandName`; a full-screen Midnight panel (`on-dark`
+  - `texture-midnight` on the scroll box itself, attached `local`, height `100dvh`, `overscroll-contain`;
+    2026-10-04 fix for a real-phone report of needless scroll and a flat strip below the twill) with
+    the wordmark in its top bar, running-stitch dividers, the active page in the swash, the paper `.btn`
+    CTA, and "At the bench" (phone and email from Site Settings; no hours) at the foot.
 - **`Footer.astro`** (compact rework 2026-10-04): same props. A pinked top edge and a gold
   running-stitch hem ending in a thread tail and a small needle; the brand block (the Hoop Seal beside
   the wordmark, both `public/brand/*-dark.svg`, the tagline, one contact cluster); the Site Settings

@@ -23,18 +23,19 @@ export const site = {
   studio: _name,
   storageKeyPrefix: _slug,
 
-  // MAS Monograms brand palette — mirrors globals.css.
-  // Used by OG image generation scripts and JSON-LD schemas.
+  // MAS Monograms brand palette, Heirloom Coast (mirrors the @theme tokens in globals.css,
+  // which win if the two disagree). Not read at runtime today; kept for scripts that want a
+  // plain-JS copy. The old sage/cream values were replaced on 2026-10-04.
   brandColors: {
-    primary: '#4a5e4c', // Sage Dark — links, nav, accent
-    primaryDark: '#3a4d3c', // Sage Darker — hover states
-    accent: '#2c2c28', // Ink — headings + body
-    accentDark: '#1a1a18', // Ink Dark
-    secondary: '#8a9e8c', // Sage Mid — borders
-    tertiary: '#c9a48a', // Blush — CTA button
-    bg: '#faf8f4', // Cream — primary surface
-    bgSoft: '#e8ede8', // Sage Light — alternating sections
-    border: '#8a9e8c', // Sage Mid
+    primary: '#28486b', // Heritage Indigo: links, focus ring on light, indigo bands
+    primaryDark: '#1c3550', // Indigo Deep: hover
+    accent: '#26312e', // Heirloom Ink: headings and body text
+    accentDark: '#0f1b2d', // Midnight: dark sections
+    secondary: '#b98a3e', // Brass decorative: hairlines and rings only, never text
+    tertiary: '#8c3a2e', // Claret: the primary button on light grounds
+    bg: '#f4eee3', // Linen: the page
+    bgSoft: '#e4e2d3', // Sage band
+    border: '#847a63', // interactive border (form fields)
   },
 
   assets: {

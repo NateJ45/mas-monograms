@@ -600,7 +600,7 @@ const ids = {
   .atelier-studio__status {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 1.125rem;
+    font-size: var(--text-lead-sm);
     color: var(--foreground);
   }
   .atelier-studio__replay svg {
@@ -611,7 +611,7 @@ const ids = {
     margin-top: var(--spacing-m);
     padding-left: 1rem;
     border-left: 2px dashed var(--stitch-color);
-    font-size: 0.875rem;
+    font-size: var(--text-small);
     line-height: 1.55;
     color: var(--color-text-secondary);
     max-width: 60ch;
@@ -626,7 +626,7 @@ const ids = {
     background-color: var(--color-paper);
     background-image: var(--tex-paper);
     background-size: var(--tex-paper-size);
-    border-radius: 3px;
+    border-radius: var(--radius);
     box-shadow:
       0 24px 40px -30px rgb(15 27 45 / 0.4),
       0 1px 0 rgb(15 27 45 / 0.06);
@@ -651,7 +651,7 @@ const ids = {
     color: var(--color-brass-text);
   }
   .atelier-studio__hint {
-    font-size: 0.875rem;
+    font-size: var(--text-small);
     line-height: 1.5;
     color: var(--color-text-secondary);
   }
@@ -659,7 +659,7 @@ const ids = {
   .atelier-studio__field > [data-fabric-note] {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 0.975rem;
+    font-size: var(--text-body);
   }
   .atelier-studio__initials {
     width: 100%;
@@ -712,9 +712,9 @@ const ids = {
     min-height: 44px;
     padding: 0.5rem 1rem;
     border: 1px solid var(--color-border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--color-bg);
-    font-size: 0.875rem;
+    font-size: var(--text-small);
     font-weight: 600;
     color: var(--foreground);
     transition:
@@ -728,7 +728,7 @@ const ids = {
   .atelier-studio__style:has(input:checked) span {
     background: var(--color-rust-cta);
     border-color: var(--color-rust-cta);
-    color: #fff;
+    color: var(--color-white-pure);
     box-shadow:
       inset 0 0 0 3px var(--color-rust-cta),
       inset 0 0 0 4px rgb(255 255 255 / 0.55);
@@ -749,7 +749,7 @@ const ids = {
     gap: 0.65rem;
     min-height: 44px;
     padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     transition: background-color 400ms var(--ease-thread);
   }
   .atelier-studio__fabric:hover {
@@ -775,7 +775,7 @@ const ids = {
       repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.08) 0 1px, transparent 1px 3px);
   }
   .atelier-studio__fabric-name {
-    font-size: 0.875rem;
+    font-size: var(--text-small);
     line-height: 1.25;
     color: var(--foreground);
   }
@@ -877,7 +877,7 @@ const ids = {
     min-width: 44px;
     height: var(--row);
     padding-bottom: 10px;
-    border-radius: 6px;
+    border-radius: var(--radius-soft);
   }
   .atelier-studio__spool :global(.spool) {
     transition:

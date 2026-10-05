@@ -288,7 +288,7 @@ const hintId = 'hero-try-hint';
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1.5rem;
-    font-size: 0.875rem;
+    font-size: var(--text-small);
     color: var(--color-text-secondary);
   }
   .home-hero__trust li {
@@ -521,9 +521,11 @@ const hintId = 'hero-try-hint';
       border-color 400ms var(--ease-thread),
       outline-color 400ms var(--ease-thread);
   }
+  /* Full on-dark muted, no opacity dilution: 9.57:1 on Midnight (the field is a 60%
+     Midnight wash over the Midnight hero). opacity: 1 overrides Firefox's default dimming. */
   .home-hero__input::placeholder {
     color: var(--color-on-dark-muted);
-    opacity: 0.75;
+    opacity: 1;
   }
   .home-hero__input:focus-visible {
     outline: 2px solid var(--ring);
@@ -544,7 +546,7 @@ const hintId = 'hero-try-hint';
       0 calc(100% - 10px);
   }
   .home-hero__hint {
-    font-size: 0.8125rem;
+    font-size: var(--text-meta);
     color: var(--color-text-secondary);
   }
   /* No JS: the hero field cannot stitch anything, so only the link down to the

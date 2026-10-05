@@ -230,71 +230,95 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   const eNotes = escapeHtml(notes);
 
   const attachmentRows = attachments.length
-    ? `<p><strong>Attachments:</strong> ${attachments.map((f) => escapeHtml(f.name)).join(', ')}</p>`
+    ? `<p style="margin:0 0 10px;"><strong style="color:#0f1b2d;">Attachments:</strong> ${attachments.map((f) => escapeHtml(f.name)).join(', ')}</p>`
     : '';
 
-  const ownerHtml = `
-<!DOCTYPE html><html><body style="font-family: sans-serif; color: #2c2c28; max-width: 600px; margin: 0 auto; padding: 24px;">
-<h2 style="color:#4a5e4c;">New Quote Request — MAS Monograms</h2>
-<p><strong>Submission ID:</strong> ${submissionId}</p>
-<p><strong>Date:</strong> ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })}</p>
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3>Contact</h3>
-<p><strong>Name:</strong> ${eName}</p>
-<p><strong>Email:</strong> <a href="mailto:${eEmail}">${eEmail}</a></p>
-<p><strong>Phone:</strong> ${ePhone}</p>
-${eReferral ? `<p><strong>How they heard about us:</strong> ${eReferral}</p>` : ''}
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3>Item</h3>
-<p><strong>Item Type:</strong> ${eItemType}</p>
-<p><strong>Owns the item?</strong> ${eOwnership}</p>
-${eItemDescription ? `<p><strong>Item Description:</strong> ${eItemDescription}</p>` : ''}
-${eQuantity ? `<p><strong>Quantity:</strong> ${eQuantity}</p>` : ''}
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3>Monogram Spec</h3>
-<p><strong>Personalization:</strong><br/>${ePersonalization.replace(/\n/g, '<br/>')}</p>
-<p><strong>Monogram Style:</strong> ${eMonogramStyle}</p>
-<p><strong>Placement:</strong> ${ePlacement}</p>
-<p><strong>Approximate Size:</strong> ${eSize}</p>
-<p><strong>Number of Thread Colors:</strong> ${eThreadCount}</p>
-${eFontPreference ? `<p><strong>Font Preference:</strong> ${eFontPreference}</p>` : ''}
-${eThreadColor ? `<p><strong>Thread Color Preference:</strong> ${eThreadColor}</p>` : ''}
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3>Logistics</h3>
-${eNeededBy ? `<p><strong>Needed By:</strong> ${eNeededBy}</p>` : ''}
-<p><strong>Rush?</strong> ${isRush ? 'Yes — rush requested' : 'No'}</p>
-<p><strong>Gift?</strong> ${isGift === 'yes' ? 'Yes' : 'No'}</p>
-${eNotes ? `<p><strong>Notes:</strong><br/>${eNotes.replace(/\n/g, '<br/>')}</p>` : ''}
-${attachmentRows}
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<p style="color:#8a9e8c;font-size:12px;">Reply directly to this email to respond to the customer.</p>
-</body></html>
+  // Both bodies wear Heirloom Coast in inline styles (email clients ignore stylesheets):
+  // a Linen ground, a Paper card with a soft border, Midnight and Indigo headings in a
+  // serif, Ink text, a dashed brass hairline between sections, Brass for the small meta
+  // line, Claret only for the one thing that needs emphasis (a rush). Every submitted
+  // value is still escaped above; htmlToText() makes the plain-text twin from the same HTML.
+  const S = {
+    body: 'margin:0;padding:0;background-color:#f4eee3;',
+    wrap: 'max-width:600px;margin:0 auto;padding:24px 16px;',
+    card: 'background-color:#fbf8f1;border:1px solid #d8cfbc;padding:28px 24px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#26312e;',
+    h2: 'margin:0 0 14px;font-family:Georgia,Times New Roman,serif;font-size:24px;font-weight:normal;line-height:1.25;color:#0f1b2d;',
+    h3: 'margin:0 0 10px;font-family:Georgia,Times New Roman,serif;font-size:18px;font-weight:normal;line-height:1.3;color:#28486b;',
+    p: 'margin:0 0 10px;',
+    label: 'color:#0f1b2d;',
+    link: 'color:#28486b;',
+    hr: 'border:0;border-top:1px dashed #b98a3e;margin:20px 0;',
+    meta: 'margin:0;font-size:12px;line-height:1.5;color:#835a24;',
+    em: 'color:#8c3a2e;font-weight:bold;',
+  };
+  const hr = `<hr style="${S.hr}"/>`;
+  // A question label ("Owns the item?") takes no colon, as before.
+  const row = (label: string, value: string) =>
+    `<p style="${S.p}"><strong style="${S.label}">${label}${label.endsWith('?') ? '' : ':'}</strong> ${value}</p>`;
+  const shell = (inner: string) => `
+<!DOCTYPE html><html><body style="${S.body}"><div style="${S.wrap}"><div style="${S.card}">
+${inner}
+</div></div></body></html>
 `;
 
-  const customerHtml = `
-<!DOCTYPE html><html><body style="font-family: sans-serif; color: #2c2c28; max-width: 600px; margin: 0 auto; padding: 24px;">
-<h2 style="color:#4a5e4c;">We received your quote request!</h2>
-<p>Hi ${eName},</p>
-<p>Thank you for reaching out to MAS Monograms! Mary Ann has received your request and will be in touch within 1–2 business days to discuss your order.</p>
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<h3 style="color:#4a5e4c;">What you submitted</h3>
-<p><strong>Item:</strong> ${eItemType}${eQuantity ? ` (Qty: ${eQuantity})` : ''}</p>
-<p><strong>Do you own the item?</strong> ${eOwnership}</p>
-${eItemDescription ? `<p><strong>Item description:</strong> ${eItemDescription}</p>` : ''}
-<p><strong>Personalization:</strong> ${ePersonalization}</p>
-<p><strong>Monogram style:</strong> ${eMonogramStyle}</p>
-<p><strong>Placement:</strong> ${ePlacement}</p>
-<p><strong>Approximate size:</strong> ${eSize}</p>
-<p><strong>Number of thread colors:</strong> ${eThreadCount}</p>
-${eFontPreference ? `<p><strong>Font preference:</strong> ${eFontPreference}</p>` : ''}
-${eThreadColor ? `<p><strong>Thread color:</strong> ${eThreadColor}</p>` : ''}
-${eNeededBy ? `<p><strong>Needed by:</strong> ${eNeededBy}</p>` : ''}
-${isRush ? `<p><strong>Rush requested:</strong> Yes — a rush fee may apply.</p>` : ''}
-<hr style="border:1px solid #e8ede8;margin:16px 0;"/>
-<p>If you have any questions in the meantime, you can reply to this email or contact Mary Ann directly.</p>
-<p style="color:#8a9e8c;font-size:12px;">MAS Monograms — St. Matthews, SC</p>
-</body></html>
-`;
+  const ownerHtml = shell(`
+<h2 style="${S.h2}">New quote request</h2>
+${row('Submission ID', submissionId)}
+${row('Date', new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))}
+${hr}
+<h3 style="${S.h3}">Contact</h3>
+${row('Name', eName)}
+${row('Email', `<a href="mailto:${eEmail}" style="${S.link}">${eEmail}</a>`)}
+${row('Phone', ePhone)}
+${eReferral ? row('How they heard about us', eReferral) : ''}
+${hr}
+<h3 style="${S.h3}">Item</h3>
+${row('Item Type', eItemType)}
+${row('Owns the item?', eOwnership)}
+${eItemDescription ? row('Item Description', eItemDescription) : ''}
+${eQuantity ? row('Quantity', eQuantity) : ''}
+${hr}
+<h3 style="${S.h3}">Monogram Spec</h3>
+<p style="${S.p}"><strong style="${S.label}">Personalization:</strong><br/>${ePersonalization.replace(/\n/g, '<br/>')}</p>
+${row('Monogram Style', eMonogramStyle)}
+${row('Placement', ePlacement)}
+${row('Approximate Size', eSize)}
+${row('Number of Thread Colors', eThreadCount)}
+${eFontPreference ? row('Font Preference', eFontPreference) : ''}
+${eThreadColor ? row('Thread Color Preference', eThreadColor) : ''}
+${hr}
+<h3 style="${S.h3}">Logistics</h3>
+${eNeededBy ? row('Needed By', eNeededBy) : ''}
+${row('Rush?', isRush ? `<span style="${S.em}">Yes, rush requested</span>` : 'No')}
+${row('Gift?', isGift === 'yes' ? 'Yes' : 'No')}
+${eNotes ? `<p style="${S.p}"><strong style="${S.label}">Notes:</strong><br/>${eNotes.replace(/\n/g, '<br/>')}</p>` : ''}
+${attachmentRows}
+${hr}
+<p style="${S.meta}">Reply directly to this email to respond to the customer.</p>
+`);
+
+  const customerHtml = shell(`
+<h2 style="${S.h2}">We received your quote request!</h2>
+<p style="${S.p}">Hi ${eName},</p>
+<p style="${S.p}">Thank you for reaching out to MAS Monograms! Mary Ann has received your request and will be in touch within 1–2 business days to discuss your order.</p>
+${hr}
+<h3 style="${S.h3}">What you submitted</h3>
+${row('Item', `${eItemType}${eQuantity ? ` (Qty: ${eQuantity})` : ''}`)}
+${row('Do you own the item?', eOwnership)}
+${eItemDescription ? row('Item description', eItemDescription) : ''}
+${row('Personalization', ePersonalization)}
+${row('Monogram style', eMonogramStyle)}
+${row('Placement', ePlacement)}
+${row('Approximate size', eSize)}
+${row('Number of thread colors', eThreadCount)}
+${eFontPreference ? row('Font preference', eFontPreference) : ''}
+${eThreadColor ? row('Thread color', eThreadColor) : ''}
+${eNeededBy ? row('Needed by', eNeededBy) : ''}
+${isRush ? row('Rush requested', `<span style="${S.em}">Yes, a rush fee may apply.</span>`) : ''}
+${hr}
+<p style="${S.p}">If you have any questions in the meantime, you can reply to this email or contact Mary Ann directly.</p>
+<p style="${S.meta}">MAS Monograms, St. Matthews, SC</p>
+`);
 
   const from = { email: 'noreply@mas-monograms.com', name: 'MAS Monograms' };
   const results = await Promise.allSettled([
@@ -311,7 +335,7 @@ ${isRush ? `<p><strong>Rush requested:</strong> Yes — a rush fee may apply.</p
     env.EMAIL.send({
       from,
       to: email,
-      subject: 'We got your quote request! — MAS Monograms',
+      subject: 'We got your quote request! | MAS Monograms',
       html: customerHtml,
       text: htmlToText(customerHtml),
     }),

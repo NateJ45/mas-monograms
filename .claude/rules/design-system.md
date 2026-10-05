@@ -50,6 +50,24 @@ artifacts and ONE kicker per page.**
   in `src/lib/brand/brandSvg.js` (geometry `brandPaths.js`, generated; see `docs/logo-concepts/README.md`)
   and is shared by the favicon, `public/brand/*.svg` and OG scripts. Never put Claret in the logo.
 - Embroidery fonts are NOT web fonts (each `font` document has a `previewImage`).
+- **Italic is two subsets** (2026-10-04): `--font-swash` (Fraunces Swash: SOFT 100 / WONK 1 pinned,
+  wght 300 to 360) for every swash-voiced italic, and the plain italic as Fraunces Variable italic. Both
+  are cut by `scripts/subset-fraunces-italic.py` into `src/assets/fonts/`; keep the script's character
+  list and the two `unicode-range`s in `globals.css` in step. Not preloaded on purpose (see BaseLayout).
+
+## Tokens, not literals (2026-10-04 extract pass)
+
+- Text below the headings: `var(--text-label | -meta | -small | -compact | -body | -reading | -lead-sm)`
+  (0.75 to 1.125rem; 0.75rem is the floor for functional text). Radii: `var(--radius)` 0.25rem,
+  `--radius-soft` 6px, `--radius-mount` 10px, `--radius-pill` 999px. White is `--color-white-pure`; prop
+  wood is `--color-wood-*` / `--wood-shelf` / `--wood-mount`. Never write `#fff`, `#000` or a raw size.
+- Larger component sizes (prices, numerals, ornament glyphs) and material shading (wood grain, brass,
+  sheen, prop shadows) stay local, each listed with a reason in `.impeccable/config.json`. Add a new
+  one there with `impeccable ignores add-value <rule> <value> --file <path> --reason "..."` (quote `*`
+  in Git Bash or it glob-expands into the repo's file names). `impeccable detect --json src` should
+  report 0.
+- Reading measure: about 70 characters, `52ch` to `56ch` in Mulish (its `0`, which `ch` measures, is
+  wide, so 65ch is ~88 characters). Form labels are sentence case.
 
 ## Color palette
 
@@ -144,4 +162,14 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
     `scrollIntoView` stop below the sticky header (WCAG 2.4.11). `measure-tap-targets.mjs` still prints
     "stolen-tap" warnings for elements that sit under the header at one of ITS scroll stops; hit-test
     them centred (`scrollIntoView({ block: 'center' })`) before believing one.
+    **The morph is compositor-only** (2026-10-04): never transition a layout property on the header and
+    never let the row's layout change between states. A FLIP (snap layout, animate back) still reports
+    layout shift for the snap. Pieces move with `translate`/`scale` from offsets in container units
+    (`.site-header` is `container-type: inline-size`); the pill is `.site-header__ground`'s `clip-path`.
+    The brand's `::after` is its hit area and focus ring (the link itself is `pointer-events: none`).
+17. **A scroll box paints its own texture** (2026-10-04, phone menu). A `.surface-*` ground is a
+    `::before` the size of the box's first screen; inside a scroll container it scrolls away and leaves a
+    flat strip. Put `texture-*` on the scroll box with `background-attachment: local`, size it `100dvh`,
+    give it `overscroll-behavior: contain`, and keep decorative absolute children from adding scroll
+    height (`overflow: clip` on their wrapper, which also needs `shrink-0` in a column flex box).
 <!-- prettier-ignore-end -->

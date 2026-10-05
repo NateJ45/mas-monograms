@@ -304,7 +304,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
   .arch__frame {
     position: relative;
     padding: 0.85rem;
-    border-radius: 999px 999px 6px 6px;
+    border-radius: var(--radius-pill) var(--radius-pill) var(--radius-soft) var(--radius-soft);
     background-color: var(--color-paper);
     background-image: var(--tex-paper);
     background-size: var(--tex-paper-size);
@@ -319,7 +319,8 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     position: absolute;
     inset: 0.4rem;
     /* concentric with the frame: 6px corners minus the 0.4rem inset clamp to 0 */
-    border-radius: 999px 999px max(0px, calc(6px - 0.4rem)) max(0px, calc(6px - 0.4rem));
+    border-radius: var(--radius-pill) var(--radius-pill) max(0px, calc(var(--radius-soft) - 0.4rem))
+      max(0px, calc(var(--radius-soft) - 0.4rem));
     border: 1.5px dashed var(--color-rust-cta);
     pointer-events: none;
     opacity: 0.75;
@@ -327,7 +328,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
   .arch__photo {
     overflow: hidden;
     aspect-ratio: 4 / 5;
-    border-radius: 999px 999px 2px 2px;
+    border-radius: var(--radius-pill) var(--radius-pill) 2px 2px;
   }
   .arch__photo :global(.arch__img) {
     width: 100%;
@@ -341,7 +342,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     text-align: center;
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 1.05rem;
+    font-size: var(--text-reading);
     line-height: 1.4;
     color: var(--foreground);
   }
@@ -369,7 +370,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     color: var(--color-gold);
   }
   .pull-quote p {
-    font-family: var(--font-display);
+    font-family: var(--font-swash);
     font-style: italic;
     font-weight: 330;
     font-variation-settings:
@@ -429,7 +430,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
     color: var(--color-text-secondary);
   }
   .studio-card__facts li::before {
@@ -486,6 +487,6 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
   }
   .value-tags :global(.hangtag__extra) {
     text-align: center;
-    font-size: 0.92rem;
+    font-size: var(--text-compact);
   }
 </style>

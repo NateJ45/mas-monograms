@@ -467,6 +467,38 @@ test.describe('Phone menu', () => {
     await expect(trigger).toBeFocused();
   });
 
+  // A real Android phone showed the open menu scrolling for nothing (a decorative hoop
+  // hanging 40px below the content made the scroll box taller than the screen) and a flat,
+  // darker strip at the foot of that scroll (the twill was painted on a ::before the size of
+  // the first screen). The panel now carries the twill itself, attached "local".
+  test('the open menu fits the screen and its twill covers the whole scroll box', async ({
+    page,
+  }) => {
+    await page.goto('/', { waitUntil: 'load' });
+    await page.locator('[data-mobile-nav] button[aria-label="Open menu"]').first().click();
+    const sheet = page.locator('[data-slot="sheet-content"]');
+    await expect(sheet).toBeVisible();
+    const box = await sheet.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        scrollHeight: el.scrollHeight,
+        clientHeight: el.clientHeight,
+        viewport: window.innerHeight,
+        top: el.getBoundingClientRect().top,
+        bgImage: cs.backgroundImage,
+        bgAttachment: cs.backgroundAttachment,
+        beforeContent: getComputedStyle(el, '::before').content,
+      };
+    });
+    expect(box.top).toBe(0);
+    expect(box.clientHeight).toBe(box.viewport);
+    expect(box.scrollHeight, 'no needless scroll at 390x844').toBe(box.clientHeight);
+    // the texture is on the scroll box itself and scrolls with its content
+    expect(box.bgImage).not.toBe('none');
+    expect(box.bgAttachment.split(',').every((v) => v.trim() === 'local')).toBe(true);
+    expect(box.beforeContent === 'none' || box.beforeContent === 'normal').toBe(true);
+  });
+
   test('with no interaction it mounts on its own shortly after load', async ({ page }) => {
     await page.goto('/', { waitUntil: 'load' });
     await expect(page.locator('[data-mobile-nav] [data-slot="sheet-trigger"]')).toHaveCount(1, {

@@ -148,10 +148,10 @@ const total = colors.length;
     min-height: 3rem;
     padding: 0.6rem 1rem 0.6rem 2.6rem;
     border: 1px solid var(--color-border-interactive);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--color-paper);
     color: var(--foreground);
-    font-size: 1rem;
+    font-size: var(--text-body);
     box-shadow: inset 0 1px 2px rgb(38 49 46 / 0.08);
   }
   .rack__search-input:focus-visible {
@@ -184,7 +184,7 @@ const total = colors.length;
     margin: 0;
     padding: 1.75rem 1rem 1.25rem;
     list-style: none;
-    border-radius: 6px;
+    border-radius: var(--radius-soft);
     background-color: var(--color-paper);
     background-image:
       linear-gradient(
@@ -221,14 +221,14 @@ const total = colors.length;
     bottom: 0;
     height: var(--plank-h);
     background:
-      linear-gradient(180deg, #f0d6ad 0 2px, transparent 2px),
+      linear-gradient(180deg, var(--color-wood-edge) 0 2px, transparent 2px),
       repeating-linear-gradient(
         90deg,
         rgb(110 68 34 / 0) 0 23px,
         rgb(110 68 34 / 0.12) 23px 24px,
         rgb(110 68 34 / 0) 24px 61px
       ),
-      linear-gradient(180deg, #d4a873, #b98450 55%, #8a5a2f);
+      var(--wood-shelf);
     box-shadow: 0 9px 10px -6px rgb(38 26 14 / 0.45);
     pointer-events: none;
   }
@@ -240,7 +240,7 @@ const total = colors.length;
     width: 100%;
     min-height: 44px;
     padding: 0.5rem 0.25rem 0.6rem;
-    border-radius: 6px;
+    border-radius: var(--radius-soft);
     cursor: pointer;
   }
   /* the radio covers the whole cell: real control, real target, no glyph */
@@ -271,7 +271,7 @@ const total = colors.length;
   }
   .rack__spool :global(.spool__label) {
     margin-top: 0.4rem;
-    font-size: 0.8125rem;
+    font-size: var(--text-meta);
     text-wrap: balance;
   }
   .rack__spool:hover :global(.spool__art),
@@ -306,7 +306,7 @@ const total = colors.length;
     margin-top: 1.5rem;
     padding: 1.5rem;
     border: 1.5px dashed var(--stitch-color);
-    border-radius: 6px;
+    border-radius: var(--radius-soft);
     color: var(--color-text-secondary);
     text-align: center;
   }

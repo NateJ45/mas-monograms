@@ -405,7 +405,7 @@ if (heroSwash) {
     color: var(--color-gold);
   }
   .hiw-index__label {
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
     line-height: 1.35;
     text-wrap: balance;
   }
@@ -548,10 +548,10 @@ if (heroSwash) {
     background-color: var(--color-rust-cta);
   }
   .process-step__node.is-sewn::after {
-    border-color: rgba(255, 255, 255, 0.55);
+    border-color: color-mix(in srgb, var(--color-white-pure) 55%, transparent);
   }
   .process-step__node.is-sewn .process-step__num {
-    color: #fff;
+    color: var(--color-white-pure);
   }
 
   .process-step__art {
@@ -607,7 +607,7 @@ if (heroSwash) {
   }
   .process-step__body :global(p) {
     color: var(--color-text-secondary);
-    font-size: 1.0625rem;
+    font-size: var(--text-reading);
     line-height: 1.7;
   }
 

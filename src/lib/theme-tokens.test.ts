@@ -232,6 +232,21 @@ test('Direction D tokens are declared in @theme', () => {
   }
 });
 
+// The wood tokens (2026-10-04) are prop colours: shelves and mounts behind spools and
+// stitched stages. They never carry text or a control edge, so they have no AA pair; this
+// guards that they stay declared as real hex (the gradients in :root read them).
+test('the decorative wood tokens are declared in @theme', () => {
+  for (const name of [
+    'color-wood-edge',
+    'color-wood-light',
+    'color-wood',
+    'color-wood-dark',
+    'color-wood-mount',
+  ]) {
+    assert.match(token(name), /^#[0-9a-f]{6}$/);
+  }
+});
+
 test('the context overrides never redeclare a --color-* token with a raw hex', () => {
   // readTokens() keeps the LAST hex it finds for each name. A dark context that
   // wrote `--color-text-secondary: #c8c0b0` would silently replace the light

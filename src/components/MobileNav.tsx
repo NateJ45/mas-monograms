@@ -9,7 +9,7 @@
 // editorial index: large Fraunces labels, running-stitch dividers, a slide-in
 // arrow, the active page in the gold italic swash, and a staggered cascade on
 // open. The paper-on-dark .btn CTA, then a pinned "Get in touch" block. The
-// panel carries .surface-midnight, so every token inside is the dark context
+// panel carries .on-dark + .texture-midnight, so every token inside is the dark context
 // (text-foreground is Linen, text-link and the focus ring are gold-light).
 //
 // Because MAS has far more nav items than the portfolio (8 shop categories, an
@@ -175,7 +175,7 @@ export default function MobileNav({
           </button>
         </SheetTrigger>
 
-        {/* Full-screen Linen panel. The !w-full / !max-w-full / !border-0
+        {/* Full-screen Midnight panel. The !w-full / !max-w-full / !border-0
             overrides beat the Sheet primitive's data-[side=right] width + border
             (an attribute selector outranks a plain utility), so this reliably
             goes edge-to-edge. showCloseButton off — we place our own in the top
@@ -183,7 +183,7 @@ export default function MobileNav({
         <SheetContent
           side="right"
           showCloseButton={false}
-          className="surface-midnight !w-full !max-w-full overflow-y-auto !border-0 !bg-[var(--color-midnight)] p-0 text-foreground"
+          className="mnav-panel on-dark texture-midnight !w-full !max-w-full overflow-y-auto overscroll-contain !border-0 !bg-[var(--color-midnight)] p-0 text-foreground"
         >
           <style>{`
             @keyframes mnav-in {
@@ -197,24 +197,45 @@ export default function MobileNav({
                 animation-delay: var(--mnav-delay, 0ms);
               }
             }
+            /* The panel is the scroll box and carries the Midnight twill itself, attached
+               "local" so it scrolls with the content and covers the whole scroll height (a
+               .surface-midnight ::before only covered the first screen and left a flat
+               strip below it). Height is the dynamic viewport, so it is the visible area
+               whether or not the browser's URL bar is showing. */
+            .mnav-panel {
+              height: 100%;
+              height: 100dvh;
+              background-attachment: local;
+            }
+            /* Short screens (a 640px phone with its URL bar): tighten the rhythm so the
+               collapsed menu still fits without scrolling. Rows stay 44px or taller. */
+            @media (max-height: 700px) {
+              .mnav-gap { margin-top: var(--spacing-s); }
+              .mnav-gap-pad { padding-top: var(--spacing-s); }
+              .mnav-row { padding-block: 0.3rem; }
+            }
             /* Safe-area insets so the wordmark clears the notch and the contact
                block clears the home indicator under viewport-fit=cover. env() is
-               0 on non-notched devices, reading as a flat --spacing-l there. */
+               0 on non-notched devices, reading as a flat --spacing-m there. */
             .mnav-shell {
-              padding-top: calc(var(--spacing-l) + env(safe-area-inset-top));
-              padding-bottom: calc(var(--spacing-l) + env(safe-area-inset-bottom));
+              padding-top: calc(var(--spacing-m) + env(safe-area-inset-top));
+              padding-bottom: calc(var(--spacing-m) + env(safe-area-inset-bottom));
               padding-left: calc(var(--spacing-l) + env(safe-area-inset-left));
               padding-right: calc(var(--spacing-l) + env(safe-area-inset-right));
             }
           `}</style>
 
-          <div className="mnav-shell relative flex min-h-full flex-col">
+          {/* shrink-0: the panel is a column flex box, and min-h-full alone would let the
+                shell shrink to the screen and clip (not scroll) a tall, expanded menu. overflow-clip
+                keeps the decorative hoop below from adding scroll height (clip, unlike hidden,
+                does not make a second scroll box). */}
+          <div className="mnav-shell relative flex min-h-full shrink-0 flex-col overflow-clip">
             {/* A stitched hoop ring in the corner, purely decorative. */}
             <svg
               aria-hidden="true"
               focusable="false"
               viewBox="0 0 200 200"
-              className="pointer-events-none absolute -right-16 -bottom-10 h-72 w-72 text-[var(--color-gold)] opacity-[0.16]"
+              className="pointer-events-none absolute -right-16 -bottom-10 -z-10 h-72 w-72 text-[var(--color-gold)] opacity-[0.16]"
             >
               <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" strokeWidth="3" />
               <circle
@@ -256,7 +277,7 @@ export default function MobileNav({
             {/* Positioning line, echoing the brand voice. */}
             {tagline && (
               <p
-                className="mnav-item mt-m max-w-[34ch] font-body text-base leading-[1.5] text-[var(--color-text-secondary)]"
+                className="mnav-item mt-s max-w-[44ch] font-body text-base leading-[1.5] text-[var(--color-text-secondary)]"
                 style={delay(60)}
               >
                 {tagline}
@@ -267,7 +288,7 @@ export default function MobileNav({
                 collapsible accordions. Hairline dividers structure the list. */}
             <nav
               aria-label="Primary mobile"
-              className="mt-l flex flex-col divide-y divide-dashed divide-[var(--color-gold)]/35 border-y border-dashed border-[var(--color-gold)]/35"
+              className="mnav-gap mt-m flex flex-col divide-y divide-dashed divide-[var(--color-gold)]/35 border-y border-dashed border-[var(--color-gold)]/35"
             >
               {links.map((item, i) => {
                 const rowDelay = delay(140 + i * 45);
@@ -281,13 +302,13 @@ export default function MobileNav({
                       href={item.href}
                       onClick={close}
                       aria-current={active ? 'page' : undefined}
-                      className="mnav-item group flex items-center justify-between gap-m rounded-md py-3 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      className="mnav-item group mnav-row flex items-center justify-between gap-m rounded-md py-2 no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       style={rowDelay}
                     >
                       <span className="flex flex-col gap-0.5">
                         <span
                           className={
-                            'font-display text-[1.75rem] leading-tight tracking-[-0.005em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                            'font-display text-[1.6rem] leading-tight tracking-[-0.005em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
                             (active ? 'swash' : 'text-foreground')
                           }
                         >
@@ -325,11 +346,11 @@ export default function MobileNav({
                       onClick={() => toggleGroup(item.label)}
                       aria-expanded={groupOpen}
                       aria-controls={panelId}
-                      className="group flex w-full items-center justify-between gap-m rounded-md py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                      className="group mnav-row flex w-full items-center justify-between gap-m rounded-md py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     >
                       <span
                         className={
-                          'font-display text-[1.75rem] leading-tight tracking-[-0.005em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
+                          'font-display text-[1.6rem] leading-tight tracking-[-0.005em] transition-colors duration-150 group-hover:text-link group-focus-visible:text-link ' +
                           (groupActive ? 'swash' : 'text-foreground')
                         }
                       >
@@ -397,7 +418,7 @@ export default function MobileNav({
             {/* Primary conversion action. Site Settings -> The quote button can
                 turn it off everywhere, here included. */}
             {showCta && (
-              <div className="mnav-item mt-l" style={delay(140 + links.length * 45 + 40)}>
+              <div className="mnav-item mnav-gap mt-m" style={delay(140 + links.length * 45 + 40)}>
                 <a href={ctaHref} onClick={close} className="btn btn-primary w-full">
                   <span>{ctaLabel}</span>
                   <span className="btn__arrow" aria-hidden="true">
@@ -411,9 +432,12 @@ export default function MobileNav({
                 the header with the old contact strip on 2026-10-04). Pinned to the bottom
                 via mt-auto when the menu is shorter than the viewport. No hours: none are
                 published. */}
-            <div className="mnav-item mt-auto pt-l" style={delay(140 + links.length * 45 + 100)}>
+            <div
+              className="mnav-item mnav-gap-pad mt-auto pt-m"
+              style={delay(140 + links.length * 45 + 100)}
+            >
               {contactLabel && <p className="eyebrow">{contactLabel}</p>}
-              <div className="mt-s flex flex-col gap-1">
+              <div className="mt-xs flex flex-col">
                 {phone && (
                   <a
                     href={telHref(phone)}

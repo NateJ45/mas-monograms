@@ -336,7 +336,7 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
     grid-area: note;
     margin-top: 0.4rem;
     max-width: 44rem;
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
     line-height: 1.55;
     color: var(--color-text-secondary);
   }
@@ -375,7 +375,7 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
   }
   .rush__body :global(p) {
     color: var(--color-text-secondary);
-    font-size: 1.0625rem;
+    font-size: var(--text-reading);
     line-height: 1.7;
   }
   @media (max-width: 30rem) {

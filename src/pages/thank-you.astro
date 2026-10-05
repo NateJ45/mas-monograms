@@ -198,7 +198,7 @@ const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
   .tie__knot {
     transform-box: fill-box;
     transform-origin: center;
-    animation: tie-knot 700ms cubic-bezier(0.34, 1.56, 0.64, 1) 2000ms both;
+    animation: tie-knot 700ms var(--ease-thread) 2000ms both;
   }
   .tie__tail-path {
     stroke-dasharray: 1 1;
@@ -272,7 +272,7 @@ const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
     margin-bottom: 0.35rem;
     font-family: var(--font-body);
     font-style: normal;
-    font-size: 0.72rem;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;

@@ -25,12 +25,42 @@
 /* Direction D (2026-10-04): the italic is the FULL build (wght + opsz + SOFT +
    WONK axes), not opsz-italic. The swash words in the display headlines run at
    SOFT 100 / WONK 1 (see .swash below): rounded, thread-like terminals and the
-   leaning italic forms that read as hand lettering. It costs ~68KB over the
-   opsz italic, loads with font-display: swap, and only downloads when a page
-   actually sets italic text. The roman stays on the lighter opsz build. */
+   leaning italic forms that read as hand lettering. The roman stays on the
+   lighter opsz build. Since 2026-10-04 this 150 KB file is only the fallback for
+   characters outside the two small subsets declared below; no route fetches it
+   today (checked on 14 routes). */
 @import '@fontsource-variable/fraunces/full-italic.css';
 @import '@fontsource-variable/mulish';
 @import '@fontsource/petemoss';
+
+/* Italic at first paint without the 150 KB full italic (2026-10-04, optimize pass).
+   Two subsets cut from the same full-italic file by scripts/subset-fraunces-italic.py,
+   declared AFTER the @fontsource faces so they win for the characters they cover
+   (a browser takes the last-declared face whose unicode-range covers a character, and
+   only downloads that one). Anything outside the range still falls through to the full
+   italic above, so no character ever renders in a fallback face.
+     Fraunces Swash      SOFT 100 / WONK 1 pinned, wght 300 to 360: every swash italic
+                         (--font-swash). 46 KB, not preloaded (see BaseLayout).
+     Fraunces Variable   the plain italic (SOFT 0, WONK 1: the font's defaults). 56 KB,
+                         fetched only when a page has plain italic text. */
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../assets/fonts/fraunces-italic-basic.woff2') format('woff2-variations');
+  unicode-range:
+    U+0020-007E, U+00A0, U+00B7, U+00E9, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2026;
+}
+@font-face {
+  font-family: 'Fraunces Swash';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 300 360;
+  src: url('../assets/fonts/fraunces-swash-italic.woff2') format('woff2-variations');
+  unicode-range:
+    U+0020-007E, U+00A0, U+00B7, U+00E9, U+2013-2014, U+2018-2019, U+201C-201D, U+2022, U+2026;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -106,13 +136,39 @@
   --color-sage: #dde2d0; /* sage linen swatch; Ink 10.16, Secondary 5.86 */
   /* A form field's edge on a dark ground (SC 1.4.11): 5.77:1 on Midnight. */
   --color-border-on-dark: #8a96a8;
+  /* Turned wood for the props (2026-10-04 extract pass): the thread-rack shelf and the
+     quote/thread-chart mounts shared these hexes in four files. DECORATIVE ONLY, never
+     text or a control edge; --wood-shelf and --wood-mount in :root are the gradients. */
+  --color-wood-edge: #f0d6ad; /* the lit top edge of a shelf */
+  --color-wood-light: #d4a873;
+  --color-wood: #b98450;
+  --color-wood-dark: #8a5a2f;
+  --color-wood-mount: #c79a63; /* the lighter face of a mount */
 
   /* Fonts — "Heirloom Coast": Fraunces headings, Mulish body, Petemoss monogram.
      --font-heading is mapped to --font-display in the @theme inline block below. */
   --font-display: 'Fraunces Variable', serif;
+  /* the SOFT 100 / WONK 1 italic voice; falls back to the full italic per character */
+  --font-swash: 'Fraunces Swash', 'Fraunces Variable', serif;
   --font-body: 'Mulish Variable', sans-serif;
   --font-monogram: 'Petemoss', cursive;
   --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
+
+  /* Fixed text steps below the headings (2026-10-04 extract pass). The type ramp in
+     DESIGN.md names these; component CSS uses var(--text-*) instead of a literal, so a
+     size is a role, not a number. 11px is the floor for any functional text. */
+  --text-label: 0.75rem; /* tracked-caps labels, eyebrows, tag and card flags */
+  --text-meta: 0.8125rem; /* hints, form help, small meta lines */
+  --text-small: 0.875rem; /* secondary UI text, notes, captions */
+  --text-compact: 0.9375rem; /* card and panel body copy */
+  --text-reading: 1.0625rem; /* long-form reading paragraphs */
+  --text-lead-sm: 1.125rem; /* a short lead line inside a card or panel */
+  --text-body: 1rem; /* body copy (the browser default, named so components say so) */
+
+  /* Radii beyond the base 0.25rem and the 2px button (2026-10-04 extract pass). */
+  --radius-soft: 6px; /* soft card and cubby corners, swatch wells, the arch base */
+  --radius-mount: 10px; /* wooden mounts, the quote card, panels */
+  --radius-pill: 999px; /* pills, arches, round chips, the scrolled header */
 
   /* Fluid heading sizes */
   --text-h6: 1rem;
@@ -270,7 +326,7 @@
 
   /* Brand — Heritage Indigo primary */
   --primary: #28486b; /* Heritage Indigo */
-  --primary-foreground: #ffffff;
+  --primary-foreground: var(--color-white-pure);
   --secondary: #e4e2d3; /* Sage Linen Band */
   --secondary-foreground: #26312e;
 
@@ -304,7 +360,7 @@
   --sidebar: #f4eee3;
   --sidebar-foreground: #26312e;
   --sidebar-primary: #28486b;
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: var(--color-white-pure);
   --sidebar-accent: #e4e2d3; /* Sage Linen Band — light surface (sidebar hover) */
   --sidebar-accent-foreground: #26312e;
   --sidebar-border: #b7ad99; /* matches --border above */
@@ -321,10 +377,18 @@
   --warning: #fde68a;
   --warning-foreground: #713f12;
   --error: oklch(0.577 0.245 27.325);
-  --error-foreground: #ffffff;
+  --error-foreground: var(--color-white-pure);
   --outline: #28486b; /* Heritage Indigo */
 
   /* ---- Direction D globals ---------------------------------------------- */
+  /* Wood gradients for the props (tokens in @theme). */
+  --wood-shelf: linear-gradient(
+    180deg,
+    var(--color-wood-light),
+    var(--color-wood) 55%,
+    var(--color-wood-dark)
+  );
+  --wood-mount: linear-gradient(180deg, var(--color-wood-mount), var(--color-wood-dark));
   /* The thread-gold gradient: light, true, deep. Text set in it keeps
      `color: --color-gold-light` underneath for contrast tools (see .swash). */
   --thread-gold: linear-gradient(
@@ -365,9 +429,9 @@
   --logo-word: #0f1b2d;
   --logo-swash: #28486b;
   --btn-primary-bg: #8c3a2e;
-  --btn-primary-fg: #ffffff;
+  --btn-primary-fg: var(--color-white-pure);
   --btn-primary-fill: #722c22;
-  --btn-primary-fill-fg: #ffffff;
+  --btn-primary-fill-fg: var(--color-white-pure);
   --btn-primary-stitch: rgba(255, 255, 255, 0.42);
   --btn-primary-stitch-hover: #f0d58a;
   --btn-secondary-fg: #28486b;
@@ -500,7 +564,7 @@
   z-index: 100;
   padding: 0.75rem 1.25rem;
   background: var(--color-primary-dark, #1c3550);
-  color: #ffffff;
+  color: var(--color-white-pure);
   text-decoration: none;
   font-weight: 600;
 }
@@ -889,30 +953,6 @@ body::before {
   mix-blend-mode: multiply;
 }
 
-/* Blockquote — About page pull quotes */
-.prose-blockquote {
-  border-left: 3px solid var(--primary);
-  padding: 0.5rem 0 0.5rem 1.25rem;
-  margin: var(--spacing-m) 0;
-}
-.prose-blockquote p {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(1rem, 2vw, 1.15rem);
-  line-height: 1.65;
-  color: var(--foreground);
-  margin: 0;
-}
-.prose-blockquote cite {
-  display: block;
-  font-size: 0.65rem;
-  font-style: normal;
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-eyebrow);
-  color: var(--primary);
-  margin-top: 0.5rem;
-}
-
 /* =====================================================================
    DIRECTION D, "THE ATELIER" (2026-10-04)
    Surfaces, textures, type, buttons, stitches, reveal, marquee, header.
@@ -1037,9 +1077,9 @@ body::before {
     --logo-word: #0f1b2d;
     --logo-swash: #28486b;
     --btn-primary-bg: #8c3a2e;
-    --btn-primary-fg: #ffffff;
+    --btn-primary-fg: var(--color-white-pure);
     --btn-primary-fill: #722c22;
-    --btn-primary-fill-fg: #ffffff;
+    --btn-primary-fill-fg: var(--color-white-pure);
     --btn-primary-stitch: rgba(255, 255, 255, 0.42);
     --btn-primary-stitch-hover: #f0d58a;
     --btn-secondary-fg: #28486b;
@@ -1161,7 +1201,7 @@ body::before {
     font-weight: 360;
   }
   .swash {
-    font-family: var(--font-display);
+    font-family: var(--font-swash);
     font-style: italic;
     font-weight: 330;
     font-variation-settings:
@@ -1495,22 +1535,99 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
 /* ---------- Site header (2026-10-04: centred editorial, glass pill on scroll) ----------
    The outer <header> is sticky and reserves --header-h in every state, so the bar can
    condense into the pill INSIDE it without moving the page (no layout shift). It is
-   pointer-events:none; only the bar takes the pointer. States (the Header script toggles
-   data-scrolled, rAF-throttled, past 24px):
+   pointer-events:none; only the row (at rest) or the pill (scrolled) takes the pointer.
+   States (the Header script toggles data-scrolled, rAF-throttled, past 24px):
      data-tone="solid"    a Linen row at rest
      data-tone="overlay"  transparent over a dark hero, dark-context tokens at rest
      data-scrolled        a floating, inset, rounded paper-glass pill (light context)
    With no JS an overlay header is painted solid Midnight and stays a full-width row.
-   Reduced motion: same states, no transitions (the global reset zeroes them). */
+   Reduced motion: same states, no transitions (the global reset zeroes them).
+
+   Compositor-only morph (2026-10-04 optimize pass). No layout property is transitioned
+   and the row's layout NEVER changes between rest and pill (a layout snap, even one
+   hidden by a FLIP, is reported as layout shift). Instead:
+     __pill     a span at the pill's rect: its shadow and hairline (fades in)
+     __ground   the row's fill, full size; the pill is a clip-path inset that closes in
+                (clip-path, background, backdrop-filter: paint only)
+     ::after    the pill's stitched inner edge, at the pill's rect (fades in)
+     content    the left menu, the brand and the right end keep their rest layout and
+                glide into the pill with translate (offsets from the pill's rect in
+                container units); the seal and wordmark resize with scale
+   The pill takes the pointer through __ground (its clip-path is its hit area); the row
+   lets it through. The brand's focus ring and hit area are its ::after, sized to the old
+   box in each state, so focus and tap targets match the earlier layout-animated header.
+   The pill's rect lives in --hdr-pill-* so the clip, the layers and the offsets agree. */
 .site-header {
   --hdr-ease: var(--ease-thread);
+  --hdr-dur: 600ms;
   --hdr-seal: 2.9rem;
   --hdr-word: 1.3rem;
+  /* the wordmark's viewBox is 797.2 by 102; the seal is square */
+  --hdr-word-aspect: 7.8157;
+  /* the row's side padding at rest, and the pill's rect and padding */
+  --hdr-pad: var(--spacing-m);
+  --hdr-pill-w: min(72rem, calc(100cqw - 1rem));
+  --hdr-pill-top: 0.45rem;
+  --hdr-pill-h: 3.6rem;
+  --hdr-pill-pad-l: 1rem;
+  --hdr-pill-pad-r: 0.4rem;
+  /* the pill's seal and wordmark as plain scale factors of the rest sizes
+     (2.35rem / 2.9rem and 1.15rem / 1.3rem): numbers, not length / length division */
+  --hdr-seal-k: 0.81034;
+  --hdr-word-k: 0.88462;
+  /* pill offsets for content laid out at rest */
+  --hdr-pill-x: calc((100cqw - var(--hdr-pill-w)) / 2);
+  --hdr-dx-start: calc(var(--hdr-pill-x) + var(--hdr-pill-pad-l) - var(--hdr-pad));
+  --hdr-dx-end: calc(var(--hdr-pad) - var(--hdr-pill-x) - var(--hdr-pill-pad-r));
+  --hdr-dy: calc(var(--hdr-pill-top) + var(--hdr-pill-h) / 2 - var(--header-h) / 2);
   position: sticky;
   top: 0;
   z-index: 50;
   height: var(--header-h);
   pointer-events: none;
+  container-type: inline-size;
+}
+/* The pill's rect layers: the shadow below the ground, the stitch above it. */
+.site-header__pill,
+.site-header::after {
+  position: absolute;
+  top: var(--hdr-pill-top);
+  left: var(--hdr-pill-x);
+  width: var(--hdr-pill-w);
+  height: var(--hdr-pill-h);
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  pointer-events: none;
+}
+.site-header__pill {
+  z-index: -2;
+  box-shadow:
+    0 0 0 1px rgba(38, 49, 46, 0.1),
+    0 22px 44px -26px rgba(15, 27, 45, 0.6);
+  transition: opacity var(--hdr-dur) var(--hdr-ease);
+}
+.site-header::after {
+  content: '';
+  z-index: -1;
+  /* inset 4px; 999px minus 4px is still a pill, so the stitch stays concentric */
+  margin: 4px;
+  width: calc(var(--hdr-pill-w) - 8px);
+  height: calc(var(--hdr-pill-h) - 8px);
+  border: 1.5px dashed var(--stitch-color);
+  transition: opacity 420ms var(--hdr-ease);
+}
+.site-header__ground {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--color-bg);
+  clip-path: inset(0 0 0 0 round 0);
+  transition:
+    clip-path var(--hdr-dur) var(--hdr-ease),
+    background-color 420ms var(--hdr-ease),
+    -webkit-backdrop-filter 420ms var(--hdr-ease),
+    backdrop-filter 420ms var(--hdr-ease);
 }
 .site-header__bar {
   position: relative;
@@ -1518,27 +1635,19 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
   align-items: center;
   gap: 1rem;
   width: 100%;
-  max-width: 100%;
   height: var(--header-h);
-  margin-inline: auto;
-  padding-inline: var(--spacing-m);
+  padding-inline: var(--hdr-pad);
   pointer-events: auto;
-  background-color: var(--color-bg);
   border-radius: 0;
-  transition:
-    max-width 600ms var(--hdr-ease),
-    height 600ms var(--hdr-ease),
-    margin 600ms var(--hdr-ease),
-    padding 600ms var(--hdr-ease),
-    border-radius 600ms var(--hdr-ease),
-    background-color 420ms var(--hdr-ease),
-    box-shadow 600ms var(--hdr-ease),
-    -webkit-backdrop-filter 420ms var(--hdr-ease),
-    backdrop-filter 420ms var(--hdr-ease);
+}
+/* The pieces that glide into the pill. */
+.site-header__nav--left,
+.site-header__end {
+  transition: translate var(--hdr-dur) var(--hdr-ease);
 }
 /* The hem at rest: a running stitch along the bottom of the row. On desktop it breaks
    where the seal sits on it, like a label sewn onto the seam. */
-.site-header__bar::after {
+.site-header__ground::after {
   content: '';
   position: absolute;
   left: 0;
@@ -1554,21 +1663,10 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
   pointer-events: none;
   transition: opacity 420ms var(--hdr-ease);
 }
-/* The pill's stitched inner edge, only drawn once scrolled. */
-.site-header__bar::before {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 1.5px dashed var(--stitch-color);
-  border-radius: inherit;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 420ms var(--hdr-ease);
-}
-.site-header[data-tone='overlay'] .site-header__bar {
+.site-header[data-tone='overlay'] .site-header__ground {
   background-color: transparent;
 }
-.site-header[data-tone='overlay']:not([data-scrolled]) .site-header__bar::after {
+.site-header[data-tone='overlay']:not([data-scrolled]) .site-header__ground::after {
   opacity: 0.4;
 }
 html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
@@ -1576,7 +1674,9 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
 }
 
 /* The brand: the seal and the wordmark share one box. On phones both show side by side;
-   on desktop the seal is centred alone at rest and the wordmark waits, clipped away. */
+   on desktop the seal is centred alone at rest and the wordmark waits, clipped away.
+   The link itself lets the pointer through; its ::after is the hit area and the focus
+   ring (the link box at rest, the smaller pill box when scrolled). */
 .site-header__brand {
   position: relative;
   display: inline-flex;
@@ -1585,7 +1685,24 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
   min-height: 44px;
   flex: none;
   border-radius: 2px;
-  transition: opacity 300ms;
+  pointer-events: none;
+  transition:
+    opacity 300ms,
+    translate var(--hdr-dur) var(--hdr-ease);
+}
+.site-header__brand::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  pointer-events: auto;
+}
+.site-header__brand:focus-visible {
+  outline: none;
+}
+.site-header__brand:focus-visible::after {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
 }
 .site-header__brand:hover {
   opacity: 0.85;
@@ -1598,20 +1715,27 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
   display: block;
   height: var(--hdr-seal);
   width: auto;
+  transform-origin: 0 50%;
   transition:
-    height 600ms var(--hdr-ease),
     opacity 300ms,
-    transform 600ms var(--hdr-ease);
+    transform var(--hdr-dur) var(--hdr-ease);
+}
+.site-header__word {
+  transform-origin: 0 50%;
+  transition:
+    translate var(--hdr-dur) var(--hdr-ease),
+    scale var(--hdr-dur) var(--hdr-ease);
 }
 .site-header__word svg {
   display: block;
   height: var(--hdr-word);
   width: auto;
-  transition: height 600ms var(--hdr-ease);
 }
 .site-header__custom-logo {
   height: var(--hdr-seal);
   width: auto;
+  transform-origin: 0 50%;
+  transition: scale var(--hdr-dur) var(--hdr-ease);
 }
 
 .site-header__nav {
@@ -1624,7 +1748,7 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
   align-items: center;
   gap: 0.25rem;
   min-height: 44px;
-  font-size: 0.875rem;
+  font-size: var(--text-small);
   font-weight: 600;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -1667,7 +1791,7 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--foreground);
   transition: background-color 200ms;
 }
@@ -1733,7 +1857,7 @@ details:not([open]) > .site-nav__menu {
   min-height: 44px;
   padding: 0 0.85rem;
   border-radius: 2px;
-  font-size: 0.9rem;
+  font-size: var(--text-compact);
   color: var(--foreground);
   transition:
     background-color 200ms,
@@ -1754,45 +1878,84 @@ details:not([open]) > .site-nav__menu {
 }
 
 /* ---- Scrolled: the floating glass pill (every width) ---- */
-.site-header[data-scrolled] {
-  --hdr-seal: 2.35rem;
-  --hdr-word: 1.15rem;
-}
 .site-header[data-scrolled] .site-header__bar {
-  max-width: min(72rem, calc(100% - 1rem));
-  height: 3.6rem;
-  margin-top: 0.45rem;
-  padding-inline: 1rem 0.4rem;
-  border-radius: 999px;
+  pointer-events: none;
+  border-radius: var(--radius-pill);
+}
+.site-header[data-scrolled] .site-header__nav,
+.site-header[data-scrolled] .site-header__end {
+  pointer-events: auto;
+}
+.site-header[data-scrolled] .site-header__ground {
+  clip-path: inset(
+    var(--hdr-pill-top) var(--hdr-pill-x) calc(100% - var(--hdr-pill-top) - var(--hdr-pill-h)) round
+      999px
+  );
+  pointer-events: auto;
   background-color: rgba(251, 248, 241, 0.9);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   backdrop-filter: blur(16px) saturate(1.2);
-  box-shadow:
-    0 0 0 1px rgba(38, 49, 46, 0.1),
-    0 22px 44px -26px rgba(15, 27, 45, 0.6);
 }
-.site-header[data-scrolled] .site-header__bar::after {
+.site-header[data-scrolled] .site-header__pill {
+  opacity: 1;
+}
+.site-header[data-scrolled] .site-header__ground::after {
   opacity: 0;
 }
-.site-header[data-scrolled] .site-header__bar::before {
+/* the stitch waits for the clip to close most of the way before it shows */
+.site-header[data-scrolled]::after {
   opacity: 0.5;
+  transition-delay: 180ms;
+}
+.site-header[data-scrolled] .site-header__nav--left,
+.site-header[data-scrolled] .site-header__brand {
+  translate: var(--hdr-dx-start) var(--hdr-dy);
+}
+.site-header[data-scrolled] .site-header__end {
+  translate: var(--hdr-dx-end) var(--hdr-dy);
+}
+.site-header[data-scrolled] .site-header__seal svg,
+.site-header[data-scrolled] .site-header__custom-logo {
+  scale: var(--hdr-seal-k);
+}
+.site-header[data-scrolled] .site-header__word {
+  /* the seal beside it shrank by (rest - pill), and the word shrinks too */
+  translate: calc(var(--hdr-seal) * (var(--hdr-seal-k) - 1)) 0;
+  scale: var(--hdr-word-k);
+}
+/* hit area and focus ring at the old pill box: seal + gap + word, 44px tall */
+.site-header[data-scrolled] .site-header__brand::after {
+  inset: 50% auto auto 0;
+  width: calc(
+    var(--hdr-seal) * var(--hdr-seal-k) + 0.6rem + var(--hdr-word) * var(--hdr-word-k) *
+      var(--hdr-word-aspect)
+  );
+  height: 44px;
+  margin-top: -22px;
 }
 .site-header[data-scrolled] .site-header__cta {
-  --btn-radius: 999px; /* a pill in the pill; the .btn stitch follows it */
+  --btn-radius: var(--radius-pill); /* a pill in the pill; the .btn stitch follows it */
 }
 
 @media (min-width: 75rem) {
   .site-header {
     --hdr-seal: 5.1rem;
     --hdr-word: 2rem;
+    --hdr-seal-k: 0.58824; /* 3rem / 5.1rem */
+    --hdr-word-k: 1;
+    --hdr-pad: clamp(1.25rem, 3vw, 2.5rem);
+    --hdr-pill-w: min(78rem, calc(100cqw - 2.5rem));
+    --hdr-pill-top: 0.75rem;
+    --hdr-pill-h: 4rem;
+    --hdr-pill-pad-l: 1.75rem;
+    --hdr-pill-pad-r: 0.55rem;
   }
   .site-header__bar {
     display: grid;
     grid-template-columns: 1fr 15rem 1fr;
     gap: 1.5rem;
-    padding-inline: clamp(1.25rem, 3vw, 2.5rem);
   }
-  .site-header__bar::after {
+  .site-header__ground::after {
     -webkit-mask-image: linear-gradient(
       90deg,
       #000 calc(50% - 4.25rem),
@@ -1835,6 +1998,10 @@ details:not([open]) > .site-nav__menu {
   .site-header__word {
     grid-area: 1 / 1;
   }
+  .site-header__seal svg,
+  .site-header__custom-logo {
+    transform-origin: 50% 50%;
+  }
   .site-header__word {
     clip-path: inset(0 100% 0 0);
     opacity: 0;
@@ -1842,36 +2009,40 @@ details:not([open]) > .site-nav__menu {
       clip-path 320ms var(--hdr-ease),
       opacity 200ms;
   }
-  .site-header[data-scrolled] {
-    --hdr-seal: 3rem;
-    --hdr-word: 2rem;
-  }
-  .site-header[data-scrolled] .site-header__bar {
-    max-width: min(78rem, calc(100% - 2.5rem));
-    height: 4rem;
-    margin-top: 0.75rem;
-    padding-inline: 1.75rem 0.55rem;
+  /* The brand sits in the pill's middle column, which the uneven pill padding nudges right. */
+  .site-header[data-scrolled] .site-header__brand {
+    translate: calc((var(--hdr-pill-pad-l) - var(--hdr-pill-pad-r)) / 2) var(--hdr-dy);
   }
   .site-header[data-scrolled] .site-header__seal svg {
     opacity: 0;
-    transform: scale(0.6);
+    scale: none;
+    /* (pill / rest) for the size, times 0.6 for the shrink-and-fade */
+    transform: scale(calc(var(--hdr-seal-k) * 0.6));
     transition:
-      height 600ms var(--hdr-ease),
       opacity 250ms,
-      transform 600ms var(--hdr-ease);
+      transform var(--hdr-dur) var(--hdr-ease);
   }
   .site-header[data-scrolled] .site-header__word {
     clip-path: inset(0 0 0 0);
     opacity: 1;
+    translate: none;
+    scale: none;
     transition:
       clip-path 700ms cubic-bezier(0.45, 0.05, 0.3, 1) 160ms,
       opacity 200ms 160ms;
+  }
+  /* the old pill box: the word's width, the shrunk seal's height */
+  .site-header[data-scrolled] .site-header__brand::after {
+    inset: 50% 0 auto 0;
+    width: auto;
+    height: calc(var(--hdr-seal) * var(--hdr-seal-k));
+    margin-top: calc(var(--hdr-seal) * var(--hdr-seal-k) / -2);
   }
 }
 /* Just past the breakpoint: tighten the menu so the quote button keeps its room. */
 @media (min-width: 75rem) and (max-width: 84rem) {
   .site-header__link {
-    font-size: 0.8125rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.01em;
   }
   .site-header__nav,
@@ -1984,7 +2155,7 @@ html:not(.js) .marquee__track[aria-hidden='true'] {
     --background: white;
     --foreground: black;
     --muted: white;
-    --border: #d4d4d4;
+    --border: var(--color-border-soft);
   }
   html,
   body {
@@ -2029,7 +2200,7 @@ html:not(.js) .marquee__track[aria-hidden='true'] {
   a[href^='http']::after {
     content: ' (' attr(href) ')';
     font-size: 9pt;
-    color: #666;
+    color: var(--color-text-tertiary);
     text-decoration: none;
   }
   a[href^='/']::after,
@@ -2060,9 +2231,9 @@ html:not(.js) .marquee__track[aria-hidden='true'] {
     display: block;
     margin-top: 0.5in;
     padding-top: 0.25in;
-    border-top: 1px solid #d4d4d4;
+    border-top: 1px solid var(--color-border-soft);
     font-size: 9pt;
-    color: #666;
+    color: var(--color-text-tertiary);
     text-align: center;
     font-family: var(--font-body);
   }
