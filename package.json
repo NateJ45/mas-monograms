@@ -114,7 +114,7 @@
     "@typescript-eslint/eslint-plugin": "^8.71.0",
     "@typescript-eslint/parser": "^8.71.0",
     "eslint": "^10.11.0",
-    "eslint-plugin-astro": "^1.7.0",
+    "eslint-plugin-astro": "^3.2.1",
     "http-server": "^14.1.1",
     "jsqr": "1.4.0",
     "linkinator": "^8.1.0",
