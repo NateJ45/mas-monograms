@@ -152,7 +152,10 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
 15. **Astro 7 `astro dev` backgrounds itself when it detects an agent** and allows ONE dev
     server per project root (a lock in `.astro/`). With several agents in one tree, run
     `ASTRO_DEV_BACKGROUND=1 node node_modules/astro/bin/astro.mjs dev --port <n> --ignore-lock`
-    to get a foreground server of your own (2026-10-04).
+    to get a foreground server of your own (2026-10-04). Concurrent builds or a second dev server clobber
+    `node_modules/.vite` and the Studio goes blank with "optimize deps" errors: stop the server, delete
+    `node_modules/.vite`, restart, reload the tab with `?reload=1` (2026-10-05). Agents building in parallel
+    use `--outDir` scratch directories, never `dist`.
 16. **The header's reserved height is a contract** (2026-10-04). `--header-h` is 4.5rem below 75rem
     and 6.5rem from it, the same at rest and as the scrolled pill (the pill condenses INSIDE the
     sticky box). Overlay pages pull `<main>` up by it and their first section clears it with
