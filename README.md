@@ -47,8 +47,8 @@ MAS Monograms is Mary Ann Stone's home-based embroidery studio in St. Matthews, 
 | Framework  | **Astro 7**                                      | `output: 'static'` plus a few SSR routes, `@astrojs/cloudflare` adapter, Sharp images. Ships almost no JS. |
 | CMS        | **Sanity 6** (Studio embedded at `/studio`)      | Project `xp3elugr`, dataset `production`. All content.                                                     |
 | Hosting    | **Cloudflare Workers**                           | Git-connected auto-deploy via Workers Builds. Merging to `main` is the production deploy.                  |
-| Quote form | **Cloudflare Worker** (`src/pages/api/quote.ts`) | Turnstile CAPTCHA, R2 backup, Resend email, redirect to `/thank-you`.                                      |
-| Email      | **Resend**                                       | Owner notification + customer confirmation.                                                                |
+| Quote form | **Cloudflare Worker** (`src/pages/api/quote.ts`) | Turnstile CAPTCHA, R2 backup, email, redirect to `/thank-you`. Email bodies: `src/lib/quote-email.ts`.     |
+| Email      | **Cloudflare Email Service** (`EMAIL` binding)   | Owner notification + customer confirmation.                                                                |
 | Clearance  | **Stripe Payment Links**                         | One link per item; the buy button is a plain `<a>`.                                                        |
 | Styling    | **Tailwind 4**                                   | Brand tokens in `src/styles/`.                                                                             |
 

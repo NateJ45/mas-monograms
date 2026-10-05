@@ -63,6 +63,9 @@ generate`), not from a `studio/` workspace.
   `atelierSettings.pauseLabel`/`playLabel`. Seeded by **`scripts/seed-pending-fields.mjs`** (sanity-lib
   dry-run gate, setIfMissing on each published doc and its draft; a second `--apply` reports 0 changes).
   Add the next label pass to that script the same way. Backup: `tmp/backups/production-2026-10-04-pending.tar.gz`.
+  Second pass 2026-10-05: `styleGalleryPage.introCtaLabel`, `fontCaption` (`{font}`), `filterGroupName`,
+  `filterFallbackHeading`, `moreTagsLabel` (`{count}`), `lessTagsLabel` (backup
+  `tmp/backups/production-2026-10-05-followups.tar.gz`).
 - **Hoop fit and the no-JS quote note (2026-10-04).** `galleryItem.hoopFit` (`good` default / `poor`, radio,
   "Show it in a round hoop?") keeps a photo out of every round hoop; `requestAQuotePage.noScriptMessage` is the
   `<noscript>` note on the quote form. Category queries use the `IMG_HOOP` projection (hotspot, crop, and the

@@ -20,3 +20,9 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Cross-Origin-Opener-Policy: same-origin
+
+# Quote-email header art (scripts/generate-favicons.mjs, referenced by absolute URL from
+# src/lib/quote-email.ts). The filenames are versioned (-v1), so they can be cached for a year:
+# change the art by writing -v2 and updating the URLs, never by overwriting -v1.
+/brand/email-*
+  Cache-Control: public, max-age=31536000, immutable

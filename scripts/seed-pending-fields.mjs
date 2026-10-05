@@ -23,6 +23,9 @@
 // "from", "Popular", "Last updated", "Expected response time", "What's next",
 // "Request this", "Request something like this", "Explore Other Items",
 // "{count} left", "Search colors", "At the bench"). Nothing new is claimed.
+// The 2026-10-05 pass added the /style-gallery leftovers ("Start your quote",
+// "{font} font", "Filter gallery", "Filters", "+ {count} more", "Less"); a doc
+// that already had the first pass gets only these.
 
 import { client, apply, done, APPLY } from './lib/sanity-lib.mjs';
 
@@ -51,6 +54,13 @@ plan('styleGalleryPage', `*[_id == "styleGalleryPage"]`, () => ({
   lightboxCloseLabel: 'Close',
   lightboxPrevLabel: 'Previous photo',
   lightboxNextLabel: 'Next photo',
+  // Second pass (2026-10-05): the last hard-coded words on /style-gallery.
+  introCtaLabel: 'Start your quote',
+  fontCaption: '{font} font',
+  filterGroupName: 'Filter gallery',
+  filterFallbackHeading: 'Filters',
+  moreTagsLabel: '+ {count} more',
+  lessTagsLabel: 'Less',
 }));
 
 plan('clearancePage', `*[_id == "clearancePage"]`, () => ({ quantityLeftLabel: '{count} left' }));

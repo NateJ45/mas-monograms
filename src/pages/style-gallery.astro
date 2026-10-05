@@ -19,7 +19,7 @@ const [siteSettings, page, items] = await Promise.all([
 const title = page?.seoTitle ?? 'Style Gallery — MAS Monograms';
 const description =
   page?.seoDescription ??
-  'Browse the MAS Monograms photo gallery for inspiration — see real embroidery samples across fonts, items, and color combinations.';
+  'Browse the MAS Monograms photo gallery for inspiration: see real embroidery samples across fonts, items, and color combinations.';
 
 // ─── Tag normalisation ──────────────────────────────────────────────────────
 // Two tags mean "appliqué" — canonicalise the accented one so it filters as
@@ -76,6 +76,7 @@ function titleCase(slug: string): string {
 type RenderGroup = { label: string; tags: string[] };
 
 const configuredGroups: Array<{ groupLabel?: string; tags?: string[] }> = page?.filterGroups ?? [];
+const fallbackHeading: string = page?.filterFallbackHeading || 'Filters';
 
 let renderGroups: RenderGroup[] = [];
 
@@ -83,16 +84,17 @@ if (configuredGroups.length > 0) {
   // Curated taxonomy: each group shows only its present tags, most photos first.
   renderGroups = configuredGroups
     .map((g) => ({
-      label: g.groupLabel ?? 'Filters',
+      label: g.groupLabel ?? fallbackHeading,
       tags: orderPresent((g.tags ?? []).map(normalizeTag)),
     }))
     .filter((g) => g.tags.length > 0);
 } else {
-  // Fallback (pre-seed): one "Filters" group of every present tag. Still drops
-  // meta tags and merges the dup, so it never regresses to the raw pill wall.
+  // Fallback (pre-seed): one group of every present tag, under
+  // filterFallbackHeading. Still drops meta tags and merges the dup, so it
+  // never regresses to the raw pill wall.
   const allPresent = orderPresent(Array.from(presentTags));
   if (allPresent.length > 0) {
-    renderGroups = [{ label: 'Filters', tags: allPresent }];
+    renderGroups = [{ label: fallbackHeading, tags: allPresent }];
   }
 }
 
@@ -100,6 +102,11 @@ const hasFilters = renderGroups.length > 0;
 const MAX_VISIBLE = 8; // tags shown before the "+ more" toggle kicks in
 
 const filterAllLabel = page?.filterAllLabel ?? 'All';
+const filterGroupName: string = page?.filterGroupName || 'Filter gallery';
+const moreTagsLabel = (count: number): string =>
+  (page?.moreTagsLabel || '+ {count} more').replaceAll('{count}', String(count));
+const lessTagsLabel: string = page?.lessTagsLabel || 'Less';
+const introCtaLabel: string = page?.introCtaLabel || 'Start your quote';
 
 const headline = splitSwash(page?.heroHeadline ?? 'Style Gallery');
 const withPhotos = (items as any[]).filter((i) => i?.image?.asset);
@@ -146,10 +153,7 @@ const fan = [
             starting a real request, right under the intro. */
         }
         <div class="mt-l" data-reveal style="--reveal-delay: 200ms">
-          <CtaLink
-            cta={{ label: 'Start your quote', href: '/request-a-quote' }}
-            variant="primary"
-          />
+          <CtaLink cta={{ label: introCtaLabel, href: '/request-a-quote' }} variant="primary" />
         </div>
       </div>
       {
@@ -210,7 +214,7 @@ const fan = [
               </svg>
             </summary>
 
-            <div id="gallery-filters" role="group" aria-label="Filter gallery">
+            <div id="gallery-filters" role="group" aria-label={filterGroupName}>
               {/* "All" reset button, with the running count beside it */}
               <div class="mb-m flex items-center justify-center gap-m">
                 <button
@@ -234,6 +238,7 @@ const fan = [
                 {renderGroups.map((grp) => {
                   const visible = grp.tags.slice(0, MAX_VISIBLE);
                   const overflow = grp.tags.slice(MAX_VISIBLE);
+                  const moreLabel = moreTagsLabel(overflow.length);
                   return (
                     <div class="text-center">
                       <p class="eyebrow eyebrow--center mb-s justify-center">{grp.label}</p>
@@ -251,8 +256,8 @@ const fan = [
                         {overflow.length > 0 && (
                           <details class="more-tags group/more inline">
                             <summary class="gallery-more-toggle chip chip--quiet hit-44 relative inline-flex cursor-pointer list-none items-center px-m py-xs select-none">
-                              <span class="group-open/more:hidden">+ {overflow.length} more</span>
-                              <span class="hidden group-open/more:inline">Less</span>
+                              <span class="group-open/more:hidden">{moreLabel}</span>
+                              <span class="hidden group-open/more:inline">{lessTagsLabel}</span>
                             </summary>
                             <span class="contents">
                               {overflow.map((tag) => (
@@ -295,6 +300,7 @@ const fan = [
                 index={i}
                 tags={cleanTags(item.tags)}
                 requestLabel={page?.requestLabel}
+                fontCaption={page?.fontCaption}
               />
             ))}
           </div>

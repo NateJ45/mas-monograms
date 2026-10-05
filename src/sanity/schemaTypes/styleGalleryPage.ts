@@ -79,6 +79,15 @@ export const styleGalleryPage = defineType({
       rows: 2,
       group: 'hero',
     }),
+    defineField({
+      name: 'introCtaLabel',
+      title: 'Button under the intro (optional)',
+      type: 'string',
+      group: 'hero',
+      description:
+        'The button under the short intro that takes people to the quote form, e.g. "Start your quote".',
+      validation: (R) => R.max(40),
+    }),
 
     defineField({
       name: 'filterAllLabel',
@@ -195,6 +204,50 @@ export const styleGalleryPage = defineType({
       description:
         'The small link under a photo that starts a quote for that kind of item, e.g. "Request this". Leave blank to use "Request this".',
       validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'fontCaption',
+      title: 'Font line under each photo (optional)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'The line under a photo that names the embroidery font. Use {font} for the font name, e.g. "{font} font". Also used on the shop category pages and in the photo viewer.',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'filterGroupName',
+      title: 'Name of the filter area (for screen readers)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'Screen readers announce the block of filter buttons by this name, e.g. "Filter gallery".',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'filterFallbackHeading',
+      title: 'Filter heading when no groups are set up (optional)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'Only shown if "Filter groups" above is empty: then every tag shows under this one heading, e.g. "Filters".',
+      validation: (R) => R.max(40),
+    }),
+    defineField({
+      name: 'moreTagsLabel',
+      title: '"Show more tags" button (optional)',
+      type: 'string',
+      group: 'filters',
+      description:
+        'A long group of filters shows the first few and folds the rest behind this button. Use {count} for how many are hidden, e.g. "+ {count} more".',
+      validation: (R) => R.max(30),
+    }),
+    defineField({
+      name: 'lessTagsLabel',
+      title: '"Show fewer tags" button (optional)',
+      type: 'string',
+      group: 'filters',
+      description: 'The same button once the extra filters are showing, e.g. "Less".',
+      validation: (R) => R.max(30),
     }),
 
     defineField({
