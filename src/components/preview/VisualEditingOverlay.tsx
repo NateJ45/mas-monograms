@@ -123,7 +123,7 @@ const mpaHistory: HistoryAdapter = {
 // Client-drawn widgets survive a refresh (2026-10-05, Phase C)
 // =============================================================================
 // The canvas now renders the REAL pages, and three things on them are drawn by
-// their own scripts after load: the live stitching stages (a <canvas> whose
+// their own scripts after load: the live stitching stages, hero and studio (a <canvas> whose
 // width and height the engine sets; writing either back clears the drawing),
 // and the golden ThreadLine (its path is rebuilt in real pixels). The server's
 // HTML holds only their starting state, so morphing it in would blank the
@@ -131,11 +131,9 @@ const mpaHistory: HistoryAdapter = {
 // element as it is when BOTH trees mark it `data-morph-keep`, so both trees are
 // marked here, right before the morph. Their words live outside these
 // elements, so editing still refreshes everything Mary Ann can change.
-const CLIENT_WIDGETS = '[data-atelier-stage], [data-thread-line]';
+const CLIENT_WIDGETS = '[data-atelier-stage], [data-hero-stage], [data-thread-line]';
 function keepClientWidgets(root: Element): void {
-  root
-    .querySelectorAll(CLIENT_WIDGETS)
-    .forEach((el) => el.setAttribute('data-morph-keep', ''));
+  root.querySelectorAll(CLIENT_WIDGETS).forEach((el) => el.setAttribute('data-morph-keep', ''));
 }
 
 interface Props {

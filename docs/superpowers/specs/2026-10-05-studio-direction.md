@@ -174,3 +174,44 @@ print it. Each QR carries a tag in the link (utm_source=qr&utm_medium=<placement
 so the site's analytics can show which placement worked. Generate client-side in the Studio (no network, no
 third-party QR service; add a small, vetted dependency or write the encoder; check the bundle impact and the
 Studio CSP), include a "test it with your phone" step, and keep copy in plain words.
+
+## Phase F (new): "My brand kit" (Nathan, 2026-10-05)
+
+Mary Ann must have FULL access to all the branding made for this site so she can use it anywhere else
+(Facebook, Instagram, Google profile, Pinterest, business cards, tags, flyers, invoices, email signature,
+craft-fair banner). Today there is only a small static `BrandKit.tsx` panel and a few files in
+`public/brand/`. Build a proper **My brand kit** pane in the Studio (a desk item and a Welcome card
+"Get my logo, colors and fonts") and a downloadable bundle:
+- **Logos**: the Hoop Seal (full seal with ring lettering, compact mark) and the Signature Thread wordmark,
+  each in: full colour on light, full colour on dark (Midnight), all-one-colour dark, all-one-colour white
+  (for stamps and embroidery-style single colour uses), as SVG (print, scalable) and PNG (screens), with
+  transparent backgrounds. Source of truth: `src/lib/brand/brandSvg.js` and `docs/logo-concepts/2026-10-04-atelier/`.
+  Clear-space and minimum-size rules with a simple diagram, and a short "please do not stretch, recolour or
+  add effects" list.
+- **Ready-made social and profile images** generated from the brand geometry and sized correctly: profile
+  picture (square 1080 and a circle-safe version), Facebook cover (1640x624 with safe areas), Instagram
+  profile and 3 to 5 highlight-cover icons (e.g. Towels, Totes, Baby, Hats, Custom), Pinterest profile and a
+  board-cover template, Google Business Profile logo and cover photo sizes, an email-signature logo (small
+  PNG), a link-share image (the existing OG card), and a printable A4/Letter page with the QR-ready logo
+  lockup for a table sign. Generate them with a reproducible script (extend the favicon/OG scripts; the
+  generator output is committed or built into `public/brand-kit/`), view each at actual size.
+- **Colours**: every brand colour with a plain name (Linen, Paper, Midnight, Heritage Indigo, Claret, Brass,
+  Gold thread...), the hex, RGB and CMYK (approximate, labelled as approximate for printing), a one-click
+  "copy" for the hex, and a one-line "use it for" (e.g. Claret = the button that matters most). Include the
+  gold thread gradient as a swatch. Source: `src/styles/globals.css` tokens and DESIGN.md.
+- **Fonts**: Fraunces (headings), Mulish (body), Petemoss (script, monograms only): what each is for, a
+  specimen line in each, where to get them free (Google Fonts links; all three are open-licence), the exact
+  font files bundled for download ONLY if the licence permits redistribution (they are OFL: include the licence
+  text and verify), plus safe fallbacks for Word/Canva/Facebook (Georgia and Arial) and how to install a font
+  on Windows, Mac, iPhone and Canva in numbered steps.
+- **Voice and words**: a short "how I sound" card from the site's real copy (warm, plain, specific, signed
+  with her name), the one-sentence description of her business, the tagline from siteSettings, three
+  example captions, and the words to avoid (the no-fabrication rule: no invented years, awards, reviews).
+- **One-click "Download everything"**: a single ZIP (logos, social images, colour list, font licence and
+  files, a one-page PDF brand sheet) served from a stable URL (built at deploy by a script into
+  `public/brand-kit/mas-monograms-brand-kit.zip`; no secrets; cacheable with a versioned filename or
+  a short cache) and individual download buttons per asset. The pane's links must work for a non-technical
+  person on a phone or a PC: big buttons labelled in plain words ("Download my logo for a white background").
+- Keep `public/_headers` caching correct and make sure CSP for /studio permits the downloads.
+- Cross-link: each Get-found guide that needs a profile picture, cover or logo links to the exact asset here
+  (a "Take me there" card), and the QR tool offers the brand seal.
