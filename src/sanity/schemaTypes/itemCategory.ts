@@ -11,6 +11,7 @@
 // home page now shows every category, so the switch changed nothing (data kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { PackageIcon } from '@sanity/icons';
 import {
   SEO_FIELDSET,
@@ -24,6 +25,8 @@ import {
   PHOTO_WORDS_NEEDED,
   TOO_LONG,
 } from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
+import { LockedAddressInput } from '../components/LockedAddressInput';
 
 /** The alt box under a category photo: only asked for once there is a photo. */
 const altField = defineField({
@@ -62,8 +65,10 @@ export const itemCategory = defineType({
       title: 'Web address',
       type: 'slug',
       description:
-        'The end of this page\'s address, for example "shirts" makes mas-monograms.com/shirts. Press Generate to make one from the name. Changing it later breaks old links, so set it once.',
+        'The end of this page\'s address, for example "shirts" makes mas-monograms.com/shirts. Press Generate to make one from the name. Once the page is on your website the address is locked, so old links keep working.',
       options: { source: 'name', maxLength: 50 },
+      // Phase D: locked once published (components/LockedAddressInput.tsx).
+      components: { input: LockedAddressInput },
       group: 'content',
       validation: (Rule) =>
         Rule.required().error('Please press Generate so this item has a web address.'),
@@ -128,6 +133,9 @@ export const itemCategory = defineType({
         'A short "from" price on its card, for example "from $16". Leave it empty to hide it.',
       validation: (Rule) => Rule.max(30).warning(TOO_LONG),
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
     defineField({
       name: 'displayOrder',
       title: 'Position in the list',
@@ -135,9 +143,13 @@ export const itemCategory = defineType({
       group: 'card',
       description: 'Smaller numbers come first, on Shop by Item and on your home page. 1 is first.',
       initialValue: 99,
+      hidden: true,
       validation: (Rule) =>
         Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
     }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'itemCategory', newItemPosition: 'after' }),
 
     // ── Photos and buttons ───────────────────────────────────────────────────
     defineField({
@@ -204,6 +216,14 @@ export const itemCategory = defineType({
     }),
 
     // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
     defineField({
       name: 'seoTitle',
       ...SEO_TITLE,
@@ -250,6 +270,11 @@ export const itemCategory = defineType({
     }),
   },
   orderings: [
+    {
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
     {
       title: 'Position in the list',
       name: 'displayOrder',

@@ -190,6 +190,8 @@ function attrs({ title, className, extra = '' }) {
  * @param {string} [o.className]
  * @param {string} [o.background]   a solid square behind (for app icons)
  * @param {number} [o.inset]        for icons: shrink the art inside its box (0 to 1)
+ * @param {boolean} [o.flat]        no satin-stitch texture on the S (one-colour versions for
+ *                                  stamps and embroidery: flat shapes only)
  */
 export function sealSvg({
   idp,
@@ -201,13 +203,21 @@ export function sealSvg({
   className,
   background,
   inset = 1,
+  flat = false,
 }) {
   const p = painter(palette, adaptive);
   if (ring) {
     const cx = 300,
       cy = 328;
     const hp = hoop(idp, { cx, cy, R: 272, w1: 11, w2: 5, gapR: 15, p });
-    const cy1 = cypher(idp, cut, { cx: cx - 4, cy: cy + 4, h: 272, p, gap: 7, satinPitch: 4.2 });
+    const cy1 = cypher(idp, cut, {
+      cx: cx - 4,
+      cy: cy + 4,
+      h: 272,
+      p,
+      gap: 7,
+      satinPitch: flat ? 0 : 4.2,
+    });
     return (
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 616"${attrs({ title, className })}>` +
       `<defs>${hp.defs}${cy1.defs}</defs>` +
@@ -237,7 +247,7 @@ export function sealSvg({
     h: heavy ? 112 : 116,
     p,
     gap: heavy ? 8 : 5.5,
-    satinPitch: heavy ? 0 : 6,
+    satinPitch: heavy || flat ? 0 : 6,
     sStroke: heavy ? 7 : 0,
   });
   const k = inset;

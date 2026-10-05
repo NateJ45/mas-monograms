@@ -15,6 +15,21 @@
 export declare const internalGroqTypeReferenceTo: unique symbol;
 
 // Source: schema.json
+export type TrashedItem = {
+  _id: string;
+  _type: 'trashedItem';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  title?: string;
+  kind?: string;
+  deletedAt?: string;
+  wasPublished?: boolean;
+  originalType?: string;
+  originalId?: string;
+  payload?: string;
+};
+
 export type StudioPlaybook = {
   _id: string;
   _type: 'studioPlaybook';
@@ -55,6 +70,7 @@ export type StudioNotes = {
   idealClient?: string;
   voiceSummary?: string;
   wordsToAvoid?: Array<string>;
+  helpContact?: string;
 };
 
 export type StudioGuide = {
@@ -118,6 +134,7 @@ export type FaqItem = {
   showOnPricing?: boolean;
   category?: 'Ordering' | 'Pricing' | 'Turnaround' | 'Shipping' | 'Items' | 'Design' | 'Care';
   displayOrder?: number;
+  orderRank?: string;
 };
 
 export type SanityImageAssetReference = {
@@ -150,6 +167,7 @@ export type ClearanceItem = {
   stripePaymentLink?: string;
   quantityAvailable?: number;
   displayOrder?: number;
+  orderRank?: string;
   featured?: boolean;
 };
 
@@ -181,6 +199,7 @@ export type PricingTier = {
   highlighted?: boolean;
   highlightLabel?: string;
   displayOrder?: number;
+  orderRank?: string;
   minQuantity?: number;
   maxQuantity?: number;
 };
@@ -220,6 +239,7 @@ export type GalleryItem = {
   featured?: boolean;
   hoopFit?: 'good' | 'poor';
   displayOrder?: number;
+  orderRank?: string;
 };
 
 export type ThreadColor = {
@@ -272,6 +292,7 @@ export type Font = {
   popular?: boolean;
   atelierStyle?: 'classic' | 'script' | 'block' | 'circle' | 'single';
   displayOrder?: number;
+  orderRank?: string;
   slug?: Slug;
 };
 
@@ -354,12 +375,15 @@ export type SiteSettings = {
     _key: string;
   }>;
   socialLinks?: Array<{
-    platform?: 'Facebook' | 'Instagram' | 'Pinterest' | 'TikTok' | 'YouTube' | 'Other';
+    platform?: 'Facebook' | 'Instagram' | 'Pinterest' | 'TikTok' | 'YouTube' | 'Nextdoor' | 'Other';
     url?: string;
     label?: string;
     _type: 'socialLink';
     _key: string;
   }>;
+  googleReviewUrl?: string;
+  reviewLinkLabel?: string;
+  googleBusinessUrl?: string;
   tagline?: string;
   logo?: {
     asset?: SanityImageAssetReference;
@@ -442,7 +466,6 @@ export type SiteSettings = {
   standardTurnaround?: string;
   rushOrdersAvailable?: boolean;
   rushTurnaround?: string;
-  googleBusinessUrl?: string;
 };
 
 export type HomePageReference = {
@@ -580,6 +603,7 @@ export type LegalPage = {
   lastUpdatedLabel?: string;
   slug?: Slug;
   displayOrder?: number;
+  seoPreview?: string;
   seoDescription?: string;
 };
 
@@ -613,6 +637,7 @@ export type ItemCategory = {
   };
   startingPrice?: string;
   displayOrder?: number;
+  orderRank?: string;
   ctaLabel?: string;
   galleryHeading?: string;
   requestSimilarLabel?: string;
@@ -620,6 +645,7 @@ export type ItemCategory = {
   bannerEyebrow?: string;
   bannerHeadline?: string;
   bannerSubhead?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -712,6 +738,7 @@ export type ClearancePage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -755,6 +782,7 @@ export type ThreadChartPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -800,6 +828,7 @@ export type FontGuidePage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -847,6 +876,7 @@ export type StyleGalleryPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -880,6 +910,7 @@ export type ShopIndexPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -961,6 +992,7 @@ export type RequestAQuotePage = {
   submitLabel?: string;
   privacyNote?: string;
   noScriptMessage?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1047,6 +1079,7 @@ export type AboutPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1108,6 +1141,7 @@ export type PricingPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1165,6 +1199,7 @@ export type HowItWorksPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1248,6 +1283,7 @@ export type HomePage = {
   finalSubhead?: string;
   finalCtaLabel?: string;
   finalCtaHref?: string;
+  seoPreview?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1386,6 +1422,7 @@ export type Geopoint = {
 };
 
 export type AllSanitySchemaTypes =
+  | TrashedItem
   | StudioPlaybook
   | StudioNotes
   | StudioGuide

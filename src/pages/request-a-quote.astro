@@ -386,6 +386,13 @@ const hLead = hWords.join(' ');
           novalidate
           class="quote-form"
         >
+          {
+            /* Where the visitor came from (QR codes): filled by QuotePrefillScript from
+              the session's first tagged landing, re-checked by /api/quote. src/lib/utm.ts */
+          }
+          <input type="hidden" name="utm_source" value="" />
+          <input type="hidden" name="utm_medium" value="" />
+          <input type="hidden" name="utm_campaign" value="" />
           {L.requiredFieldNote && <p class="quote-required">{L.requiredFieldNote}</p>}
 
           {/* ── Order Information ── */}

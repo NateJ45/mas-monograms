@@ -46,6 +46,7 @@ Run from the repo root. Node scripts are in `package.json`.
 - `npm run test:unit` (node tests), `npm test` (Playwright smoke/axe/reflow), `npm run format:check`
 - `npm run parity` (render parity), `npm run sync-check` (PORTABLE drift)
 - `npm run audit:studio`: read-only Studio audit (hidden-and-required, unknown keys, required-but-blank, banned words); must say "Studio is clean." after any schema change
+- `npm run brand-kit`: redraws Mary Ann's brand kit (`public/brand-kit/`, logos, social, print, fonts, colors, the versioned ZIP) after any logo, colour or tagline change; output is committed, not part of `build`. Bump the ZIP to `-v2` when its contents change (see `.claude/rules/sanity-studio.md`)
 - Full-page screenshots for review: scroll through the page first or `[data-reveal]` bands capture blank (`docs/TESTING.md`)
 - `npm run deploy`: build + `wrangler deploy -c dist/server/wrangler.json`. Not the normal path.
 
@@ -61,8 +62,10 @@ Run from the repo root. Node scripts are in `package.json`.
   `@sanity/astro`, so it rebuilds with every deploy and can never drift stale. There is
   deliberately no `studioHost`/`deployment` in `sanity.cli.ts` so a stray `sanity deploy`
   cannot recreate a hosted copy. **The versions are a matched set — see gotcha 9.**
-- **Live draft preview at `/preview/**`** through Sanity's Presentation tool: click-to-edit,
-  live refresh over SSE, and in-canvas controls on the repeatable lists. See below.
+- **Live draft preview at `/preview/**`** ("Edit on the page"): since 2026-10-05 it renders the
+  REAL page files from draft data (each page takes a `preview` prop), with click-to-edit, the
+  "Edit here" card on every line of words, photo and list click targets, and live refresh over SSE.
+  Category pages preview at `/preview/<slug>`. Rules: `.claude/rules/live-preview.md`.
 - **Monogram Atelier engine** — vanilla TS canvas renderer in `src/lib/atelier/`, heavy math in a module
   worker (main-thread sliced fallback), lettering fonts lazy-loaded via `FontFace` from `@fontsource`
   great-vibes / playfair-display / cinzel. No animation or smooth-scroll library.
@@ -145,7 +148,7 @@ The numbered gotchas keep their original numbers because code comments cite them
 
 - `.claude/rules/atelier-engine.md`: the Monogram Atelier engine, stage components, API, perf numbers, tuning, dev-server and Lenis notes
 - `.claude/rules/design-system.md`: Heirloom Coast + Direction D design note, typography, palette, component authoring, gotchas 4, 14, 15
-- `.claude/rules/live-preview.md`: `/preview/**`, stega, SSE proxy, in-canvas controls, "Edit here" card
+- `.claude/rules/live-preview.md`: `/preview/**` renders the real pages (page `preview` prop, `page-data.ts` loaders), stega safety, SSE proxy, click targets, "Edit here" card, the local `?dev-draft=1` switch
 - `.claude/rules/site-routes.md`: route table, quote query-string contract, quote Worker, redirects, JSON-LD
 - `.claude/rules/sanity-studio.md`: query pattern, Studio notes, atelierSettings and seed scripts, gotchas 1, 7, 8
 - `.claude/rules/dependencies-and-deploy.md`: matched version set and pins, gotchas 9, 10, 11 (read before ANY dependency or deploy change)

@@ -51,4 +51,15 @@ export default defineCliConfig({
     path: './schema.json',
     generates: './src/lib/sanity.types.ts',
   },
+  // Phase D (2026-10-05): `sanity schema extract` (so `npm run typegen`) loads
+  // sanity.config.ts through Vite with every dependency inlined, and the
+  // drag-to-reorder plugin (@sanity/orderable-document-list) imports `lexorank`,
+  // a CommonJS package whose `__exportStar(require(...))` the CLI's CJS sniffer
+  // (@sanity/cli-core 3.6.1 studioModuleEvaluator) misses, so extraction died
+  // with "exports is not defined". Loading lexorank through Node instead fixes
+  // it (Node reads its exports fine). Stone Steps does not need this only
+  // because its cli-core is 3.4.0. Remove when the CLI handles it.
+  vite: {
+    ssr: { external: ['lexorank'] },
+  },
 });

@@ -1,18 +1,21 @@
-import { Box, Card, Stack, Text } from '@sanity/ui';
+import { useEffect, useState } from 'react';
+import { useClient } from 'sanity';
+import { Box, Card, Heading, Stack, Text } from '@sanity/ui';
+import { GuideView } from './GuideView';
 import { ToolHeading } from './ToolHeading';
 import { useStudioLink, type StudioTarget } from './studioLink';
 import { DESK } from '../studioTargets';
-import { HEIRLOOM } from '../theme';
+import { HEADING_STACK, HEIRLOOM } from '../theme';
 
 // =============================================================================
-// HelpPane: "Help (how do I...?)", the short version (Phase A, 2026-10-05)
+// HelpPane: "Help (how do I...?)" (Phase A, extended in Phase B, 2026-10-05)
 // =============================================================================
-// A placeholder that is still worth opening: the five questions Mary Ann is
-// most likely to arrive with, each answered in two or three plain sentences,
-// with a "Take me there" link where there is somewhere to go. Phase B of
-// docs/superpowers/specs/2026-10-05-studio-direction.md replaces this with the
-// full handbook held as repo data (PORTS.md card 41). The older Start Here
-// guides stay listed under this pane so nothing she had is lost.
+// Top: the five questions Mary Ann is most likely to arrive with, each answered
+// in two or three plain sentences, with a "Take me there" link. Then the full
+// handbook (GuideView: search, "Guides by topic", the open guide, Print), held
+// as repo data in src/sanity/guides (PORTS.md card 41). Bottom: who to ask,
+// read from the "Who to ask for help" box in My notes (studioNotes.helpContact),
+// or HELP_CONTACT_FALLBACK when it is empty. No contact details are invented.
 //
 // Every answer must be TRUE of the site as it is (spec principle 8): the
 // rebuild takes 2 to 3 minutes since the 2026-10-05 deploy hook, Undo is in the
@@ -82,24 +85,67 @@ function AnswerCard({ item }: { item: Answer }) {
   );
 }
 
+/**
+ * Shown when the "Who to ask for help" box in My notes is empty. Deliberately
+ * not a name or an address: nobody's contact details are invented here.
+ */
+export const HELP_CONTACT_FALLBACK = 'the person who built your website';
+
+/** The "Who to ask for help" box from My notes (studioNotes.helpContact). */
+function useHelpContact(): string | null {
+  const client = useClient({ apiVersion: '2026-05-01' });
+  const [contact, setContact] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    client
+      .fetch<string | null>('*[_id == "studioNotes"][0].helpContact')
+      .then((v) => {
+        if (!cancelled) setContact(typeof v === 'string' && v.trim() ? v.trim() : null);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [client]);
+  return contact;
+}
+
 export function HelpPane() {
+  const contact = useHelpContact();
   return (
     <Box padding={[4, 4, 5]}>
-      <Stack space={5} style={{ maxWidth: 760, margin: '0 auto' }}>
+      <Stack space={6} style={{ maxWidth: 760, margin: '0 auto' }}>
         <ToolHeading emoji="❔">How do I...?</ToolHeading>
         <Stack space={3}>
+          <Text size={3} weight="semibold">
+            Quick answers
+          </Text>
           {ANSWERS.map((a) => (
             <AnswerCard key={a.question} item={a} />
           ))}
         </Stack>
+
+        <Stack space={4}>
+          <Heading as="h2" size={3} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
+            Guides by topic
+          </Heading>
+          <Text size={2} style={{ lineHeight: 1.6 }}>
+            Step-by-step guides, with what you will see after each step. Each one says whether you
+            can do it yourself. Open a guide, then press Print this guide if you would like it on
+            paper.
+          </Text>
+          <GuideView />
+        </Stack>
+
         <Card padding={4} radius={3} tone="primary" border>
           <Stack space={3}>
             <Text size={3} weight="semibold">
               Still stuck?
             </Text>
             <Text size={2} style={{ lineHeight: 1.6 }}>
-              Ask Nathan. A confusing Studio is something he can fix, not something you have to work
-              around. The older guides are listed under this page in the menu on the left.
+              Ask {contact ?? HELP_CONTACT_FALLBACK}. A confusing Studio is something they can fix,
+              not something you have to work around. The guide "Before you ask for help" says what
+              to tell them.
             </Text>
           </Stack>
         </Card>

@@ -17,11 +17,21 @@
 //     They sit in the three-dots menu beside Publish; Ctrl+Z / Ctrl+Shift+Z do
 //     the same outside a text box, through the undoRedoShortcuts plugin
 //     registered in sanity.config.ts.
+//   - TRASH (Phase D, 2026-10-05): on the everyday lists (ARCHIVABLE_TYPES in
+//     lib/trash.ts) the stock Delete is replaced by "Move to Trash"
+//     (actions/trash.tsx); a trashedItem gets only "Bring it back" and
+//     "Delete forever". Shop categories and pages are not in the list.
+//   - SHARE LINK (Phase D, PORTS card 19): "Copy a link so someone can see this
+//     before it is on your website" (actions/shareLink.tsx), only where the
+//     preview route can draw the page (Reid's shareWhenPreviewable rule).
 // =============================================================================
 
 import type { DocumentActionComponent } from 'sanity';
 import { UndoAction, RedoAction } from './components/UndoRedo';
 import { withPublishNote } from './components/publishNote';
+import { DeleteForeverAction, MoveToTrashAction, RestoreAction } from './actions/trash';
+import { ShareLinkAction } from './actions/shareLink';
+import { ARCHIVABLE_TYPES, TRASH_TYPE } from './lib/trash';
 
 /** One document each, opened from the desk by its fixed id. */
 export const SINGLETON_TYPES = new Set<string>([
@@ -54,9 +64,18 @@ export function withEditorActions(
   schemaType: string,
   actions: DocumentActionComponent[],
 ): DocumentActionComponent[] {
+  // Phase D: something in the Trash can only come back or go for good.
+  if (schemaType === TRASH_TYPE) return [RestoreAction, DeleteForeverAction];
   const base = SINGLETON_TYPES.has(schemaType)
     ? actions.filter(({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || ''))
-    : actions;
+    : ARCHIVABLE_TYPES.has(schemaType)
+      ? // Phase D: Delete becomes "Move to Trash" (actions/trash.tsx).
+        [...actions.filter(({ action }) => action !== 'delete'), MoveToTrashAction]
+      : actions;
   const withNote = base.map((a) => (a.action === 'publish' ? withPublishNote(a) : a));
-  return NO_UNDO.has(schemaType) ? withNote : [...withNote, UndoAction, RedoAction];
+  // Phase D: "Copy a link so someone can see this..." on anything with a page
+  // the preview can draw (actions/shareLink.tsx returns null everywhere else).
+  return NO_UNDO.has(schemaType)
+    ? withNote
+    : [...withNote, UndoAction, RedoAction, ShareLinkAction];
 }

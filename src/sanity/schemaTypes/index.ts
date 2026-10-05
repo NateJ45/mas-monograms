@@ -42,6 +42,9 @@ import { studioGuide } from './studioGuide';
 import { studioNotes } from './studioNotes';
 import { studioPlaybook } from './studioPlaybook';
 
+// ── Trash (Phase D): what "Move to Trash" keeps, so it can be brought back ────
+import { trashedItem } from './trashedItem';
+
 export const schemaTypes = [
   // ── Shared building blocks ───────────────────────────────────────────────────
   // Registered before the documents whose menus are built out of it.
@@ -77,6 +80,9 @@ export const schemaTypes = [
   studioGuide,
   studioNotes,
   studioPlaybook,
+
+  // ── Trash ─────────────────────────────────────────────────────────────────────
+  trashedItem,
 ];
 
 // ── Default every grouped form to the "All fields" tab (2026-07-03) ────────────

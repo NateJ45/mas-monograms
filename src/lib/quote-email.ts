@@ -31,6 +31,8 @@
 // siteSettings.email / phone / address), with the same words as fallbacks.
 // =============================================================================
 
+import { describeUtm, type UtmTags } from './utm.ts';
+
 /** Production origin. Images must resolve from any inbox, so never the request origin. */
 export const SITE_URL = 'https://mas-monograms.com';
 /** Header art, versioned because public/_headers caches /brand/email-* as immutable. */
@@ -61,6 +63,12 @@ export interface QuoteSubmission {
   isGift: boolean;
   notes: string;
   attachmentNames: string[];
+  /**
+   * Where the visitor came from (utm_source / utm_medium / utm_campaign, already
+   * whitelisted by the Worker, src/lib/utm.ts). Owner email only; never shown to
+   * the customer.
+   */
+  utm?: UtmTags;
 }
 
 /** Words and contact details read from Sanity at send time (all optional). */
@@ -418,6 +426,8 @@ export function buildOwnerEmail(s: QuoteSubmission, ctx: EmailContext = {}): Bui
     `mailto:${s.email}?subject=${encodeURIComponent('Your MAS Monograms quote')}`,
   );
   const item = `${escapeHtml(s.itemType)}${s.quantity ? ` (${escapeHtml(s.quantity)})` : ''}`;
+  // "QR code on a hang tag or label (campaign fall-fair)"; null (row hidden) with no tags.
+  const foundVia = describeUtm(s.utm);
 
   const actions = `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 8px 0;"><tr><td style="padding:0 0 12px 0;">${button(replyHref, 'Reply by email')}</td></tr>${tel ? `<tr><td style="padding:0 0 12px 4px;font-family:${SANS};font-size:16px;line-height:1.3;">${link(escapeHtml(tel), `Call ${escapeHtml(s.phone)}`)}</td></tr>` : ''}</table>`;
 
@@ -458,6 +468,7 @@ export function buildOwnerEmail(s: QuoteSubmission, ctx: EmailContext = {}): Bui
           : 'Not given',
       ],
       ['Heard about us', s.referral && escapeHtml(s.referral)],
+      ['Where they found you', foundVia && escapeHtml(foundVia)],
     ]),
     section('Item', [
       ['Item type', escapeHtml(s.itemType)],
@@ -506,6 +517,7 @@ export function buildOwnerEmail(s: QuoteSubmission, ctx: EmailContext = {}): Bui
       ['Email', s.email],
       ['Phone', s.phone || 'Not given'],
       ['Heard about us', s.referral],
+      ['Where they found you', foundVia],
     ]),
     '',
     textBlock('Item', [

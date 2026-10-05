@@ -8,6 +8,7 @@
 // that means nothing to her. Data kept.
 
 import { defineType, defineField } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { BillIcon } from '@sanity/icons';
 import { TOO_LONG } from './_copy';
 
@@ -55,15 +56,22 @@ export const pricingTier = defineType({
         'A few words on the highlighted tag, for example "Most popular". Only shows when "Make this tag stand out" is on.',
       validation: (Rule) => Rule.max(30).warning(TOO_LONG),
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
     defineField({
       name: 'displayOrder',
       title: 'Position on the page',
       type: 'number',
       description: 'Smaller numbers come first. 1 is first.',
       initialValue: 99,
+      hidden: true,
       validation: (Rule) =>
         Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
     }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'pricingTier', newItemPosition: 'after' }),
 
     // ── Hidden: from the old quantity price list (data kept) ─────────────────
     defineField({
@@ -90,6 +98,11 @@ export const pricingTier = defineType({
     }),
   },
   orderings: [
+    {
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
     {
       title: 'Position on the page',
       name: 'displayOrder',

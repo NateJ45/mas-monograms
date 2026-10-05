@@ -34,6 +34,7 @@ import {
   TOO_LONG,
   BUTTON_LINK_HELP,
 } from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 export const homePage = defineType({
   name: 'homePage',
@@ -427,6 +428,14 @@ export const homePage = defineType({
     }),
 
     // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
     defineField({
       name: 'seoTitle',
       ...SEO_TITLE,

@@ -11,8 +11,11 @@
 //     page and she can always fix them. Everything else has a fallback.
 //   - HIDDEN (data kept): standardTurnaround, rushOrdersAvailable and
 //     rushTurnaround (the site reads none of them since the redesign; the reply
-//     promise now lives on the quote and thank-you pages) and googleBusinessUrl
-//     (the footer declares it but never draws it).
+//     promise now lives on the quote and thank-you pages).
+//   - Get found site pass (later the same day): googleBusinessUrl is visible
+//     again ("Your Google listing link", read into the LocalBusiness sameAs),
+//     reviewLinkLabel is new (words on the review link the site draws when
+//     googleReviewUrl is set), and socialLinks gained Nextdoor.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { CogIcon, LinkIcon, ChevronDownIcon, ListIcon } from '@sanity/icons';
@@ -172,6 +175,7 @@ export const siteSettings = defineType({
                   { title: 'Pinterest', value: 'Pinterest' },
                   { title: 'TikTok', value: 'TikTok' },
                   { title: 'YouTube', value: 'YouTube' },
+                  { title: 'Nextdoor', value: 'Nextdoor' },
                   { title: 'Other', value: 'Other' },
                 ],
                 layout: 'dropdown',
@@ -204,6 +208,45 @@ export const siteSettings = defineType({
           },
         }),
       ],
+    }),
+    // Phase E (2026-10-05): read by the Studio's "Make a QR code" tool
+    // (src/sanity/components/QrCodeTool.tsx) and, since the Get found site pass the
+    // same day, by the site: a review link in the footer (Footer.astro) and on the
+    // thank-you page. Empty means nothing is drawn. Optional.
+    defineField({
+      name: 'googleReviewUrl',
+      title: 'Your Google review link',
+      type: 'url',
+      group: 'identity',
+      description:
+        'The short link people use to leave you a Google review. The "Make a QR code" tool uses it, and your website shows a review link in the footer and on the thank-you page once it is filled in. To find it: on a computer, open your Google Business Profile, press Read reviews, then Get more reviews, then Copy.',
+      validation: (R) =>
+        R.uri({ scheme: ['http', 'https'] }).warning(
+          'Please paste the full address, starting with https://',
+        ),
+    }),
+    defineField({
+      name: 'reviewLinkLabel',
+      title: 'Words on your review link',
+      type: 'string',
+      group: 'identity',
+      description:
+        'The words on the review link in the footer and on the thank-you page, for example "Leave me a review". Leave it empty to use "Leave a review".',
+      validation: (Rule) => Rule.max(40).warning(TOO_LONG),
+    }),
+    // Unhidden 2026-10-05 (Get found): the site adds it to the business facts
+    // Google reads on every page (src/lib/schemas.ts, LocalBusiness sameAs).
+    defineField({
+      name: 'googleBusinessUrl',
+      title: 'Your Google listing link',
+      type: 'url',
+      group: 'identity',
+      description:
+        'The link to your Google Business Profile. It helps Google connect your website with your listing.',
+      validation: (R) =>
+        R.uri({ scheme: ['https'] }).warning(
+          'Please paste the full address, starting with https://',
+        ),
     }),
     defineField({
       name: 'tagline',
@@ -596,12 +639,6 @@ export const siteSettings = defineType({
       name: 'rushTurnaround',
       title: 'Old rush turnaround time (not used)',
       type: 'string',
-      hidden: true,
-    }),
-    defineField({
-      name: 'googleBusinessUrl',
-      title: 'Google business listing address (not shown yet)',
-      type: 'url',
       hidden: true,
     }),
   ],

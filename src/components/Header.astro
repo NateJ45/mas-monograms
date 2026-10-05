@@ -272,6 +272,14 @@ const mobileNavProps = {
 </header>
 
 <script>
+  // First-touch source tags (?utm_source=qr&utm_medium=tag...), kept for the
+  // session so a QR scan that lands on any page still reaches the quote form.
+  // Lives in the header's script because the header is on every page and this
+  // bundle is already external (no new <script> tag). Contract: src/lib/utm.ts.
+  import { rememberUtm } from '@/lib/utm';
+  rememberUtm();
+  document.addEventListener('astro:page-load', rememberUtm);
+
   function currentGroups() {
     return Array.from(document.querySelectorAll<HTMLDetailsElement>('.site-nav__group'));
   }

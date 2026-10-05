@@ -28,6 +28,7 @@ import {
   BANNER_BUTTON,
   BANNER_LINK,
 } from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 export const howItWorksPage = defineType({
   name: 'howItWorksPage',
@@ -190,6 +191,14 @@ export const howItWorksPage = defineType({
     }),
 
     // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
     defineField({
       name: 'seoTitle',
       ...SEO_TITLE,

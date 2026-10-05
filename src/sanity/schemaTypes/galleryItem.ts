@@ -9,6 +9,7 @@
 // no longer required (it always has a starting number).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { ImagesIcon } from '@sanity/icons';
 import { PHOTO_WORDS, PHOTO_WORDS_NEEDED } from './_copy';
 
@@ -102,15 +103,22 @@ export const galleryItem = defineType({
       },
       initialValue: 'good',
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
     defineField({
       name: 'displayOrder',
       title: 'Position in the gallery',
       type: 'number',
       description: 'Smaller numbers come first. Favorites always come before the rest.',
       initialValue: 99,
+      hidden: true,
       validation: (Rule) =>
         Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
     }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'galleryItem', newItemPosition: 'after' }),
   ],
   // Search weights (Phase A task 6): she finds a photo by what it shows.
   __experimental_search: [
@@ -135,6 +143,11 @@ export const galleryItem = defineType({
     }),
   },
   orderings: [
+    {
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
     {
       title: 'Newest first',
       name: 'newestFirst',

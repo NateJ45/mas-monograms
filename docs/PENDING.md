@@ -9,6 +9,40 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: needs a human (Nathan or Mary Ann)
 
+- **Click-check Phase D (Trash, drag order, share link, Google preview, locked addresses; 2026-10-05) in the
+  signed-in browser.** Verified by types, lint, unit tests, audit, a scratch build and parity 23/23 (live data
+  already carries the ranks), not by clicking. The full click list is in the Phase D notes of
+  `.claude/rules/sanity-studio.md`; the essentials: a test photo moved to Trash shows the confirm, leaves the
+  list and appears in "Trash (bring things back)"; "Bring it back" returns it to the same place; "Delete
+  forever" asks twice; dragging a row in "Photos of my work" sticks after a reload and the menu shows only the
+  "+" button; a new photo from the "+" lands at the end; "Copy a link..." on the Pricing page gives a link
+  that opens the page with unpublished changes in a private window (on the deployed https Studio only); the
+  Google preview updates as she types; a shop category's address shows locked with the "Ask Nathan" note.
+- **Handbook guides out of date after Phase D** (B owns `src/sanity/guides`): anything saying Delete is
+  permanent or that there is no Trash, anything telling her to type a "Position" number, and anything saying
+  photos are listed newest first. See the Phase D report for the list.
+
+- **Click-check "My brand kit" (Phase F, 2026-10-05) in the signed-in browser.** Verified by types, lint,
+  build, `src/lib/brand-kit.test.ts` and by viewing every generated picture, not by clicking. Check: the
+  top-bar tool, the desk item and the Welcome card "Get my logo, colors and fonts" all open it; "Download
+  everything" saves `mas-monograms-brand-kit-v1.zip` and it opens on Windows (Extract All); a logo button,
+  a social picture, a PDF, a font file and a license each download with the right file name; Copy on a
+  color shows "Copied" and pastes the hex; the jump buttons scroll; the page reads at phone width. Then
+  hand Mary Ann the profile picture and Facebook cover when she sets up her pages (Get found guides).
+- **Canva fonts on the free plan.** Uploading fonts needs Canva Pro (Canva Help, checked 2026-10-05). The kit
+  tells her to search Fraunces, Mulish and Petemoss in Canva's own list and fall back to Georgia/Arial; if
+  Nathan can confirm which of the three Canva Free lists, tighten that note in `INSTALL_STEPS`
+  (`src/lib/brand/brandKit.ts`).
+
+- **Click-check "Make a QR code" (Phase E, 2026-10-05) in the signed-in browser.** Verified by types, lint,
+  build and `src/lib/qr/qr.test.ts` (every destination x placement decoded by jsQR, seal on and off), not
+  by eye. Check: the top-bar tool, the menu item and the Welcome card all open it; Facebook/Instagram show
+  greyed with an "Add my ... link" button until `socialLinks` has them; the Google review choice takes a
+  pasted link (remembered after a reload) and "Take me to the guide" opens the handbook; the preview scans
+  with a phone off the screen; the SVG and PNG downloads open and scan; "Print this" opens the print box and
+  a printed 1-inch code measures 1 inch at 100%; Copy the link works; the page is usable at phone width.
+  Then ask Mary Ann for her Google review link (Google Business Profile: Read reviews, Get more reviews, Copy) and put it in My
+  business details.
 - **Check the Phase A Studio in the signed-in browser (2026-10-05).** It cannot be driven by Playwright (it
   needs a Sanity login), so these were verified by build, types, unit tests and reading only: the desk opens
   on Welcome (an empty desk and a click on "Edit my content" both land there); every Welcome card opens the
@@ -20,12 +54,20 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   menu lists only the seven things she makes; a reference box offers no "Create new Home page"; Publish
   shows the "about 2 to 3 minutes" toast once the publish lands; "Undo last change" and "Redo" are in the
   three-dots menu; the Sold / Needs a photo / Google badges appear; the thread list shows colour dots.
-- **Run the Start Here guide patch, then tell Mary Ann her editor moved.** The embedded Studio has been
-  live at `<site>/studio` since 2026-09-05, so the precondition for
-  `node scripts/patch-studio-guide-presentation.mjs --apply` is met, but it has never been run: a dry run
-  on 2026-10-05 still reports 3 changes (the "Website pages" row and the "You can always undo" tip still
-  describe the removed per-page "Preview" tab; the Presentation how-to is missing). It rewrites Mary
-  Ann's handbook, so it waits for Nathan. Then move her bookmark to `<site>/studio`.
+- **Check the Phase B handbook and checkup in the signed-in browser (2026-10-05).** Verified by types,
+  unit tests and reading only. Help (how do I...?) > "Guides and quick answers": the five quick answers,
+  the search box (try "sold", "phone"), "Guides by topic" (empty topics hidden), a guide opens in place with
+  big numbered steps, "What you will see" lines and the badge; every "Take me there" card lands on the right
+  form, box or list (hash routing); the Stripe card opens a new tab; "See also" buttons switch guides; "Print
+  this guide" previews ONLY the guide (`#mas-guide-print`); "Back to all guides". "My notes" opens with
+  Overview and "Edit notes" tabs and the new "Who to ask for help" box. "What needs attention" opens from the
+  desk, the Welcome card and the top-bar tool, shows "All clear" or cards with working buttons, and lists no
+  Sanity system records as unpublished changes. "How the website works" is gone from the desk.
+- **Fill in "Who to ask for help"** (Help > My notes > Edit notes, `studioNotes.helpContact`): the name and
+  email or phone Mary Ann should use. Empty, the Help page says "the person who built your website".
+- **Tell Mary Ann her editor moved** and move her bookmark to `<site>/studio`. (The old "Start Here" guide
+  patch, `scripts/patch-studio-guide-presentation.mjs`, is moot since 2026-10-05: the `studioGuide` page is
+  no longer on the desk; the repo handbook in `src/sanity/guides` replaced it. The document is kept.)
 - **Retire the hosted Studio (unverified).** `sanity.cli.ts` has no `studioHost`, so the hosted copy
   never updates. The project still lists one hosted studio (created 2026-06-30, checked 2026-10-05
   through the Sanity API), which is most likely the stale `mas-monograms.sanity.studio`. Delete it at
@@ -47,8 +89,19 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   purpose, so change them together with the Sanity titles if the separator changes.
 - **Review the font-to-style mapping** (`font.atelierStyle`, chosen by Claude on 2026-10-04 in
   `scripts/seed-pending-fields.mjs`).
+- **Get found: Nathan's parts (2026-10-05, from the handbook).** Add Mary Ann's Google account
+  (mastone37@gmail.com) to the Search Console Domain property (Owner if Google Business Profile's instant
+  "verify with Search Console" is to work for her, else Restricted), and as a Viewer on GA4 property
+  557338771 if she should see visits herself (the `is-it-working` guide says "Nathan can show you"). When
+  Pinterest asks to claim the site, add its TXT record in Cloudflare DNS (no code change). Do the Google
+  Business Profile and Apple Business setup with her on a call (both may need a video or a business paper).
 
 ## Open: code work queued
+
+- **Point the handbook's brand kit cards at the real pane.** `BRAND_KIT` in
+  `src/sanity/guides/brandAndPrint.ts` still opens Help (it was written before Phase F). Change that one
+  line to `{ tool: 'brand-kit' }` (or `{ pane: DESK.brandKit }`) and refresh its maintenance note: the pane's
+  buttons are "Copy" and "Download everything (one file, ...)", and the font files ARE bundled (OFL allows it).
 
 - **The 404 page ignores its Studio box.** `NotFoundBody.astro` (was `404.astro`) reads `page.subhead`, which
   no schema declares, so the line under the headline is always the built-in "The page you're looking for
@@ -82,18 +135,37 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   `processPage.ts`, `servicesPage.ts`, `service.ts`, `philosophyPoint.ts`, `journalEntry.ts` and friends
   live in `src/sanity/schemaTypes/` but are not imported by `index.ts`, so a grep for `pageBuilder` finds
   arrays this site does not have. Deleting them is safe; deferred only as unrelated churn.
-- **The preview surface is a summary, not the page.** `/preview/*` renders the hero, the repeatable lists
-  and the closing CTA (no page builder, no `SectionRenderer`). Converting a singleton to a section array
-  (PORTS.md card 12) would give it full-fidelity preview. Worth it for Home if Mary Ann ever asks to
-  reorder sections.
+- **"Edit on the page" needs one signed-in walk-through (Phase C, 2026-10-05).** The canvas now renders
+  the real pages from drafts (rules: `.claude/rules/live-preview.md`); everything that runs without a
+  Sanity login was verified locally with `?dev-draft=1` (all 13 pages render, text identical to the live
+  page, zero broken stega runs). Still to see in the real Studio: the "Edit here" card saving on a few of
+  the ~100 new lines, a photo click opening its field, the list controls on pricing add-ons and about
+  values, live refresh after an edit, and the stitching canvas surviving a refresh.
+- **`Hero.astro` and its scripts are now unused** (HeroBackground, HeroFillScript, HeroSlideshowScript,
+  HeroTriScript): the old preview was their last user. Only `src/lib/page-fields.test.ts` reads Hero.astro
+  (for the "no accent picker" absence). Delete them and move that assertion when convenient.
+- **Get found: guide text to catch up with the site (site side done 2026-10-05, see Recently closed).**
+  For the Studio guides owner (`src/sanity/guides/getFound.ts`, not edited by the site pass): mention the
+  footer and thank-you review link in `reviews-and-word-of-mouth` and `google-business-profile` (it shows
+  once `Your Google review link` is filled; its words are `Words on your review link`); tell her to paste
+  her listing into `Your Google listing link` (`siteSettings.googleBusinessUrl`) in
+  `google-business-profile`; `is-it-working` can now say each quote email shows "Where they found you"
+  for QR scans, and that the four new answers are already in the list; the `facebook-page` maintenance
+  note's platform list gained Nextdoor.
+- **No email signup.** The site cannot collect a newsletter list; the guide says so. Only build one if
+  Nathan decides it is worth it.
+- **First real quote with a QR tag.** The utm path is proven by unit tests and a Playwright test up to the
+  hidden fields; `/api/quote` (SSR) and the owner email are unit-tested, not sent. Check the first real QR
+  quote email shows the "Where they found you" row.
 
 ## Notes (decided, not tasks)
 
 - **Text in the logo is outlined**, so the brand name inside the drawing cannot come from Sanity (the
   accessible name does, `siteSettings.title`). Regenerate with
   `docs/logo-concepts/2026-10-04-atelier/generator/brand.mjs` (needs Python fontTools) if the name changes.
-- **The Brand kit panel's logo paragraph is hard-coded** (`src/sanity/components/BrandKit.tsx`). The panel
-  is static by design and Studio-only; move it only if the panel ever becomes a document.
+- **The brand kit's words are repo data, not Sanity** (`src/lib/brand/brandKit.ts`, the "My brand kit"
+  pane). It is Studio-only help, like the handbook guides; only the tagline is read from Sanity (at
+  `npm run brand-kit` time). After a tagline change, re-run `npm run brand-kit` and bump the ZIP to `-v2`.
 - **Detector false positives on URL scans** (recorded so nobody chases them): low-contrast on dark
   sections (ground is a `::before`), gradient-text on the gold swash, hero-eyebrow-chip /
   kicker-above-heading, italic-serif-display, cream-palette, marquee, dark-glow,
@@ -116,6 +188,23 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Recently closed
 
+- 2026-10-05: Get found, site support. A review link in the footer and on `/thank-you`, drawn only when
+  `siteSettings.googleReviewUrl` is set (new `reviewLinkLabel`; live data has none, parity proved no HTML
+  change); `googleBusinessUrl` unhidden ("Your Google listing link") and in the LocalBusiness `sameAs`
+  (https only, unit-tested); QR source tags (`utm_*`) carried first-touch through the session into hidden
+  quote fields, re-validated by `/api/quote`, stored in R2 and printed in the owner email as "Where they
+  found you" (contract in `.claude/rules/site-routes.md`); TikTok, YouTube and new Nextdoor icons; the four
+  new "how did you hear" answers seeded live (`scripts/seed-referral-options.mjs`, backup
+  `tmp/backups/production-2026-10-05-referral.tar.gz`).
+
+- 2026-10-05: Studio Phase F, "My brand kit": every logo in four colourways (SVG, PNG 2000/512), social
+  pictures at platform sizes, table signs and a brand sheet (PNG and PDF), installable OFL fonts, colour
+  lists, one versioned ZIP (`public/brand-kit/`, `npm run brand-kit`), and the Studio pane that offers them.
+  The old static BrandKit panel is gone.
+
+- 2026-10-05: Studio Phase D built: Trash instead of Delete, drag to reorder (105 `orderRank`s backfilled,
+  backup `tmp/backups/production-2026-10-05-order-rank.tar.gz`), share link, Google preview, locked addresses
+  (chosen over redirects). Click-check above.
 - 2026-10-05: Studio Phase A (spec `docs/superpowers/specs/2026-10-05-studio-direction.md`): no red errors on
   live documents (`npm run audit:studio` clean), obsolete fields hidden, plain forms, task desk with ids,
   Welcome, tour, Undo/Redo, Publish note, badges adapted for MAS, search weights, templates. The stray

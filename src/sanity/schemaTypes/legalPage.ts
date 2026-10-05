@@ -9,6 +9,8 @@
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { DocumentIcon } from '@sanity/icons';
 import { SEO_DESCRIPTION, SEO_DESCRIPTION_TOO_LONG, TOO_LONG } from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
+import { LockedAddressInput } from '../components/LockedAddressInput';
 
 export const legalPage = defineType({
   name: 'legalPage',
@@ -82,8 +84,10 @@ export const legalPage = defineType({
       title: 'Web address',
       type: 'slug',
       description:
-        'The end of the page\'s address, for example "privacy" makes /legal/privacy. Press Generate to make one from the title. Changing it later breaks old links.',
+        'The end of the page\'s address, for example "privacy" makes /legal/privacy. Press Generate to make one from the title. Once the page is on your website the address is locked, so old links keep working.',
       options: { source: 'title', maxLength: 60 },
+      // Phase D: locked once published (components/LockedAddressInput.tsx).
+      components: { input: LockedAddressInput },
       validation: (R) =>
         R.required().error('Please press Generate so this page has a web address.'),
     }),
@@ -93,6 +97,12 @@ export const legalPage = defineType({
       type: 'number',
       description: 'Smaller numbers come first.',
       initialValue: 99,
+    }),
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
     }),
     defineField({
       name: 'seoDescription',

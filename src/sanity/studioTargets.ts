@@ -24,6 +24,12 @@
 export const DESK = {
   welcome: 'welcome',
   help: 'help',
+  /** Phase B: the handbook (quick answers + guides), first item under Help. */
+  helpGuides: 'help-guides',
+  /** Phase B: Mary Ann's own notes (the studioNotes page), under Help. */
+  notes: 'studioNotes',
+  /** Phase B: the read-only checkup, also a top-bar tool named 'checkup'. */
+  checkup: 'what-needs-attention',
   business: 'siteSettings',
   pages: 'pages',
   legal: 'legal-pages',
@@ -36,6 +42,12 @@ export const DESK = {
   threads: 'threads',
   categories: 'categories',
   questions: 'questions',
+  /** Phase E: "Make a QR code", also a top-bar tool with the same name. */
+  qrCodes: 'qr-codes',
+  /** Phase D: "Trash (bring things back)", what "Move to Trash" keeps. */
+  trash: 'trash',
+  /** Phase F: "My brand kit", also a top-bar tool with the same name. */
+  brandKit: 'brand-kit',
 } as const;
 
 /** Where a link in the Studio can go. */

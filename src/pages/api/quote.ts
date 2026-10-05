@@ -18,6 +18,7 @@ import {
   type EmailContext,
   type QuoteSubmission,
 } from '@/lib/quote-email';
+import { pickUtm } from '@/lib/utm';
 
 export const prerender = false;
 
@@ -144,6 +145,10 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   const referral = (formData.get('referral') as string | null)?.trim() ?? '';
   const notes = (formData.get('notes') as string | null)?.trim() ?? '';
   const isRush = rush === 'yes';
+  // Where they came from (hidden utm_* fields filled from the landing URL, see
+  // src/lib/utm.ts). Re-validated here: only utm_source/medium/campaign, each
+  // 1 to 40 letters, digits, hyphens or underscores; anything else is ignored.
+  const utm = pickUtm(formData);
 
   // ── 4. Validate file attachments ──────────────────────────────────────────
   const rawFiles = formData.getAll('attachments') as File[];
@@ -184,6 +189,8 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     isGift,
     notes,
     attachmentNames: attachments.map((f) => f.name),
+    // Source tags ({} when none)
+    utm,
   };
 
   if (env.QUOTE_BACKUP) {
@@ -237,6 +244,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     isGift: isGift === 'yes',
     notes,
     attachmentNames: attachments.map((f) => f.name),
+    utm,
   };
   const ctx = await loadEmailContext();
   // The customer can always reach Mary Ann: Sanity's email first, the owner inbox if Sanity is down.

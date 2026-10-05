@@ -25,6 +25,9 @@ import {
   IconBrandInstagram,
   IconBrandFacebook,
   IconBrandPinterest,
+  IconBrandTiktok,
+  IconBrandYoutube,
+  IconHome,
   IconLink,
 } from '@tabler/icons-react';
 import {
@@ -99,6 +102,13 @@ function socialIcon(platform: string | undefined) {
       return IconBrandFacebook;
     case 'Pinterest':
       return IconBrandPinterest;
+    case 'TikTok':
+      return IconBrandTiktok;
+    case 'YouTube':
+      return IconBrandYoutube;
+    // No Nextdoor mark in Tabler (same choice as Footer.astro); the name is the label.
+    case 'Nextdoor':
+      return IconHome;
     default:
       return IconLink;
   }

@@ -46,6 +46,10 @@ import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
 import { SINGLETON_TYPES, withEditorActions } from './src/sanity/editorActions';
 import { STARTING_TEMPLATES } from './src/sanity/templates';
 import { STUDIO_THEME_PROPS, readableFonts } from './src/sanity/theme';
+import { QrCodeTool, QrIcon } from './src/sanity/components/QrCodeTool';
+import { BrandKitTool } from './src/sanity/components/BrandKitPane';
+import { CheckupTool } from './src/sanity/components/CheckupTool';
+import { ActivityIcon, ColorWheelIcon } from '@sanity/icons';
 
 // =============================================================================
 // Studio theme - "Heirloom Coast" (matches the live site, 2026-07-03)
@@ -97,7 +101,37 @@ const TOOL_TITLES: Record<string, string> = {
   presentation: 'Edit on the page',
   media: 'My photo library',
 };
-const TOOL_ORDER = ['structure', 'presentation', 'media'];
+const TOOL_ORDER = ['structure', 'presentation', 'media', 'checkup', 'qr-codes', 'brand-kit'];
+
+/**
+ * Phase B: "What needs attention" (src/sanity/components/CheckupTool.tsx), the
+ * read-only checkup. Also a desk item (DESK.checkup) so a Welcome card can open
+ * it inside "Edit my content".
+ */
+const CHECKUP_TOOL = {
+  name: 'checkup',
+  title: 'What needs attention',
+  icon: ActivityIcon,
+  component: CheckupTool,
+};
+
+/**
+ * Phase E: "Make a QR code" (src/sanity/components/QrCodeTool.tsx). Runs fully
+ * in the browser; no network, so the Studio CSP needs nothing new.
+ */
+const QR_TOOL = { name: 'qr-codes', title: 'Make a QR code', icon: QrIcon, component: QrCodeTool };
+
+/**
+ * Phase F: "My brand kit" (src/sanity/components/BrandKitPane.tsx): logos,
+ * social pictures, colors, fonts, with download buttons. The files are static
+ * in public/brand-kit/ (same origin), so the Studio CSP needs nothing new.
+ */
+const BRAND_KIT_TOOL = {
+  name: 'brand-kit',
+  title: 'My brand kit',
+  icon: ColorWheelIcon,
+  component: BrandKitTool,
+};
 
 /**
  * Phase A: the only things the global "+ Create" menu offers, in this order.
@@ -196,7 +230,7 @@ export default defineConfig({
   ],
 
   tools: (prev) =>
-    prev
+    [...prev, CHECKUP_TOOL, QR_TOOL, BRAND_KIT_TOOL]
       .map((tool) => (TOOL_TITLES[tool.name] ? { ...tool, title: TOOL_TITLES[tool.name] } : tool))
       .sort((a, b) => rank(TOOL_ORDER, a.name) - rank(TOOL_ORDER, b.name)),
 

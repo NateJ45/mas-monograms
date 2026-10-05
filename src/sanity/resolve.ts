@@ -12,9 +12,10 @@
 //
 //  - `locations` (document -> URL): the reverse, so opening a document from the
 //    desk points the preview at the right page. Page singletons map to their
-//    fixed preview path; collection docs (galleryItem, itemCategory, pricingTier,
-//    clearanceItem, threadColor, font, faqItem) have no dedicated draft-preview
-//    route, so they land on the page they appear on.
+//    fixed preview path; an itemCategory maps to its own page at /preview/<slug>;
+//    the other collection docs (galleryItem, pricingTier, clearanceItem,
+//    threadColor, font, faqItem) have no page of their own, so they land on the
+//    page they appear on.
 //
 // The preview routes themselves live in the site app: src/pages/preview/.
 // SINGLETON_PREVIEW_PATHS is the SAME map as PREVIEW_PAGES in
@@ -22,7 +23,11 @@
 // src/layouts/PreviewLayout.astro's click interceptor. Three places, one truth:
 // change one and change all three.
 // =============================================================================
-import { defineDocuments, type PresentationPluginOptions } from 'sanity/presentation';
+import {
+  defineDocuments,
+  defineLocations,
+  type PresentationPluginOptions,
+} from 'sanity/presentation';
 
 /** Preview path per page singleton. */
 export const SINGLETON_PREVIEW_PATHS: Record<string, string> = {
@@ -54,16 +59,32 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     ...Object.entries(SINGLETON_PREVIEW_PATHS)
       .filter(([type]) => type !== 'homePage')
       .map(([type, href]) => ({ route: href, filter: `_type == "${type}"` })),
+    // Category pages (2026-10-05): /preview/<slug> renders the real category
+    // page. LAST on purpose: the pattern would also match every fixed page
+    // above, and the first match wins.
+    {
+      route: '/preview/:slug',
+      filter: `_type == "itemCategory" && slug.current == $slug`,
+    },
   ]),
   locations: {
     ...singletonLocations,
     // Collection docs have no draft-preview route of their own. Send each to the
     // page it renders on, with a note where a live-only detail page exists.
     galleryItem: { locations: [{ title: 'Style Gallery', href: '/preview/style-gallery' }] },
-    itemCategory: {
-      locations: [{ title: 'Shop by Item', href: '/preview/shop-by-item' }],
-      message: 'Each category also has its own /<slug> page, which previews on the live site.',
-    },
+    // Each category has its own page, previewed at /preview/<slug> since
+    // 2026-10-05 (the real category page, from drafts).
+    itemCategory: defineLocations({
+      select: { name: 'name', slug: 'slug.current' },
+      resolve: (doc) => ({
+        locations: [
+          ...(doc?.slug
+            ? [{ title: doc.name || 'This item page', href: `/preview/${doc.slug}` }]
+            : []),
+          { title: 'Shop by Item', href: '/preview/shop-by-item' },
+        ],
+      }),
+    }),
     pricingTier: { locations: [{ title: 'Pricing', href: '/preview/pricing' }] },
     clearanceItem: { locations: [{ title: 'Clearance', href: '/preview/clearance' }] },
     threadColor: {

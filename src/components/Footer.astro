@@ -11,15 +11,22 @@
 // columns sit in a two-column grid. The bottom row keeps clear of the fixed BackToTop
 // button. Everything is data-driven: footerColumns, legalNav or the legal pages,
 // footerCredit/footerCreditUrl, socialLinks, address, email and phone.
+// Get found (2026-10-05): a review link joins the contact cluster ONLY when
+// googleReviewUrl is a real https address (src/lib/review-link.ts; words from
+// reviewLinkLabel), and TikTok, YouTube and Nextdoor got their own icons.
 
 import { site } from '@/data/site';
 import {
   IconBrandInstagram,
   IconBrandFacebook,
   IconBrandPinterest,
+  IconBrandTiktok,
+  IconBrandYoutube,
+  IconHome,
   IconLink,
 } from '@tabler/icons-react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin, Star } from 'lucide-react';
+import { reviewLink } from '@/lib/review-link';
 import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
 import { resolveChrome, fallbackFooterColumns, type RawFooterColumn } from '@/lib/siteSettings';
@@ -40,6 +47,8 @@ interface Props {
     address?: { street?: string; city?: string; state?: string; zip?: string } | null;
     socialLinks?: SocialLink[] | null;
     googleBusinessUrl?: string;
+    googleReviewUrl?: string | null;
+    reviewLinkLabel?: string | null;
     footerColumns?: RawFooterColumn[] | null;
     footerCredit?: string;
     footerCreditUrl?: string;
@@ -70,6 +79,7 @@ const chrome = resolveChrome(siteSettings);
 const socialLinks = chrome.showFooterSocials
   ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url)
   : [];
+const review = reviewLink(siteSettings);
 const customLogo = siteSettings?.logo?.asset ? siteSettings.logo : null;
 const siteCredit = siteSettings?.footerCredit;
 const siteCreditUrl = siteSettings?.footerCreditUrl;
@@ -97,6 +107,14 @@ function socialIcon(platform: string | undefined) {
       return IconBrandFacebook;
     case 'Pinterest':
       return IconBrandPinterest;
+    case 'TikTok':
+      return IconBrandTiktok;
+    case 'YouTube':
+      return IconBrandYoutube;
+    // Tabler has no Nextdoor mark; a house reads as "neighbors". The button's
+    // accessible name is still "Nextdoor".
+    case 'Nextdoor':
+      return IconHome;
     default:
       return IconLink;
   }
@@ -192,6 +210,21 @@ function socialIcon(platform: string | undefined) {
                 <a href={telHref(phone)} class="site-footer__contact-item">
                   <Phone size={14} aria-hidden="true" />
                   {phone}
+                </a>
+              </li>
+            )
+          }
+          {
+            review && (
+              <li>
+                <a
+                  href={review.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="site-footer__contact-item"
+                >
+                  <Star size={14} aria-hidden="true" />
+                  {review.label}
                 </a>
               </li>
             )

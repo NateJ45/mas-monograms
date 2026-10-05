@@ -4,16 +4,21 @@
 // docs/superpowers/specs/2026-10-05-studio-direction.md, principle 1):
 //
 //   Welcome                       the landing pane: big task cards (WelcomePane)
-//   Help (how do I...?)           short answers, plus the older Start Here guides
+//   Help (how do I...?)           quick answers + the handbook (./guides), My notes
+//   What needs attention          the read-only checkup (src/lib/studio-checkup.ts)
 //   ─
 //   My business details           phone, email, address, hours, menus, footer
 //   Pages on my website           every page, as a visitor thinks of them,
 //                                 with the legal pages INSIDE (no stray entry)
 //   ─
-//   Photos of my work             the gallery photos, newest first
-//   Clearance and prices          clearance items and the price tags
-//   Fonts, threads and categories the reference lists
-//   Questions and answers         the FAQ
+//   Photos of my work             the gallery photos, in site order (drag)
+//   Clearance and prices          clearance items and the price tags (drag)
+//   Fonts, threads and categories the reference lists (fonts, categories drag)
+//   Questions and answers         the FAQ (drag)
+//   ─
+//   Make a QR code                the QR tool (also in the top bar)
+//   My brand kit                  logos, colors, fonts (also in the top bar)
+//   Trash (bring things back)     what "Move to Trash" took off (Phase D)
 //
 // THE ID RULE. Every pane has an explicit `.id()`, and the ids live in DESK
 // (./studioTargets.ts) wherever anything links to them. A list item with no
@@ -29,8 +34,16 @@
 // Preview: "Edit on the page" (the Presentation tool) is where she sees a page
 // while she edits it; the desk forms are the fallback (spec principle 6).
 
-import type { ListItemBuilder, StructureBuilder, StructureResolverContext } from 'sanity/structure';
+import type {
+  ListItem,
+  ListItemBuilder,
+  StructureBuilder,
+  StructureResolverContext,
+} from 'sanity/structure';
+import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
 import {
+  ActivityIcon,
+  AddIcon,
   BillIcon,
   CogIcon,
   ColorWheelIcon,
@@ -45,16 +58,17 @@ import {
   TagIcon,
   TextIcon,
   ThumbsUpIcon,
-  PresentationIcon,
   ThListIcon,
+  TrashIcon,
 } from '@sanity/icons';
 import type { ComponentType } from 'react';
 import { DESK } from './studioTargets';
 import { WelcomePane } from './components/WelcomePane';
 import { HelpPane } from './components/HelpPane';
-import StudioGuide from './components/StudioGuide';
+import { CheckupTool } from './components/CheckupTool';
+import { QrCodeTool, QrIcon } from './components/QrCodeTool';
 import BusinessOverview from './components/BusinessOverview';
-import BrandKit from './components/BrandKit';
+import { BrandKitPane } from './components/BrandKitPane';
 import StudioPlaybook from './components/StudioPlaybook';
 
 /**
@@ -87,6 +101,8 @@ const PLACED = new Set<string>([
   'studioGuide',
   'studioNotes',
   'studioPlaybook',
+  // Phase D: what "Move to Trash" keeps, listed as "Trash (bring things back)".
+  'trashedItem',
   // System types that must never sit at the desk root: sanity-plugin-media's
   // tags belong in "My photo library".
   'media.tag',
@@ -127,7 +143,61 @@ function list(
     .child(child);
 }
 
-export const deskStructure = (S: StructureBuilder, _context: StructureResolverContext) =>
+/** Her words at the top of every drag-to-reorder list. */
+export const DRAG_HINT = 'drag to put them in the order you want';
+
+/**
+ * Phase D: a list she puts in order by dragging (@sanity/orderable-document-list
+ * 2.0.9), replacing the typed "Position" numbers. The plugin writes `orderRank`
+ * (a LexoRank string) on the published copy straight away, so a drag reaches
+ * the website on the next rebuild without a Publish (the "Rebuild live site"
+ * webhook fires on any published change). The site orders by
+ * `orderRank asc, displayOrder asc` (src/lib/queries.ts), so the old numbers
+ * still decide anything that has no rank.
+ *
+ * The plugin's own header menu is replaced: "Reset Order" (re-numbers every
+ * item from scratch) and "Toggle Increments" (shows the rank strings) are
+ * developer tools that could scramble her order, and its "Create new ..."
+ * entry ignores the starting templates. What is left is one "+" button that
+ * starts from the same template as the global Create menu.
+ */
+function dragList(
+  S: StructureBuilder,
+  context: StructureResolverContext,
+  opts: {
+    id: string;
+    type: string;
+    title: string;
+    icon: ComponentType;
+    template?: string;
+    addLabel: string;
+  },
+): ListItem {
+  const item = orderableDocumentListDeskItem({
+    type: opts.type,
+    id: opts.id,
+    title: opts.title,
+    icon: opts.icon,
+    S,
+    context,
+  });
+  const child = item.child as unknown as Record<string, unknown>;
+  child.title = `${opts.title}: ${DRAG_HINT}`;
+  child.menuItems = [
+    S.menuItem()
+      .title(opts.addLabel)
+      .icon(AddIcon)
+      .intent({
+        type: 'create',
+        params: opts.template ? { type: opts.type, template: opts.template } : { type: opts.type },
+      })
+      .showAsAction(true)
+      .serialize(),
+  ];
+  return item;
+}
+
+export const deskStructure = (S: StructureBuilder, context: StructureResolverContext) =>
   S.list()
     .id('root')
     .title('MAS Monograms')
@@ -154,45 +224,37 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
             .id('help-list')
             .title('Help')
             .items([
+              // Phase B: the handbook (quick answers, guides by topic, search,
+              // print). The guides are repo data in ./guides.
               S.listItem()
-                .id('help-answers')
-                .title('How do I...? (short answers)')
+                .id(DESK.helpGuides)
+                .title('Guides and quick answers')
                 .icon(HelpCircleIcon)
-                .child(S.component(HelpPane).id('help-answers-pane').title('How do I...?')),
-              S.divider().title('Older guides (some parts are out of date)'),
+                .child(S.component(HelpPane).id('help-guides-pane').title('How do I...?')),
+              // Her own notes, and the "Who to ask for help" box the Help page reads.
               S.listItem()
-                .id('studioGuide')
-                .title('How the website works')
-                .icon(PresentationIcon)
-                .child(
-                  S.document()
-                    .id('studioGuide')
-                    .schemaType('studioGuide')
-                    .documentId('studioGuide')
-                    .views([
-                      S.view.component(StudioGuide).id('guide').title('Guide'),
-                      S.view.form().id('edit').title('Edit'),
-                    ]),
-                ),
-              S.listItem()
-                .id('studioNotes')
-                .title('Your business at a glance')
+                .id(DESK.notes)
+                .title('My notes')
                 .icon(ThumbsUpIcon)
                 .child(
                   S.document()
-                    .id('studioNotes')
+                    .id(DESK.notes)
                     .schemaType('studioNotes')
                     .documentId('studioNotes')
+                    .title('My notes')
                     .views([
                       S.view.component(BusinessOverview).id('overview').title('Overview'),
                       S.view.form().id('edit').title('Edit notes'),
                     ]),
                 ),
-              S.listItem()
-                .id('brand-kit')
-                .title('Your brand colors and fonts')
-                .icon(ColorWheelIcon)
-                .child(S.component(BrandKit).id('brand-kit-pane').title('Brand kit')),
+              // The old "How the website works" guide (studioGuide) is no longer
+              // listed: the guides above replace it, and parts of it were false
+              // (a removed Preview tab, "live within a few seconds"). The
+              // document is kept, never deleted, and stays in PLACED so the
+              // safety net does not list it. The one below stays until the
+              // "Get found" guides replace it. (The old brand colors and fonts
+              // panel is gone: "My brand kit" at the desk root absorbed it.)
+              S.divider().title('Older pages (being replaced)'),
               S.listItem()
                 .id('studioPlaybook')
                 .title('Ideas to grow your studio')
@@ -209,6 +271,14 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
                 ),
             ]),
         ),
+
+      // ── What needs attention ────────────────────────────────────────────────
+      // Phase B: the read-only checkup (also a top-bar tool, 'checkup').
+      S.listItem()
+        .id(DESK.checkup)
+        .title('What needs attention')
+        .icon(ActivityIcon)
+        .child(S.component(CheckupTool).id('checkup-pane').title('What needs attention')),
 
       S.divider(),
 
@@ -271,15 +341,17 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
       S.divider(),
 
       // ── Photos of my work ───────────────────────────────────────────────────
-      // Newest first, so the photo she just added is at the top. Each row shows
+      // Phase D: in the order the Style Gallery shows them (favorites still go
+      // first on the site), and she drags a row to move a photo. A new photo
+      // starts at the END, as it did with the old "99" position. Each row shows
       // the photo itself and its words (galleryItem's preview).
-      list(S, {
+      dragList(S, context, {
         id: DESK.photos,
         type: 'galleryItem',
         title: 'Photos of my work',
         icon: ImagesIcon,
-        newestFirst: true,
         template: 'new-photo',
+        addLabel: 'Add a photo of my work',
       }),
 
       // ── Clearance and prices ────────────────────────────────────────────────
@@ -292,19 +364,20 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
             .id('clearance-and-prices-list')
             .title('Clearance and prices')
             .items([
-              list(S, {
+              dragList(S, context, {
                 id: DESK.clearanceItems,
                 type: 'clearanceItem',
                 title: 'Clearance items for sale',
                 icon: TagIcon,
-                newestFirst: true,
                 template: 'new-clearance-item',
+                addLabel: 'Add a clearance item',
               }),
-              list(S, {
+              dragList(S, context, {
                 id: DESK.priceTags,
                 type: 'pricingTier',
                 title: 'Price tags on the Pricing page',
                 icon: BillIcon,
+                addLabel: 'Add a price tag',
               }),
             ]),
         ),
@@ -319,35 +392,81 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
             .id('fonts-threads-categories-list')
             .title('Fonts, threads and categories')
             .items([
-              list(S, {
+              dragList(S, context, {
                 id: DESK.fonts,
                 type: 'font',
                 title: 'Embroidery fonts',
                 icon: TextIcon,
+                addLabel: 'Add a font',
               }),
+              // NOT draggable: the Thread Color Chart sorts the colors by hue in
+              // code (src/components/thread/threadData.ts, sortThreads), so a
+              // dragged order would never show on the site.
               list(S, {
                 id: DESK.threads,
                 type: 'threadColor',
                 title: 'Thread colors',
                 icon: ColorWheelIcon,
               }),
-              list(S, {
+              // Draggable (the order of the Shop by Item cards and the home page
+              // circles); making or removing a category is still a job for Nathan.
+              dragList(S, context, {
                 id: DESK.categories,
                 type: 'itemCategory',
                 title: 'Shop categories (Hats, Totes...)',
                 icon: PackageIcon,
+                addLabel: 'Add a shop category',
               }),
             ]),
         ),
 
       // ── Questions and answers ───────────────────────────────────────────────
-      list(S, {
+      dragList(S, context, {
         id: DESK.questions,
         type: 'faqItem',
         title: 'Questions and answers',
         icon: InfoOutlineIcon,
         template: 'new-question',
+        addLabel: 'Add a question',
       }),
+
+      S.divider(),
+
+      // ── Make a QR code (Phase E) ────────────────────────────────────────────
+      // The same tool as the top bar's "Make a QR code", in the menu too.
+      S.listItem()
+        .id(DESK.qrCodes)
+        .title('Make a QR code')
+        .icon(QrIcon)
+        .child(S.component(QrCodeTool).id('qr-codes-pane').title('Make a QR code')),
+
+      // ── My brand kit (Phase F) ──────────────────────────────────────────────
+      // Logos, social pictures, printables, colors, fonts and voice, with big
+      // download buttons (also the top-bar tool 'brand-kit'). It replaced the
+      // old static "Your brand colors and fonts" panel under Help.
+      S.listItem()
+        .id(DESK.brandKit)
+        .title('My brand kit')
+        .icon(ColorWheelIcon)
+        .child(S.component(BrandKitPane).id('brand-kit-pane').title('My brand kit')),
+
+      // ── Trash (Phase D) ─────────────────────────────────────────────────────
+      // Everything "Move to Trash" took off the website, the most recent first.
+      // Open one and press "Bring it back". "Delete forever" is only here, and
+      // asks twice. No "+" button: things only arrive here from Move to Trash.
+      S.listItem()
+        .id(DESK.trash)
+        .title('Trash (bring things back)')
+        .icon(TrashIcon)
+        .child(
+          S.documentTypeList('trashedItem')
+            .id('trash-list')
+            .title('Trash: open one and press "Bring it back"')
+            .defaultOrdering([{ field: 'deletedAt', direction: 'desc' }])
+            .initialValueTemplates([])
+            .canHandleIntent((intent) => intent === 'edit')
+            .menuItems([]),
+        ),
 
       // ── Safety net ──────────────────────────────────────────────────────────
       // Any type NOT placed above surfaces here under its own (plain) schema

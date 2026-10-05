@@ -9,6 +9,7 @@
 // the page sorts by position and sold-ness only and never reads it (data kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { TagIcon } from '@sanity/icons';
 import { PHOTO_WORDS, PHOTO_WORDS_NEEDED, bracketsLeft } from './_copy';
 
@@ -108,15 +109,22 @@ export const clearanceItem = defineType({
       validation: (Rule) =>
         Rule.integer().min(0).warning('Please use a whole number, like 1 or 2.'),
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
     defineField({
       name: 'displayOrder',
       title: 'Position on the page',
       type: 'number',
       description: 'Smaller numbers come first. Sold items always go to the end.',
       initialValue: 99,
+      hidden: true,
       validation: (Rule) =>
         Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
     }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'clearanceItem', newItemPosition: 'after' }),
 
     // ── Hidden: the page does not read it (data kept) ────────────────────────
     defineField({
@@ -143,6 +151,11 @@ export const clearanceItem = defineType({
     }),
   },
   orderings: [
+    {
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
     {
       title: 'Newest first',
       name: 'newestFirst',

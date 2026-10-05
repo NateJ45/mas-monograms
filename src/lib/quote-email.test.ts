@@ -154,3 +154,35 @@ test('helpers', () => {
   assert.equal(telHref('(803) 707-8576'), 'tel:8037078576');
   assert.equal(telHref('call me'), null);
 });
+
+test('owner email says where they found you; customer email never does', () => {
+  const tagged: QuoteSubmission = {
+    ...base,
+    utm: { utm_source: 'qr', utm_medium: 'tag', utm_campaign: 'fall-fair' },
+  };
+  const o = buildOwnerEmail(tagged);
+  const line = 'QR code on a hang tag or label (campaign fall-fair)';
+  assert.ok(o.html.includes('Where they found you') && o.html.includes(line));
+  assert.ok(o.text.includes(`Where they found you: ${line}`));
+  const c = buildCustomerEmail(tagged);
+  assert.ok(!c.html.includes('Where they found you') && !c.text.includes('fall-fair'));
+  // No tags (or only junk): the row is hidden.
+  for (const utm of [undefined, {}, { utm_source: '<b>x</b>' }]) {
+    const e = buildOwnerEmail({ ...base, utm });
+    assert.ok(!e.html.includes('Where they found you') && !e.text.includes('Where they found'));
+  }
+});
+
+test('where-they-found-you values are whitelisted and escaped', () => {
+  const o = buildOwnerEmail({
+    ...base,
+    utm: {
+      utm_source: '"><script>alert(1)</script>',
+      utm_medium: 'zz_top',
+      utm_campaign: "a'b",
+    },
+  });
+  // The junk source and campaign are dropped; the valid medium is printed as Other.
+  assert.ok(!o.html.includes('<script>alert(1)') && !o.html.includes('a&#39;b'));
+  assert.ok(o.html.includes('Other: zz_top'));
+});

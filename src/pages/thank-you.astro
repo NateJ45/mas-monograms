@@ -13,6 +13,7 @@ import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { getSiteSettings } from '@/lib/queries';
 import { editField, editItem } from '@/lib/edit-target';
 import { loadThankYou, type PageProps, type ThankYouData } from '@/lib/page-data';
+import { reviewLink } from '@/lib/review-link';
 
 // THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
 // src/pages/preview/[...slug].astro imports this page and passes `preview`:
@@ -43,6 +44,9 @@ const after = i >= 0 ? headline.slice(i + (swash?.length ?? 0)) : '';
 const steps = ((page?.nextSteps ?? []) as string[])
   .map((text, index) => ({ text, index }))
   .filter((s) => Boolean(s.text));
+// Get found (2026-10-05): a gentle review link under the next steps, drawn ONLY
+// when siteSettings.googleReviewUrl is a real https address (src/lib/review-link.ts).
+const review = reviewLink(siteSettings);
 ---
 
 <Layout {title} {description} {siteSettings} noindex thread={false} {...preview?.layoutProps}>
@@ -160,6 +164,20 @@ const steps = ((page?.nextSteps ?? []) as string[])
                 </li>
               ))}
             </ol>
+          )
+        }
+        {
+          review && (
+            <p class="mt-l" data-reveal>
+              <a
+                href={review.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link-stitch hit-44 relative"
+              >
+                {review.label}
+              </a>
+            </p>
           )
         }
         {

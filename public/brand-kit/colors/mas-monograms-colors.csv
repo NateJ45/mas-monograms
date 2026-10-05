@@ -1,0 +1,13 @@
+Name,Hex,R,G,B,C (approx),M (approx),Y (approx),K (approx),Use it for
+Linen,#F4EEE3,244,238,227,0,2,7,4,"Your main background: a warm, soft off-white. Most of your website sits on it."
+Paper,#FBF8F1,251,248,241,0,1,4,2,"Cards and boxes that sit on Linen. A touch brighter."
+Midnight,#0F1B2D,15,27,45,67,40,0,82,"The deep dark blue behind the gold logo. Use it for dark backgrounds."
+Heritage Indigo,#28486B,40,72,107,63,33,0,58,"The brand blue: the hoops in your logo, links and calm dark bands."
+Heirloom Ink,#26312E,38,49,46,22,0,6,81,"Words on light backgrounds. A deep, warm near-black."
+Claret,#8C3A2E,140,58,46,0,59,67,45,"The button that matters most, like Request a Quote. Use it once per design so it stays special. Never in the logo."
+Brass,#835A24,131,90,36,0,31,73,49,"Prices and small labels on light backgrounds."
+Gold thread,#D9B15F,217,177,95,0,18,56,15,"The gold of the thread in your logo. Only on Midnight or Indigo, never on a light background."
+Gold thread, light,#F0D58A,240,213,138,0,11,43,6,"The bright end of the gold thread. Lovely for one special word on Midnight."
+Gold thread, deep,#A9772A,169,119,42,0,30,75,34,"The shadow end of the gold thread. For lines and decoration, not for words."
+Sage,#E4E2D3,228,226,211,0,1,7,11,"A quiet green-grey for a band or a box when Linen needs a change."
+Kraft,#E2CFA9,226,207,169,0,8,25,11,"The brown-paper color of your hang tags. Nice for labels and tags."

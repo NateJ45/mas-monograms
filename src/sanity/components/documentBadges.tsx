@@ -65,7 +65,15 @@ function currentDoc(props: DocumentBadgeProps): Record<string, any> {
 
 // Has she actually started this document? Anything beyond the system
 // (_-prefixed) keys and the template's preset choices counts.
-const PRESETS = new Set(['featured', 'hoopFit', 'displayOrder', 'sold', 'quantityAvailable']);
+// `orderRank` (Phase D) is set on every new list item by the drag-order field.
+const PRESETS = new Set([
+  'featured',
+  'hoopFit',
+  'displayOrder',
+  'orderRank',
+  'sold',
+  'quantityAvailable',
+]);
 function hasStarted(doc: Record<string, any>): boolean {
   return Object.keys(doc).some((key) => !key.startsWith('_') && !PRESETS.has(key));
 }

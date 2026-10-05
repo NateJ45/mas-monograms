@@ -308,6 +308,68 @@ test.describe('Quote form prefill', () => {
 });
 
 // -----------------------------------------------------------------------------
+// Where the visitor came from (utm_* tags from QR codes, src/lib/utm.ts)
+// -----------------------------------------------------------------------------
+test.describe('Quote source tags', () => {
+  const field = (page: Page, name: string) =>
+    page.locator(`#quote-form input[type="hidden"][name="${name}"]`);
+
+  test('tags from the landing page follow the visitor to the quote form', async ({ page }) => {
+    await page.goto('/?utm_source=qr&utm_medium=tag&utm_campaign=test', { waitUntil: 'load' });
+    // Click through, as a visitor would (the router swaps the page in place).
+    await page.locator('header a[href="/request-a-quote"]').first().click();
+    await page.waitForURL(/\/request-a-quote\/?$/);
+    await expect(field(page, 'utm_source')).toHaveValue('qr');
+    await expect(field(page, 'utm_medium')).toHaveValue('tag');
+    await expect(field(page, 'utm_campaign')).toHaveValue('test');
+    // First touch wins: a later tagged visit in the same session does not replace it.
+    await page.goto('/request-a-quote?utm_source=facebook&utm_medium=social', {
+      waitUntil: 'load',
+    });
+    await expect(field(page, 'utm_source')).toHaveValue('qr');
+    await expect(field(page, 'utm_medium')).toHaveValue('tag');
+  });
+
+  test('a tagged visit straight to the quote page fills the fields', async ({ page }) => {
+    await page.goto('/request-a-quote?utm_source=qr&utm_medium=card&utm_campaign=2026-10', {
+      waitUntil: 'load',
+    });
+    await expect(field(page, 'utm_source')).toHaveValue('qr');
+    await expect(field(page, 'utm_medium')).toHaveValue('card');
+    await expect(field(page, 'utm_campaign')).toHaveValue('2026-10');
+  });
+
+  test('junk tags are dropped and inject nothing', async ({ page }) => {
+    const dialogs: string[] = [];
+    page.on('dialog', (d) => {
+      dialogs.push(d.message());
+      void d.dismiss();
+    });
+    const q = new URLSearchParams({
+      utm_source: '<script>alert(1)</script>',
+      utm_medium: 'hang tag',
+      utm_campaign: 'x'.repeat(41),
+    });
+    await page.goto(`/?${q}`, { waitUntil: 'load' });
+    await page.goto('/request-a-quote', { waitUntil: 'load' });
+    await page.waitForTimeout(200);
+    expect(dialogs, 'no script ran').toEqual([]);
+    for (const name of ['utm_source', 'utm_medium', 'utm_campaign'])
+      await expect(field(page, name)).toHaveValue('');
+    const stored = await page.evaluate(() => sessionStorage.getItem('mas-utm-v1'));
+    expect(stored).toBeNull();
+  });
+
+  test('no tags, empty fields (and the existing prefill still works alongside)', async ({
+    page,
+  }) => {
+    await page.goto('/request-a-quote?initials=ab', { waitUntil: 'load' });
+    for (const name of ['utm_source', 'utm_medium', 'utm_campaign'])
+      await expect(field(page, name)).toHaveValue('');
+  });
+});
+
+// -----------------------------------------------------------------------------
 // /thread-color-chart spool rack
 // -----------------------------------------------------------------------------
 test.describe('Thread chart', () => {

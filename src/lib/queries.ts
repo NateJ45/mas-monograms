@@ -102,6 +102,8 @@ export const SITE_SETTINGS_PROJECTION = `{
         showFooterSocials,
         socialLinks[] { platform, url, label },
         googleBusinessUrl,
+        googleReviewUrl,
+        reviewLinkLabel,
         footerCredit,
         footerCreditUrl,
         seoTitle,
@@ -441,11 +443,37 @@ export function getShopIndexPage(fetch: Fetcher = sanityFetch): Promise<any> {
   );
 }
 
+// ─── Drag order (Phase D, 2026-10-05) ───────────────────────────────────────
+// Mary Ann puts photos, clearance items, price tags, questions, fonts and shop
+// categories in order by DRAGGING them in the Studio, which writes `orderRank`
+// (a LexoRank string, @sanity/orderable-document-list). The typed displayOrder
+// numbers are hidden, not deleted, and stay the second key, so this order is
+// TOLERANT: before `scripts/backfill-order-rank.mjs` has run every orderRank is
+// null and the old numbers decide exactly as before, and after it the ranks
+// reproduce that same order (the backfill copies `displayOrder asc, _id asc`,
+// which is how GROQ already broke ties). GROQ sorts nulls last, so an item with
+// no rank yet lands at the end, as the old default 99 did.
+// Thread colors are NOT here: the chart sorts them by hue in code.
+export const RANK_ORDER = 'orderRank asc, displayOrder asc';
+
+/**
+ * The FAQ accordion (src/components/FaqAccordion.tsx) re-sorts each topic by
+ * the `displayOrder` it is handed, so the FAQ queries hand it the item's
+ * POSITION in the drag order instead of the old number: 1 + how many questions
+ * rank before it (all questions, the same way the old numbers ran across both
+ * pages). Until the backfill, an item with no rank keeps its old number. For
+ * today's data both give exactly the old values, so the page is unchanged.
+ */
+export const FAQ_POSITION = `"displayOrder": select(
+        defined(orderRank) => count(*[_type == "faqItem" && !(_id in path("drafts.**")) && defined(orderRank) && orderRank < ^.orderRank]) + 1,
+        displayOrder
+      )`;
+
 // ─── Item Categories ────────────────────────────────────────────────────────
 
 export function getAllItemCategories(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "itemCategory"] | order(displayOrder asc){
+    `*[_type == "itemCategory"] | order(${RANK_ORDER}){
       _id,
       name,
       slug,
@@ -532,7 +560,7 @@ export function getStyleGalleryPage(fetch: Fetcher = sanityFetch): Promise<any> 
 
 export function getAllGalleryItems(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "galleryItem"] | order(displayOrder asc){
+    `*[_type == "galleryItem"] | order(${RANK_ORDER}){
       _id,
       image ${IMG_HOOP},
       "relatedCategory": relatedCategory->{ name, slug },
@@ -577,7 +605,7 @@ export function getFontGuidePage(fetch: Fetcher = sanityFetch): Promise<any> {
 
 export function getAllFonts(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "font"] | order(displayOrder asc){
+    `*[_type == "font"] | order(${RANK_ORDER}){
       _id,
       name,
       slug,
@@ -672,7 +700,7 @@ export function getClearancePage(fetch: Fetcher = sanityFetch): Promise<any> {
 
 export function getAllClearanceItems(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "clearanceItem"] | order(displayOrder asc){
+    `*[_type == "clearanceItem"] | order(${RANK_ORDER}){
       _id,
       name,
       description,
@@ -738,7 +766,7 @@ export function getNotFoundPage(fetch: Fetcher = sanityFetch): Promise<any> {
 
 export function getAllPricingTiers(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "pricingTier"] | order(displayOrder asc){
+    `*[_type == "pricingTier"] | order(${RANK_ORDER}){
       _id,
       label,
       minQuantity,
@@ -758,12 +786,12 @@ export function getAllPricingTiers(fetch: Fetcher = sanityFetch): Promise<any[]>
 
 export function getFaqItemsForHowItWorks(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "faqItem" && showOnHowItWorks == true] | order(displayOrder asc){
+    `*[_type == "faqItem" && showOnHowItWorks == true] | order(${RANK_ORDER}){
       _id,
       question,
       answer,
       category,
-      displayOrder
+      ${FAQ_POSITION}
     }`,
     {},
     [],
@@ -772,12 +800,12 @@ export function getFaqItemsForHowItWorks(fetch: Fetcher = sanityFetch): Promise<
 
 export function getFaqItemsForPricing(fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "faqItem" && showOnPricing == true] | order(displayOrder asc){
+    `*[_type == "faqItem" && showOnPricing == true] | order(${RANK_ORDER}){
       _id,
       question,
       answer,
       category,
-      displayOrder
+      ${FAQ_POSITION}
     }`,
     {},
     [],
@@ -816,7 +844,7 @@ export function getLegalPageBySlug(slug: string): Promise<any> {
 // view ever needs every featured photo.
 export function getFeaturedGalleryItems(limit = 9, fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "galleryItem" && featured == true && hoopFit != "poor"] | order(displayOrder asc)[0...$limit]{
+    `*[_type == "galleryItem" && featured == true && hoopFit != "poor"] | order(${RANK_ORDER})[0...$limit]{
       _id,
       hoopFit,
       image ${IMG_HOOP},
@@ -838,7 +866,7 @@ export function getFeaturedGalleryItems(limit = 9, fetch: Fetcher = sanityFetch)
 
 export function getGalleryItemsForWall(limit = 12, fetch: Fetcher = sanityFetch): Promise<any[]> {
   return fetch(
-    `*[_type == "galleryItem" && defined(image.asset)] | order(featured desc, displayOrder asc)[0...$limit]{
+    `*[_type == "galleryItem" && defined(image.asset)] | order(featured desc, ${RANK_ORDER})[0...$limit]{
       _id,
       featured,
       "image": image{

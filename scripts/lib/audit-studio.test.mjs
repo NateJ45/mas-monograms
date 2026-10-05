@@ -4,7 +4,7 @@
 // main() only runs when the file is executed directly.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { JARGON, editorStrings, registeredFiles } from '../audit-studio.mjs';
+import { JARGON, editorStrings, kitWordHits, registeredFiles } from '../audit-studio.mjs';
 
 const banned = (text) => JARGON.find((j) => j.re.test(text))?.why ?? null;
 
@@ -32,4 +32,17 @@ test('the banned words catch what she should never read', () => {
   assert.equal(banned('Used in JSON-LD'), 'tech word');
   assert.equal(banned('Words on the banner button'), null);
   assert.equal(banned('Describe the photo in a few words'), null);
+});
+
+test('kitWordHits checks every word in a data module and skips links and codes', () => {
+  const mod = {
+    COLORS: [{ name: 'Linen', hex: '#F4EEE3', useFor: 'The main background' }],
+    LINKS: ['https://fonts.google.com/specimen/Fraunces', '/brand-kit/logos/seal.svg'],
+    STEPS: { canva: ['Paste the URL here', 'Open the document'] },
+    fn: () => 'a schema word inside a function is code, not copy',
+  };
+  assert.deepEqual(kitWordHits(mod), [
+    'STEPS.canva[0]  tech word: "Paste the URL here"',
+    'STEPS.canva[1]  "document": "Open the document"',
+  ]);
 });

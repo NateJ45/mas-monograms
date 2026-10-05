@@ -39,6 +39,10 @@ Loads when you touch workflows, scripts or tests.
   covers the interactive pieces (Atelier studio, quote prefill incl. hostile params, thread chart,
   lightbox, lazy phone menu); each block skips when the credential-less CI build has no content for it. Dev-server note for agents: gotcha 15 in
   `.claude/rules/design-system.md` (`ASTRO_DEV_BACKGROUND=1 ... --port <n> --ignore-lock`).
+- **Preview dev switch check (2026-10-05).** `scripts/check-preview-bypass.mjs` runs after the build in
+  the `build` job and fails if the production server bundle contains the preview route's local
+  `?dev-draft=1` switch (it must be compiled out behind `import.meta.env.DEV`). It also fails if the
+  preview route is missing from the bundle, so an empty directory cannot pass.
 - Parity and Tailwind: `src/styles/globals.css` carries `@source not` for
   `scripts/.parity`, `docs`, `.claude`, `CLAUDE.md` and `README.md` so committed
   baselines and Markdown cannot keep dead utility rules alive. Do not name utility

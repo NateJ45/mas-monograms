@@ -72,8 +72,89 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
     non-string preview titles, stored keys the schema does not declare, required fields blank in live data,
     and banned words (em-dash, `<em>`, slug, schema, field, document, URL, CTA...). Must print "Studio is
     clean." after any schema change.
-  - The older "Start Here" guides (StudioGuide/BusinessOverview/BrandKit/StudioPlaybook) are under Help >
-    "Older guides (some parts are out of date)" until Phase B replaces them.
+  - **Phase B handbook (2026-10-05).** Guides are typed repo DATA in `src/sanity/guides/`: `types.ts` (shape:
+    category, id, title, icon, badge "You can do this yourself" / "Mostly yourself" / "Check with Nathan
+    first", summary, time, optional cost and "before you start", blocks h/p/steps (with "what you will see")/
+    bullets/path ("Take me there": a `StudioTarget` or `{url}` for an outside site)/callout tip|careful|why/
+    seealso, and never-shown `maintenance` notes), `iconNames.ts` + `icons.ts` (a Record, so a missing icon is
+    a compile error), `content.ts` (editing guides), `getFound.ts`, `brandAndPrint.ts`, aggregated by
+    `index.ts` (`ALL_GUIDES`, `searchGuides`). Guide files import with `.ts` extensions (bare-Node tests).
+    `components/GuideView.tsx` renders them inside `HelpPane` (Help > "Guides and quick answers", pane id
+    `DESK.helpGuides`): search, "Guides by topic", the open guide, "Print this guide" (a plain-HTML copy
+    portalled to `#mas-guide-print` plus a print stylesheet). `src/lib/studio-guides.test.ts` checks every
+    target against the desk, schema and tools, every `backticked` click name in the editing guides against
+    the real Studio names, the audit's `JARGON` list, badges, times and see-also ids. Help > "My notes"
+    (`studioNotes`, `DESK.notes`) holds `helpContact`, which the Help page shows. The old `studioGuide` is off
+    the desk (kept); StudioPlaybook stays under "Older pages (being replaced)" until the Get found guides
+    replace it (the old BrandKit panel was replaced by "My brand kit", Phase F).
+  - **"What needs attention" (Phase B).** Logic in `src/lib/studio-checkup.ts` (each check = read-only GROQ +
+    pure `evaluate`, unit-tested in `studio-checkup.test.ts`; `runChecks` survives a failing check),
+    rendered by `components/CheckupTool.tsx`, registered as the top-bar tool `checkup` (`sanity.config.ts`)
+    AND the desk item `DESK.checkup`, with a Welcome card. Drafts of `sanity.*`/`system.*`/`media.*` never
+    count as her unpublished changes.
+  - **"Make a QR code" (Phase E, 2026-10-05).** `components/QrCodeTool.tsx`, registered as the top-bar tool
+    `qr-codes` AND the desk item `DESK.qrCodes` (last in the menu), with a Welcome card. Three steps: where it
+    leads (5 site pages, her Google review link, Facebook/Instagram from `siteSettings.socialLinks`, greyed
+    with an "Add my ... link" button when missing), where it goes (6 placements: size, quiet zone, utm tag),
+    then the preview with the seal toggle, label, background (white/Linen, Midnight code, never inverted),
+    batch name and four buttons (SVG, PNG at 300 dpi and 1200px+, "Print this" as a blob: page at the exact
+    size, Copy the link). Pure logic in `src/lib/qr/` (url, placements, destinations, encode, logo, svg,
+    print, make), tested by `src/lib/qr/qr.test.ts`, which decodes every destination x placement, seal on and
+    off, with `jsqr` (dev dependency). Encoder: `qrcode-generator` 2.0.4 (MIT, zero deps), error correction H;
+    the seal's hole is capped at 15% of the code and only drawn when it is 7+ squares across. Links point at
+    the fixed `https://mas-monograms.com` (never the Studio's own origin); only own-site links get
+    `utm_source=qr&utm_medium=<placement>&utm_campaign=<batch or YYYY-MM>`. Her pasted Google review link is
+    kept in localStorage (`mas-qr-google-review-url`) unless `siteSettings.googleReviewUrl` is set (that wins).
+    Every word is in `src/sanity/qrCopy.ts` (checked against the audit's `JARGON` by the test). No network,
+    so no CSP change.
+- **Phase D: safety and polish (2026-10-05).** Tested by `src/lib/studio-phase-d.test.ts` and
+  `scripts/lib/order-rank.test.mjs`.
+  - **Trash, not Delete.** On `ARCHIVABLE_TYPES` (`src/sanity/lib/trash.ts`: photos, clearance items, questions,
+    price tags, thread colors, fonts; NOT categories or pages) `editorActions.ts` swaps the stock Delete for
+    "Move to Trash" (`actions/trash.tsx`). Model: SNAPSHOT, not a flag (Reid's design, kept): one transaction
+    writes a `trashedItem` with the published copy and the unpublished changes kept apart, and deletes the
+    original, so no site query or checkup count can show a trashed item (the delete fires the rebuild webhook).
+    It refuses, in plain words, while another item references it (`REFERRERS_QUERY`). Desk item "Trash (bring
+    things back)" (`DESK.trash`, newest first, no "+"): "Bring it back" re-creates each copy under its own id
+    with `create` (never overwrites; a never-published item comes back unpublished), "Delete forever" asks
+    twice. The checkup's `things-in-trash` card is For information.
+  - **Drag to reorder** (`@sanity/orderable-document-list` 2.0.9) on photos, clearance items, price tags,
+    questions, fonts and shop categories: `dragList()` in `structure.ts` wraps `orderableDocumentListDeskItem`,
+    titles the pane "...: drag to put them in the order you want" and REPLACES its menu (no "Reset Order" or
+    "Toggle Increments"; one "+" with the starting template). Thread colors stay a plain list (hue-sorted in
+    code). Queries: `RANK_ORDER` / `FAQ_POSITION` in `src/lib/queries.ts`. New ranks: only with the plugin's own
+    LexoRank steps (`scripts/lib/order-rank.mjs`); hand-written seeds like "a0" do not parse. **Gotcha:**
+    `sanity schema extract` died with "exports is not defined" because the CLI's Vite loader (cli-core 3.6.1)
+    cannot run CommonJS `lexorank`; `sanity.cli.ts` sets `vite.ssr.external: ['lexorank']`.
+  - **"Copy a link so someone can see this before it is on your website"** (`actions/shareLink.tsx`): mints a
+    one-hour preview secret like the PORTABLE `components/shareDraftLink.tsx` (copied byte-identical, used for
+    `previewPathFor` only, because its toasts say "draft"); shown only where `/preview/...` can draw the page
+    (`lib/previewable.ts`, Reid's `shareWhenPreviewable` rule; legal pages and settings get none); https only.
+  - **"How this looks on Google"**: `seoPreview` (`schemaTypes/_seoPreview.ts`) with
+    `components/GooglePreviewInput.tsx`, an INPUT (useFormValue), adapted from the PORTABLE SeoSnippetInput (not
+    copied: the address comes from `pathForDoc`, the domain is mas-monograms.com, soft letter-count hints from
+    `lib/googlePreview.ts`).
+  - **Addresses lock once published** (`components/LockedAddressInput.tsx` on `itemCategory.slug` and
+    `legalPage.slug`) instead of fbcm's PORTABLE `slugRedirect`: a category is a page she does not add or remove
+    alone, and redirects would add a redirect list, a build reader and a Publish wrapper she cannot see. To
+    change an address, Nathan patches the slug and adds `/<old> /<new> 301` to `public/_redirects` by hand.
+  - **"My brand kit" (Phase F, 2026-10-05).** `components/BrandKitPane.tsx`, registered as the top-bar tool
+    `brand-kit` (`BrandKitTool`) AND the desk item `DESK.brandKit` (after the QR item), with the Welcome card
+    "Get my logo, colors and fonts". It replaced the old static `BrandKit.tsx` panel (deleted; its id
+    `brand-kit` moved to the desk root). Sections: Download everything (the ZIP), My logo (3 logos x 4
+    colourways, each a tile on its own ground with PNG 2000px / PNG 512px / SVG buttons, plus "Using my logo"
+    with a clear-space diagram), pictures by platform, Ready to print (PDF and PNG), My colors (Copy buttons
+    with a "Copied" confirmation and an aria-live note, approximate CMYK, a readable-pairs table computed
+    from the hex), My fonts (outlined specimen SVGs, TTF downloads, OFL licence, Google Fonts links, install
+    steps for Windows, Mac, iPhone and Canva), How I sound. Every button is a plain same-origin
+    `<a download>` (48px+, `aria-label` naming the exact file), so no CSP or network change. Words and file
+    lists: `src/lib/brand/brandKit.ts`; files: `public/brand-kit/` from `npm run brand-kit`
+    (`scripts/generate-brand-kit.mjs` + `scripts/build-brand-kit-zip.mjs`, deterministic, committed, NOT in
+    `npm run build`); sizes and the tagline (read from `siteSettings.tagline` at generation):
+    `brandKitManifest.json`. Fonts: `scripts/build-brand-kit-fonts.py` (fontTools) instances the @fontsource
+    WOFF2s into static TTFs in `scripts/assets/brand-kit-fonts/`. Tests: `src/lib/brand-kit.test.ts` (hex vs
+    `globals.css`, exact pixel sizes, PDF page sizes, ZIP contents vs served files, deterministic ZIP writer,
+    `_headers` rules, JARGON and no em-dash); `npm run audit:studio` section 6 scans the kit's words.
 - A note on `npx sanity build`: it writes to `./dist` by default, which would clobber the
   Astro build. The Studio is built by `astro build`, so there is no `studio:build` script.
   A standalone bundle needs an explicit dir: `npx sanity build .studio-dist`.

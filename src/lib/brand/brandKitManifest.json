@@ -1,0 +1,339 @@
+{
+  "tagline": "Hand-stitched monograms and embroidery, made locally in St. Matthews, SC.",
+  "taglineSource": "Site settings (Sanity)",
+  "files": {
+    "/brand-kit/colors/mas-monograms-colors.ase": {
+      "bytes": 570
+    },
+    "/brand-kit/colors/mas-monograms-colors.csv": {
+      "bytes": 1439
+    },
+    "/brand-kit/colors/mas-monograms-colors.txt": {
+      "bytes": 2786
+    },
+    "/brand-kit/fonts/Fraunces-Italic.ttf": {
+      "bytes": 46468
+    },
+    "/brand-kit/fonts/Fraunces-Regular.ttf": {
+      "bytes": 35900
+    },
+    "/brand-kit/fonts/Fraunces-SemiBold.ttf": {
+      "bytes": 35988
+    },
+    "/brand-kit/fonts/Mulish-Bold.ttf": {
+      "bytes": 30992
+    },
+    "/brand-kit/fonts/Mulish-Italic.ttf": {
+      "bytes": 32136
+    },
+    "/brand-kit/fonts/Mulish-Regular.ttf": {
+      "bytes": 31012
+    },
+    "/brand-kit/fonts/OFL-Fraunces.txt": {
+      "bytes": 4597
+    },
+    "/brand-kit/fonts/OFL-Mulish.txt": {
+      "bytes": 4584
+    },
+    "/brand-kit/fonts/OFL-Petemoss.txt": {
+      "bytes": 4486
+    },
+    "/brand-kit/fonts/Petemoss-Regular.ttf": {
+      "bytes": 65656
+    },
+    "/brand-kit/logos/mark-color-dark-small.png": {
+      "bytes": 83992,
+      "width": 512,
+      "height": 512
+    },
+    "/brand-kit/logos/mark-color-dark.png": {
+      "bytes": 566312,
+      "width": 2000,
+      "height": 2000
+    },
+    "/brand-kit/logos/mark-color-dark.svg": {
+      "bytes": 4922
+    },
+    "/brand-kit/logos/mark-color-light-small.png": {
+      "bytes": 81504,
+      "width": 512,
+      "height": 512
+    },
+    "/brand-kit/logos/mark-color-light.png": {
+      "bytes": 560401,
+      "width": 2000,
+      "height": 2000
+    },
+    "/brand-kit/logos/mark-color-light.svg": {
+      "bytes": 4922
+    },
+    "/brand-kit/logos/mark-one-color-midnight-small.png": {
+      "bytes": 47464,
+      "width": 512,
+      "height": 512
+    },
+    "/brand-kit/logos/mark-one-color-midnight.png": {
+      "bytes": 218100,
+      "width": 2000,
+      "height": 2000
+    },
+    "/brand-kit/logos/mark-one-color-midnight.svg": {
+      "bytes": 4631
+    },
+    "/brand-kit/logos/mark-one-color-white-small.png": {
+      "bytes": 30771,
+      "width": 512,
+      "height": 512
+    },
+    "/brand-kit/logos/mark-one-color-white.png": {
+      "bytes": 157865,
+      "width": 2000,
+      "height": 2000
+    },
+    "/brand-kit/logos/mark-one-color-white.svg": {
+      "bytes": 4631
+    },
+    "/brand-kit/logos/seal-color-dark-small.png": {
+      "bytes": 92619,
+      "width": 512,
+      "height": 525
+    },
+    "/brand-kit/logos/seal-color-dark.png": {
+      "bytes": 588082,
+      "width": 2000,
+      "height": 2049
+    },
+    "/brand-kit/logos/seal-color-dark.svg": {
+      "bytes": 9382
+    },
+    "/brand-kit/logos/seal-color-light-small.png": {
+      "bytes": 89985,
+      "width": 512,
+      "height": 525
+    },
+    "/brand-kit/logos/seal-color-light.png": {
+      "bytes": 584657,
+      "width": 2000,
+      "height": 2049
+    },
+    "/brand-kit/logos/seal-color-light.svg": {
+      "bytes": 9382
+    },
+    "/brand-kit/logos/seal-one-color-midnight-small.png": {
+      "bytes": 67144,
+      "width": 512,
+      "height": 525
+    },
+    "/brand-kit/logos/seal-one-color-midnight.png": {
+      "bytes": 300495,
+      "width": 2000,
+      "height": 2049
+    },
+    "/brand-kit/logos/seal-one-color-midnight.svg": {
+      "bytes": 9083
+    },
+    "/brand-kit/logos/seal-one-color-white-small.png": {
+      "bytes": 39477,
+      "width": 512,
+      "height": 525
+    },
+    "/brand-kit/logos/seal-one-color-white.png": {
+      "bytes": 197766,
+      "width": 2000,
+      "height": 2049
+    },
+    "/brand-kit/logos/seal-one-color-white.svg": {
+      "bytes": 9083
+    },
+    "/brand-kit/logos/wordmark-color-dark-small.png": {
+      "bytes": 17999,
+      "width": 512,
+      "height": 107
+    },
+    "/brand-kit/logos/wordmark-color-dark.png": {
+      "bytes": 79212,
+      "width": 2000,
+      "height": 420
+    },
+    "/brand-kit/logos/wordmark-color-dark.svg": {
+      "bytes": 10382
+    },
+    "/brand-kit/logos/wordmark-color-light-small.png": {
+      "bytes": 18120,
+      "width": 512,
+      "height": 107
+    },
+    "/brand-kit/logos/wordmark-color-light.png": {
+      "bytes": 78952,
+      "width": 2000,
+      "height": 420
+    },
+    "/brand-kit/logos/wordmark-color-light.svg": {
+      "bytes": 10382
+    },
+    "/brand-kit/logos/wordmark-one-color-midnight-small.png": {
+      "bytes": 16628,
+      "width": 512,
+      "height": 107
+    },
+    "/brand-kit/logos/wordmark-one-color-midnight.png": {
+      "bytes": 74043,
+      "width": 2000,
+      "height": 420
+    },
+    "/brand-kit/logos/wordmark-one-color-midnight.svg": {
+      "bytes": 10382
+    },
+    "/brand-kit/logos/wordmark-one-color-white-small.png": {
+      "bytes": 10397,
+      "width": 512,
+      "height": 107
+    },
+    "/brand-kit/logos/wordmark-one-color-white.png": {
+      "bytes": 51954,
+      "width": 2000,
+      "height": 420
+    },
+    "/brand-kit/logos/wordmark-one-color-white.svg": {
+      "bytes": 10382
+    },
+    "/brand-kit/print/brand-sheet.pdf": {
+      "bytes": 765528
+    },
+    "/brand-kit/print/brand-sheet.png": {
+      "bytes": 798002,
+      "width": 2550,
+      "height": 3300
+    },
+    "/brand-kit/print/table-sign-a4.pdf": {
+      "bytes": 485240
+    },
+    "/brand-kit/print/table-sign-a4.png": {
+      "bytes": 517472,
+      "width": 2480,
+      "height": 3508
+    },
+    "/brand-kit/print/table-sign-letter.pdf": {
+      "bytes": 482706
+    },
+    "/brand-kit/print/table-sign-letter.png": {
+      "bytes": 514817,
+      "width": 2550,
+      "height": 3300
+    },
+    "/brand-kit/social/email-signature-logo.png": {
+      "bytes": 9881,
+      "width": 600,
+      "height": 150
+    },
+    "/brand-kit/social/facebook-cover-small.png": {
+      "bytes": 44808,
+      "width": 820,
+      "height": 312
+    },
+    "/brand-kit/social/facebook-cover.png": {
+      "bytes": 102371,
+      "width": 1640,
+      "height": 624
+    },
+    "/brand-kit/social/google-cover.png": {
+      "bytes": 103936,
+      "width": 1080,
+      "height": 608
+    },
+    "/brand-kit/social/google-logo.png": {
+      "bytes": 94696,
+      "width": 720,
+      "height": 720
+    },
+    "/brand-kit/social/instagram-highlight-baby.png": {
+      "bytes": 143311,
+      "width": 1080,
+      "height": 1920
+    },
+    "/brand-kit/social/instagram-highlight-custom.png": {
+      "bytes": 141458,
+      "width": 1080,
+      "height": 1920
+    },
+    "/brand-kit/social/instagram-highlight-hats.png": {
+      "bytes": 124411,
+      "width": 1080,
+      "height": 1920
+    },
+    "/brand-kit/social/instagram-highlight-totes.png": {
+      "bytes": 120635,
+      "width": 1080,
+      "height": 1920
+    },
+    "/brand-kit/social/instagram-highlight-towels.png": {
+      "bytes": 131469,
+      "width": 1080,
+      "height": 1920
+    },
+    "/brand-kit/social/pinterest-board-baby.png": {
+      "bytes": 19958,
+      "width": 600,
+      "height": 600
+    },
+    "/brand-kit/social/pinterest-board-blank.png": {
+      "bytes": 62973,
+      "width": 600,
+      "height": 600
+    },
+    "/brand-kit/social/pinterest-board-custom.png": {
+      "bytes": 18440,
+      "width": 600,
+      "height": 600
+    },
+    "/brand-kit/social/pinterest-board-hats.png": {
+      "bytes": 16058,
+      "width": 600,
+      "height": 600
+    },
+    "/brand-kit/social/pinterest-board-totes.png": {
+      "bytes": 20475,
+      "width": 600,
+      "height": 600
+    },
+    "/brand-kit/social/pinterest-board-towels.png": {
+      "bytes": 15755,
+      "width": 600,
+      "height": 600
+    },
+    "/brand-kit/social/profile-picture-full-seal.png": {
+      "bytes": 178738,
+      "width": 1080,
+      "height": 1080
+    },
+    "/brand-kit/social/profile-picture-linen.png": {
+      "bytes": 206625,
+      "width": 1080,
+      "height": 1080
+    },
+    "/brand-kit/social/profile-picture-midnight.png": {
+      "bytes": 153925,
+      "width": 1080,
+      "height": 1080
+    },
+    "/brand-kit/specimens/fraunces.svg": {
+      "bytes": 23629
+    },
+    "/brand-kit/specimens/mulish.svg": {
+      "bytes": 13364
+    },
+    "/brand-kit/specimens/petemoss.svg": {
+      "bytes": 8664
+    },
+    "/og-default.png": {
+      "width": 1200,
+      "height": 630,
+      "bytes": 351729
+    }
+  },
+  "zip": {
+    "file": "/brand-kit/mas-monograms-brand-kit-v1.zip",
+    "bytes": 9562436,
+    "files": 76
+  }
+}

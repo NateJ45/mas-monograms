@@ -38,6 +38,7 @@ import {
   HERO_SUBHEAD,
   TOO_LONG,
 } from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 /** "Leave it empty to use ..." for a box with a built-in fallback. */
 const orDefault = (words: string) => `Leave it empty to use "${words}".`;
@@ -440,6 +441,14 @@ export const requestAQuotePage = defineType({
     }),
 
     // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
     defineField({
       name: 'seoTitle',
       ...SEO_TITLE,

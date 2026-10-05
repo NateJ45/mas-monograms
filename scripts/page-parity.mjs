@@ -138,7 +138,22 @@ const SKIP_DIRS = new Set(['_astro', '_worker.js', '_worker.js.assets', 'node_mo
  * then dist (adapter 13 shape). "Holds an index.html" is the test, because
  * dist/client can exist as an empty husk after a failed build.
  */
+// SITE-LOCAL (2026-10-05): an optional `--dist <dir>` flag, the same override as
+// PARITY_DIST, for agents that share one working tree and each build to their own
+// `astro build --outDir <dir>` (point it at <dir>/client). It is removed from argv
+// before the mode and page are read, so every old invocation behaves as before.
+const ARGS = process.argv.slice(2);
+const distFlagAt = ARGS.indexOf('--dist');
+const DIST_FLAG = distFlagAt >= 0 ? ARGS.splice(distFlagAt, 2)[1] : undefined;
+if (distFlagAt >= 0 && !DIST_FLAG) {
+  console.error('--dist needs a directory, for example --dist ../my-build/client');
+  process.exit(1);
+}
+
 function resolveHtmlRoot() {
+  if (DIST_FLAG) {
+    return { dir: resolve(ROOT, DIST_FLAG), label: `--dist ${DIST_FLAG}` };
+  }
   const override = process.env.PARITY_DIST;
   if (override) {
     return { dir: resolve(ROOT, override), label: `PARITY_DIST=${override}` };
@@ -258,7 +273,7 @@ function requireDist() {
         'This script never builds. Run the build first, then re-run:\n' +
         '  npm run build\n' +
         '  node scripts/page-parity.mjs ' +
-        (process.argv[2] ?? 'capture') +
+        (ARGS[0] ?? 'capture') +
         '\nIf this project builds somewhere else, set PARITY_DIST to that path.',
     );
   }
@@ -458,8 +473,8 @@ function fail(msg) {
   process.exit(1);
 }
 
-const mode = process.argv[2];
-const only = process.argv[3];
+const mode = ARGS[0];
+const only = ARGS[1];
 
 if (mode === 'capture' || mode === 'compare') {
   console.log(`[page-parity] html root: ${DIST_LABEL}`);
@@ -478,6 +493,8 @@ else {
   console.log('  node scripts/page-parity.mjs capture [page]');
   console.log('  node scripts/page-parity.mjs compare [page]');
   console.log('  node scripts/page-parity.mjs list');
-  console.log('\nHtml root is auto-detected (dist/client, else dist); override with PARITY_DIST.');
+  console.log(
+    '\nHtml root is auto-detected (dist/client, else dist); override with PARITY_DIST or --dist <dir>.',
+  );
   process.exit(mode ? 1 : 0);
 }

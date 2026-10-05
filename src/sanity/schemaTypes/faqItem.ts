@@ -7,6 +7,7 @@
 // pages show one plain list and only use it to keep related questions together.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { HelpCircleIcon } from '@sanity/icons';
 import { bracketsLeft } from './_copy';
 
@@ -103,15 +104,22 @@ export const faqItem = defineType({
         layout: 'dropdown',
       },
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
     defineField({
       name: 'displayOrder',
       title: 'Position in the list',
       type: 'number',
       description: 'Smaller numbers come first within the topic. 1 is first.',
       initialValue: 99,
+      hidden: true,
       validation: (Rule) =>
         Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
     }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'faqItem', newItemPosition: 'after' }),
   ],
   __experimental_search: [{ path: 'question', weight: 10 }],
   preview: {
@@ -125,6 +133,11 @@ export const faqItem = defineType({
     },
   },
   orderings: [
+    {
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
     {
       title: 'Topic, then position',
       name: 'categoryOrder',

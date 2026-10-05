@@ -271,6 +271,28 @@ function jargonHits() {
   return out;
 }
 
+/**
+ * Every string in a data module's exports (the brand kit's words), checked against JARGON.
+ * Links, file paths, color codes and CSS names are skipped: she never reads them as words.
+ */
+export function kitWordHits(mod) {
+  const out = [];
+  const walk = (v, where) => {
+    if (typeof v === 'string') {
+      if (/^(https?:)?\/|^#|^--/.test(v)) return;
+      const j = JARGON.find((x) => x.re.test(v));
+      if (j) out.push(`${where}  ${j.why}: "${v.slice(0, 70)}"`);
+    } else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${where}[${i}]`));
+    else if (v && typeof v === 'object') {
+      for (const [k, x] of Object.entries(v)) walk(x, `${where}.${k}`);
+    }
+  };
+  for (const [name, value] of Object.entries(mod)) {
+    if (typeof value !== 'function') walk(value, name);
+  }
+  return out;
+}
+
 // ── Walk the data ──────────────────────────────────────────────────────────
 
 function unknownKeys(value, path, docId, schema, hits) {
@@ -372,6 +394,10 @@ async function main() {
 
   section('5. Words Mary Ann should not have to read (em-dashes, jargon)');
   report(jargonHits());
+
+  // Phase F (2026-10-05): the words of "My brand kit" live in repo data, not in the schema.
+  section('6. Words in My brand kit (src/lib/brand/brandKit.ts)');
+  report(kitWordHits(await import('../src/lib/brand/brandKit.ts')));
 
   console.log(`\n${problems === 0 ? 'Studio is clean.' : `${problems} thing(s) to look at.`}`);
   process.exit(problems === 0 ? 0 : 1);

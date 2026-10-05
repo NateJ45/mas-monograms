@@ -55,9 +55,31 @@ export const WELCOME_TASKS: WelcomeTask[] = [
     target: { tool: 'presentation' },
   },
   {
+    emoji: '🔳',
+    title: 'Make a QR code for my website',
+    blurb:
+      'A small square people scan with a phone to open your website. For tags, cards and signs.',
+    target: { tool: DESK.qrCodes },
+  },
+  {
+    emoji: '🎨',
+    title: 'Get my logo, colors and fonts',
+    blurb:
+      'Your logo, pictures for Facebook and Instagram, your colors and fonts. Big download buttons.',
+    target: { tool: DESK.brandKit },
+  },
+  {
     emoji: '❔',
     title: 'Something went wrong? Get help',
-    blurb: 'Answers to the common questions, and who to ask when you are stuck.',
-    target: { pane: DESK.help },
+    blurb:
+      'Answers to the common questions, step-by-step guides, and who to ask when you are stuck.',
+    target: { pane: `${DESK.help};${DESK.helpGuides}` },
+  },
+  {
+    emoji: '🩺',
+    title: 'See what needs attention',
+    blurb:
+      'A quick look over your website for anything worth fixing, like a photo with no description.',
+    target: { pane: DESK.checkup },
   },
 ];
