@@ -46,12 +46,30 @@ compose       fabric x ambient shadow x contact shadow (cached "base"), then thr
   twice the edge distance, the chord along it longer). Tangents are measured twice, the second time
   without untrusted cells in the window, so a stem is not tilted by the bend at its end. Straight runs are
   snapped to one direction and collinear runs (a leg cut by a crossbar) merged (`settleRuns`); runs shorter
-  than 0.6 radii stop steering. Every cell then takes the normal of its nearest trusted axis cell (a flood
-  inside the element), so the field is constant across a stroke and changes only on the mitre between
-  columns. `fillRegions({ rays: true })` lays each row as one straight thread along it, stopping at the
-  edge, at a turn of more than 0.15 rad, or where it would cross a row more than 0.3 rad off; seeds on a
-  mitre line (field coherence under 0.5) are skipped. Debug: `columnField(..., { why })` fills a reason
-  code per axis cell. The underlay still uses the old streamlines (`rays` off).
+  than 0.6 radii stop steering. Then the columns are LAID, not flooded (`sweepColumns`, second pass
+  2026-10-04): each straight column is fitted (`fitColumn`: centre line, span, half-width as a linear
+  function along it, so a wedge leg is one parallelogram) and sweeps square rays from its centre line,
+  capped at 1.25 half-widths, over its axis span (core) and on past each end for 3 stroke radii
+  (extension, so the junction zones that broke its axis are bridged); a long gap inside a merged column (a
+  thin bar cut by the stem it crosses) counts as extension, not core. Curved columns cast one ray per axis
+  cell. A cell goes to a core before an extension, then to the column whose centre line it is nearest
+  relative to its half-width (the mitre); an extension of a clearly heavier stroke (1.3x) competes with a
+  lighter one's core on that score, so heavy strokes run through. Pointed tips (`findTips`: an axis stub
+  that narrows to a point at a free end and runs into a junction, the apex of an A, the corners of an M)
+  and columns lying mostly inside another column's extension are dropped, so the strokes run on to the
+  point and mitre there. A last loose pass lets every column's rays run on to the element edge (brackets,
+  flared corners); anything still unclaimed is flooded from its neighbours. The field is blurred only 1
+  cell (`geometry.ts`), and keeps the unblended directions as `field.raw` (`sampleCell`).
+  `fillRegions({ rays: true })` lays each row as one straight thread, starting in its column's own
+  (raw) direction; it carries on through the mitre blend (coherence under 0.9, at most 2.5 rows) and
+  stops where the other column's direction is clear, at the edge, or where it would cross a row more than
+  0.3 rad off, then TUCKS 0.7 rows on under the other column so no fabric shows. Those ends are flagged
+  in `Stitches.cap` (bit 0 start, bit 1 end; `orderStitches` swaps them on a flip) and `raster.ts` skips
+  the needle-hole shading on them, so a mitre is no longer a dark line. Gap rows may start on a mitre in
+  their raw direction (the point of a V-shaped mitre), gaps are seeded at 0.68 rows, and a bridging pass
+  probes 0.75 rows off every row to fill seams between two families of parallel rows. Debug:
+  `columnField(..., { why })` fills a reason code per axis cell (6 = dropped tip or covered column). The
+  underlay still uses the old streamlines (`rays` off).
 - **Pure vs DOM.** `color`, `noise`, `field`, `columns`, `stitches`, `geometry`, `raster`, `fabric` are pure (typed
   arrays) and unit-tested without a DOM (`src/lib/atelier/atelier.test.ts`, run by `npm run test:unit`).
   `layout.ts`, `fonts.ts`, `compute.ts` and `engine.ts` are browser-only.
@@ -137,7 +155,10 @@ Design = { text (1-3 chars, uppercased and filtered inside), style, thread hex, 
 rasteriser batch (24 per frame, 64 per finishing slice), fabric `pitch` (min 2.2px), stitch spacing bands
 in `stitches.ts` (guarded by the "stitch spacing stays inside each quality band" unit test), the column
 options in `columnField` (prune 1.6, trim 2.2, zone 0.5, minRun 0.6, straightRun 0.985, minCoh 0.85,
-maxSection 1.3) and the ray angles in `fillRegions` (seam 0.15 rad, cross 0.3 rad), and the
+maxSection 1.3, ext 3) and in `sweepColumns` (ray cap 1.25 half-widths, heavy 1.3, long gap 2.5
+half-widths, covered 60%, tip `sharp` 0.35), the ray settings in `fillRegions` (seam 0.15 rad, cross
+0.3 rad, mitre coherence 0.9, blend 2.5 rows, tuck 0.7 rows, gap 0.68 rows, bridge probe 0.75 / clear
+0.55 rows), the column field blur (1 cell in `geometry.ts`), and the
 hero hold time between samples (`HOLD_MS` 2600 in `HomeHeroScript`).
 
 ## Gotchas
@@ -148,13 +169,17 @@ hero hold time between samples (`HOLD_MS` 2600 in `HomeHeroScript`).
   superseded work is cancelled (and may terminate the worker), by design.
 - **Colour is applied after rasterising.** If you change the shading, change `raster.ts` or `color.ts`
   (and the palette tests), not the compose step, or recolouring will drift from the stitched look.
-- **Mitres are visible on purpose.** Since the column rework, block and classic letters are stems,
-  bowls and legs of straight satin that butt at crisp mitre lines (a thin darker line on a dark thread,
-  as on real work). What is still not clean: the wide right leg of a block `A` and the diagonals of a
-  block `M` (a few short patches where the axis is broken by junctions), and the top terminal of an `S`.
-  Judge changes with zoomed crops of B F K R S M A MAS BFK in block and classic, on linen and navy.
-  The main-thread FALLBACK runs `columnField` as one step (about 35 to 40ms for a heavy letter in Node),
-  so a broken worker can show one task near 50ms; the worker path has none.
+- **Mitres are visible on purpose.** Block and classic letters are stems, bowls and legs of straight
+  satin that butt at crisp mitre lines (since the tuck and the `cap` flags, a faint line, not a dark
+  one). What is still not perfect is listed in `docs/PENDING.md` (bracketed feet, the outside of tight
+  curves, the odd row-family seam). Judge changes on the fixed test sheet: A M N K S R B F W V X Z and
+  MAS KAR BFK AMW JRM, block and classic, on linen (`#efe6d6`/`#8c3a2e`) and navy (`#1c3550`/`#d9b15f`),
+  plus script, circle and single, with zoomed crops; count rows shorter than 45% of the local stroke
+  width as a rough patchiness number (1072 before the sweep, about 200 after, most of them bridging rows).
+  The main-thread FALLBACK runs `columnField` as one step (about 20 to 30ms for a heavy letter in Node,
+  geometry 80 to 115ms in total but sliced), so a broken worker can show one task near 50ms; the worker
+  path has none (long-task probe on `/` after the sweep: none; Lighthouse home LCP 2.6 to 3.4s on the gzip
+  server, TBT 0).
 - **Working tree churn:** `engine.ts`, `field.ts` and `stitches.ts` were still being tuned when this file
   was written; the contracts above are stable, the constants are not.
 - **Dev servers:** Astro 7 backgrounds `astro dev` when it detects an agent and allows one server per

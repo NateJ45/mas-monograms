@@ -9,17 +9,26 @@ import {
   hslToRgb,
   threadPalette,
 } from './color.ts';
-import { downsample, tensorField } from './field.ts';
+import { downsample, sampleCell, tensorField } from './field.ts';
 import {
   chordLen,
   columnField,
+  findTips,
+  fitColumn,
   isJunction,
   pruneSpurs,
   settleRuns,
   thinMask,
   trimEnds,
 } from './columns.ts';
-import { KIND_FILL, KIND_SATIN, fillRegions, orderStitches } from './stitches.ts';
+import {
+  KIND_FILL,
+  KIND_SATIN,
+  fillRegions,
+  makeStitches,
+  orderStitches,
+  pushStitch,
+} from './stitches.ts';
 import { clearBuffers, emptyRect, makeBuffers, rasterize } from './raster.ts';
 import { buildGeometry, dsepFor } from './geometry.ts';
 
@@ -346,4 +355,129 @@ test('ray satin: rows are straight edge-to-edge threads across a bar', () => {
   }
   // nearly every row spans the 20px stroke in one straight stitch
   assert.ok(spanning / s.count > 0.8, `spanning ${spanning}/${s.count}`);
+});
+
+test('a straight column fit gives its centre line, span and widening', () => {
+  const W = 100;
+  // axis cells along y = 20 from x = 10 to 70; the stroke widens 0.2 per cell
+  const cells: number[] = [];
+  for (let x = 10; x <= 70; x++) cells.push(20 * W + x);
+  const f = fitColumn(cells, W, 1, 0, (c) => 4 + 0.2 * ((c % W) - 10));
+  assert.ok(Math.abs(f.my - 20) < 1e-6);
+  assert.ok(Math.abs(f.s1 - f.s0 - 60) < 1e-6, 'span');
+  assert.ok(Math.abs(f.b - 0.2) < 1e-6, 'half-width slope');
+  assert.ok(Math.abs(f.a - 10) < 1e-6, 'half-width at the centre');
+  // the slope is clamped: a column never flares faster than 45 degrees a side
+  assert.equal(fitColumn(cells, W, 1, 0, (c) => 3 * (c % W)).b, 0.5);
+});
+
+test('the pointed tip between two strokes is found; a blunt stroke end is not', () => {
+  const W = 40;
+  const H = 80;
+  const sk = new Uint8Array(W * H);
+  const zone = new Uint8Array(W * H);
+  for (let y = 10; y <= 70; y++) sk[y * W + 10] = 1;
+  for (let y = 41; y <= 43; y++) zone[y * W + 10] = 1;
+  const tip = { cells: [] as number[], straight: true, dx: 0, dy: 1 };
+  const stem = { cells: [] as number[], straight: true, dx: 0, dy: 1 };
+  for (let y = 12; y <= 40; y++) tip.cells.push(y * W + 10);
+  for (let y = 44; y <= 70; y++) stem.cells.push(y * W + 10);
+  // the tip narrows to a point at its free end (y = 10); the stem ends blunt (y = 70)
+  const radius = (c: number) => {
+    const y = (c / W) | 0;
+    return y <= 40 ? 0.5 + (y - 10) * 0.5 : 10;
+  };
+  const tips = findTips(sk, W, [tip, stem], zone, radius);
+  assert.deepEqual([...tips], [1, 0]);
+  // a lone stroke is never dropped
+  assert.deepEqual([...findTips(sk, W, [tip], zone, radius)], [0]);
+});
+
+test('column field: a thin bar crossing a heavy stem never cuts across it', () => {
+  const W = 100;
+  const H = 90;
+  const lab = rects(W, H, [
+    [30, 5, 56, 85],
+    [5, 40, 95, 48],
+  ]);
+  const c = downsample(lab, W, H, 1);
+  const dt = tensorField(c, 1, () => [1, 0], 0.015, 'dt').dt as Float32Array;
+  const cf = columnField(c.lab, W, H, dt);
+  // in the stem, level with the bar: rows still run across the stem
+  for (const x of [34, 43, 52]) {
+    const i = 44 * W + x;
+    assert.ok(
+      cf.jxx[i] > 0.9,
+      `stem cell x=${x} took the bar's direction (${cf.jxx[i].toFixed(2)})`,
+    );
+  }
+  // in the bar, clear of the stem: rows run across the bar
+  for (const x of [10, 85]) assert.ok(cf.jyy[44 * W + x] > 0.9, `bar cell x=${x}`);
+});
+
+test('the unblended column field gives each cell its own column direction', () => {
+  const W = 100;
+  const H = 90;
+  const labels = rects(W, H, [
+    [30, 5, 56, 85],
+    [56, 60, 95, 80],
+  ]);
+  const c = downsample(labels, W, H, 1);
+  const field = tensorField(c, 2, () => [1, 0], 0.015, 'column');
+  assert.ok(field.raw, 'column fields keep the raw directions');
+  const d = sampleCell(field.raw!, 43.5, 30.5);
+  assert.ok(d && Math.abs(d[0]) > 0.99, 'stem cell: across the stem');
+  assert.equal(sampleCell(field.raw!, 2, 2), null, 'empty cell');
+});
+
+test('ray satin: two columns meeting at a mitre leave no bare pocket between them', () => {
+  // an L: a stem with a foot running off to the right
+  const W = 120;
+  const H = 110;
+  const labels = rects(W, H, [
+    [20, 10, 50, 100],
+    [50, 70, 110, 100],
+  ]);
+  const c = downsample(labels, W, H, 2);
+  const field = tensorField(c, 1, () => [1, 0], 0.015, 'column');
+  const st = fillRegions(labels, W, H, field, {
+    dsep: 3,
+    maxSatin: 200,
+    fillLen: 40,
+    widthRatio: 1.45,
+    fillDir: () => [1, 0],
+    seed: 9,
+    labels: [1],
+    rays: true,
+  });
+  assert.ok(st && st.count > 40);
+  const b = makeBuffers(W, H);
+  clearBuffers(b);
+  rasterize(b, st, 0, st.count, null, emptyRect());
+  // every pixel at least 3px inside the letter is covered by thread (nearer
+  // the edge the round ends of the rows leave the usual scallop)
+  let bare = 0;
+  for (let y = 13; y < 97; y++) {
+    for (let x = 23; x < 107; x++) {
+      const inStem = x < 47;
+      const inFoot = y >= 73;
+      if ((inStem || inFoot) && b.A[y * W + x] < 0.5) bare++;
+    }
+  }
+  assert.ok(bare < 6, `${bare} bare pixels`);
+  // rows that stop against the other column carry the mitre flag on that end
+  let flagged = 0;
+  for (let i = 0; i < st.count; i++) if (st.cap[i]) flagged++;
+  assert.ok(flagged > 0, 'mitre ends are flagged');
+});
+
+test('ordering keeps the mitre flag on the end it belongs to', () => {
+  let s = makeStitches(4);
+  s = pushStitch(s, 0, 0, 10, 0, 1, 1, 1, KIND_SATIN, 0, 2);
+  // the next stitch starts far from (10,0) and ends near it, so it is flipped
+  s = pushStitch(s, 30, 5, 10, 5, 1, 1, 1, KIND_SATIN, 1, 1);
+  const o = orderStitches(s);
+  assert.equal(o.x0[1], 10, 'flipped');
+  assert.equal(o.cap[0], 2);
+  assert.equal(o.cap[1], 2, 'start flag moved to the end');
 });

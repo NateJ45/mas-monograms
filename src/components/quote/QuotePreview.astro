@@ -75,10 +75,13 @@ const { data, heading, disclaimer } = Astro.props as Props;
     text-transform: uppercase;
     color: var(--color-brass-text);
   }
+  /* stitch concentric with the mount, same rule as .btn (clamps to 0 here) */
   .qp__frame {
+    --mount-radius: 8px;
+    --mount-stitch-inset: 0.95rem;
     position: relative;
     padding: 0.5rem;
-    border-radius: 8px;
+    border-radius: var(--mount-radius);
     background:
       linear-gradient(145deg, rgb(255 255 255 / 0.18), transparent 40%),
       linear-gradient(180deg, #c79a63, #8a5a2f);
@@ -87,9 +90,9 @@ const { data, heading, disclaimer } = Astro.props as Props;
   .qp__frame::after {
     content: '';
     position: absolute;
-    inset: 0.95rem;
+    inset: var(--mount-stitch-inset);
     border: 1.5px dashed rgb(255 255 255 / 0.32);
-    border-radius: 3px;
+    border-radius: max(0px, calc(var(--mount-radius) - var(--mount-stitch-inset)));
     pointer-events: none;
   }
   .qp__frame :global(.qp__stage) {

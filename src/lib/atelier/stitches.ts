@@ -13,7 +13,7 @@
 // another way. Rows may lie over near-parallel neighbours on the inside of a
 // curve, as real satin does, so heavy letters no longer break into stubs.
 
-import { sampleCoh, sampleDir, type TensorField } from './field.ts';
+import { sampleCell, sampleCoh, sampleDir, type TensorField } from './field.ts';
 import { rng } from './noise.ts';
 
 export const KIND_SATIN = 0;
@@ -37,6 +37,12 @@ export interface Stitches {
   kind: Uint8Array;
   /** reveal order key (lower = earlier) */
   key: Float32Array;
+  /**
+   * bit 0: the start (x0, y0) ends against another column (a mitre), not at
+   * the element edge; bit 1: the same for the end (x1, y1). The rasteriser
+   * leaves such ends unshaded, so a mitre does not read as a dark line.
+   */
+  cap: Uint8Array;
 }
 
 export function makeStitches(capacity: number): Stitches {
@@ -51,6 +57,7 @@ export function makeStitches(capacity: number): Stitches {
     label: new Uint8Array(capacity),
     kind: new Uint8Array(capacity),
     key: new Float32Array(capacity),
+    cap: new Uint8Array(capacity),
   };
 }
 
@@ -66,6 +73,7 @@ function grow(s: Stitches): Stitches {
   n.label.set(s.label);
   n.kind.set(s.kind);
   n.key.set(s.key);
+  n.cap.set(s.cap);
   return n;
 }
 
@@ -80,6 +88,7 @@ export function pushStitch(
   label: number,
   kind: number,
   key = 0,
+  cap = 0,
 ): Stitches {
   if (s.count >= s.x0.length) s = grow(s);
   const i = s.count++;
@@ -92,6 +101,7 @@ export function pushStitch(
   s.label[i] = label;
   s.kind[i] = kind;
   s.key[i] = key;
+  s.cap[i] = cap;
   return s;
 }
 
@@ -236,6 +246,12 @@ export function fillRegions(
     const cosSeam = Math.cos(p.seamAngle ?? 0.15);
     const cosCross = Math.cos(0.3);
     const overrun = Math.round(dsep * 1.5);
+    const mitreCoh = 0.9;
+    const blendMax = Math.round(dsep * 2.5);
+    const tuckLen = Math.round(dsep * 0.7);
+    // rays: did the last traced half stop against another column (a mitre)?
+    let halfInterior = false;
+    const lineCap: number[] = [];
     const traceHalf = (
       sx: number,
       sy: number,
@@ -257,16 +273,47 @@ export function fillRegions(
         // neighbour is close. On the inside of a curve rows then overlap a little,
         // as real satin does, instead of breaking into stubs and pockets.
         let over = 0;
+        let blend = 0;
+        // steps left of the tuck: a row that stops against another column runs
+        // on a little under it (the bridging overlap a digitiser leaves at every
+        // mitre), so no fabric shows between the two columns
+        let tuck = -1;
+        halfInterior = false;
         for (let s = 0; s < maxSteps; s++) {
           const nx = x + dx0;
           const ny = y + dy0;
           if (!inside(nx, ny)) break;
+          if (tuck >= 0) {
+            if (tuck-- === 0) {
+              halfInterior = true;
+              break;
+            }
+            x = nx;
+            y = ny;
+            ax[n] = x;
+            ay[n] = y;
+            n++;
+            continue;
+          }
           const [vx, vy] = sampleDir(field, nx, ny);
-          if (Math.abs(vx * dx0 + vy * dy0) < cosSeam) break;
+          if (Math.abs(vx * dx0 + vy * dy0) < cosSeam) {
+            // On the mitre the field blends the two columns' directions over a
+            // few px. Carry the row on through that blend (straight, a short
+            // way) and stop only where the other column's own direction is
+            // clear, so the rows of both columns meet on the mitre line instead
+            // of each stopping short and leaving a pocket of tacking stitches.
+            if (sampleCoh(field, nx, ny) > mitreCoh || ++blend > blendMax) {
+              tuck = tuckLen;
+              continue;
+            }
+          }
           if (fixed) {
             // gap row: may tuck a short way under its neighbours, then stops
             if (nearOther(nx, ny, lineId, dtest) && ++over > overrun) break;
-          } else if (nearCross(nx, ny, lineId, dtest, dx0, dy0)) break;
+          } else if (nearCross(nx, ny, lineId, dtest, dx0, dy0)) {
+            tuck = tuckLen;
+            continue;
+          }
           x = nx;
           y = ny;
           ax[n] = x;
@@ -326,24 +373,30 @@ export function fillRegions(
     // Trace a whole line through a seed and commit it if long enough.
     const traceLine = (sx: number, sy: number, relaxed = false): number => {
       const lineId = lineStart.length;
-      // rays: never start a row on the mitre line between two columns, where
-      // the two directions cancel and the row would cut across both
-      if (rays && sampleCoh(field, sx, sy) < 0.5) return -1;
       // gap rows run straight, so leftover pockets fill as tidy parallel
       // patches instead of a tangle: along the wide-area stroke direction when
       // the field has one (the pocket continues its neighbours), else at the
       // element's calm fill angle
       // (rays: the column field is already one calm direction per column, so a
       // gap row simply carries on its own column)
+      // (rays: a row starts in the direction of its own column, read unblended,
+      // so a row seeded beside a mitre never takes a halfway angle and fans)
+      const own = rays && field.raw ? sampleCell(field.raw, sx, sy) : null;
+      // rays: never start a row on the mitre line between two columns, where
+      // the two directions cancel and the row would cut across both; a gap row
+      // there may start, in the unblended direction of the column it lies in,
+      // or the very point of a V-shaped mitre is never covered
+      if (rays && sampleCoh(field, sx, sy) < 0.5 && !(relaxed && own)) return -1;
       fixed = relaxed
         ? rays
-          ? sampleDir(field, sx, sy)
+          ? (own ?? sampleDir(field, sx, sy))
           : field.smooth
             ? sampleDir(field.smooth, sx, sy)
             : fillDirL
         : null;
-      const [dx, dy] = fixed ?? sampleDir(field, sx, sy);
+      const [dx, dy] = fixed ?? own ?? sampleDir(field, sx, sy);
       const nb = traceHalf(sx, sy, -dx, -dy, lineId, bwdX, bwdY);
+      const startIn = halfInterior;
       let n = 0;
       for (let i = nb - 1; i >= 0; i--) {
         tmpX[n] = bwdX[i];
@@ -354,6 +407,7 @@ export function fillRegions(
       tmpY[n] = sy;
       n++;
       const nf = traceHalf(sx, sy, dx, dy, lineId, bwdX, bwdY);
+      const endIn = halfInterior;
       for (let i = 0; i < nf; i++) {
         tmpX[n] = bwdX[i];
         tmpY[n] = bwdY[i];
@@ -386,6 +440,7 @@ export function fillRegions(
       }
       lineStart.push(start);
       lineLen.push(n);
+      lineCap.push(rays && !relaxed ? (startIn ? 1 : 0) | (endIn ? 2 : 0) : 0);
       lineDX.push(dx);
       lineDY.push(dy);
       return lineId;
@@ -474,7 +529,7 @@ export function fillRegions(
     }
     // Gap pass: wherever fanning rows left a hole, tuck in a short stitch.
     const gstep = Math.max(1, dsep * 0.45);
-    const gapR = dsep * 0.8;
+    const gapR = dsep * (rays ? 0.68 : 0.8);
     for (let y = gstep * 0.5; y < H; y += gstep) {
       for (let x = gstep * 0.5; x < W; x += gstep) {
         if (!inside(x, y) || nearOther(x, y, -1, gapR)) continue;
@@ -482,6 +537,38 @@ export function fillRegions(
         if (id >= 0) {
           queue.push(id);
           if (!flood(true)) return null;
+        }
+      }
+    }
+    // rays: bridge the seams between two families of parallel rows. Where rows
+    // seeded from different places meet, their spacing can come out between
+    // about 1.3 and 1.8 rows: too narrow for a seed, wide enough for the fabric
+    // to show as a dashed line along the column. Probe three quarters of a row
+    // off each row; where nothing lies within about half a row of the probe, lay
+    // one more straight row there.
+    if (rays) {
+      const lines = lineStart.length;
+      const probe = dsep * 0.75;
+      const clear = dsep * 0.55;
+      const stride = Math.max(1, Math.round(dsep));
+      for (let id = 0; id < lines; id++) {
+        if (id < dead.length && dead[id]) continue;
+        const s0 = lineStart[id];
+        const n = lineLen[id];
+        if (n < 2) continue;
+        let tx = pts.x[s0 + n - 1] - pts.x[s0];
+        let ty = pts.y[s0 + n - 1] - pts.y[s0];
+        const tl = Math.hypot(tx, ty) || 1;
+        tx /= tl;
+        ty /= tl;
+        for (let i = 0; i < n; i += stride) {
+          for (const sg of [1, -1]) {
+            const sx = pts.x[s0 + i] - ty * probe * sg;
+            const sy = pts.y[s0 + i] + tx * probe * sg;
+            if (!inside(sx, sy) || nearOther(sx, sy, -1, clear)) continue;
+            const nid = traceLine(sx, sy, true);
+            if (nid >= 0 && p.tick && !p.tick()) return null;
+          }
         }
       }
     }
@@ -526,6 +613,8 @@ export function fillRegions(
         }
         if (brk) {
           const jit = 0.93 + random() * 0.14;
+          const lc = lineCap[id] ?? 0;
+          const cap = (a === 0 ? lc & 1 : 0) | (i === n - 1 ? lc & 2 : 0);
           stitches = pushStitch(
             stitches,
             pts.x[s + a],
@@ -536,6 +625,8 @@ export function fillRegions(
             jit,
             label,
             p.kind ?? (isFill ? KIND_FILL : KIND_SATIN),
+            0,
+            cap,
           );
           a = i;
         }
@@ -662,6 +753,7 @@ export function orderStitches(s: Stitches): Stitches {
     let y0 = s.y0[i];
     let x1 = s.x1[i];
     let y1 = s.y1[i];
+    let cap = s.cap[i];
     if (s.kind[i] === KIND_SATIN || s.kind[i] === KIND_FILL) {
       // put the start nearest the previous stitch's end
       if (k > 0) {
@@ -674,6 +766,7 @@ export function orderStitches(s: Stitches): Stitches {
       if (flip) {
         [x0, x1] = [x1, x0];
         [y0, y1] = [y1, y0];
+        cap = ((cap & 1) << 1) | ((cap & 2) >> 1);
       }
     }
     o.x0[k] = x0;
@@ -685,6 +778,7 @@ export function orderStitches(s: Stitches): Stitches {
     o.label[k] = s.label[i];
     o.kind[k] = s.kind[i];
     o.key[k] = s.key[i];
+    o.cap[k] = cap;
   }
   return o;
 }

@@ -41,6 +41,11 @@ sets in both `src/sanity/structure.ts` and the repo-root `sanity.config.ts`, so 
 `finalSubhead` / `finalCtaLabel` / `finalCtaHref` (new "Closing thread banner" group). Existing fields are
 untouched. `makerFacts` must hold only true statements.
 
+**`requestAQuotePage.noScriptMessage` (2026-10-04, optional, Submit group):** the note shown at the top of the
+quote form ONLY to visitors whose browser has JavaScript off (a `<noscript>` block; the bot check and the send
+both need JavaScript). `siteSettings.email` (as a `mailto:` link) and `siteSettings.phone` (as a `tel:` link)
+follow it. Seeded by `scripts/seed-hoopfit.mjs`. Code fallback: "This form needs JavaScript to send."
+
 **Label fields that replaced hard-coded words (2026-10-04, all optional, seeded by
 `scripts/seed-pending-fields.mjs`):**
 
@@ -57,8 +62,12 @@ untouched. `makerFacts` must hold only true statements.
 | `notFoundPage`     | (existing) `seoTitle`, `seoDescription`                                                                                                                                | now actually read by `getNotFoundPage` and `404.astro`                                                  |
 
 **Query notes:** `getAllThreadColors()` now returns `slug` as a plain string (it was the `{current}` object; no
-caller used it). `getGalleryItemsForWall(limit)` returns featured items first with `hotspot`/`crop`; as of
-2026-10-04 none of the 69 gallery photos has a hotspot set, so the front end must default to the centre.
+caller used it). `getGalleryItemsForWall(limit)` returns featured items first with `hotspot`/`crop`. Every
+gallery photo and category card photo has had a hotspot since 2026-10-04 (`scripts/set-hotspots.mjs`); the
+category queries and `getAllGalleryItems`/`getFeaturedGalleryItems` project it through `IMG_HOOP` (the plain
+`IMG` projection still drops it), so a hoop crops its square around the hotspot. Category hero photos borrow
+the hotspot of the gallery item that uses the same picture; the few with no gallery twin fall back to the
+focal point in code.
 
 Common shape across pages: an SEO group (collapsed in the Studio), a hero (eyebrow/headline/subhead), the
 page's own sections, and a bottom CTA banner. `requestAQuotePage` is the outlier — it stores every form
@@ -73,11 +82,22 @@ label, help line, placeholder, section heading, and the referral-source options.
 | `itemCategory`  | the `/[slug]` shop pages + the Shop-by-Item grid            | name, slug, description, hero images, card image, trust-strip lines, starting price, order, featured; optional `galleryHeading`, `requestSimilarLabel`, `crossSellHeading`, and `bannerEyebrow`/`bannerHeadline`/`bannerSubhead` (blank banner = the Shop by Item page's banner) |
 | `font`          | the Font & Lettering Guide + the quote form's font dropdown | name, `previewImage` (a photo of the stitched lettering — NOT a web font), `styleTag`, `bestFor`, `popular`; optional `atelierStyle` (one of the 5 preview style keys: the card links to `/?style=<key>#atelier`, which preselects it)                                           |
 | `threadColor`   | the Thread Color Chart                                      | name, hex (approximate), DMC number, swatch image, color family                                                                                                                                                                                                                  |
-| `galleryItem`   | the Style Gallery (and featured items on Home/About)        | image, related category, related font, tags, featured, order                                                                                                                                                                                                                     |
+| `galleryItem`   | the Style Gallery (and featured items on Home/About)        | image, related category, related font, tags, featured, order; optional `hoopFit` (`good` default / `poor`: "Show it in a round hoop?", see below)                                                                                                                                |
 | `pricingTier`   | the Pricing page + "Business at a glance"                   | quantity/complexity label, price per piece, note, highlighted, optional `highlightLabel` (badge on a highlighted tag), order                                                                                                                                                     |
 | `clearanceItem` | the Clearance page                                          | name, description, images, original + sale price, `stripePaymentLink`, quantity, sold, order                                                                                                                                                                                     |
 | `faqItem`       | the How It Works + Pricing FAQs                             | question, answer (Portable Text), category, `showOnHowItWorks` / `showOnPricing` flags                                                                                                                                                                                           |
 | `legalPage`     | `/legal/[slug]` (Privacy, Terms, Accessibility)             | title, slug, body (Portable Text), last-updated, optional `lastUpdatedLabel`                                                                                                                                                                                                     |
+
+**`galleryItem.hoopFit` (2026-10-04).** Some photos cannot make a good circular crop (two items side by side, a
+small design in a tall photo, a close-up that fills the circle). `poor` keeps a photo out of every round hoop
+(`HoopFrame`) while it still shows in the square gallery views and the lightbox; unset reads as `good`. The
+`IMG_HOOP` projection in `src/lib/queries.ts` copies the flag (and the gallery photo's hotspot, when the category
+photo has none of its own) onto any `itemCategory.heroImages[]` / `cardImage` that uses the same picture, and
+`src/lib/hoop.ts` does the picking: a category page's hoop cluster swaps a poor hero photo for a good photo from
+the same category's gallery (compact hotspots first), a category card falls back to the first good hero photo,
+and `getFeaturedGalleryItems` (the `/about` "recent work" hoops) leaves poor ones out. Flagged on 2026-10-04 by
+`scripts/seed-hoopfit.mjs` (setIfMissing): `galleryItem-20260316-165705`, `-monogram-39`, `-design-25`,
+`-design-34`, `-design-29`, `-greeting-card-03`, `-monogram-37`, `-wreath-sash-05`, `-wreath-sash-06`.
 
 **Types that were removed** (do not reintroduce without real content): `testimonial`, `popularCombination`,
 and the old `stats` strip. There is also no `service` or `journal*` type — those were leftovers from the

@@ -575,7 +575,7 @@ const ids = {
     position: absolute;
     inset: calc(var(--pink) * 0.5 + 10px) 12px;
     border: 1.5px dashed rgb(185 138 62 / 0.75);
-    border-radius: 2px;
+    border-radius: 0; /* concentric with the square cloth (outer radius 0 minus the inset) */
     pointer-events: none;
   }
   .atelier-studio__pin {

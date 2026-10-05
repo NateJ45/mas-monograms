@@ -476,6 +476,50 @@ test.describe('Phone menu', () => {
   });
 });
 
+// -----------------------------------------------------------------------------
+// /request-a-quote with JavaScript off: the form cannot send (Turnstile and the
+// fetch submit need JS), so a <noscript> note (requestAQuotePage.noScriptMessage)
+// gives Mary Ann's email as a mailto link and her phone (siteSettings).
+// -----------------------------------------------------------------------------
+test.describe('Quote form without JavaScript', () => {
+  test('a note with a mailto link sits at the top of the form', async ({ browser }) => {
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const page = await ctx.newPage();
+    await page.goto('/request-a-quote', { waitUntil: 'load' });
+    const note = page.getByTestId('quote-noscript');
+    await expect(note).toBeVisible();
+    await expect(note.locator('.quote-noscript__msg')).not.toHaveText('');
+    // The note comes before the form's first field, and the fields still render.
+    const order = await page.evaluate(() => {
+      const n = document.querySelector('[data-testid="quote-noscript"]');
+      const f = document.querySelector('#quote-form');
+      return n && f ? n.compareDocumentPosition(f) & Node.DOCUMENT_POSITION_FOLLOWING : 0;
+    });
+    expect(order).toBeTruthy();
+    await expect(page.locator('#quote-form #email')).toBeVisible();
+    const mail = note.locator('a[href^="mailto:"]');
+    if ((await mail.count()) === 0) {
+      await ctx.close();
+      test.skip(true, 'no siteSettings email in this build');
+    }
+    await expect(mail).toBeVisible();
+    const href = (await mail.getAttribute('href')) ?? '';
+    expect(href).toMatch(/^mailto:[^@\s]+@[^@\s]+$/);
+    await expect(mail).toHaveText(href.replace(/^mailto:/, ''));
+    const box = await mail.evaluate((el) => {
+      const r = (el.parentElement as HTMLElement).getBoundingClientRect();
+      return r.height;
+    });
+    expect(box).toBeGreaterThanOrEqual(44);
+    await ctx.close();
+  });
+
+  test('with JavaScript on the note is not shown', async ({ page }) => {
+    await page.goto('/request-a-quote', { waitUntil: 'load' });
+    await expect(page.getByTestId('quote-noscript')).toHaveCount(0);
+  });
+});
+
 function escapeRe(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

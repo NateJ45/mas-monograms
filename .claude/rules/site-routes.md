@@ -90,7 +90,11 @@ short neutral words used only if that document is missing.
 ## Queries used by the Atelier pages
 
 `getAtelierSettings()` (singleton, labels and option lists) and `getGalleryItemsForWall(limit)` (featured
-first, with `hotspot`/`crop`; none of the 69 photos has a hotspot yet, so callers default to the centre)
+first, with `hotspot`/`crop`; every photo has a hotspot since 2026-10-04, callers keep a centre fallback).
+Hoop photos come through `IMG_HOOP` and `src/lib/hoop.ts` (photos marked `galleryItem.hoopFit: 'poor'` stay
+out of round hoops; `docs/06-sanity-content-model.md`). `/request-a-quote` has a `<noscript>` note
+(`requestAQuotePage.noScriptMessage` plus the `siteSettings` email and phone as links) because the form
+cannot send without JavaScript
 live in `src/lib/queries.ts`. `getAllThreadColors()` returns `slug` as a plain string.
 
 ## Redirects (public/_redirects)

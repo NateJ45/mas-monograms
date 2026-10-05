@@ -201,10 +201,14 @@ const href = `${quoteHref}?${params.toString()}`;
   }
   /* a dark wooden mount with an inner running stitch: the sample sits in it
      like cloth stretched on a frame */
+  /* The stitch is concentric with the mount (same rule as .btn): inner radius =
+     mount radius minus the stitch inset, never below 0. */
   .panel__hoop {
+    --mount-radius: 10px;
+    --mount-stitch-inset: 1.2rem;
     position: relative;
     padding: 0.7rem;
-    border-radius: 10px;
+    border-radius: var(--mount-radius);
     background:
       linear-gradient(145deg, rgb(255 255 255 / 0.18), transparent 40%),
       linear-gradient(180deg, #c79a63, #8a5a2f);
@@ -221,9 +225,9 @@ const href = `${quoteHref}?${params.toString()}`;
   .panel__hoop::after {
     content: '';
     position: absolute;
-    inset: 1.2rem;
+    inset: var(--mount-stitch-inset);
     border: 1.5px dashed rgb(255 255 255 / 0.32);
-    border-radius: 4px;
+    border-radius: max(0px, calc(var(--mount-radius) - var(--mount-stitch-inset)));
     pointer-events: none;
     z-index: 1;
   }
@@ -458,10 +462,8 @@ const href = `${quoteHref}?${params.toString()}`;
       box-shadow: 0 18px 24px -20px rgb(15 27 45 / 0.5);
     }
     .panel__hoop {
+      --mount-stitch-inset: 0.85rem;
       padding: 0.45rem;
-    }
-    .panel__hoop::after {
-      inset: 0.85rem;
     }
     .panel__replay {
       right: 0.9rem;

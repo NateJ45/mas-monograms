@@ -131,7 +131,7 @@ const hasBody = Astro.slots.has('default');
     position: absolute;
     inset: calc(var(--pink) * 0.5 + 9px) 10px;
     border: 1.5px dashed var(--stitch-color);
-    border-radius: 2px;
+    border-radius: 0; /* concentric with the square cloth (outer radius 0 minus the inset) */
     pointer-events: none;
     opacity: 0.85;
   }

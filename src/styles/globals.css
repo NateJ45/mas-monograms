@@ -1678,6 +1678,9 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
 /* Dropdown panels: paper cards under their label, with a stitched inner edge. They stay
    laid out while closed (visibility:hidden, so out of the tab order) and fade in. */
 .site-nav__menu {
+  /* stitch concentric with the card edge, same rule as .btn (clamps to 0 here) */
+  --menu-radius: 0.25rem;
+  --menu-stitch-inset: 5px;
   position: absolute;
   top: calc(100% + 0.5rem);
   left: -0.75rem;
@@ -1685,7 +1688,7 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
   display: grid;
   min-width: 15rem;
   padding: 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: var(--menu-radius);
   box-shadow:
     0 0 0 1px rgba(38, 49, 46, 0.1),
     0 28px 48px -28px rgba(15, 27, 45, 0.55);
@@ -1705,9 +1708,9 @@ html:not(.js) .site-header[data-tone='overlay'] .site-header__bar {
 .site-nav__menu::before {
   content: '';
   position: absolute;
-  inset: 5px;
+  inset: var(--menu-stitch-inset);
   border: 1.5px dashed rgba(169, 119, 42, 0.45);
-  border-radius: 2px;
+  border-radius: max(0px, calc(var(--menu-radius) - var(--menu-stitch-inset)));
   pointer-events: none;
 }
 details:not([open]) > .site-nav__menu {

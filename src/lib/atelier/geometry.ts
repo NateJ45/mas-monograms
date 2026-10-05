@@ -108,7 +108,7 @@ export async function buildGeometry(
   // Satin COLUMNS from the medial axis (columns.ts): one direction per stroke,
   // crisp mitres where strokes meet. The blur radius stays small (2 coarse
   // cells) so a mitre stays a line, not a fan.
-  const field = tensorField(coarse, 2, (l) => dirOf(l), 0.015, 'column');
+  const field = tensorField(coarse, 1, (l) => dirOf(l), 0.015, 'column');
   if (!(await step())) return null;
 
   const maxSatin = Math.max(dsep * 8, inp.letterH * 0.42);
@@ -223,7 +223,7 @@ export async function buildGeometry(
 /** The typed arrays of a result, for a zero-copy postMessage. */
 export function geometryTransfer(g: GeometryResult): Transferable[] {
   const s = g.stitches;
-  const t: ArrayBuffer[] = [s.x0, s.y0, s.x1, s.y1, s.w, s.j, s.label, s.kind, s.key].map(
+  const t: ArrayBuffer[] = [s.x0, s.y0, s.x1, s.y1, s.w, s.j, s.label, s.kind, s.key, s.cap].map(
     (a) => a.buffer as ArrayBuffer,
   );
   if (g.relief) t.push(g.relief.gx.buffer as ArrayBuffer, g.relief.gy.buffer as ArrayBuffer);

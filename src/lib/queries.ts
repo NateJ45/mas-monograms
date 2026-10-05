@@ -14,6 +14,25 @@ const IMG = `{
   }
 }`;
 
+// A photo that may be stretched in a round hoop (HoopFrame). Same as IMG, plus
+// the hotspot and crop (HoopFrame crops the square around the hotspot) and the
+// `hoopFit` of the gallery item that uses the same picture, so a photo Mary Ann
+// marked "keep it out of round hoops" (galleryItem.hoopFit == "poor") is also
+// skipped where a category reuses it. A category photo with no hotspot of its
+// own borrows that gallery item's hotspot. Read by src/lib/hoop.ts.
+const GALLERY_TWIN = `*[_type == "galleryItem" && image.asset._ref == ^.asset._ref && !(_id in path("drafts.**"))][0]`;
+const IMG_HOOP = `{
+  asset->,
+  "hotspot": coalesce(hotspot, ${GALLERY_TWIN}.image.hotspot),
+  "crop": select(defined(hotspot) || defined(crop) => crop, ${GALLERY_TWIN}.image.crop),
+  "hoopFit": ${GALLERY_TWIN}.hoopFit,
+  "alt": coalesce(alt, asset->altText, ""),
+  "dimensions": {
+    "width": asset->metadata.dimensions.width,
+    "height": asset->metadata.dimensions.height
+  }
+}`;
+
 // Portable Text with inline images resolved
 const PT_BODY = `[]{
   ...,
@@ -378,7 +397,8 @@ export function getRequestAQuotePage(): Promise<any> {
       submitLabel,
       privacyNote,
       errorMessage,
-      requiredFieldNote
+      requiredFieldNote,
+      noScriptMessage
     }`,
     {},
     null,
@@ -418,8 +438,8 @@ export function getAllItemCategories(): Promise<any[]> {
       slug,
       eyebrow,
       description,
-      heroImages[] ${IMG},
-      cardImage ${IMG},
+      heroImages[] ${IMG_HOOP},
+      cardImage ${IMG_HOOP},
       trustItems,
       startingPrice,
       ctaLabel,
@@ -439,8 +459,8 @@ export function getItemCategoryBySlug(slug: string): Promise<any> {
       slug,
       eyebrow,
       description,
-      heroImages[] ${IMG},
-      cardImage ${IMG},
+      heroImages[] ${IMG_HOOP},
+      cardImage ${IMG_HOOP},
       trustItems,
       ctaLabel,
       galleryHeading,
@@ -495,12 +515,13 @@ export function getAllGalleryItems(): Promise<any[]> {
   return sanityFetch(
     `*[_type == "galleryItem"] | order(displayOrder asc){
       _id,
-      image ${IMG},
+      image ${IMG_HOOP},
       "relatedCategory": relatedCategory->{ name, slug },
       "relatedFont": relatedFont->{ name, slug },
       tags,
       featured,
-      displayOrder
+      displayOrder,
+      hoopFit
     }`,
     {},
     [],
@@ -771,11 +792,15 @@ export function getLegalPageBySlug(slug: string): Promise<any> {
 
 // ─── Featured gallery items (homepage) ──────────────────────────────────────
 
+// Used by /about's "recent work" hoops, so photos marked hoopFit "poor" are left
+// out here (they cannot make a good round crop). Add a parameter if a square
+// view ever needs every featured photo.
 export function getFeaturedGalleryItems(limit = 9): Promise<any[]> {
   return sanityFetch(
-    `*[_type == "galleryItem" && featured == true] | order(displayOrder asc)[0...$limit]{
+    `*[_type == "galleryItem" && featured == true && hoopFit != "poor"] | order(displayOrder asc)[0...$limit]{
       _id,
-      image ${IMG},
+      hoopFit,
+      image ${IMG_HOOP},
       "relatedCategory": relatedCategory->{ name, slug },
       "relatedFont": relatedFont->{ name, slug },
       tags
