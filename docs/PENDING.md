@@ -17,6 +17,18 @@ This file tracks the things that have no other home.
 
 ## Open — needs a human (Nathan)
 
+### GA4 wired but inactive (2026-10-04, branch `feat/ga4-wiring`)
+
+- **Create the GA4 property and set `PUBLIC_GA_ID`.** `<Analytics />` is in `BaseLayout.astro` and
+  renders nothing until `PUBLIC_GA_ID` (the web data stream Measurement ID, `G-XXXXXXXXXX`, not the
+  numeric property id) is set as a **build** variable in Cloudflare Workers Builds, then the site
+  is rebuilt. No id exists yet. Do this at or before the `mas-monograms.com` cutover so the number does
+  not start dark (starter PORTS card 54).
+- **Before that, update the Privacy copy in Sanity.** `scripts/seed-legal.mjs` seeds the privacy page
+  with "privacy-friendly, cookie-free website analytics". GA4 sets `_ga` cookies, so that sentence
+  becomes false the moment the id is set. The site has no derived privacy text (the page is plain Sanity
+  Portable Text), so this is a manual edit in the Studio.
+
 ### From the 2026-09-06 Sanity phase-1 stack bump
 
 - **Sign in to the live Studio, then open Presentation.** The stack moved to

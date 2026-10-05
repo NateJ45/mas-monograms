@@ -52,6 +52,8 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
   a few image gaps (About portrait, OG images), quote-form secrets + R2 bucket. Full checklist +
   env-var matrix in `docs/08-deployment-and-status.md`.
 
+- **GA4 wired, inactive (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 only once `PUBLIC_GA_ID` is set as a **build** variable in Cloudflare Workers Builds (no id exists yet; never put one in `ci.yml`). It fires only on `mas-monograms.com`. Before enabling it, change the Privacy copy in Sanity (says "cookie-free"). `docs/08`, `docs/PENDING.md`.
+
 ## Commands
 
 Run from the repo root. Node scripts are in `package.json`.
