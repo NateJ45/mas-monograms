@@ -899,12 +899,27 @@
   transform: scaleY(1);
 }
 
-/* View transitions — cross-fade <main>, pin header + footer */
+/* View transitions — cross-fade <main>, pin header + footer.
+   The header is pinned as three named layers, never as <header> itself (2026-10-05):
+   an element with a view-transition-name is a "backdrop root", so a backdrop-filter
+   INSIDE it only sees what that element paints. Named on <header>, it left the pill's
+   frosted glass blurring nothing for its whole life. The glass (.site-header__ground)
+   may carry a name itself (only an ANCESTOR backdrop root hides the page), so: the
+   content row (with the stitch), the glass, and the pill's shadow are named siblings,
+   and nothing between the glass and the page is a backdrop root (tests/header.spec.ts
+   walks that chain). Their OLD snapshots are hidden and the new ones shown at once, so
+   the header never double-prints while the page cross-fades. */
 main#main {
   view-transition-name: main-content;
 }
-.site-header {
+.site-header__bar {
   view-transition-name: site-header;
+}
+.site-header__ground {
+  view-transition-name: site-header-glass;
+}
+.site-header__pill {
+  view-transition-name: site-header-pill;
 }
 footer {
   view-transition-name: site-footer;
@@ -934,7 +949,13 @@ footer {
 }
 
 ::view-transition-old(site-header),
+::view-transition-old(site-header-glass),
+::view-transition-old(site-header-pill) {
+  display: none;
+}
 ::view-transition-new(site-header),
+::view-transition-new(site-header-glass),
+::view-transition-new(site-header-pill),
 ::view-transition-old(site-footer),
 ::view-transition-new(site-footer) {
   animation: none;
@@ -1547,9 +1568,13 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
    and the row's layout NEVER changes between rest and pill (a layout snap, even one
    hidden by a FLIP, is reported as layout shift). Instead:
      __pill     a span at the pill's rect: its shadow and hairline (fades in)
-     __ground   the row's fill, full size; the pill is a clip-path inset that closes in
-                (clip-path, background, backdrop-filter: paint only)
-     ::after    the pill's stitched inner edge, at the pill's rect (fades in)
+     __ground   the row's fill and the pill's frosted glass, full size; the pill is a
+                clip-path inset that closes in (clip-path, background, backdrop-filter:
+                paint only). <header> must never be a backdrop root (no view-transition-
+                name, filter, opacity, mask, clip-path, mix-blend-mode or will-change on
+                it), or the blur sees nothing; see "View transitions" above.
+     __bar::before  the pill's stitched inner edge, at the pill's rect (fades in); it
+                rides the content row so it is pinned with it during navigations
      content    the left menu, the brand and the right end keep their rest layout and
                 glide into the pill with translate (offsets from the pill's rect in
                 container units); the seal and wordmark resize with scale
@@ -1587,9 +1612,11 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
   pointer-events: none;
   container-type: inline-size;
 }
-/* The pill's rect layers: the shadow below the ground, the stitch above it. */
+/* The pill's rect layers: the shadow below the ground, the stitch above it (behind the
+   row's content). The bar is the stitch's containing block and has the header's box, so
+   the same --hdr-pill-* rect lands in the same place. */
 .site-header__pill,
-.site-header::after {
+.site-header__bar::before {
   position: absolute;
   top: var(--hdr-pill-top);
   left: var(--hdr-pill-x);
@@ -1606,7 +1633,7 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
     0 22px 44px -26px rgba(15, 27, 45, 0.6);
   transition: opacity var(--hdr-dur) var(--hdr-ease);
 }
-.site-header::after {
+.site-header__bar::before {
   content: '';
   z-index: -1;
   /* inset 4px; 999px minus 4px is still a pill, so the stitch stays concentric */
@@ -1639,6 +1666,9 @@ html.reveal-ready [data-reveal='stitch']:not(.is-visible) {
   padding-inline: var(--hdr-pad);
   pointer-events: auto;
   border-radius: 0;
+  /* its own stacking context even where view transitions are unsupported, so the
+     stitch (z-index -1) always sits behind the row's content and above the glass */
+  isolation: isolate;
 }
 /* The pieces that glide into the pill. */
 .site-header__nav--left,
@@ -1886,15 +1916,34 @@ details:not([open]) > .site-nav__menu {
 .site-header[data-scrolled] .site-header__end {
   pointer-events: auto;
 }
+/* The glass. Paper at 78% over a 16px blur: the page reads as frosted behind it, and Ink
+   (7.5:1) and the Indigo link (5.3:1) still pass AA with pure black behind the pill, so
+   no photo or Midnight band can take the nav below 4.5:1. Its clip-path is on the glass
+   itself, which is fine: only an ANCESTOR with clip-path, opacity < 1, filter, mask,
+   mix-blend-mode, backdrop-filter or a view-transition-name (a backdrop root) hides the
+   page from it. Keep every one of those off <header>. */
 .site-header[data-scrolled] .site-header__ground {
   clip-path: inset(
     var(--hdr-pill-top) var(--hdr-pill-x) calc(100% - var(--hdr-pill-top) - var(--hdr-pill-h)) round
       999px
   );
   pointer-events: auto;
-  background-color: rgba(251, 248, 241, 0.9);
+  background-color: rgba(251, 248, 241, 0.78);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
   backdrop-filter: blur(16px) saturate(1.2);
+}
+/* No blur, or the visitor asked for less transparency: solid Paper, never see-through text. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header[data-scrolled] .site-header__ground {
+    background-color: var(--color-paper);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .site-header[data-scrolled] .site-header__ground {
+    background-color: var(--color-paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 .site-header[data-scrolled] .site-header__pill {
   opacity: 1;
@@ -1903,7 +1952,7 @@ details:not([open]) > .site-nav__menu {
   opacity: 0;
 }
 /* the stitch waits for the clip to close most of the way before it shows */
-.site-header[data-scrolled]::after {
+.site-header[data-scrolled] .site-header__bar::before {
   opacity: 0.5;
   transition-delay: 180ms;
 }

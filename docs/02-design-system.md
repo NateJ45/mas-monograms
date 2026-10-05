@@ -174,14 +174,21 @@ All strings come from Sanity through props; short neutral fallbacks only where n
   seal. Below 75rem: seal + wordmark at the left, the menu button at the right. `[data-scrolled]`
   (past 24px) turns the row into an inset, rounded paper-glass pill (blur, hairline, a stitched inner
   edge, soft shadow); on desktop the seal shrinks and fades as the wordmark draws in. Compositor-only
-  (2026-10-04 optimize pass): the row never changes layout; `.site-header__ground` (the fill) closes to the
-  pill with a `clip-path`, `.site-header__pill` (shadow, hairline) and `header::after` (stitch) sit at the
-  pill rect (`--hdr-pill-*`) and fade, and the left menu, brand and right end glide with `translate`
+  (2026-10-04 optimize pass): the row never changes layout; `.site-header__ground` (the fill, and the
+  pill's frosted glass: Paper at 78% over `blur(16px) saturate(1.2)`) closes to the pill with a
+  `clip-path`, `.site-header__pill` (shadow, hairline) and `.site-header__bar::before` (stitch) sit at
+  the pill rect (`--hdr-pill-*`) and fade, and the left menu, brand and right end glide with `translate`
   (offsets in container units) while the seal and wordmark `scale`. The brand's `::after` is its hit
   area and focus ring, sized to the old box in each state. Measured across the threshold: 38 layouts
   per toggle to 1 to 6, layout-shift entries 24 (sum ~0.016) to 0 at 1440. A FLIP version was tried and
   rejected: its one layout snap is itself reported as layout shift. The sticky outer
   box reserves `--header-h` (4.5rem below 75rem, 6.5rem from it) in both states, so nothing shifts.
+  The glass (2026-10-05): its blur never rendered until `view-transition-name` came off `<header>` (an
+  element with one is a backdrop root, so a `backdrop-filter` inside it sees nothing of the page). The
+  router now pins three named siblings instead: `site-header` (the row, with the stitch),
+  `site-header-glass` and `site-header-pill`, old snapshots hidden, new shown at once. The tint keeps Ink
+  at 7.5:1 and the Indigo link at 5.3:1 even with pure black behind (measured worst on real pages: 8.2
+  and 5.7). Solid Paper when `backdrop-filter` is unsupported or under `prefers-reduced-transparency`.
   Overlay at rest is a dark context; the pill is a light one. No JS: a solid Midnight row. Dropdowns
   are native `<details>` with the hover-intent / Escape / outside-click script; panels are paper cards
   with a stitched edge. CSS: "Site header" in `globals.css`. Test: `tests/header.spec.ts`.

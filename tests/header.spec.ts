@@ -101,6 +101,111 @@ test.describe('Header: rest and pill', () => {
   });
 });
 
+// The pill's frosted glass (2026-10-05). For its first life the blur never rendered:
+// <header> carried a view-transition-name, which makes it a "backdrop root", so the
+// backdrop-filter on .site-header__ground (inside it) could only see what <header>
+// painted, which is nothing. Two guards: no ancestor of the glass may be a backdrop
+// root, and a striped strip under the pill must come out blurred (pixel check).
+test.describe('Header: the pill is real frosted glass', () => {
+  for (const viewport of [DESKTOP, PHONE]) {
+    test(`at ${viewport.width}px the glass has a backdrop-filter and no backdrop root above it`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
+      await page.goto('/pricing', { waitUntil: 'load' });
+      await page.evaluate(() => window.scrollTo(0, 700));
+      await expect(page.locator('.site-header[data-scrolled]')).toHaveCount(1);
+      await page.waitForTimeout(900);
+      const report = await page.evaluate(() => {
+        const glass = document.querySelector('.site-header__ground') as HTMLElement;
+        const g = getComputedStyle(glass);
+        const filter =
+          g.backdropFilter ||
+          (g as CSSStyleDeclaration & { webkitBackdropFilter?: string }).webkitBackdropFilter ||
+          'none';
+        // Every property that makes an element a backdrop root (Filter Effects 2), on
+        // each ancestor between the glass and <html> (the root always is one).
+        const offenders: string[] = [];
+        for (let el = glass.parentElement; el && el !== document.documentElement;) {
+          const s = getComputedStyle(el) as CSSStyleDeclaration & {
+            viewTransitionName?: string;
+            webkitBackdropFilter?: string;
+            webkitMaskImage?: string;
+          };
+          const tag = el.tagName.toLowerCase() + (el.className ? `.${el.className}` : '');
+          const bad: [string, boolean][] = [
+            ['clip-path', s.clipPath !== 'none'],
+            ['opacity', parseFloat(s.opacity) < 1],
+            ['filter', s.filter !== 'none'],
+            ['mask', (s.maskImage || s.webkitMaskImage || 'none') !== 'none'],
+            ['mix-blend-mode', s.mixBlendMode !== 'normal'],
+            ['backdrop-filter', (s.backdropFilter || s.webkitBackdropFilter || 'none') !== 'none'],
+            ['will-change', /opacity|filter|clip-path|mask|view-transition/.test(s.willChange)],
+            ['view-transition-name', (s.viewTransitionName ?? 'none') !== 'none'],
+          ];
+          for (const [prop, hit] of bad) if (hit) offenders.push(`${tag} ${prop}`);
+          el = el.parentElement;
+        }
+        return { filter, offenders };
+      });
+      expect(report.filter).not.toBe('none');
+      expect(report.filter).toContain('blur');
+      expect(report.offenders, 'ancestors of the glass that are backdrop roots').toEqual([]);
+    });
+  }
+
+  test('a striped strip behind the pill comes out blurred', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'pixel check is calibrated on Chromium');
+    await page.setViewportSize(DESKTOP);
+    await page.goto('/pricing', { waitUntil: 'load' });
+    await page.evaluate(() => window.scrollTo(0, 700));
+    await expect(page.locator('.site-header[data-scrolled]')).toHaveCount(1);
+    await page.waitForTimeout(900);
+    // Black and white bars in the page flow at the header's place, under it (z 40 < 50),
+    // and the header's content hidden so only the glass is measured.
+    await page.evaluate(() => {
+      const s = document.createElement('div');
+      s.style.cssText = `position:absolute;left:0;top:${window.scrollY}px;width:100%;height:160px;
+        z-index:40;pointer-events:none;
+        background:repeating-linear-gradient(90deg,#000 0 6px,#fff 6px 12px)`;
+      document.body.appendChild(s);
+      const st = document.createElement('style');
+      st.textContent = '.site-header__bar{visibility:hidden!important}';
+      document.head.appendChild(st);
+    });
+    // mean brightness step between neighbouring pixels in a band through the pill's middle
+    const energy = async () => {
+      const png = await page.screenshot({ clip: { x: 400, y: 34, width: 600, height: 20 } });
+      return page.evaluate(async (bytes: number[]) => {
+        const blob = new Blob([new Uint8Array(bytes)], { type: 'image/png' });
+        const bmp = await createImageBitmap(blob);
+        const c = new OffscreenCanvas(bmp.width, bmp.height);
+        const ctx = c.getContext('2d')!;
+        ctx.drawImage(bmp, 0, 0);
+        const d = ctx.getImageData(0, 0, bmp.width, bmp.height).data;
+        let sum = 0;
+        let n = 0;
+        for (let y = 0; y < bmp.height; y++)
+          for (let x = 1; x < bmp.width; x++) {
+            const i = (y * bmp.width + x) * 4;
+            sum += Math.abs(d[i] - d[i - 4]);
+            n++;
+          }
+        return sum / n;
+      }, Array.from(png));
+    };
+    const blurred = await energy();
+    await page.addStyleTag({
+      content:
+        '.site-header__ground{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}',
+    });
+    await page.waitForTimeout(600);
+    const sharp = await energy();
+    expect(sharp, 'the stripes show through the tint').toBeGreaterThan(3);
+    expect(blurred, 'the glass blurs them away').toBeLessThan(sharp / 5);
+  });
+});
+
 test.describe('Header: dropdowns from the keyboard', () => {
   test('Enter opens a group, Escape closes it and returns focus', async ({ page }) => {
     await page.setViewportSize(DESKTOP);

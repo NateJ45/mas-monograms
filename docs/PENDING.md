@@ -125,11 +125,6 @@ This file tracks the things that have no other home.
   Title Case ("Personalization Details", "Thread Color Preference (Optional)") with sentence case now that
   they are no longer uppercased; make them sentence case. The Terms page body has em-dashes ("A quote is
   an estimate — it does not..."); house style is commas or colons.
-- **The scrolled header pill's blur has never applied** (found 2026-10-04, same before and after this
-  pass): text behind the pill shows through the 90% Paper unblurred. Most likely the header's
-  `view-transition-name` makes it a backdrop root, so `backdrop-filter` on anything inside sees nothing.
-  Either drop the blur or move the view-transition name off the header and re-check the pinned header
-  during navigations.
 - **Swash fallback reflow on a slow first load** (pre-existing, now shorter). Until the 46 KB swash
   subset arrives (~1.8s on a 1.6 Mbps throttle, was ~2.3s with the full italic) the swash word paints in
   the system italic, which is wider and can rewrap the headline. Fallback metric overrides cannot fix it:
@@ -224,6 +219,13 @@ This file tracks the things that have no other home.
   included. Write tokens bare. (Also carried from WCP.)
 
 ## Recently closed
+
+- 2026-10-05: **The header pill is real frosted glass** (branch `fix/pill-blur`). Its blur had never
+  rendered: `view-transition-name` on `<header>` made it a backdrop root. The name moved to three
+  sibling layers (row, glass, shadow), the stitch moved onto the row, old header snapshots are hidden
+  during navigations (which also ends the header double-printing into the overlay home page). Tint
+  90% to 78% Paper, solid fallbacks for no blur and reduced transparency. Gotcha 16 in
+  `.claude/rules/design-system.md`; test in `tests/header.spec.ts`.
 
 - 2026-10-04: **Audit-fix pass** (branch `chore/audit-fixes`, after a 15/20 Impeccable audit). Phone menu
   (a real-phone report): no needless scroll at 360x640 to 430x932, twill covers the whole scroll box, a
