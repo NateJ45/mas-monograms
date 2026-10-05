@@ -24,14 +24,9 @@ import { splitSwash } from '@/components/gallery/swash';
 import { breadcrumbSchema } from '@/lib/schemas';
 import { pickHoopImages, pickCardImage } from '@/lib/hoop';
 import { site } from '@/data/site';
-import {
-  getSiteSettings,
-  getAllItemCategories,
-  getItemCategoryBySlug,
-  getAllGalleryItems,
-  getStyleGalleryPage,
-  getShopIndexPage,
-} from '@/lib/queries';
+import { getSiteSettings, getAllItemCategories } from '@/lib/queries';
+import { editField, editItem, editOther } from '@/lib/edit-target';
+import { loadCategory, type PageProps, type CategoryData } from '@/lib/page-data';
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const categories = await getAllItemCategories();
@@ -42,20 +37,25 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 const { slug } = Astro.params as { slug: string };
 
-const [siteSettings, category, allGallery, allCategories, galleryPage, shopPage] =
-  await Promise.all([
-    getSiteSettings(),
-    getItemCategoryBySlug(slug),
-    getAllGalleryItems(),
-    getAllItemCategories(),
-    getStyleGalleryPage(),
-    getShopIndexPage(),
-  ]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<CategoryData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadCategory(slug)]);
+const { category, allGallery, allCategories, galleryPage, shopPage } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 // getStaticPaths listed this slug, so an empty answer here is a failed read,
 // not a missing category. A production build stops rather than publish the
 // page as a redirect to /404. In dev it still redirects.
-if (!category && import.meta.env.PROD) {
+if (!preview && !category && import.meta.env.PROD) {
   throw new Error(
     `[slug] category "${slug}" was listed but came back empty; refusing to publish it as a 404`,
   );
@@ -135,12 +135,13 @@ const pageSchemas = [
 ];
 ---
 
-<BaseLayout
+<Layout
   {title}
   {description}
   seoImage={category?.seoImage}
   {siteSettings}
   schemas={pageSchemas}
+  {...preview?.layoutProps}
 >
   <section class="cat-intro surface-midnight py-section-lg" aria-labelledby="category-heading">
     <div
@@ -167,8 +168,8 @@ const pageSchemas = [
         {
           (category?.trustItems ?? []).length > 0 && (
             <ul class="cat-intro__trust mt-l" role="list" data-reveal style="--reveal-delay: 180ms">
-              {(category.trustItems as string[]).map((item: string) => (
-                <li>
+              {(category.trustItems as string[]).map((item: string, i: number) => (
+                <li data-sanity={editItem(edit, 'trustItems', null, i)}>
                   <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
                     <path d="M2 2l8 8M10 2l-8 8" />
                   </svg>
@@ -183,7 +184,11 @@ const pageSchemas = [
         </div>
       </div>
 
-      <div class="cat-intro__hoops order-1 lg:order-2" data-reveal="fade">
+      <div
+        class="cat-intro__hoops order-1 lg:order-2"
+        data-reveal="fade"
+        data-sanity={editField(edit, 'heroImages')}
+      >
         {
           restImages[0] && (
             <HoopFrame
@@ -248,6 +253,7 @@ const pageSchemas = [
                 fontCaption={galleryPage?.fontCaption}
                 showRequest={false}
                 showCategory={false}
+                editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
               />
             ))}
           </div>
@@ -318,7 +324,7 @@ const pageSchemas = [
       />
     )
   }
-</BaseLayout>
+</Layout>
 
 <style>
   .cat-intro__lede {

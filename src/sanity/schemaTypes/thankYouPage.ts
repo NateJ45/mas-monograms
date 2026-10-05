@@ -1,61 +1,67 @@
-// Thank You page singleton. Shown after a successful quote form submission.
-// Every word — confirmation message, what-to-expect copy, next steps —
-// comes from here so Mary Ann can keep it current.
+// Thank You page singleton. Shown after someone sends the quote form. Every
+// word (the thank-you, what happens next, the buttons) comes from here so
+// Mary Ann can keep it current.
+//
+// 2026-10-05, Mary Ann's Studio pass: page order with Google last, only the
+// headline required (thank-you.astro hides any part that is empty), plain
+// titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { CheckmarkCircleIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  PHOTO_WORDS,
+  PHOTO_WORDS_NEEDED,
+  TOO_LONG,
+  BUTTON_LINK_HELP,
+} from './_copy';
 
 export const thankYouPage = defineType({
   name: 'thankYouPage',
-  title: 'Thank You Page',
+  title: 'Thank You page',
   type: 'document',
   icon: CheckmarkCircleIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'content', title: 'Content', default: true },
+    { name: 'content', title: 'The thank-you message' },
+    { name: 'buttons', title: 'Buttons' },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      initialValue: 'Quote request received — MAS Monograms',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-
+    // ── The thank-you message ────────────────────────────────────────────────
     defineField({
       name: 'eyebrow',
-      title: 'Small label above the heading',
+      title: 'Small line above the headline',
       type: 'string',
       group: 'content',
-      description: 'E.g. "Your request is in!" or "Got it!".',
+      description:
+        'Shown in handwriting, for example "Request received!". Leave it empty to hide it.',
       initialValue: 'Request received!',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'headline',
       title: 'Headline',
       type: 'string',
       group: 'content',
-      initialValue: "Thank you — I'll be in touch soon.",
-      validation: (R) => R.required().max(100),
+      description:
+        'The big heading people see right after they send the quote form, for example "Thank you, I\'ll be in touch soon."',
+      initialValue: "Thank you, I'll be in touch soon.",
+      validation: (R) => [
+        R.required().error('Please type a headline. It is the big heading on this page.'),
+        R.max(100).warning(TOO_LONG),
+      ],
     }),
     defineField({
       name: 'body',
-      title: 'Body copy',
+      title: 'Your thank-you note',
       type: 'array',
       group: 'content',
-      description: 'Warm confirmation paragraph. Tell them what to expect next.',
+      description: 'A warm paragraph. Tell them what to expect next.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -70,32 +76,30 @@ export const thankYouPage = defineType({
           },
         }),
       ],
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'expectedResponseTime',
-      title: 'Expected response time',
-      type: 'string',
-      group: 'content',
-      description: 'E.g. "I respond to every request within 1 business day."',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'responseTimeLabel',
-      title: 'Label before the response time (optional)',
+      title: 'Small label before your reply time',
       type: 'string',
       group: 'content',
-      description: 'A short label in front of the response time, e.g. "Expected response time".',
-      validation: (R) => R.max(40),
+      description: 'For example "Expected response time". Leave it empty to hide it.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
-
+    defineField({
+      name: 'expectedResponseTime',
+      title: 'When you will reply',
+      type: 'string',
+      group: 'content',
+      description:
+        'For example "I respond to every request within 1 business day." Leave it empty to hide it.',
+    }),
     defineField({
       name: 'nextStepsLabel',
-      title: 'Heading above the next steps (optional)',
+      title: 'Heading above the next steps',
       type: 'string',
       group: 'content',
-      description: 'A short heading above the numbered steps, e.g. "What\'s next".',
-      validation: (R) => R.max(40),
+      description: 'For example "What\'s next". Leave it empty to show the steps with no heading.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
     defineField({
       name: 'nextSteps',
@@ -103,62 +107,80 @@ export const thankYouPage = defineType({
       type: 'array',
       group: 'content',
       description:
-        'Optional numbered list of what happens next. E.g. "I\'ll review your request", "I\'ll send a quote by email".',
+        'A short numbered list of what happens next, for example "I\'ll review your request". Drag to change the order.',
       of: [defineArrayMember({ type: 'string' })],
     }),
-
     defineField({
       name: 'image',
-      title: 'Photo (optional)',
+      title: 'Photo',
       type: 'image',
       group: 'content',
-      description: 'A warm, on-brand photo to go alongside the confirmation message.',
+      description: 'A warm photo shown in a round hoop beside the thank-you.',
       options: { hotspot: true },
       fields: [
         defineField({
           name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
+          ...PHOTO_WORDS,
           type: 'string',
-          validation: (R) => R.required(),
+          validation: (R) =>
+            R.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value ? PHOTO_WORDS_NEEDED : true,
+            ),
         }),
       ],
     }),
 
+    // ── Buttons ──────────────────────────────────────────────────────────────
     defineField({
       name: 'ctaLabel',
-      title: 'Continue browsing CTA label',
+      title: 'Words on the main button',
       type: 'string',
-      group: 'content',
-      description: 'Link back to the homepage or style gallery.',
+      group: 'buttons',
+      description:
+        'A way to keep browsing, for example "Explore the gallery". Shows only when both this and the box below are filled in.',
       initialValue: 'Explore the gallery',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Continue browsing CTA destination',
+      title: 'Where the main button goes',
       type: 'string',
-      group: 'content',
+      group: 'buttons',
+      description: BUTTON_LINK_HELP,
       initialValue: '/style-gallery',
-      validation: (R) => R.required(),
     }),
-
     defineField({
       name: 'secondaryCtaLabel',
-      title: 'Second button text (optional)',
+      title: 'Words on the second link',
       type: 'string',
-      group: 'content',
+      group: 'buttons',
       description:
-        'A second onward path shown beside the main button. E.g. "See how it works". Leave blank to hide it.',
+        'A quieter second link, for example "See how it works". Shows only when both this and the box below are filled in.',
       initialValue: 'Browse the style gallery',
     }),
     defineField({
       name: 'secondaryCtaHref',
-      title: 'Second button link (optional)',
+      title: 'Where the second link goes',
       type: 'string',
-      group: 'content',
-      description: 'Where the secondary link goes. E.g. /style-gallery.',
+      group: 'buttons',
+      description: BUTTON_LINK_HELP,
       initialValue: '/style-gallery',
     }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      initialValue: 'Quote request received | MAS Monograms',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
   ],
-  preview: { prepare: () => ({ title: 'Thank You Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Thank You page',
+      subtitle: 'Shown right after someone sends the quote form',
+    }),
+  },
 });

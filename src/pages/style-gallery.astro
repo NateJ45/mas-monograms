@@ -8,13 +8,24 @@ import SwatchCard from '@/components/motifs/SwatchCard.astro';
 import GallerySwatch from '@/components/gallery/GallerySwatch.astro';
 import Lightbox from '@/components/gallery/Lightbox.astro';
 import { splitSwash } from '@/components/gallery/swash';
-import { getSiteSettings, getStyleGalleryPage, getAllGalleryItems } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editOther } from '@/lib/edit-target';
+import { loadStyleGallery, type PageProps, type StyleGalleryData } from '@/lib/page-data';
 
-const [siteSettings, page, items] = await Promise.all([
-  getSiteSettings(),
-  getStyleGalleryPage(),
-  getAllGalleryItems(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<StyleGalleryData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadStyleGallery()]);
+const { page, items } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'Style Gallery — MAS Monograms';
 const description =
@@ -119,7 +130,7 @@ const fan = [
 ].slice(0, 3);
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
   {
     /* Direction D: a Midnight opening band, display headline with the swash,
       and three swatches fanned out beside it like samples on the cutting
@@ -301,6 +312,7 @@ const fan = [
                 tags={cleanTags(item.tags)}
                 requestLabel={page?.requestLabel}
                 fontCaption={page?.fontCaption}
+                editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
               />
             ))}
           </div>
@@ -332,7 +344,7 @@ const fan = [
     prevLabel={page?.lightboxPrevLabel}
     nextLabel={page?.lightboxNextLabel}
   />
-</BaseLayout>
+</Layout>
 
 <style>
   /* Three swatches fanned like samples laid on the cutting table. */

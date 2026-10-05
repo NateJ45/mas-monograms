@@ -14,6 +14,11 @@
 //                                Personalization gets "<styleLabel>: <label>"
 //   ?fabric=<atelierSettings fabric key>
 //                                Item description gets "<fabricLabel>: <label>"
+//   ?utm_source=&utm_medium=&utm_campaign=
+//                                where the visitor came from (QR codes). Not
+//                                read from this URL alone: src/lib/utm.ts keeps
+//                                the session's first tagged landing (any page)
+//                                and fills the form's hidden utm_* inputs.
 // Labels come from atelierSettings (Sanity). Nothing the visitor has already
 // typed or chosen is overwritten, and a line already present is not repeated.
 // With valid initials the preview (QuotePreview.astro) is revealed and the
@@ -22,6 +27,7 @@
 
 <script>
   import type { Atelier } from '@/lib/atelier/engine';
+  import { fillUtmFields } from '@/lib/utm';
 
   type Prefill = {
     threads: Array<{ slug: string; name: string; hex: string }>;
@@ -93,8 +99,12 @@
   }
 
   function run() {
+    const form = document.getElementById('quote-form') as HTMLFormElement | null;
+    // Source tags (utm_*) from this landing or an earlier page in the session,
+    // whitelisted, into the hidden inputs. Every run: idempotent.
+    if (form) fillUtmFields(form);
     const preview = document.querySelector<HTMLElement>('[data-quote-preview]');
-    if (!document.getElementById('quote-form') || preview?.dataset.prefilled) return;
+    if (!form || preview?.dataset.prefilled) return;
     if (preview) preview.dataset.prefilled = '1';
     const params = new URLSearchParams(window.location.search);
     if (![...params.keys()].length) return;

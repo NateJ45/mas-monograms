@@ -4,14 +4,21 @@
 // stitched-bullet facts and her own words (aboutBody). Copy from homePage
 // (about*, maker*). No invented facts: only what is in Sanity.
 import SanityImage from '@/components/SanityImage.astro';
+import { editField, editItem, type Edit } from '@/lib/edit-target';
 import PortableText from '@/components/PortableText';
 
 interface Props {
   page: any;
   headingId?: string;
+  /** PREVIEW ONLY: the page document, for photo and list click targets (src/lib/edit-target.ts). */
+  edit?: Edit;
 }
-const { page, headingId = 'maker-heading' } = Astro.props as Props;
-const facts: string[] = (page?.makerFacts ?? []).filter(Boolean);
+const { page, headingId = 'maker-heading', edit } = Astro.props as Props;
+// Each fact keeps its place in the Sanity list, so its click target (preview only)
+// points at the right item even when an empty one is skipped.
+const facts = ((page?.makerFacts ?? []) as string[])
+  .map((text, index) => ({ text, index }))
+  .filter((f) => Boolean(f.text));
 const hasPhoto = !!page?.aboutPhoto?.asset;
 ---
 
@@ -21,7 +28,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
   >
     {
       hasPhoto && (
-        <figure class="maker__portrait" data-reveal>
+        <figure class="maker__portrait" data-reveal data-sanity={editField(edit, 'aboutPhoto')}>
           <div class="maker__arch-stitch" aria-hidden="true" />
           <div class="maker__arch">
             <SanityImage
@@ -76,7 +83,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
         facts.length > 0 && (
           <ul class="maker__facts" role="list" data-reveal-stagger="80">
             {facts.map((f) => (
-              <li data-reveal="fade">
+              <li data-reveal="fade" data-sanity={editItem(edit, 'makerFacts', null, f.index)}>
                 <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
                   <path
                     d="M3.5 3.5l9 9M12.5 3.5l-9 9"
@@ -85,7 +92,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
                     stroke-linecap="round"
                   />
                 </svg>
-                <span>{f}</span>
+                <span>{f.text}</span>
               </li>
             ))}
           </ul>

@@ -1,13 +1,22 @@
-// Embroidery font document. NOT a web font — each font is represented
-// by a preview image showing what the lettering looks like when embroidered.
-// Displayed on the Font & Lettering Guide page.
+// Embroidery font document. NOT a web font: each font is shown as a photo of
+// the lettering embroidered on fabric, on the Font & Lettering Guide page.
+//
+// 2026-10-05, Mary Ann's Studio pass: plain titles. The photo is no longer
+// required: a font with no photo is simply left off the guide
+// (font-lettering-guide.astro keeps only fonts with a photo), which ten of
+// eighteen fonts are today. The required rule put a red mark on each of them;
+// the "Needs a photo" badge (components/documentBadges.tsx) now says the same
+// thing kindly. `slug` and `styleTag` are no longer required either: the site
+// works without them (the slug only names the card's anchor).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { TextIcon } from '@sanity/icons';
+import { PHOTO_WORDS, PHOTO_WORDS_NEEDED } from './_copy';
 
 export const font = defineType({
   name: 'font',
-  title: 'Embroidery Font',
+  title: 'Embroidery font',
   type: 'document',
   icon: TextIcon,
   fields: [
@@ -15,80 +24,74 @@ export const font = defineType({
       name: 'name',
       title: 'Font name',
       type: 'string',
-      description: 'The name shown on the guide page. E.g. "Magnolia Script" or "Classic Block".',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'slug',
-      title: 'Web address',
-      type: 'slug',
-      options: { source: 'name', maxLength: 50 },
-      validation: (Rule) => Rule.required(),
+      description: 'The name on the font guide, for example "Magnolia Script" or "Classic Block".',
+      validation: (Rule) => Rule.required().error('Please give this font a name.'),
     }),
     defineField({
       name: 'previewImage',
-      title: 'Preview image',
+      title: 'Photo of the font stitched',
       type: 'image',
       description:
-        'A photo or scan of this font embroidered on fabric. This IS the font — the website never loads font files.',
+        'A photo of this font embroidered on fabric. This photo IS the font on your website. A font only shows on the font guide once it has one.',
       options: { hotspot: true },
       fields: [
         defineField({
           name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
+          ...PHOTO_WORDS,
           type: 'string',
-          description: 'E.g. "Magnolia Script font sample — embroidered on white fabric".',
-          validation: (R) => R.required(),
+          description: 'For example "Magnolia Script embroidered in navy on white fabric".',
+          validation: (R) =>
+            R.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value ? PHOTO_WORDS_NEEDED : true,
+            ),
         }),
       ],
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'styleTag',
-      title: 'Style',
+      title: 'Kind of lettering',
       type: 'string',
-      description: 'The general style of this font.',
+      description: 'The font guide groups fonts into rows by this.',
       options: {
         list: [
-          { title: 'Classic / Traditional', value: 'classic' },
-          { title: 'Script / Cursive', value: 'script' },
-          { title: 'Block / Bold', value: 'block' },
-          { title: 'Modern / Clean', value: 'modern' },
-          { title: 'Monogram / Interlock', value: 'monogram' },
+          { title: 'Classic or traditional', value: 'classic' },
+          { title: 'Script or cursive', value: 'script' },
+          { title: 'Block or bold', value: 'block' },
+          { title: 'Modern or clean', value: 'modern' },
+          { title: 'Monogram or interlocking', value: 'monogram' },
         ],
         layout: 'radio',
       },
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'description',
-      title: 'Description (optional)',
+      title: 'A sentence about it',
       type: 'text',
       rows: 2,
       description:
-        'One or two sentences describing the look and feel. E.g. "Elegant thin letterforms with flowing connections. Great for formal gifts."',
+        'The look and feel, for example "Elegant thin letters with flowing joins. Great for formal gifts."',
     }),
     defineField({
       name: 'bestFor',
       title: 'Best for',
       type: 'array',
-      description: 'Short notes on what items or occasions this font works best on.',
+      description: 'Short notes on the items or occasions this font suits best.',
       of: [defineArrayMember({ type: 'string' })],
     }),
     defineField({
       name: 'popular',
-      title: 'Popular pick',
+      title: 'A popular pick',
       type: 'boolean',
       description:
-        'Mark as a frequently requested font. Shows the badge set on the Font & Lettering Guide page.',
+        'Turn on for a font people ask for often. It gets a small badge on the font guide.',
       initialValue: false,
     }),
     defineField({
       name: 'atelierStyle',
-      title: 'Closest style in the Monogram Preview (optional)',
+      title: 'Closest style in the monogram preview',
       type: 'string',
       description:
-        'Pick the live-preview style that looks most like this font. The font card then gets a "try it" link that opens the Monogram Preview on the home page with that style chosen. Leave blank if none is close.',
+        'Pick the preview style that looks most like this font. The font card then gets a "try it" link that opens the monogram preview on your home page with that style. Leave it empty if none is close.',
       options: {
         list: [
           { title: 'Classic Trio', value: 'classic' },
@@ -99,30 +102,50 @@ export const font = defineType({
         ],
       },
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
     defineField({
       name: 'displayOrder',
-      title: 'Display order',
+      title: 'Position on the font guide',
       type: 'number',
-      description: 'Lower numbers appear first on the Font Guide page.',
+      description: 'Smaller numbers come first. 1 is first.',
       initialValue: 99,
-      validation: (Rule) => Rule.required().integer().min(0),
+      hidden: true,
+      validation: (Rule) =>
+        Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
+    }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'font', newItemPosition: 'after' }),
+    defineField({
+      name: 'slug',
+      title: 'Short name for the website',
+      type: 'slug',
+      description: 'Made from the font name. Press Generate if it is empty.',
+      options: { source: 'name', maxLength: 50 },
     }),
   ],
+  __experimental_search: [{ path: 'name', weight: 10 }],
   preview: {
-    select: { title: 'name', subtitle: 'styleTag', media: 'previewImage' },
-    prepare: ({ title, subtitle, media }) => ({
-      title: title ?? '(unnamed font)',
-      subtitle: subtitle ?? '',
+    select: { title: 'name', media: 'previewImage', hasPhoto: 'previewImage.asset' },
+    prepare: ({ title, media, hasPhoto }) => ({
+      title: title ?? '(no name yet)',
+      subtitle: hasPhoto ? 'On the font guide' : 'Needs a photo before it shows on your website',
       media,
     }),
   },
   orderings: [
     {
-      title: 'Display order',
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
+    {
+      title: 'Position on the font guide',
       name: 'displayOrder',
       by: [{ field: 'displayOrder', direction: 'asc' }],
     },
-    { title: 'Name A–Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
-    { title: 'Style', name: 'styleTag', by: [{ field: 'styleTag', direction: 'asc' }] },
+    { title: 'Name A to Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
   ],
 });

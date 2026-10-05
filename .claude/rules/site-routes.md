@@ -87,6 +87,32 @@ Initials must be a run of letters, digits, `&`, dots, spaces or hyphens, so `<im
 `fabric` is ignored, not guessed. Labels come from `atelierSettings`; the fallbacks in code are
 short neutral words used only if that document is missing.
 
+## Source tags (utm) contract (2026-10-05, Get found)
+
+QR codes from the Studio tool link to the site as `?utm_source=qr&utm_medium=<placement>&utm_campaign=<batch>`
+(`src/lib/qr/url.ts`). The code is `src/lib/utm.ts` (unit tests `utm.test.ts`); the feature test is
+"Quote source tags" in `tests/features.spec.ts`.
+
+- **Keys:** `utm_source`, `utm_medium`, `utm_campaign` only. A value is kept only if it is 1 to 40 letters,
+  digits, hyphens or underscores; anything else is dropped, never repaired, and never written as HTML.
+- **First touch wins for the session.** The header's script (on every page, already an external bundle, so
+  no new `<script>` tag) calls `rememberUtm()` on load and on `astro:page-load`: the first landing URL in the
+  tab with a valid tag is stored in `sessionStorage['mas-utm-v1']` and later landings never replace it. It
+  ends when the tab closes. Storage that throws is ignored (the current URL's tags still apply).
+- **Into the form.** `/request-a-quote` carries three empty `<input type="hidden">` (`utm_source`,
+  `utm_medium`, `utm_campaign`); `QuotePrefillScript` fills them (`fillUtmFields`) on every run, before the
+  `?initials` prefill, so the two never interfere.
+- **Server side.** `POST /api/quote` re-validates with `pickUtm(formData)` (same whitelist, ignores
+  everything else), stores `utm` (`{}` when none) in the R2 backup JSON, and passes it to the OWNER email
+  only, which prints a "Where they found you" row: `QR code on a hang tag or label (campaign fall-fair)`;
+  placements tag, card, flyer, insert, sign, box have plain words; an unknown QR medium prints
+  `QR code (Other: <value>)`, an unknown source `Other: <value>`; the row is hidden with no tags. The
+  customer email never shows it.
+- **GA4** reads `utm_*` from the landing URL by itself (`gtag('config')`); nothing in the site strips or
+  rewrites the query string, and the live `_redirects` (301) and the trailing-slash 307 keep it
+  (checked 2026-10-05). One edge: GA4's library loads at idle after `load`, so a visitor who clicks
+  through the router before it arrives may have the first page view recorded on the second URL.
+
 ## Queries used by the Atelier pages
 
 `getAtelierSettings()` (singleton, labels and option lists) and `getGalleryItemsForWall(limit)` (featured
@@ -108,4 +134,12 @@ live in `src/lib/queries.ts`. `getAllThreadColors()` returns `slug` as a plain s
 ## LocalBusiness JSON-LD
 
 Auto-injected in `<BaseLayout>` on every page using `siteSettings` data.
-Schema.org type comes from `siteSettings.businessType` field.
+Schema.org type comes from `siteSettings.businessType` field. `sameAs` is `sameAsLinks()`: the social
+links, then `googleBusinessUrl`, valid `https` addresses only, each once (`src/lib/schemas.test.ts`).
+`schemas.ts` imports `../data/site.ts` relatively so the test runs in bare Node.
+
+## Review link (2026-10-05)
+
+`Footer.astro` (contact cluster) and `/thank-you` (under the next steps) draw a review link only when
+`siteSettings.googleReviewUrl` is a real `https` address (`src/lib/review-link.ts`); words from
+`reviewLinkLabel`, fallback "Leave a review". Empty field: nothing drawn, parity unchanged.

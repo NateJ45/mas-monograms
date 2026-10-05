@@ -1,117 +1,118 @@
-// About page singleton. Tells Mary Ann's story — who she is, why she
-// started MAS Monograms, and what she cares about. Every word comes from here.
+// About page singleton. Tells Mary Ann's story: who she is, why she started
+// MAS Monograms, and what she cares about. Every word comes from here.
+//
+// 2026-10-05, Mary Ann's Studio pass: fields in page order (top with her
+// portrait, her story, the values, the closing banner) with Google last; only
+// the headline is required; plain titles from ./_copy.ts. `heroImage` is hidden:
+// the page shows `makerPhoto` as the portrait and only falls back to heroImage
+// when makerPhoto is empty (about.astro), and makerPhoto is set. Data kept.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { UserIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  PHOTO_WORDS_NEEDED,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BANNER_GROUP_TITLE,
+  BANNER_EYEBROW,
+  BANNER_HEADLINE,
+  BANNER_SUBHEAD,
+  BANNER_BUTTON,
+  BANNER_LINK,
+} from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 export const aboutPage = defineType({
   name: 'aboutPage',
-  title: 'About Page',
+  title: 'About page',
   type: 'document',
   icon: UserIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'hero', title: 'Top of the page', default: true },
-    { name: 'story', title: 'Story' },
-    { name: 'values', title: 'Values' },
-    { name: 'cta', title: 'Bottom banner' },
+    { name: 'hero', title: 'Top of the page' },
+    { name: 'story', title: 'Your story' },
+    { name: 'values', title: 'What you care about' },
+    { name: 'cta', title: BANNER_GROUP_TITLE },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    // SEO
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
-    // Hero
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'hero',
-      description: 'E.g. "About Mary Ann" or "Meet the Maker".',
-      validation: (R) => R.required().max(80),
+      description: 'For example "About Mary Ann" or "Meet the Maker". Leave it empty to hide it.',
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'hero',
     }),
     defineField({
-      name: 'heroImage',
-      title: 'Top-of-page photo (optional)',
+      name: 'makerPhoto',
+      title: 'Your photo',
       type: 'image',
       group: 'hero',
+      description:
+        'Your portrait, shown in the arched frame at the top of the page. A tall (portrait) photo works best.',
       options: { hotspot: true },
       fields: [
         defineField({
           name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
+          ...PHOTO_WORDS,
           type: 'string',
-          validation: (R) => R.required(),
+          validation: (R) =>
+            R.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value ? PHOTO_WORDS_NEEDED : true,
+            ),
         }),
       ],
     }),
+    defineField({
+      name: 'makerAttribution',
+      title: 'Your name and title under the photo',
+      type: 'string',
+      group: 'hero',
+      description: 'For example "Mary Ann Stone · Founder, MAS Monograms".',
+    }),
 
-    // Story section
+    // ── Your story ───────────────────────────────────────────────────────────
     defineField({
       name: 'storyHeadline',
-      title: 'Story headline',
+      title: 'Heading above your story',
       type: 'string',
       group: 'story',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'storyContent',
-      title: 'Story (paragraphs)',
+      title: 'Your story',
       type: 'array',
       group: 'story',
-      description: "Mary Ann's story in her own words. Multiple paragraphs are supported.",
+      description: 'Your story in your own words. Press Enter to start a new paragraph.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -128,11 +129,11 @@ export const aboutPage = defineType({
                 type: 'object',
                 title: 'Link',
                 fields: [
-                  { name: 'href', type: 'url', title: 'URL' },
+                  { name: 'href', type: 'url', title: 'Web address' },
                   {
                     name: 'openInNewTab',
                     type: 'boolean',
-                    title: 'Open in new tab',
+                    title: 'Open in a new tab',
                     initialValue: false,
                   },
                 ],
@@ -141,64 +142,39 @@ export const aboutPage = defineType({
           },
         }),
       ],
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'makerPhoto',
-      title: 'Mary Ann photo',
-      type: 'image',
-      group: 'story',
-      description: 'Photo of Mary Ann. Shown alongside the story. Portrait orientation works well.',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-          validation: (R) => R.required(),
-        }),
-      ],
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'makerAttribution',
-      title: 'Attribution line',
-      type: 'string',
-      group: 'story',
-      description: 'E.g. "Mary Ann Stone · Founder, MAS Monograms".',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'studioNote',
-      title: 'Studio note (optional)',
+      title: 'One short line about your studio',
       type: 'string',
       group: 'story',
       description:
-        'One short line about the studio. E.g. "Handcrafted in St. Matthews, SC since 2015."',
+        'Shown on a small card beside your story, for example "Handcrafted in St. Matthews, SC."',
     }),
     defineField({
       name: 'recentWorkHeadline',
-      title: 'Recent work heading (optional)',
+      title: 'Heading above the recent work photos',
       type: 'string',
       group: 'story',
       description:
-        'Heading above the strip of recent work photos (pulled from featured gallery items). Defaults to "Recent work from the studio".',
-      validation: (R) => R.max(80),
+        'The strip of photos comes from Photos of my work (the ones marked as a favorite). Leave it empty to use "Recent work from the studio".',
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
 
-    // Values section
+    // ── What you care about ──────────────────────────────────────────────────
     defineField({
       name: 'valuesHeadline',
-      title: 'Values headline',
+      title: 'Heading above your values',
       type: 'string',
       group: 'values',
     }),
     defineField({
       name: 'values',
-      title: 'Values',
+      title: 'Your values',
       type: 'array',
       group: 'values',
-      description: 'Three to four short value statements. E.g. "Quality over quantity".',
+      description:
+        'Three or four short things you care about, for example "Quality over quantity". Each shows as a hang tag. Drag to change the order.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -206,55 +182,100 @@ export const aboutPage = defineType({
           fields: [
             defineField({
               name: 'label',
-              title: 'Value',
+              title: 'The value',
               type: 'string',
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please type the value in a few words.'),
             }),
-            defineField({ name: 'body', title: 'Description', type: 'text', rows: 2 }),
+            defineField({ name: 'body', title: 'A sentence about it', type: 'text', rows: 2 }),
           ],
           preview: { select: { title: 'label', subtitle: 'body' } },
         }),
       ],
     }),
 
-    // Final CTA
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
-      title: 'Small label above the banner',
+      ...BANNER_EYEBROW,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHeadline',
-      title: 'Banner headline',
+      ...BANNER_HEADLINE,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaSubhead',
-      title: 'Banner text (optional)',
+      ...BANNER_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'cta',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button text',
+      ...BANNER_BUTTON,
       type: 'string',
       group: 'cta',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Button link (where it goes)',
+      ...BANNER_LINK,
       type: 'string',
       group: 'cta',
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+    }),
+
+    // ── Hidden: backup only (see the header) ─────────────────────────────────
+    defineField({
+      name: 'heroImage',
+      title: 'Old top-of-page photo (backup only)',
+      type: 'image',
+      hidden: true,
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
     }),
   ],
-  preview: { prepare: () => ({ title: 'About Page' }) },
+  preview: { prepare: () => ({ title: 'About page', subtitle: 'The page at /about: your story' }) },
 });

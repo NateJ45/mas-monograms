@@ -2,98 +2,108 @@
 // shows (section copy, control labels, style and fabric names, sample initials,
 // the "this is a preview" line) comes from here, so Mary Ann can edit it all.
 // Rendering logic (which font backs which style) lives in code, never the copy.
+//
+// 2026-10-05, Mary Ann's Studio pass: seven tabs became five, plain titles.
+// UNLIKE the page singletons, the control labels here stay required: the
+// preview has no built-in words for them (AtelierStudio.astro), so an empty one
+// would leave a choice on the website with no name, which is worse than a red
+// note she can fix by typing. Every one is filled in today.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { SparklesIcon } from '@sanity/icons';
+import { TOO_LONG } from './_copy';
+
+/** Friendly "please fill this in" for the labels the preview cannot do without. */
+const NEEDED =
+  'Please fill this in. The monogram preview shows these words and has nothing to use instead.';
 
 export const atelierSettings = defineType({
   name: 'atelierSettings',
-  title: 'Monogram Preview (Atelier)',
+  title: 'Monogram preview',
   type: 'document',
   icon: SparklesIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'section', title: 'Section words', default: true },
-    { name: 'controls', title: 'Control labels' },
-    { name: 'styles', title: 'Monogram styles' },
-    { name: 'fabrics', title: 'Fabrics' },
-    { name: 'samples', title: 'Sample initials' },
-    { name: 'buttons', title: 'Buttons & notice' },
-    { name: 'hero', title: 'Home page try-it box' },
+    { name: 'section', title: 'Words above the preview' },
+    { name: 'controls', title: 'Labels on the choices' },
+    { name: 'styles', title: 'Styles and fabrics' },
+    { name: 'buttons', title: 'Buttons and notice' },
+    { name: 'hero', title: 'Top of the home page' },
   ],
   fields: [
-    // ── Section copy ─────────────────────────────────────────────────────────
+    // ── Words above the preview ──────────────────────────────────────────────
     defineField({
       name: 'eyebrow',
-      title: 'Small label above the heading',
+      title: 'Small line above the heading',
       type: 'string',
       group: 'section',
-      description: 'E.g. "The monogram studio".',
-      validation: (R) => R.required().max(60),
+      description:
+        'The monogram preview is the section on your home page where visitors type their initials and watch them stitched. For example "The monogram studio".',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'headline',
-      title: 'Headline',
+      title: 'Heading',
       type: 'string',
       group: 'section',
       description: 'The big heading above the live preview.',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'subhead',
-      title: 'Short line under the heading',
+      title: 'Line under the heading',
       type: 'text',
       rows: 2,
       group: 'section',
-      validation: (R) => R.required().max(240),
+      validation: (R) => R.max(240).warning(TOO_LONG),
     }),
 
-    // ── Control labels ───────────────────────────────────────────────────────
+    // ── Labels on the choices ────────────────────────────────────────────────
     defineField({
       name: 'initialsLabel',
-      title: 'Label for the initials box',
+      title: 'Label on the initials box',
       type: 'string',
       group: 'controls',
-      validation: (R) => R.required().max(40),
+      validation: (R) => [R.required().error(NEEDED), R.max(40).warning(TOO_LONG)],
     }),
     defineField({
       name: 'initialsHint',
       title: 'Hint under the initials box',
       type: 'string',
       group: 'controls',
-      description: 'E.g. "One to three letters".',
-      validation: (R) => R.required().max(100),
+      description: 'For example "One to three letters".',
+      validation: (R) => [R.required().error(NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'styleLabel',
-      title: 'Label for the monogram style choice',
+      title: 'Label on the style choice',
       type: 'string',
       group: 'controls',
-      validation: (R) => R.required().max(40),
+      validation: (R) => [R.required().error(NEEDED), R.max(40).warning(TOO_LONG)],
     }),
     defineField({
       name: 'threadLabel',
-      title: 'Label for the thread color choice',
+      title: 'Label on the thread color choice',
       type: 'string',
       group: 'controls',
-      validation: (R) => R.required().max(40),
+      validation: (R) => [R.required().error(NEEDED), R.max(40).warning(TOO_LONG)],
     }),
     defineField({
       name: 'fabricLabel',
-      title: 'Label for the fabric choice',
+      title: 'Label on the fabric choice',
       type: 'string',
       group: 'controls',
-      validation: (R) => R.required().max(40),
+      validation: (R) => [R.required().error(NEEDED), R.max(40).warning(TOO_LONG)],
     }),
 
-    // ── Styles ───────────────────────────────────────────────────────────────
+    // ── Styles and fabrics ───────────────────────────────────────────────────
     defineField({
       name: 'styles',
       title: 'Monogram styles',
       type: 'array',
       group: 'styles',
       description:
-        'The five lettering looks the preview can show. You can rename them and change the one-line description. The "style key" is fixed by the website, so please do not change it.',
+        'The five lettering looks the preview can show. You can rename them and change the one-line description. Please leave "Which lettering" as it is, because the website uses it to draw the letters.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -101,7 +111,7 @@ export const atelierSettings = defineType({
           fields: [
             defineField({
               name: 'key',
-              title: 'Style key (do not change)',
+              title: 'Which lettering (please do not change)',
               type: 'string',
               description: 'Tells the website which lettering to draw.',
               options: {
@@ -114,44 +124,44 @@ export const atelierSettings = defineType({
                 ],
                 layout: 'dropdown',
               },
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please pick which lettering this is.'),
             }),
             defineField({
               name: 'label',
-              title: 'Name shown to customers',
+              title: 'Name customers see',
               type: 'string',
-              validation: (R) => R.required().max(40),
+              validation: (R) => [
+                R.required().error('Please give this style a name.'),
+                R.max(40).warning(TOO_LONG),
+              ],
             }),
             defineField({
               name: 'blurb',
               title: 'One-line description',
               type: 'string',
-              validation: (R) => R.required().max(120),
+              validation: (R) => R.max(120).warning(TOO_LONG),
             }),
           ],
           preview: { select: { title: 'label', subtitle: 'blurb' } },
         }),
       ],
       validation: (R) =>
-        R.required()
-          .min(1)
+        R.min(1)
           .max(5)
           .custom((items: any[] | undefined) => {
             const keys = (items ?? []).map((i) => i?.key).filter(Boolean);
             return new Set(keys).size === keys.length
               ? true
-              : 'Each monogram style can only be used once.';
+              : 'Each lettering can only be used once. Please remove the copy.';
           }),
     }),
-
-    // ── Fabrics ──────────────────────────────────────────────────────────────
     defineField({
       name: 'fabrics',
       title: 'Fabrics',
       type: 'array',
-      group: 'fabrics',
+      group: 'styles',
       description:
-        'The cloth colors customers can preview their monogram on. The color is only for the preview picture.',
+        'The cloth colors visitors can try their monogram on. The color only paints the preview picture. Drag to change the order.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -159,52 +169,99 @@ export const atelierSettings = defineType({
           fields: [
             defineField({
               name: 'key',
-              title: 'Short ID',
+              title: 'Short name for the website (please do not change later)',
               type: 'string',
-              description: 'Lowercase, no spaces. E.g. "navy-canvas". Please do not change later.',
+              description: 'Small letters and dashes only, for example "navy-canvas".',
               validation: (R) =>
-                R.required().regex(/^[a-z0-9-]+$/, {
-                  name: 'id',
-                  invert: false,
-                }),
+                R.required()
+                  .regex(/^[a-z0-9-]+$/, { name: 'id', invert: false })
+                  .error('Please use small letters, numbers and dashes only, like "navy-canvas".'),
             }),
             defineField({
               name: 'label',
               title: 'Fabric name',
               type: 'string',
-              validation: (R) => R.required().max(40),
+              validation: (R) => [
+                R.required().error('Please give this fabric a name.'),
+                R.max(40).warning(TOO_LONG),
+              ],
             }),
             defineField({
               name: 'color',
-              title: 'Fabric color (hex)',
+              title: 'Fabric color code',
               type: 'string',
-              description: 'E.g. "#e8dcc8". Used to paint the cloth in the preview.',
+              description:
+                'A color code starting with #, for example "#e8dcc8". Used to paint the cloth in the preview.',
               validation: (R) =>
                 R.required()
                   .regex(/^#[0-9A-Fa-f]{6}$/, { name: 'hex', invert: false })
-                  .error('Must be a valid hex color like #e8dcc8.'),
+                  .error('Please type a color code like #e8dcc8 (a # and six letters or numbers).'),
             }),
             defineField({
               name: 'note',
-              title: 'Short note (optional)',
+              title: 'Short note',
               type: 'string',
-              validation: (R) => R.max(120),
+              validation: (R) => R.max(120).warning(TOO_LONG),
             }),
           ],
           preview: { select: { title: 'label', subtitle: 'color' } },
         }),
       ],
-      validation: (R) => R.required().min(2).max(12),
+      validation: (R) => R.min(2).max(12).warning('The preview works best with 2 to 12 fabrics.'),
     }),
 
-    // ── Sample initials ──────────────────────────────────────────────────────
+    // ── Buttons and notice ───────────────────────────────────────────────────
+    defineField({
+      name: 'replayLabel',
+      title: 'Words on the replay button',
+      type: 'string',
+      group: 'buttons',
+      validation: (R) => [R.required().error(NEEDED), R.max(30).warning(TOO_LONG)],
+    }),
+    defineField({
+      name: 'ctaLabel',
+      title: 'Words on the request button',
+      type: 'string',
+      group: 'buttons',
+      description: 'The button that sends their design to the quote form.',
+      validation: (R) => [R.required().error(NEEDED), R.max(40).warning(TOO_LONG)],
+    }),
+    defineField({
+      name: 'disclaimer',
+      title: 'Note that this is only a preview',
+      type: 'text',
+      rows: 3,
+      group: 'buttons',
+      description:
+        'Shown near the preview so nobody mistakes it for a final proof. Keep the idea that you confirm the lettering and colors before stitching.',
+      validation: (R) => R.max(300).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'pauseLabel',
+      title: 'Pause button, read aloud',
+      type: 'string',
+      group: 'buttons',
+      description:
+        'Anything that moves on its own (the stitching on the home page, the moving ribbon of item names) has a small pause button. Screen readers say these words, for example "Pause".',
+      validation: (R) => R.max(30).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'playLabel',
+      title: 'Play button, read aloud',
+      type: 'string',
+      group: 'buttons',
+      description: 'The same button once it has been paused, for example "Play".',
+      validation: (R) => R.max(30).warning(TOO_LONG),
+    }),
+
+    // ── Top of the home page ─────────────────────────────────────────────────
     defineField({
       name: 'sampleMonograms',
-      title: 'Sample initials for the animation',
+      title: 'Sample initials that stitch themselves',
       type: 'array',
-      group: 'samples',
+      group: 'hero',
       description:
-        'Initials the home page stitches one after another. Use made-up initials only, never a real customer.',
+        'Initials the top of your home page stitches one after another. Please use made-up initials only, never a real customer.',
       of: [
         defineArrayMember({
           type: 'string',
@@ -213,72 +270,33 @@ export const atelierSettings = defineType({
               .min(1)
               .max(3)
               .regex(/^[A-Za-z]+$/, { name: 'letters', invert: false })
-              .error('One to three letters, no spaces.'),
+              .error('Please use one to three letters, with no spaces.'),
         }),
       ],
-      validation: (R) => R.required().min(3).max(16),
+      validation: (R) => R.min(3).max(16).warning('The animation works best with 3 to 16 sets.'),
     }),
-
-    // ── Buttons and notice ───────────────────────────────────────────────────
-    defineField({
-      name: 'replayLabel',
-      title: 'Replay button text',
-      type: 'string',
-      group: 'buttons',
-      validation: (R) => R.required().max(30),
-    }),
-    defineField({
-      name: 'ctaLabel',
-      title: 'Request button text',
-      type: 'string',
-      group: 'buttons',
-      description: 'The button that sends the design to the quote form.',
-      validation: (R) => R.required().max(40),
-    }),
-    defineField({
-      name: 'disclaimer',
-      title: 'Preview notice',
-      type: 'text',
-      rows: 3,
-      group: 'buttons',
-      description:
-        'Shown near the preview so nobody mistakes it for a final proof. Keep the idea that you confirm lettering and colors before stitching.',
-      validation: (R) => R.required().max(300),
-    }),
-    defineField({
-      name: 'pauseLabel',
-      title: 'Pause button (for moving things)',
-      type: 'string',
-      group: 'buttons',
-      description:
-        'Anything that moves on its own (the stitching on the home page, the scrolling ribbon of item names) has a small pause button. Screen readers say these words, e.g. "Pause".',
-      validation: (R) => R.max(30),
-    }),
-    defineField({
-      name: 'playLabel',
-      title: 'Play button (after pausing)',
-      type: 'string',
-      group: 'buttons',
-      description: 'The same button once it has been paused, e.g. "Play".',
-      validation: (R) => R.max(30),
-    }),
-
-    // ── Home page try-it box ─────────────────────────────────────────────────
     defineField({
       name: 'heroTryLabel',
-      title: 'Label for the small try-it box on the home page',
+      title: 'Label on the small try-it box',
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(60),
+      description:
+        'The small box at the top of your home page where visitors type their own initials.',
+      validation: (R) => [R.required().error(NEEDED), R.max(60).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroPlaceholder',
-      title: 'Placeholder inside the try-it box',
+      title: 'Faint example inside the try-it box',
       type: 'string',
       group: 'hero',
-      description: 'Faint example text, e.g. "MAS".',
-      validation: (R) => R.required().max(20),
+      description: 'For example "MAS".',
+      validation: (R) => R.max(20).warning(TOO_LONG),
     }),
   ],
-  preview: { prepare: () => ({ title: 'Monogram Preview (Atelier)' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Monogram preview',
+      subtitle: 'On your home page: visitors type initials and watch them stitched',
+    }),
+  },
 });

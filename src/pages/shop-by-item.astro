@@ -13,19 +13,24 @@ import Spool from '@/components/motifs/Spool.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { splitSwash } from '@/components/gallery/swash';
 import { pickCardImage } from '@/lib/hoop';
-import {
-  getSiteSettings,
-  getShopIndexPage,
-  getAllItemCategories,
-  getAllThreadColors,
-} from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editOther } from '@/lib/edit-target';
+import { loadShopByItem, type PageProps, type ShopByItemData } from '@/lib/page-data';
 
-const [siteSettings, page, categories, threads] = await Promise.all([
-  getSiteSettings(),
-  getShopIndexPage(),
-  getAllItemCategories(),
-  getAllThreadColors(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<ShopByItemData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadShopByItem()]);
+const { page, categories, threads } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'Shop by Item — MAS Monograms';
 const description =
@@ -70,7 +75,7 @@ function priceHint(cat: any): string | null {
 }
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
   <section class="shop-intro surface-midnight py-section-lg" aria-labelledby="shop-heading">
     <div
       class="mx-auto grid max-w-content grid-cols-1 items-center gap-l px-m lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
@@ -136,6 +141,7 @@ function priceHint(cat: any): string | null {
                     class="hoop-wall__item"
                     style={`--w:${s.size}px;--drop:${s.drop}`}
                     data-reveal
+                    data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
                   >
                     <CategoryCard
                       name={cat.name}
@@ -171,7 +177,7 @@ function priceHint(cat: any): string | null {
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 
 <style>
   /* The spools are sized against the rack itself (a size container), not the

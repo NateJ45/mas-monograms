@@ -1,43 +1,81 @@
 ---
 /* ============================================================================
-   Preview route - draft-aware pages for the Studio Presentation tool
-   (ported from ncs-astro-sanity-starter 2026-08-28, PORTS.md cards 10 and 17)
+   Preview route - the REAL pages, from draft data, for "Edit on the page"
+   (ported from ncs-astro-sanity-starter 2026-08-28, PORTS.md cards 10 and 17;
+   rebuilt 2026-10-05, Phase C of the Studio upgrade)
    ============================================================================
-   One SSR route renders ANY page singleton in draft mode for the Presentation
-   Tool: it reads the perspective cookie, fetches the doc draft-aware (stega on),
-   and renders it.
+   One SSR route renders ANY page in draft mode for the Presentation tool. It
+   reads the perspective cookie, runs the page's own LOADER (src/lib/page-data.ts)
+   through the draft-aware client (stega on), and then renders THE PAGE FILE
+   ITSELF (src/pages/<name>.astro, imported below as a component) with a
+   `preview` prop: the draft data, the click-target document and PreviewLayout.
+   The page wears that shell instead of BaseLayout and skips its own fetch.
 
-   WHAT SHAPE THIS SITE'S PREVIEW TAKES, AND WHY
+   So the canvas Mary Ann edits in IS her website: same header and footer, same
+   sections, same photos, same order, from one file. There is no "editable
+   surface" stand-in any more (that was the 2026-08-28 shape: a hero, the raw
+   lists and a note, in the pre-redesign look).
 
-   The starter has two page shapes: BUILDER pages, whose whole body is a
-   `pageBuilder` array and which therefore preview at full fidelity through the
-   same SectionRenderer the live page uses; and BESPOKE pages, whose middles are
-   drawn in code and which preview as their EDITABLE SURFACE.
+   WHY THE PAGE FILE AND NOT A SHARED "BODY" COMPONENT (tried first, 2026-10-05):
+   moving a page's markup into a component of its own changed the LIVE HTML.
+   The extra component boundary reorders rendering, so React's generated ids in
+   the FAQ accordion moved (r9 -> r17), and it reorders the CSS modules, so a
+   component's styles landed after the page's own on /thank-you (a cascade
+   change, not just bytes). Rendering the page file itself keeps its markup,
+   styles and scripts exactly where they were: `npm run parity compare` stays
+   23/23 by construction.
 
-   MAS Monograms has only the second kind. All twelve page singletons are bespoke
-   fixed-field documents and there is no SectionRenderer in this codebase at all,
-   so every page previews as its editable surface: the hero, the repeatable lists
-   the page is built from, and the closing call to action, with a note on the page
-   saying so. Converting a page to a builder array would upgrade its preview for
-   free (PORTS.md card 12) and is deliberately not attempted here.
+   What the preview adds on top of the live markup, and only here:
+     - stega on every string (click a line to edit it, and the "Edit here" card
+       on the lines registered in src/lib/page-fields.ts);
+     - `data-sanity` click targets on photos and list items, through the
+       page's `edit` (src/lib/edit-target.ts). The live pages never get one, so
+       the static HTML carries none of it.
 
-   That surface is honest rather than decorative. It renders the REAL Hero
-   component, so hero edits look like the site, and it renders every repeatable
-   array as its own labeled block carrying the `data-sanity` attribute that gives
-   Mary Ann in-canvas add / duplicate / remove / reorder (PORTS.md card 17).
-
-   Keep the path -> type map in sync with SINGLETON_PREVIEW_PATHS in
+   Keep the path map in sync with SINGLETON_PREVIEW_PATHS in
    src/sanity/resolve.ts and FIRST_SEGMENT_PREVIEWABLE in
-   src/layouts/PreviewLayout.astro. noindex comes from PreviewLayout.
+   src/layouts/PreviewLayout.astro. Category pages (/<slug>) are matched by
+   their documents here and handed to the layout as data. noindex comes from
+   PreviewLayout.
    ============================================================================ */
 export const prerender = false;
 
 import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
 import { isStudioPreview } from '@/lib/preview-auth';
 import PreviewLayout from '@/layouts/PreviewLayout.astro';
-import Hero from '@/components/Hero.astro';
 import { previewFetch, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
-import { arrayItemEditAttr, fieldEditAttr, type EditableArrayField } from '@/lib/preview-edit-attr';
+import { SITE_SETTINGS_PROJECTION } from '@/lib/queries';
+import {
+  loadAbout,
+  loadCategory,
+  loadClearance,
+  loadFontGuide,
+  loadHome,
+  loadHowItWorks,
+  loadNotFound,
+  loadPricing,
+  loadRequestQuote,
+  loadShopByItem,
+  loadStyleGallery,
+  loadThankYou,
+  loadThreadChart,
+  previewFetcher,
+  type Fetcher,
+} from '@/lib/page-data';
+import type { EditDoc } from '@/lib/preview-edit-attr';
+import HomePage from '../index.astro';
+import HowItWorksPage from '../how-it-works.astro';
+import PricingPage from '../pricing.astro';
+import AboutPage from '../about.astro';
+import RequestQuotePage from '../request-a-quote.astro';
+import ShopByItemPage from '../shop-by-item.astro';
+import StyleGalleryPage from '../style-gallery.astro';
+import FontGuidePage from '../font-lettering-guide.astro';
+import ThreadChartPage from '../thread-color-chart.astro';
+import ClearancePage from '../clearance.astro';
+import ThankYouPage from '../thank-you.astro';
+import NotFoundBody from '@/components/pages/NotFoundBody.astro';
+import CategoryPage from '../[slug].astro';
 
 // Fresh clone / unset secret: say so, do not 500.
 const config = previewConfig();
@@ -49,237 +87,152 @@ if (!config.ok) {
 // presence check let anyone who typed the cookie into their browser read
 // drafts through the server's token. isStudioPreview compares it with the
 // fingerprint /api/draft-mode/enable writes (src/lib/preview-auth.ts).
-const draftMode = await isStudioPreview(Astro.cookies.get(perspectiveCookieName)?.value);
+let draftMode = await isStudioPreview(Astro.cookies.get(perspectiveCookieName)?.value);
 
-// Never let a browser cache a preview page (2026-08-28). These SSR responses
-// carried NO Cache-Control, so browsers applied heuristic caching - and the
-// Presentation iframe kept serving the PREVIOUS deploy's page (stale island
-// hashes, invisible new editor features) until the cache aged out. Draft
-// content is per-cookie anyway; caching it was never right.
+// LOCAL DEVELOPMENT ONLY: `?dev-draft=1` turns draft mode on without the
+// Studio's cookie, so an agent or a developer can render a page exactly as the
+// canvas does (drafts, stega, the overlay) against `astro dev` and the token in
+// .dev.vars, and screenshot it. `import.meta.env.DEV` is the literal `false` in
+// a production build, so the whole block is removed from the bundle;
+// scripts/check-preview-bypass.mjs fails the build job if it ever is not.
+if (import.meta.env.DEV) {
+  if (Astro.url.searchParams.get('dev-draft') === '1') draftMode = true;
+}
+
+// Never let a browser cache a preview page (2026-08-28). Draft content is
+// per-cookie, and a cached page kept serving the previous deploy's islands.
 Astro.response.headers.set('Cache-Control', 'no-store');
 const slug = (Astro.params.slug as string | undefined) || '';
 
+interface PreviewPage {
+  /** The page singleton (or collection type) the page shows. */
+  type: string;
+  /** The page file, rendered as a component (null: the 404, drawn by NotFoundBody). */
+  component: ((props: { preview: unknown }) => unknown) | null;
+  /** Its loader, run against drafts. */
+  load: (fetch: Fetcher) => Promise<unknown>;
+}
+
 /**
- * One entry per previewable page. `arrays` names the repeatable object arrays on
- * that page, in the order they appear on the live page, with the label Mary Ann
- * sees in the Studio. These are the field names the in-canvas controls patch, so
- * they must match src/sanity/schemaTypes/<type>.ts exactly.
+ * One entry per previewable page: the page singleton it shows, the page file
+ * and that file's loader. Category pages (/<slug>) are matched by document
+ * below.
  *
  * Mirror of SINGLETON_PREVIEW_PATHS in src/sanity/resolve.ts and
  * FIRST_SEGMENT_PREVIEWABLE in src/layouts/PreviewLayout.astro.
  */
-const PREVIEW_PAGES: Record<
-  string,
-  { type: string; label: string; arrays: Array<{ field: EditableArrayField; label: string }> }
-> = {
-  '': {
-    type: 'homePage',
-    label: 'Home',
-    arrays: [
-      { field: 'trustItems', label: 'Trust bar' },
-      { field: 'processSteps', label: 'How it works, in three steps' },
-    ],
-  },
+const PREVIEW_PAGES: Record<string, PreviewPage> = {
+  '': { type: 'homePage', component: HomePage, load: (f) => loadHome(f) },
   'how-it-works': {
     type: 'howItWorksPage',
-    label: 'How It Works',
-    arrays: [{ field: 'steps', label: 'Steps' }],
+    component: HowItWorksPage,
+    load: (f) => loadHowItWorks(f),
   },
-  pricing: {
-    type: 'pricingPage',
-    label: 'Pricing',
-    arrays: [{ field: 'addons', label: 'Add-ons' }],
-  },
-  about: {
-    type: 'aboutPage',
-    label: 'About',
-    arrays: [{ field: 'values', label: 'What matters here' }],
-  },
+  pricing: { type: 'pricingPage', component: PricingPage, load: (f) => loadPricing(f) },
+  about: { type: 'aboutPage', component: AboutPage, load: (f) => loadAbout(f) },
   'request-a-quote': {
     type: 'requestAQuotePage',
-    label: 'Request a Quote',
-    arrays: [
-      { field: 'heroTrustItems', label: 'Hero trust items' },
-      { field: 'referralOptions', label: '"How did you hear about us" options' },
-    ],
+    component: RequestQuotePage,
+    load: (f) => loadRequestQuote(f),
   },
-  'shop-by-item': { type: 'shopIndexPage', label: 'Shop by Item', arrays: [] },
+  'shop-by-item': {
+    type: 'shopIndexPage',
+    component: ShopByItemPage,
+    load: (f) => loadShopByItem(f),
+  },
   'style-gallery': {
     type: 'styleGalleryPage',
-    label: 'Style Gallery',
-    arrays: [{ field: 'filterGroups', label: 'Filter groups' }],
+    component: StyleGalleryPage,
+    load: (f) => loadStyleGallery(f),
   },
-  'font-lettering-guide': { type: 'fontGuidePage', label: 'Font & Lettering Guide', arrays: [] },
-  'thread-color-chart': { type: 'threadChartPage', label: 'Thread Color Chart', arrays: [] },
-  clearance: { type: 'clearancePage', label: 'Clearance', arrays: [] },
-  'thank-you': {
-    type: 'thankYouPage',
-    label: 'Thank You',
-    arrays: [{ field: 'nextSteps', label: 'What happens next' }],
+  'font-lettering-guide': {
+    type: 'fontGuidePage',
+    component: FontGuidePage,
+    load: (f) => loadFontGuide(f),
   },
-  '404': { type: 'notFoundPage', label: '404 Page', arrays: [] },
+  'thread-color-chart': {
+    type: 'threadChartPage',
+    component: ThreadChartPage,
+    load: (f) => loadThreadChart(f),
+  },
+  clearance: { type: 'clearancePage', component: ClearancePage, load: (f) => loadClearance(f) },
+  'thank-you': { type: 'thankYouPage', component: ThankYouPage, load: (f) => loadThankYou(f) },
+  // The 404 is the one page drawn by a body component (see src/pages/404.astro
+  // for why), so it gets its shell here rather than from the page file.
+  '404': { type: 'notFoundPage', component: null, load: (f) => loadNotFound(f) },
 };
 
-const page = PREVIEW_PAGES[slug];
-if (!page) {
+const draftFetch = <T,>(query: string, params: Record<string, unknown> = {}) =>
+  previewFetch<T>(draftMode, query, params);
+const fetcher = previewFetcher(draftFetch);
+
+// The category slugs: a category page previews at /preview/<slug>, and the
+// click interceptor keeps a category card's click inside the canvas.
+const categorySlugs: string[] =
+  (await draftFetch<string[]>(
+    `*[_type == "itemCategory" && defined(slug.current)].slug.current`,
+  ).catch((): string[] => [])) ?? [];
+
+let entry: PreviewPage | undefined = PREVIEW_PAGES[slug];
+let docId: string | null = null;
+if (!entry && categorySlugs.includes(slug)) {
+  entry = { type: 'itemCategory', component: CategoryPage, load: (f) => loadCategory(slug, f) };
+  docId = await draftFetch<string | null>(
+    `*[_type == "itemCategory" && slug.current == $slug][0]._id`,
+    { slug },
+  );
+}
+if (!entry) {
   return new Response(
-    `"${slug}" is not a previewable page. Previewable: ${Object.keys(PREVIEW_PAGES)
+    `"${slug}" is not a previewable page. Previewable: ${[
+      ...Object.keys(PREVIEW_PAGES),
+      ...categorySlugs,
+    ]
       .map((s) => `/preview/${s}`)
       .join(', ')}`,
     { status: 404 },
   );
 }
 
-// Reusable image projection, mirroring IMG in src/lib/queries.ts.
-const IMG = `{
-  asset->,
-  "alt": coalesce(alt, asset->altText, ""),
-  "dimensions": {
-    "width": asset->metadata.dimensions.width,
-    "height": asset->metadata.dimensions.height
-  }
-}`;
-
-// Every hero / CTA field any page type may carry, plus its arrays raw. Absent
-// fields come back null and the surface below skips them. `...` pulls the arrays
-// (and everything else) through without naming each one, so adding a field to
-// PREVIEW_PAGES needs no query edit.
-const PREVIEW_FIELDS = `{
-  ...,
-  seoImage ${IMG},
-  heroImages[] ${IMG},
-  heroImage ${IMG}
-}`;
-
-interface PreviewDoc {
-  _id: string;
-  _type: string;
-  [key: string]: unknown;
-}
-
-const doc = await previewFetch<PreviewDoc | null>(
-  draftMode,
-  `*[_type == $type][0]${PREVIEW_FIELDS}`,
-  { type: page.type },
-);
-
-if (!doc) {
-  return new Response(
-    `No "${page.type}" document found. Create it in the Studio, then reopen the preview.`,
-    { status: 404 },
-  );
-}
-
 // The doc id the overlay and /preview/live listen on. The draft perspective can
 // return the drafts. twin's id; strip the prefix so the listen filter matches
-// both twins.
-const pageId = doc._id.replace(/^drafts\./, '');
+// both twins. A page that has never been created still renders (the page's own
+// fallbacks, exactly as the live page would), under the singleton's id.
+docId ??= await draftFetch<string | null>(`*[_type == $type][0]._id`, { type: entry.type });
+const pageId = (docId ?? entry.type).replace(/^drafts\./, '');
 
-// ---------------------------------------------------------------------------
-// In-canvas controls (PORTS.md card 17)
-// ---------------------------------------------------------------------------
-// Passed regardless of draftMode. The attribute is inert without the Studio's
-// overlay, this route is noindex and never part of the static build, and a
-// preview opened before the cookie lands would otherwise render uncontrollable
-// items.
-const editDoc = { id: pageId, type: doc._type };
+// Photo and list click targets (src/lib/edit-target.ts). Passed regardless of
+// draftMode: the attribute is inert without the Studio's overlay, this route is
+// noindex and never part of the static build, and a preview opened before the
+// cookie lands would otherwise render uncontrollable items.
+const edit: EditDoc = { id: pageId, type: entry.type };
 
-const str = (v: unknown): string => (typeof v === 'string' ? v : '');
-const heroHeadline = str(doc.heroHeadline) || str(doc.headline) || str(doc.seoTitle) || page.label;
-const heroEyebrow = str(doc.heroEyebrow) || str(doc.eyebrow);
-const heroSubhead = str(doc.heroSubhead) || str(doc.subhead);
-const heroImages = (Array.isArray(doc.heroImages) ? doc.heroImages : []).filter(
-  (i: any) => i?.asset,
-);
+const [data, siteSettings] = await Promise.all([
+  entry.load(fetcher),
+  draftFetch<any>(`*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`).catch(() => null),
+]);
 
-// The closing CTA band. Field names differ slightly per page, so coalesce.
-const ctaHeadline = str(doc.ctaHeadline) || str(doc.finalCtaHeadline);
-const ctaSubhead = str(doc.ctaSubhead) || str(doc.finalCtaSubhead);
-const ctaLabel = str(doc.ctaLabel) || str(doc.finalCtaLabel);
-
-// The arrays this page actually has content in, paired with their config.
-const arrays = page.arrays
-  .map((a) => ({ ...a, items: (doc[a.field] as any[] | undefined) ?? [] }))
-  .filter((a) => Array.isArray(a.items));
-
-/** The scalar strings on an array item, in schema order, for the card body. */
-function itemLines(item: unknown): string[] {
-  if (!item || typeof item !== 'object') return [String(item ?? '')];
-  return Object.entries(item as Record<string, unknown>)
-    .filter(([k, v]) => !k.startsWith('_') && (typeof v === 'string' || typeof v === 'number'))
-    .map(([, v]) => String(v))
-    .filter(Boolean);
-}
-
-const title = `${page.label} - Preview`;
+const Page = entry.component as any;
+const preview = {
+  data,
+  siteSettings,
+  edit,
+  layout: PreviewLayout,
+  layoutProps: {
+    draftMode,
+    pageId,
+    livePath: slug ? `/${slug}` : '/',
+    categorySlugs,
+  },
+};
 ---
 
-<PreviewLayout {title} {draftMode} {pageId}>
-  <Hero
-    eyebrow={heroEyebrow}
-    headline={heroHeadline}
-    headlineItalicSuffix={str(doc.heroItalicWord)}
-    subhead={heroSubhead}
-    backgroundImages={heroImages.length > 0 ? (heroImages as never) : null}
-    headingId="preview-hero"
-    size="short"
-    layout={heroImages.length > 0 ? 'split' : undefined}
-  />
-
-  <div class="mx-auto max-w-3xl px-4 py-6">
-    <p class="rounded-md border border-border-soft bg-card px-4 py-3 text-sm text-foreground/80">
-      This page's middle is drawn in code (the lists, forms and galleries it is built around), so it
-      previews as its editable surface: the hero above, the lists below, and the closing call to
-      action. Click any words to edit them. The parts held in code render on the live site.
-    </p>
-  </div>
-
-  {
-    arrays.map(({ field, label, items }) => (
-      <section class="mx-auto max-w-3xl px-4 py-4">
-        <h2 class="mb-3 font-display text-h4 text-foreground">{label}</h2>
-        {items.length === 0 ? (
-          <p class="rounded-md border border-dashed border-border-soft px-4 py-6 text-sm text-foreground/70">
-            Nothing here yet. Use the plus control in this canvas, or the "{label}" field in the
-            editor panel, to add the first one.
-          </p>
-        ) : (
-          <ul class="grid gap-3">
-            {items.map((item: any, i: number) => (
-              <li
-                class="rounded-md border border-border-soft bg-card px-4 py-3"
-                data-sanity={arrayItemEditAttr(editDoc, field, item?._key ?? i)}
-              >
-                <span class="mr-2 text-xs font-semibold text-foreground/50">{i + 1}</span>
-                {itemLines(item).map((line, j) => (
-                  <p
-                    class={j === 0 ? 'font-semibold text-foreground' : 'text-sm text-foreground/80'}
-                  >
-                    {line}
-                  </p>
-                ))}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    ))
-  }
-
-  {
-    (ctaHeadline || ctaLabel) && (
-      <section
-        class="mt-8 bg-primary px-4 py-10 text-center text-primary-foreground"
-        data-sanity={fieldEditAttr(editDoc, 'ctaHeadline')}
-      >
-        {ctaHeadline && <h2 class="font-display text-h2">{ctaHeadline}</h2>}
-        {ctaSubhead && <p class="mx-auto mt-2 max-w-xl text-sm">{ctaSubhead}</p>}
-        {ctaLabel && (
-          <span class="mt-4 inline-block rounded-full bg-background px-5 py-2 text-sm font-bold text-foreground">
-            {ctaLabel}
-          </span>
-        )}
-      </section>
-    )
-  }
-</PreviewLayout>
+{
+  Page ? (
+    <Page {preview} />
+  ) : (
+    <PreviewLayout title="Page Not Found" thread={false} {...preview.layoutProps}>
+      <NotFoundBody {...(data as any)} edit={edit} />
+    </PreviewLayout>
+  )
+}

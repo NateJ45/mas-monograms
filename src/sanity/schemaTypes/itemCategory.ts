@@ -1,59 +1,93 @@
 // Item category document. Each category (Shirts, Hats, Golf Bags, etc.)
 // gets its own page at /{slug} and a card in the Shop by Item grid.
-// Everything on that page — heading, intro, trust strip — comes from here.
+// Everything on that page (heading, intro, promises, banner) comes from here.
+//
+// 2026-10-05, Mary Ann's Studio pass: four tabs in page order plus Google,
+// plain titles. Photos are no longer required: an item page with no photos of
+// its own borrows photos of that item from the gallery ([slug].astro,
+// pickHoopImages), and the card falls back to the first top photo
+// (pickCardImage). "Bring Your Own Item" has neither on purpose, and the two
+// required rules were a permanent red mark on it. `featured` is hidden: the
+// home page now shows every category, so the switch changed nothing (data kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { PackageIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  PHOTO_WORDS_NEEDED,
+  TOO_LONG,
+} from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
+import { LockedAddressInput } from '../components/LockedAddressInput';
+
+/** The alt box under a category photo: only asked for once there is a photo. */
+const altField = defineField({
+  name: 'alt',
+  ...PHOTO_WORDS,
+  type: 'string',
+  validation: (R) =>
+    R.custom((value, ctx: any) => (ctx.parent?.asset && !value ? PHOTO_WORDS_NEEDED : true)),
+});
 
 export const itemCategory = defineType({
   name: 'itemCategory',
-  title: 'Item Category',
+  title: 'Shop category',
   type: 'document',
   icon: PackageIcon,
   groups: [
-    { name: 'content', title: 'Content', default: true },
-    { name: 'seo', title: 'Google & sharing' },
+    { name: 'content', title: 'Top of the item page' },
+    { name: 'card', title: 'Card on Shop by Item' },
+    { name: 'photos', title: 'Photos and buttons' },
+    { name: 'banner', title: 'Closing banner' },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
+    // ── Top of the item page ─────────────────────────────────────────────────
     defineField({
       name: 'name',
-      title: 'Category name',
+      title: 'Name of this item',
       type: 'string',
-      description: 'Shown as the page heading and grid card title. E.g. "Polos & Shirts".',
+      description: 'The heading on its own page and on its card, for example "Polos & Shirts".',
       group: 'content',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().error('Please give this item a name.'),
     }),
     defineField({
       name: 'slug',
       title: 'Web address',
       type: 'slug',
-      description: 'The URL for this page. E.g. "shirts" → mas-monograms.com/shirts.',
+      description:
+        'The end of this page\'s address, for example "shirts" makes mas-monograms.com/shirts. Press Generate to make one from the name. Once the page is on your website the address is locked, so old links keep working.',
       options: { source: 'name', maxLength: 50 },
+      // Phase D: locked once published (components/LockedAddressInput.tsx).
+      components: { input: LockedAddressInput },
       group: 'content',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) =>
+        Rule.required().error('Please press Generate so this item has a web address.'),
     }),
     defineField({
       name: 'eyebrow',
-      title: 'Small label above the heading (optional)',
+      title: 'Small line above the heading',
       type: 'string',
-      description: 'Small label above the heading. E.g. "Most popular" or "Great for gifts".',
+      description: 'For example "Most popular" or "Great for gifts". Leave it empty to hide it.',
       group: 'content',
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'A few words about this item',
       type: 'text',
       rows: 4,
-      description: 'Intro paragraph shown at the top of the category page.',
+      description: 'The short paragraph at the top of its page.',
       group: 'content',
-      validation: (Rule) => Rule.required().max(500),
+      validation: (Rule) => Rule.max(500).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroImages',
@@ -61,191 +95,191 @@ export const itemCategory = defineType({
       type: 'array',
       group: 'content',
       description:
-        'One to three photos for the hero. Two or more creates a slow cross-fade slideshow.',
-      of: [
-        defineArrayMember({
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Photo description (helps screen readers & Google)',
-              type: 'string',
-              validation: (R) => R.required(),
-            }),
-          ],
-        }),
-      ],
-      validation: (Rule) => Rule.required().min(1).max(4),
-    }),
-    defineField({
-      name: 'cardImage',
-      title: 'Grid card image',
-      type: 'image',
-      group: 'content',
-      description: 'Thumbnail shown in the Shop by Item category grid. Square crop works best.',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-          validation: (R) => R.required(),
-        }),
-      ],
-      validation: (Rule) => Rule.required(),
+        "One to three photos for the top of this item's page. Leave it empty to use photos of this item from Photos of my work.",
+      of: [defineArrayMember({ type: 'image', options: { hotspot: true }, fields: [altField] })],
+      validation: (Rule) =>
+        Rule.max(4).warning('More than four photos is a lot for the top of a page.'),
     }),
     defineField({
       name: 'trustItems',
-      title: 'Trust strip items',
+      title: 'Short promises under the top',
       type: 'array',
       group: 'content',
       description:
-        'Short reassuring lines shown in the trust strip below the hero. E.g. "Starting at $12 per piece" or "Minimum 12 pieces".',
+        'Short reassuring lines, for example "Starting at $12 per piece". Drag to change the order.',
       of: [defineArrayMember({ type: 'string' })],
-      // Sensible starter lines for a new category — keep, tweak, or replace.
+      // Sensible starter lines for a new category: keep, tweak, or replace.
       initialValue: ['Hand-stitched to order', 'Local pickup or shipping'],
-      validation: (Rule) => Rule.required().min(2).max(5),
+      validation: (Rule) => Rule.max(5).warning('More than five crowds the top of the page.'),
+    }),
+
+    // ── Card on Shop by Item ─────────────────────────────────────────────────
+    defineField({
+      name: 'cardImage',
+      title: 'Photo on its card',
+      type: 'image',
+      group: 'card',
+      description:
+        "The photo on this item's card on Shop by Item and in the circles on your home page. A square photo works best. Leave it empty to use the first top-of-page photo.",
+      options: { hotspot: true },
+      fields: [altField],
     }),
     defineField({
       name: 'startingPrice',
-      title: 'Starting price (optional)',
+      title: 'Starting price',
       type: 'string',
-      group: 'content',
+      group: 'card',
       description:
-        'Short "from" price shown on the shop and category cards. E.g. "from $16". Leave blank to hide.',
-      validation: (Rule) => Rule.max(30),
+        'A short "from" price on its card, for example "from $16". Leave it empty to hide it.',
+      validation: (Rule) => Rule.max(30).warning(TOO_LONG),
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
+    defineField({
+      name: 'displayOrder',
+      title: 'Position in the list',
+      type: 'number',
+      group: 'card',
+      description: 'Smaller numbers come first, on Shop by Item and on your home page. 1 is first.',
+      initialValue: 99,
+      hidden: true,
+      validation: (Rule) =>
+        Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
+    }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'itemCategory', newItemPosition: 'after' }),
+
+    // ── Photos and buttons ───────────────────────────────────────────────────
     defineField({
       name: 'ctaLabel',
-      title: 'CTA button label',
+      title: 'Words on the quote button',
       type: 'string',
-      group: 'content',
-      description: 'Text on the quote request button. E.g. "Request a quote for shirts".',
+      group: 'photos',
+      description:
+        'For example "Request a quote for shirts". Leave it empty to use "Request a Quote".',
       initialValue: 'Request a quote',
-      validation: (Rule) => Rule.required().max(60),
+      validation: (Rule) => Rule.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'galleryHeading',
-      title: "Heading above this item's photos (optional)",
+      title: "Heading above this item's photos",
       type: 'string',
-      group: 'content',
+      group: 'photos',
       description:
-        'Shown above the photos of this item from the Style Gallery, e.g. "Towels & Linens Gallery". Leave blank to use the category name.',
-      validation: (Rule) => Rule.max(80),
+        'Shown above the photos of this item from Photos of my work, for example "Towels & Linens Gallery". Leave it empty to use the item name.',
+      validation: (Rule) => Rule.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'requestSimilarLabel',
-      title: 'Button under the photos (optional)',
+      title: 'Button under the photos',
       type: 'string',
-      group: 'content',
+      group: 'photos',
       description:
-        'The button under the photos that starts a quote for this item, e.g. "Request something like this". Leave blank to use the CTA button label.',
-      validation: (Rule) => Rule.max(60),
+        'Starts a quote for this item, for example "Request something like this". Leave it empty to use the quote button words.',
+      validation: (Rule) => Rule.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'crossSellHeading',
-      title: 'Heading above the other items (optional)',
+      title: 'Heading above the other items',
       type: 'string',
-      group: 'content',
-      description: 'Shown above the circles linking to other items, e.g. "Explore Other Items".',
-      validation: (Rule) => Rule.max(60),
+      group: 'photos',
+      description:
+        'Shown above the circles linking to your other items, for example "Explore Other Items". Leave it empty to use "More items".',
+      validation: (Rule) => Rule.max(60).warning(TOO_LONG),
     }),
+
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'bannerEyebrow',
-      title: 'Bottom banner: small label (optional)',
+      title: 'Small line above the banner headline',
       type: 'string',
-      group: 'content',
+      group: 'banner',
       description:
-        "The dark banner at the bottom of this item's page. Leave the three banner fields blank to use the bottom banner words from the Shop by Item page.",
-      validation: (Rule) => Rule.max(60),
+        "The dark banner at the bottom of this item's page. Leave all three banner boxes empty to use the closing banner from the Shop by Item page.",
+      validation: (Rule) => Rule.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'bannerHeadline',
-      title: 'Bottom banner: headline (optional)',
+      title: 'Banner headline',
       type: 'string',
-      group: 'content',
-      validation: (Rule) => Rule.max(100),
+      group: 'banner',
+      validation: (Rule) => Rule.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'bannerSubhead',
-      title: 'Bottom banner: text (optional)',
+      title: 'Banner text',
       type: 'text',
       rows: 2,
-      group: 'content',
-    }),
-    defineField({
-      name: 'displayOrder',
-      title: 'Display order',
-      type: 'number',
-      group: 'content',
-      description: 'Lower numbers appear first in the Shop by Item grid.',
-      initialValue: 99,
-      validation: (Rule) => Rule.required().integer().min(0),
-    }),
-    defineField({
-      name: 'featured',
-      title: 'Featured on home page',
-      type: 'boolean',
-      group: 'content',
-      description: 'When on, this category appears in the homepage categories preview.',
-      initialValue: false,
+      group: 'banner',
     }),
 
-    // SEO
+    // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
     defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
       type: 'string',
       group: 'seo',
       fieldset: 'seo',
-      description: 'Browser tab and Google title. Aim for 50–60 characters.',
-      validation: (Rule) =>
-        Rule.max(60).warning('Over 60 characters may be cut off in search results.'),
+    }),
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (Rule) => Rule.max(60).warning(SEO_TITLE_TOO_LONG),
     }),
     defineField({
       name: 'seoDescription',
-      title: 'Google search description',
+      ...SEO_DESCRIPTION,
       type: 'text',
       rows: 3,
       group: 'seo',
       fieldset: 'seo',
-      description: 'Shown under the title in Google. Aim for 150–160 characters.',
-      validation: (Rule) =>
-        Rule.max(160).warning('Over 160 characters may be cut off in search results.'),
+      validation: (Rule) => Rule.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
     }),
     defineField({
       name: 'seoImage',
-      title: 'Photo shown when the page is shared',
+      ...SEO_IMAGE,
       type: 'image',
       group: 'seo',
       fieldset: 'seo',
-      description:
-        'Image shown when this page is shared. ~1200 × 630 px. Overrides the site default.',
       options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+    }),
+
+    // ── Hidden: no longer changes anything (data kept) ───────────────────────
+    defineField({
+      name: 'featured',
+      title: 'Old "show on home page" switch (not used)',
+      type: 'boolean',
+      hidden: true,
     }),
   ],
+  // Search weights (Phase A task 6): her own word for it is the item name.
+  __experimental_search: [{ path: 'name', weight: 10 }],
   preview: {
-    select: { title: 'name', subtitle: 'slug.current', media: 'cardImage' },
-    prepare: ({ title, subtitle, media }) => ({
-      title: title ?? '(unnamed category)',
-      subtitle: subtitle ? `/${subtitle}` : '(no slug)',
-      media,
+    select: { title: 'name', subtitle: 'slug.current', media: 'cardImage', backup: 'heroImages.0' },
+    prepare: ({ title, subtitle, media, backup }) => ({
+      title: title ?? '(no name yet)',
+      subtitle: subtitle ? `mas-monograms.com/${subtitle}` : 'No web address yet',
+      media: media ?? backup,
     }),
   },
   orderings: [
     {
-      title: 'Display order',
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
+    {
+      title: 'Position in the list',
       name: 'displayOrder',
       by: [{ field: 'displayOrder', direction: 'asc' }],
     },
-    { title: 'Name A–Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
+    { title: 'Name A to Z', name: 'nameAZ', by: [{ field: 'name', direction: 'asc' }] },
   ],
 });

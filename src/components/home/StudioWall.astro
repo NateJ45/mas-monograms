@@ -6,13 +6,16 @@
 import SwatchCard from '@/components/motifs/SwatchCard.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import { swashSplit } from './swashSplit';
+import { editOther, type Edit } from '@/lib/edit-target';
 
 interface Props {
   page: any;
   items: any[];
   headingId?: string;
+  /** PREVIEW ONLY: the page document, for photo and list click targets (src/lib/edit-target.ts). */
+  edit?: Edit;
 }
-const { page, items, headingId = 'studio-wall-heading' } = Astro.props as Props;
+const { page, items, headingId = 'studio-wall-heading', edit } = Astro.props as Props;
 const pieces = (items ?? []).filter((it) => it?.image?.asset).slice(0, 12);
 const head = swashSplit(page?.wallHeadline, 2);
 const TILTS = [-2.5, 1.8, -1, 2.6, -1.8, 1.2, -2.8, 2, -1.4, 1.6];
@@ -52,7 +55,12 @@ function focus(img: any): string {
           <div class="studio-wall__board texture-linen on-light">
             <ul class="studio-wall__grid" role="list" data-reveal-stagger="70">
               {pieces.map((it: any, i: number) => (
-                <li class="studio-wall__piece" data-reveal style={`--pin:${PINS[i % PINS.length]}`}>
+                <li
+                  class="studio-wall__piece"
+                  data-reveal
+                  style={`--pin:${PINS[i % PINS.length]}`}
+                  data-sanity={editOther(edit, it._id, 'galleryItem', 'image')}
+                >
                   <span class="studio-wall__pin" aria-hidden="true" />
                   {it.image?.caption || it.relatedCategory?.name ? (
                     <SwatchCard

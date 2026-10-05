@@ -4,15 +4,22 @@
 // src/lib/page-fields.ts duplicates knowledge that lives in the schema, because
 // the preview island cannot ask the Studio which fields a page has. The
 // duplication is only safe while something checks it, so the first half of this
-// file READS THREE SOURCES and fails when they and the registry disagree:
+// file READS FOUR SOURCES and fails when they and the registry disagree:
 //
 //   - src/sanity/schemaTypes/index.ts, for which page singletons are
 //     REGISTERED. An unregistered schema is a file, not a page.
-//   - each page schema, for which of them declares each line, so `onTypes`
-//     cannot drift.
-//   - src/pages/preview/[...slug].astro, for whether the preview surface
-//     actually renders the line. A card can only hang on an element that
-//     exists, and "the schema has the field" is not "the editor sees it".
+//   - each page schema, for which top-level text fields each page declares.
+//   - the PAGE FILES (and the home page's section components), for which of
+//     those fields each page actually draws as words. Since 2026-10-05 the
+//     canvas renders those very files (src/pages/preview/[...slug].astro), so
+//     "the page draws it" is "the canvas draws it".
+//   - the preview route, for whether every page is really rendered from its
+//     own file.
+//
+// Coverage runs both ways: every registered line must be declared AND drawn on
+// exactly the pages it claims, and every text field a page draws must be either
+// registered or listed in NOT_A_CARD with the reason. A new line on a page
+// therefore forces a decision instead of quietly having no card.
 //
 // It also gates the two controls this site deliberately does NOT have. Those
 // absences are decisions, not oversights, and a decision that nothing measures
@@ -36,10 +43,67 @@ const read = (relative: string) =>
 const SCHEMA_INDEX = read('../sanity/schemaTypes/index.ts');
 const PREVIEW_ROUTE = read('../pages/preview/[...slug].astro');
 const HERO = read('../components/Hero.astro');
+const HOME_HERO = read('../components/home/HomeHero.astro');
 
-/** One page schema's source, cached by type name. */
+/**
+ * Where each page's words are drawn. The page file itself, plus, for the home
+ * page, the section components it is built from (each takes `page` whole). The
+ * 404 is the one page drawn by a body component (see src/pages/404.astro).
+ */
+const RENDER_SOURCES: Record<string, string[]> = {
+  homePage: [
+    '../pages/index.astro',
+    '../components/home/HomeHero.astro',
+    '../components/home/HoopWall.astro',
+    '../components/home/MakerBand.astro',
+    '../components/home/ProcessPath.astro',
+    '../components/home/StudioWall.astro',
+    '../components/home/FinalCta.astro',
+  ],
+  howItWorksPage: ['../pages/how-it-works.astro'],
+  pricingPage: ['../pages/pricing.astro'],
+  aboutPage: ['../pages/about.astro'],
+  requestAQuotePage: ['../pages/request-a-quote.astro'],
+  shopIndexPage: ['../pages/shop-by-item.astro'],
+  styleGalleryPage: ['../pages/style-gallery.astro'],
+  fontGuidePage: ['../pages/font-lettering-guide.astro'],
+  threadChartPage: ['../pages/thread-color-chart.astro'],
+  clearancePage: ['../pages/clearance.astro'],
+  thankYouPage: ['../pages/thank-you.astro'],
+  notFoundPage: ['../components/pages/NotFoundBody.astro'],
+};
+
+/**
+ * Text fields a page DOES read, deliberately left to the form, with the reason.
+ * Each is a value that never shows as a line of words of its own.
+ */
+const NOT_A_CARD: Record<string, string> = {
+  namePlaceholder: 'a placeholder inside an empty box, not a line on the page',
+  emailPlaceholder: 'a placeholder inside an empty box',
+  phonePlaceholder: 'a placeholder inside an empty box',
+  itemDescriptionPlaceholder: 'a placeholder inside an empty box',
+  quantityPlaceholder: 'a placeholder inside an empty box',
+  monogramDetailsPlaceholder: 'a placeholder inside an empty box',
+  placementPlaceholder: 'a placeholder inside an empty box',
+  colorPreferencePlaceholder: 'a placeholder inside an empty box',
+  specialInstructionsPlaceholder: 'a placeholder inside an empty box',
+  noScriptMessage: 'only shown to a visitor whose browser has JavaScript off',
+  resultsAnnouncement: 'a {filter}/{count} template read aloud to screen readers',
+  fontCaption: 'a {font} template filled in per photo',
+  moreTagsLabel: 'a {count} template on a button',
+  quantityLeftLabel: 'a {count} template filled in per item',
+  filterGroupName: 'a screen-reader name for the filter group',
+  lightboxLabel: 'a screen-reader name for the photo viewer',
+  lightboxCloseLabel: 'a screen-reader name for a button',
+  lightboxPrevLabel: 'a screen-reader name for a button',
+  lightboxNextLabel: 'a screen-reader name for a button',
+};
+
 const sources = new Map<string, string>(
   PAGE_TYPES.map((type) => [type, read(`../sanity/schemaTypes/${type}.ts`)]),
+);
+const rendered = new Map<string, string>(
+  PAGE_TYPES.map((type) => [type, (RENDER_SOURCES[type] ?? []).map(read).join('\n')]),
 );
 
 /**
@@ -59,6 +123,20 @@ function topLevelFields(source: string): string[] {
   return [...inline, ...wrapped];
 }
 
+/** The top-level fields whose type is a line of words (string or text). */
+function topLevelTextFields(source: string): string[] {
+  const out: string[] = [];
+  for (const m of source.matchAll(/^ {4}defineField\(\{\s*name: '(\w+)',[\s\S]*?type: '(\w+)'/gm)) {
+    if (m[2] === 'string' || m[2] === 'text') out.push(m[1]);
+  }
+  return out;
+}
+
+/** Whether a page's markup reads this field off its document. */
+function draws(type: string, field: string): boolean {
+  return new RegExp(`\\b(page|L|category)(\\?)?\\.${field}\\b`).test(rendered.get(type) ?? '');
+}
+
 // Sanity's stega payload is a run of invisible characters appended to a string.
 const STEGA_TAIL = '​‌‍﻿​‌';
 const encoded = (text: string) => text + STEGA_TAIL;
@@ -67,9 +145,12 @@ const encoded = (text: string) => text + STEGA_TAIL;
 // The drift gate
 // =============================================================================
 
-test('the gate parsed the schemas at all', () => {
+test('the gate parsed the schemas and the pages at all', () => {
   assert.ok(topLevelFields(sources.get('homePage')!).includes('heroHeadline'));
   assert.ok(topLevelFields(sources.get('notFoundPage')!).includes('headline'));
+  assert.ok(topLevelTextFields(sources.get('homePage')!).includes('heroHeadline'));
+  assert.ok(draws('homePage', 'heroHeadline'));
+  assert.ok(draws('notFoundPage', 'headline'));
 });
 
 test('PAGE_TYPES lists exactly the page singletons the Studio registers', () => {
@@ -83,47 +164,84 @@ test('PAGE_TYPES lists exactly the page singletons the Studio registers', () => 
     .map((m) => m[1])
     .filter((name) => name !== 'siteSettings' && name !== 'atelierSettings');
   assert.deepEqual([...PAGE_TYPES], registered);
+  assert.deepEqual(Object.keys(RENDER_SOURCES).sort(), [...PAGE_TYPES].sort());
 });
 
-test('every line in the registry is declared by exactly the types it claims', () => {
-  for (const line of EDITABLE_LINES) {
-    const declaring = PAGE_TYPES.filter((type) =>
-      topLevelFields(sources.get(type)!).includes(line.name),
+test('every page is rendered in the canvas from its own markup', () => {
+  // The preview route imports each page file (or, for the 404, its body) and
+  // renders it. A page missing here would preview as nothing at all.
+  const files: Record<string, string> = {
+    homePage: '../index.astro',
+    howItWorksPage: '../how-it-works.astro',
+    pricingPage: '../pricing.astro',
+    aboutPage: '../about.astro',
+    requestAQuotePage: '../request-a-quote.astro',
+    shopIndexPage: '../shop-by-item.astro',
+    styleGalleryPage: '../style-gallery.astro',
+    fontGuidePage: '../font-lettering-guide.astro',
+    threadChartPage: '../thread-color-chart.astro',
+    clearancePage: '../clearance.astro',
+    thankYouPage: '../thank-you.astro',
+    notFoundPage: '@/components/pages/NotFoundBody.astro',
+  };
+  for (const [type, file] of Object.entries(files)) {
+    assert.ok(
+      PREVIEW_ROUTE.includes(`from '${file}'`),
+      `${type}: the route does not import ${file}`,
     );
+    assert.ok(PREVIEW_ROUTE.includes(`type: '${type}'`), `${type}: the route has no entry for it`);
+  }
+  assert.ok(PREVIEW_ROUTE.includes(`from '../[slug].astro'`), 'category pages are not rendered');
+});
+
+test('every line in the registry is declared AND drawn on exactly the pages it claims', () => {
+  for (const line of EDITABLE_LINES) {
+    const expected = PAGE_TYPES.filter(
+      (type) => topLevelFields(sources.get(type)!).includes(line.name) && draws(type, line.name),
+    );
+    assert.ok(expected.length > 0, `${line.name}: no page declares and draws it`);
     assert.deepEqual(
       [...line.onTypes].sort(),
-      declaring.sort(),
-      `${line.name}: onTypes does not match the schemas that declare it`,
+      expected.sort(),
+      `${line.name}: onTypes does not match the pages that declare and draw it`,
     );
   }
 });
 
-test('every line in the registry is one the preview surface renders', () => {
-  // The preview route reads each of these off the document. A line the route
-  // stopped rendering would leave a card with no element to hang on.
+test('every line in the registry is a line of words', () => {
   for (const line of EDITABLE_LINES) {
-    assert.ok(
-      PREVIEW_ROUTE.includes(`doc.${line.name}`),
-      `${line.name}: the preview route does not render it`,
-    );
+    for (const type of line.onTypes) {
+      assert.ok(
+        topLevelTextFields(sources.get(type)!).includes(line.name),
+        `${line.name} on ${type} is not a string or text field`,
+      );
+    }
+    assert.ok(line.rows >= 1 && line.rows <= 4, `${line.name}: rows out of range`);
+    assert.ok(line.label.trim().length > 0, `${line.name}: no label`);
+    assert.ok(!/—/.test(line.label), `${line.name}: an em-dash in a label she reads`);
   }
 });
 
-test('ctaEyebrow is deliberately absent: the preview banner does not draw it', () => {
-  // The field is real and CtaBanner renders it on the live site, but the
-  // preview's closing band is headline / subhead / button only. Add the line to
-  // the registry on the day the band grows an eyebrow, and not before.
-  const declaring = PAGE_TYPES.filter((type) =>
-    topLevelFields(sources.get(type)!).includes('ctaEyebrow'),
-  );
-  assert.ok(declaring.length > 0, 'ctaEyebrow has gone from the schemas');
-  assert.ok(!PREVIEW_ROUTE.includes('doc.ctaEyebrow'));
-  assert.equal(overlayControlsForPath('ctaEyebrow').length, 0);
+test('every text field a page draws is either a card or deliberately not one', () => {
+  const registered = new Set(EDITABLE_LINES.map((line) => line.name));
+  const missing: string[] = [];
+  for (const type of PAGE_TYPES) {
+    for (const field of topLevelTextFields(sources.get(type)!)) {
+      if (/^seo/.test(field) || /Href$/.test(field)) continue; // Google words and addresses
+      if (!draws(type, field)) continue;
+      if (!registered.has(field) && !NOT_A_CARD[field]) missing.push(`${type}.${field}`);
+    }
+  }
+  assert.deepEqual(missing, [], 'decide: add these to EDITABLE_LINES or to NOT_A_CARD');
+});
+
+test('nothing in NOT_A_CARD is also a card', () => {
+  for (const line of EDITABLE_LINES) assert.ok(!NOT_A_CARD[line.name], line.name);
 });
 
 test('finalCtaHeadline is deliberately absent: no registered page declares it', () => {
-  // The preview route coalesces it, which is starter inheritance rather than a
-  // field anybody here can edit.
+  // Starter inheritance (the sibling repos' closing banner field). The home
+  // page's closing banner here is `finalHeadline`.
   const declaring = PAGE_TYPES.filter((type) =>
     topLevelFields(sources.get(type)!).includes('finalCtaHeadline'),
   );
@@ -154,15 +272,13 @@ test('there is no accent word to pick: no page feeds splitScriptAccent', () => {
   assert.ok(!HERO.includes('scriptAccent'), 'Hero.astro now takes a scriptAccent prop');
 });
 
-test('heroItalicWord is APPENDED, not matched inside the headline', () => {
-  // Why it gets a plain text card rather than a pick-a-word picker: Hero writes
-  // the headline, then a space, then the word in italics. It is a suffix.
-  // Whitespace-tolerant: prettier lays the fragment out over several lines, and
-  // the explicit {' '} is what keeps the space in the rendered headline.
+test('heroItalicWord is APPENDED after the headline, not matched inside it', () => {
+  // Why it gets a plain text card rather than a pick-a-word picker: the home
+  // hero writes the headline, then a space, then the words in the swash italic.
   assert.match(
-    HERO,
-    /\{headline\}\s*\{headlineItalicSuffix && \(?\s*<>\s*\{' '\}\s*<em class="italic">/,
-    'Hero no longer appends the italic word; re-decide what control it gets',
+    HOME_HERO,
+    /\{headline\}\s*\{\s*swash && \(\s*<>\s*\{' '\}\s*<em class="swash/,
+    'HomeHero no longer appends the italic words; re-decide what control it gets',
   );
 });
 
@@ -174,13 +290,16 @@ test('overlayControlsForPath offers the text card on a registry field', () => {
   assert.deepEqual(overlayControlsForPath('heroHeadline'), ['text']);
   assert.deepEqual(overlayControlsForPath('ctaLabel'), ['text']);
   assert.deepEqual(overlayControlsForPath('heroItalicWord'), ['text']);
+  assert.deepEqual(overlayControlsForPath('makerQuote'), ['text']);
+  assert.deepEqual(overlayControlsForPath('ctaEyebrow'), ['text']);
 });
 
 test('overlayControlsForPath leaves everything else to the host overlay', () => {
   assert.deepEqual(overlayControlsForPath('seoTitle'), []);
   assert.deepEqual(overlayControlsForPath('heroImages'), []);
-  assert.deepEqual(overlayControlsForPath('processSteps[_key=="a"].title'), []);
+  assert.deepEqual(overlayControlsForPath('processSteps[_key=="a"].label'), []);
   assert.deepEqual(overlayControlsForPath('hero.heroHeadline'), []);
+  assert.deepEqual(overlayControlsForPath('namePlaceholder'), []);
   assert.deepEqual(overlayControlsForPath(''), []);
   assert.deepEqual(overlayControlsForPath(undefined), []);
 });
@@ -189,6 +308,8 @@ test('never offers two controls on one element, which would stack them', () => {
   for (const line of EDITABLE_LINES) {
     assert.equal(overlayControlsForPath(line.name).length, 1);
   }
+  const names = EDITABLE_LINES.map((line) => line.name);
+  assert.equal(new Set(names).size, names.length, 'a field is registered twice');
 });
 
 test('resolveTextTarget points the card at the field and seeds it', () => {
@@ -202,7 +323,7 @@ test('resolveTextTarget points the card at the field and seeds it', () => {
 });
 
 test('resolveTextTarget refuses a field this page type does not carry', () => {
-  // The per-instance gate. Only the home page has a word to slant.
+  // The per-instance gate. Only the home page has words to slant.
   assert.ok(resolveTextTarget({ _type: 'homePage', heroItalicWord: 'you' }, 'heroItalicWord'));
   assert.equal(
     resolveTextTarget({ _type: 'aboutPage', heroItalicWord: 'you' }, 'heroItalicWord'),

@@ -19,19 +19,24 @@ import {
   rgbDistance,
   cleanInitials,
 } from '@/components/thread/threadData';
-import {
-  getSiteSettings,
-  getThreadChartPage,
-  getAllThreadColors,
-  getAtelierSettings,
-} from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { takeRun } from '@/lib/stega-text';
+import { loadThreadChart, type PageProps, type ThreadChartData } from '@/lib/page-data';
 
-const [siteSettings, page, colors, atelier] = await Promise.all([
-  getSiteSettings(),
-  getThreadChartPage(),
-  getAllThreadColors(),
-  getAtelierSettings(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<ThreadChartData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadThreadChart()]);
+const { page, colors, atelier } = data;
+// (No `edit` here: the colours are thread documents, edited by clicking their names.)
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'Thread Color Chart | MAS Monograms';
 const description =
@@ -67,8 +72,11 @@ const initials = cleanInitials(atelier?.sampleMonograms?.[0] ?? '') || 'MAS';
 
 // Headline swash: the last word in the gold italic.
 const headline: string = page?.heroHeadline ?? 'Thread Color Chart';
-const hWords = headline.trim().split(/\s+/);
-const hLast = hWords.pop() ?? '';
+// Stega-safe: in the Studio's canvas the click-to-edit marker is taken off
+// before the split and put back on the swash word (src/lib/stega-text.ts).
+const { text: hText, run: hRun } = takeRun(headline);
+const hWords = hText.trim().split(/\s+/);
+const hLast = (hWords.pop() ?? '') + hRun;
 const hLead = hWords.join(' ');
 
 // A few spools for the intro, spread across the rack's hue order.
@@ -79,7 +87,14 @@ const heroSpools = rack.length
   : [];
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} header="overlay">
+<Layout
+  {title}
+  {description}
+  seoImage={page?.seoImage}
+  {siteSettings}
+  header="overlay"
+  {...preview?.layoutProps}
+>
   {/* Midnight intro */}
   <section
     class="surface-midnight pt-header overflow-hidden pb-section-lg"
@@ -181,7 +196,7 @@ const heroSpools = rack.length
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 <ThreadChartScript />
 
 <style>

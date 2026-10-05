@@ -1,130 +1,117 @@
 // Pricing page singleton. All copy on the /pricing page comes from here.
-// The actual pricing tiers are the pricingTier collection — this page
-// controls all surrounding text, add-on descriptions, and FAQ.
+// The price tags themselves are the pricingTier collection; this page holds
+// the words around them, the extras, the rush note and the questions heading.
+//
+// 2026-10-05, Mary Ann's Studio pass: fields in page order with Google last,
+// six tabs, only the headline required, plain titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { BillIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BANNER_GROUP_TITLE,
+  BANNER_EYEBROW,
+  BANNER_HEADLINE,
+  BANNER_SUBHEAD,
+  BANNER_BUTTON,
+  BANNER_LINK,
+} from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 export const pricingPage = defineType({
   name: 'pricingPage',
-  title: 'Pricing Page',
+  title: 'Pricing page',
   type: 'document',
   icon: BillIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'hero', title: 'Top of the page', default: true },
-    { name: 'tiers', title: 'Pricing tiers' },
-    { name: 'addons', title: 'Add-ons' },
-    { name: 'rush', title: 'Rush orders' },
-    { name: 'faq', title: 'FAQ' },
-    { name: 'cta', title: 'Bottom banner' },
+    { name: 'hero', title: 'Top of the page' },
+    { name: 'tiers', title: 'Price tags' },
+    { name: 'addons', title: 'Extras and rush orders' },
+    { name: 'faq', title: 'Questions' },
+    { name: 'cta', title: BANNER_GROUP_TITLE },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
-    // Hero
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'hero',
     }),
 
-    // Pricing tiers section
+    // ── Price tags ───────────────────────────────────────────────────────────
     defineField({
       name: 'tiersHeadline',
-      title: 'Tiers section headline',
+      title: 'Heading above the price tags',
       type: 'string',
       group: 'tiers',
-      validation: (R) => R.required().max(100),
+      description:
+        'The prices themselves are in Clearance and prices, under Price tags. This is only the heading.',
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'tiersSubhead',
-      title: 'Intro paragraph',
+      title: 'A few words about how pricing works',
       type: 'text',
       rows: 3,
       group: 'tiers',
       description:
-        'Explain the pricing model before the table. E.g. "Price per piece drops with quantity..."',
+        'Shown above the price tags, for example "Price per piece drops with quantity...".',
     }),
     defineField({
       name: 'tierPricePrefix',
-      title: 'Word before each price (optional)',
+      title: 'Small word before each price',
       type: 'string',
       group: 'tiers',
       description:
-        'The small word above every price on the tags, e.g. "from" (as in "from $16"). Leave blank to show the price on its own.',
-      validation: (R) => R.max(20),
+        'The small word above every price on the tags, for example "from" (as in "from $16"). Leave it empty to show the price on its own.',
+      validation: (R) => R.max(20).warning(TOO_LONG),
     }),
 
-    // Add-ons
+    // ── Extras and rush orders ───────────────────────────────────────────────
     defineField({
       name: 'addonsHeadline',
-      title: 'Add-ons section headline',
+      title: 'Heading above the extras',
       type: 'string',
       group: 'addons',
     }),
     defineField({
       name: 'addons',
-      title: 'Add-on services',
+      title: 'Extras',
       type: 'array',
       group: 'addons',
       description:
-        'Optional upcharges or extras. E.g. "Extra embroidery position — +$X per piece".',
+        'Optional extras and what they cost, for example "Extra embroidery spot: +$5 per piece". Drag to change the order.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -132,37 +119,34 @@ export const pricingPage = defineType({
           fields: [
             defineField({
               name: 'label',
-              title: 'Name',
+              title: 'Name of the extra',
               type: 'string',
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please give this extra a name.'),
             }),
             defineField({
               name: 'price',
-              title: 'Price description',
+              title: 'What it costs',
               type: 'string',
-              description: 'E.g. "+$3 per piece" or "call for quote"',
-              validation: (R) => R.required(),
+              description: 'For example "+$3 per piece" or "ask for a quote".',
             }),
-            defineField({ name: 'note', title: 'Note (optional)', type: 'string' }),
+            defineField({ name: 'note', title: 'Small note', type: 'string' }),
           ],
           preview: { select: { title: 'label', subtitle: 'price' } },
         }),
       ],
     }),
-
-    // Rush orders
     defineField({
       name: 'rushHeadline',
-      title: 'Rush orders headline',
+      title: 'Heading above the rush order note',
       type: 'string',
-      group: 'rush',
+      group: 'addons',
     }),
     defineField({
       name: 'rushBody',
-      title: 'Rush orders body',
+      title: 'Rush order note',
       type: 'array',
-      group: 'rush',
-      description: 'Explain the rush option and any upcharge.',
+      group: 'addons',
+      description: 'Explain the rush option and any extra cost.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -179,53 +163,95 @@ export const pricingPage = defineType({
       ],
     }),
 
-    // FAQ
+    // ── Questions ────────────────────────────────────────────────────────────
     defineField({
       name: 'faqHeadline',
-      title: 'FAQ headline',
+      title: 'Heading above the questions',
       type: 'string',
       group: 'faq',
-      validation: (R) => R.required().max(100),
+      description:
+        'The questions themselves live in Questions and answers. Tick "Show on Pricing" on a question to show it here.',
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
 
-    // CTA
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
-      title: 'Small label above the banner',
+      ...BANNER_EYEBROW,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHeadline',
-      title: 'Banner headline',
+      ...BANNER_HEADLINE,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaSubhead',
-      title: 'Banner text (optional)',
+      ...BANNER_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'cta',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button text',
+      ...BANNER_BUTTON,
       type: 'string',
       group: 'cta',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Button link (where it goes)',
+      ...BANNER_LINK,
       type: 'string',
       group: 'cta',
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
     }),
   ],
-  preview: { prepare: () => ({ title: 'Pricing Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Pricing page',
+      subtitle: 'The page at /pricing: the words around your price tags',
+    }),
+  },
 });

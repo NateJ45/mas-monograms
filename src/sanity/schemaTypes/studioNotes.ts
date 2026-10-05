@@ -19,6 +19,17 @@ export const studioNotes = defineType({
       of: [defineArrayMember({ type: 'string' })],
       description: 'Designer-speak to avoid in writing.',
     }),
+    // Phase B (2026-10-05): the Help page's "Still stuck? Ask ..." line reads
+    // this. Studio-only, never shown on the website. Left empty, Help says
+    // "the person who built your website" (HELP_CONTACT_FALLBACK in
+    // src/sanity/components/HelpPane.tsx). Nobody's details are pre-filled.
+    defineField({
+      name: 'helpContact',
+      title: 'Who to ask for help',
+      type: 'string',
+      description:
+        'The name, and an email or phone number, of the person who looks after your website. The Help page shows it so you always know who to ask. It is never shown on your website.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Business Notes' }) },
 });

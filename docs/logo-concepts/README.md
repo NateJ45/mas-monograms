@@ -31,10 +31,19 @@ Status: **chosen 2026-10-04 and in production code** (branch `redesign/header-lo
   `MobileNav.tsx`, the Studio logo, `scripts/generate-favicons.mjs` (favicon.svg/.ico, apple-touch,
   icon-192/512, manifest, and the standalone `public/brand/{seal,mark,wordmark}-{light,dark}.svg`), and
   `scripts/lib/og-card.mjs` (the OG cards).
+- **Mary Ann's brand kit** (2026-10-05): `scripts/generate-brand-kit.mjs` draws every logo in four
+  colourways (`color-light`, `color-dark`, `one-color-midnight`, `one-color-white`) as SVG and 2000px /
+  512px transparent PNGs into `public/brand-kit/logos/`, plus the social, print, font and colour files;
+  `scripts/build-brand-kit-zip.mjs` packs them into `public/brand-kit/mas-monograms-brand-kit-v1.zip`.
+  The one-colour cuts are `sealSvg({ flat: true })` (no satin pattern on the S) with a single-colour
+  palette, so the over/under gaps stay as knock-outs, which suits stamps and one-thread embroidery.
+  Run `npm run brand-kit` after any logo change, and bump the ZIP to `-v2` (`KIT_ZIP` in
+  `src/lib/brand/brandKit.ts`): the ZIP is cached as immutable. The Studio's "My brand kit" pane offers
+  every file.
 - Regenerate the geometry (only if the name or the art changes):
   `node docs/logo-concepts/2026-10-04-atelier/generator/brand.mjs` (needs Python with fontTools; it
   instances Fraunces and outlines with GPOS kerning), then `npx prettier --write src/lib/brand/brandPaths.js`,
-  `node scripts/generate-favicons.mjs`, `npm run og` and `npm run og:pages`.
+  `node scripts/generate-favicons.mjs`, `npm run og`, `npm run og:pages` and `npm run brand-kit`.
 - Concepts and the review that chose it: `2026-10-04-atelier/` (four concepts as SVGs; the seal there
   still has the concept-stage Claret S).
 

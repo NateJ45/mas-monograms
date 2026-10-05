@@ -1,89 +1,76 @@
 // Thread Color Chart page singleton. The color swatches come from the
-// threadColor collection. This singleton controls all surrounding copy.
+// threadColor collection. This singleton holds all the words around them.
+//
+// 2026-10-05, Mary Ann's Studio pass: page order with Google last, only the
+// headline required, plain titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { ColorWheelIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BANNER_GROUP_TITLE,
+  BANNER_EYEBROW,
+  BANNER_HEADLINE,
+  BANNER_SUBHEAD,
+  BANNER_BUTTON,
+  BANNER_LINK,
+} from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 export const threadChartPage = defineType({
   name: 'threadChartPage',
-  title: 'Thread Color Chart Page',
+  title: 'Thread Color Chart page',
   type: 'document',
   icon: ColorWheelIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'page', title: 'Page content', default: true },
-    { name: 'cta', title: 'CTA' },
+    { name: 'page', title: 'Top of the page' },
+    { name: 'chart', title: 'Beside the thread colors' },
+    { name: 'cta', title: BANNER_GROUP_TITLE },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'page',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'page',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'page',
     }),
-
     defineField({
       name: 'intro',
-      title: 'Intro text',
+      title: 'A few words about the chart',
       type: 'array',
       group: 'page',
-      description: 'Short intro explaining what the chart shows and how to use it.',
+      description: 'What the chart shows and how to use it.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -99,70 +86,113 @@ export const threadChartPage = defineType({
         }),
       ],
     }),
+
+    // ── Beside the thread colors ─────────────────────────────────────────────
+    defineField({
+      name: 'filterLabel',
+      title: 'Label on the color search box',
+      type: 'string',
+      group: 'chart',
+      description:
+        'The words above the box visitors type in to find a color, for example "Search colors". The colors themselves are in Fonts, threads and categories.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
+    }),
     defineField({
       name: 'matchingNote',
-      title: 'Color matching note',
+      title: 'Note about matching colors',
       type: 'text',
       rows: 2,
-      group: 'page',
+      group: 'chart',
       description:
-        'Note about how accurate color matching works or how to request a color not listed.',
+        'How close a screen color is to the real thread, or how to ask for a color that is not listed.',
     }),
     defineField({
       name: 'customColorNote',
-      title: 'Custom color note (optional)',
+      title: 'One line about asking for other colors',
       type: 'string',
-      group: 'page',
+      group: 'chart',
       description:
-        'One-line note about requesting custom or unlisted colors. E.g. "Need a specific color? Just ask in your quote request."',
-    }),
-    defineField({
-      name: 'filterLabel',
-      title: 'Label on the color search box (optional)',
-      type: 'string',
-      group: 'page',
-      description:
-        'The words above the box visitors type in to find a color, e.g. "Search colors".',
-      validation: (R) => R.max(40),
+        'For example "Need a specific color? Just ask in your quote request." Leave it empty to hide it.',
     }),
 
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
-      title: 'Small label above the banner',
+      ...BANNER_EYEBROW,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHeadline',
-      title: 'Banner headline',
+      ...BANNER_HEADLINE,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaSubhead',
-      title: 'Banner text (optional)',
+      ...BANNER_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'cta',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button text',
+      ...BANNER_BUTTON,
       type: 'string',
       group: 'cta',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Button link (where it goes)',
+      ...BANNER_LINK,
       type: 'string',
       group: 'cta',
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
     }),
   ],
-  preview: { prepare: () => ({ title: 'Thread Color Chart Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Thread Color Chart page',
+      subtitle: 'The page at /thread-color-chart',
+    }),
+  },
 });

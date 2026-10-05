@@ -48,7 +48,7 @@ interface NotesData {
 
 // ─── Fetch ───────────────────────────────────────────────────────────────────
 
-const PRICING_QUERY = `*[_type=="pricingTier"]|order(displayOrder asc){label, pricePerPiece, note}`;
+const PRICING_QUERY = `*[_type=="pricingTier"]|order(orderRank asc, displayOrder asc){label, pricePerPiece, note}`;
 const SETTINGS_QUERY = `*[_type=="siteSettings"][0]{
   email, phone, serviceArea,
   "city": address.city, "state": address.state,

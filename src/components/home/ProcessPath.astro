@@ -7,13 +7,16 @@
 import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
 import ProcessPathScript from './ProcessPathScript.astro';
 import { swashSplit } from './swashSplit';
+import { editItem, type Edit } from '@/lib/edit-target';
 import { motifId } from '@/components/motifs/uid';
 
 interface Props {
   page: any;
   headingId?: string;
+  /** PREVIEW ONLY: the page document, for photo and list click targets (src/lib/edit-target.ts). */
+  edit?: Edit;
 }
-const { page, headingId = 'process-heading' } = Astro.props as Props;
+const { page, headingId = 'process-heading', edit } = Astro.props as Props;
 const steps: any[] = (page?.processSteps ?? []).filter((s: any) => s?.label);
 const head = swashSplit(page?.processHeadline, 2);
 const maskH = motifId('pph');
@@ -92,7 +95,11 @@ const V_PATH = 'M30 0 C 54 80, 6 170, 30 250 S 54 420, 30 500 S 6 670, 30 750 S 
 
           <ol class="process__steps" role="list" data-reveal-stagger="120">
             {steps.map((step: any, i: number) => (
-              <li class="process__step" data-reveal>
+              <li
+                class="process__step"
+                data-reveal
+                data-sanity={editItem(edit, 'processSteps', step, i)}
+              >
                 <div class="process__hoop">
                   <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={92} />
                 </div>

@@ -1,594 +1,383 @@
-// Request a Quote page singleton. This schema stores EVERY piece of text
-// on the /request-a-quote page — including all form field labels, placeholders,
-// help text, validation messages, and dropdown options.
+// Request a Quote page singleton. The words on the /request-a-quote page,
+// including the questions on the form, their hints and the Send button.
 //
-// Nothing in the form is hardcoded. Mary Ann can rename fields, rewrite
-// help text, add new referral source options, or update the submit CTA
-// without touching any code.
+// 2026-10-05, Mary Ann's Studio pass (Phase A of
+// docs/superpowers/specs/2026-10-05-studio-direction.md):
+//   - Nine tabs became four plus Google, in the order the form reads: the top of
+//     the page, the questions about the order, the questions about the
+//     customer, then photos, notes and the Send button.
+//   - NOTHING here is required except the headline. Every question label has a
+//     built-in fallback in src/pages/request-a-quote.astro (the `L` table), so
+//     an empty box never breaks the form. Seven of them were required AND empty
+//     in the live data, which put a red mark on her form for nothing. Each
+//     description now says what shows when the box is left empty, copied from
+//     that `L` table, so the words stay honest. Change one, change the other.
+//   - HIDDEN (data kept): the boxes the redesigned form never reads. The form
+//     reads personalization*, threadColor*, attachments* and notes* names that
+//     this schema does not declare (they always use their built-in words), and
+//     no longer reads emailHelp, phoneHelp, itemTypeOtherLabel,
+//     monogramDetails*, placement* (the typed-in one), fontPreferenceGuideLink /
+//     OtherLabel, colorPreference*, fileUpload*, specialInstructions* or
+//     errorMessage. See docs/PENDING.md for the follow-up that would give the
+//     new names boxes of their own.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { EnvelopeIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+} from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
+
+/** "Leave it empty to use ..." for a box with a built-in fallback. */
+const orDefault = (words: string) => `Leave it empty to use "${words}".`;
+const HINT = 'Small help line under this question. Leave it empty to show none.';
 
 export const requestAQuotePage = defineType({
   name: 'requestAQuotePage',
-  title: 'Request a Quote Page',
+  title: 'Request a Quote page',
   type: 'document',
   icon: EnvelopeIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'hero', title: 'Hero & intro', default: true },
-    { name: 'contact', title: 'Contact fields' },
-    { name: 'order', title: 'Order fields' },
-    { name: 'design', title: 'Design & font fields' },
-    { name: 'files', title: 'File upload' },
-    { name: 'logistics', title: 'Rush & special instructions' },
-    { name: 'referral', title: 'Referral source' },
-    { name: 'submit', title: 'Submit & confirmation' },
+    { name: 'hero', title: 'Top of the page' },
+    { name: 'order', title: 'Questions about the order' },
+    { name: 'contact', title: 'Questions about them' },
+    { name: 'submit', title: 'Photos, notes and the Send button' },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    // ── SEO ──────────────────────────────────────────────────────────────────
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
-    // ── Hero ─────────────────────────────────────────────────────────────────
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'hero',
     }),
     defineField({
       name: 'heroBody',
-      title: 'Hero body (optional)',
+      title: 'A few more words under that',
       type: 'array',
       of: [defineArrayMember({ type: 'block' })],
       group: 'hero',
-      description:
-        'Rich-text paragraph(s) shown under the hero subhead. Use for a warmer intro or extra reassurance.',
+      description: 'A warmer welcome or extra reassurance. Leave it empty to hide it.',
     }),
     defineField({
       name: 'heroTrustItems',
-      title: 'Hero trust items (optional)',
+      title: 'Short promises with a tick',
       type: 'array',
       of: [defineArrayMember({ type: 'string' })],
       group: 'hero',
       description:
-        'Short reassurance bullets shown beside the hero with a checkmark. E.g. "Free quotes", "1–2 day reply", "Local, hand-finished work".',
+        'Shown beside the top of the page with a tick mark, for example "Free quotes". Drag to change the order.',
     }),
-
     defineField({
       name: 'turnaroundCallout',
-      title: 'Turnaround callout (optional)',
+      title: 'Reply-time promise',
       type: 'string',
       group: 'hero',
       description:
-        'Bold note near the top of the form. E.g. "Standard turnaround: 7–10 business days."',
+        'Shown in bold near the top of the form and again by the Send button, for example "I reply to every request within 1 business day."',
+    }),
+    defineField({
+      name: 'requiredFieldNote',
+      title: 'Note about the starred questions',
+      type: 'string',
+      group: 'hero',
+      description: orDefault('Fields marked * are required.'),
+      initialValue: 'Fields marked * are required.',
     }),
 
-    // ── Form section headings (the four fieldset titles down the form) ──────────
-    // The page reads these; each falls back to the default shown here if left blank.
+    // ── Questions about the order ────────────────────────────────────────────
     defineField({
       name: 'orderInfoHeading',
-      title: 'Section heading — order info',
+      title: 'Heading for this part of the form',
       type: 'string',
       group: 'order',
-      description: 'Title above the first group of questions.',
+      description: orDefault('About Your Order'),
       initialValue: 'About Your Order',
     }),
     defineField({
-      name: 'personalInfoHeading',
-      title: 'Section heading — your info',
-      type: 'string',
-      group: 'contact',
-      description: 'Title above the contact questions.',
-      initialValue: 'Your Information',
-    }),
-    defineField({
-      name: 'attachmentsHeading',
-      title: 'Section heading — photos',
-      type: 'string',
-      group: 'files',
-      description: 'Title above the photo upload.',
-      initialValue: 'Photos (Optional)',
-    }),
-    defineField({
-      name: 'additionalHeading',
-      title: 'Section heading — anything else',
-      type: 'string',
-      group: 'logistics',
-      description: 'Title above the special-instructions section.',
-      initialValue: 'Anything Else?',
-    }),
-
-    // ── Contact fields ────────────────────────────────────────────────────────
-    defineField({
-      name: 'nameLabel',
-      title: 'Name field label',
-      type: 'string',
-      group: 'contact',
-      initialValue: 'Your name',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'namePlaceholder',
-      title: 'Name field placeholder',
-      type: 'string',
-      group: 'contact',
-      initialValue: 'Jane Smith',
-    }),
-
-    defineField({
-      name: 'emailLabel',
-      title: 'Email field label',
-      type: 'string',
-      group: 'contact',
-      initialValue: 'Email address',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'emailPlaceholder',
-      title: 'Email field placeholder',
-      type: 'string',
-      group: 'contact',
-      initialValue: 'you@example.com',
-    }),
-    defineField({
-      name: 'emailHelp',
-      title: 'Email help text',
-      type: 'string',
-      group: 'contact',
-      description: 'Small text below the email field.',
-      initialValue: "I'll send your quote to this address.",
-    }),
-
-    defineField({
-      name: 'phoneLabel',
-      title: 'Phone field label',
-      type: 'string',
-      group: 'contact',
-      description: 'Phone is now a required field — keep the label free of "(optional)".',
-      initialValue: 'Phone number',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'phonePlaceholder',
-      title: 'Phone field placeholder',
-      type: 'string',
-      group: 'contact',
-      initialValue: '(803) 555-1234',
-    }),
-    defineField({
-      name: 'phoneHelp',
-      title: 'Phone help text',
-      type: 'string',
-      group: 'contact',
-      description: 'Small text below the phone field.',
-      initialValue: 'Only used if I have a quick follow-up question.',
-    }),
-
-    // ── Order fields ──────────────────────────────────────────────────────────
-    defineField({
       name: 'itemTypeLabel',
-      title: 'Item type field label',
+      title: 'Question: what item?',
       type: 'string',
       group: 'order',
-      description: 'The question asking what kind of item they want embroidered.',
+      description: orDefault('What type of item?'),
       initialValue: 'What would you like embroidered?',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'itemTypeHelp',
-      title: 'Item type help text',
+      title: 'Hint: what item?',
       type: 'string',
       group: 'order',
-      initialValue: 'Select the closest match. You can add details in the notes below.',
+      description: HINT,
     }),
-    defineField({
-      name: 'itemTypeOtherLabel',
-      title: '"Other" option label',
-      type: 'string',
-      group: 'order',
-      description: 'Label for the "Other / not listed" option in the item type dropdown.',
-      initialValue: 'Other / not listed',
-      validation: (R) => R.required(),
-    }),
-
-    // ── New order-spec labels (added to match the old Squarespace form) ──────────
-    // The visible label for each new dropdown / radio / checkbox. The OPTION values
-    // themselves are fixed const arrays in src/pages/request-a-quote.astro (see the
-    // comment there) — only these labels are editable here.
     defineField({
       name: 'ownershipLabel',
-      title: 'Item ownership field label',
+      title: 'Question: do they have the item?',
       type: 'string',
       group: 'order',
-      description: 'Radio asking whether the customer already owns the item to be embroidered.',
+      description: orDefault('Do you own the item?'),
       initialValue: 'Do you own the item?',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'ownershipHelp',
-      title: 'Item ownership help text',
+      title: 'Hint: do they have the item?',
       type: 'string',
       group: 'order',
+      description: HINT,
     }),
-
     defineField({
       name: 'itemDescriptionLabel',
-      title: 'Item description field label',
+      title: 'Question: describe the item',
       type: 'string',
       group: 'order',
+      description: orDefault('Item description'),
       initialValue: 'Item description (optional)',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'itemDescriptionPlaceholder',
-      title: 'Item description placeholder',
+      title: 'Faint example inside that box',
       type: 'string',
       group: 'order',
+      description: orDefault('Brand, color, fabric, size…'),
       initialValue: 'Brand, color, fabric, size…',
     }),
     defineField({
       name: 'itemDescriptionHelp',
-      title: 'Item description help text',
+      title: 'Hint: describe the item',
       type: 'string',
       group: 'order',
+      description: HINT,
     }),
-
     defineField({
       name: 'monogramStyleLabel',
-      title: 'Monogram style field label',
+      title: 'Question: monogram style',
       type: 'string',
       group: 'order',
+      description: orDefault('Monogram style'),
       initialValue: 'Monogram style',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'monogramStyleHelp',
-      title: 'Monogram style help text',
+      title: 'Hint: monogram style',
       type: 'string',
       group: 'order',
+      description: HINT,
     }),
-
     defineField({
       name: 'placementSelectLabel',
-      title: 'Placement (dropdown) field label',
+      title: 'Question: where on the item?',
       type: 'string',
       group: 'order',
-      description: 'Dropdown asking where on the item the embroidery should go.',
+      description: orDefault('Placement on item'),
       initialValue: 'Placement on item',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'placementSelectHelp',
-      title: 'Placement (dropdown) help text',
+      title: 'Hint: where on the item?',
       type: 'string',
       group: 'order',
+      description: HINT,
     }),
-
     defineField({
       name: 'sizeLabel',
-      title: 'Approximate size field label',
+      title: 'Question: how big?',
       type: 'string',
       group: 'order',
+      description: orDefault('Approximate size'),
       initialValue: 'Approximate size',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'sizeHelp',
-      title: 'Approximate size help text',
+      title: 'Hint: how big?',
       type: 'string',
       group: 'order',
+      description: HINT,
     }),
-
     defineField({
       name: 'threadCountLabel',
-      title: 'Number of thread colors field label',
+      title: 'Question: how many thread colors?',
       type: 'string',
       group: 'order',
+      description: orDefault('Number of thread colors'),
       initialValue: 'Number of thread colors',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'threadCountHelp',
-      title: 'Number of thread colors help text',
+      title: 'Hint: how many thread colors?',
       type: 'string',
       group: 'order',
+      description: HINT,
     }),
-
     defineField({
       name: 'quantityLabel',
-      title: 'Quantity field label',
+      title: 'Question: how many pieces?',
       type: 'string',
       group: 'order',
+      description: orDefault('Quantity'),
       initialValue: 'Quantity',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'quantityPlaceholder',
-      title: 'Quantity field placeholder',
+      title: 'Faint example inside that box',
       type: 'string',
       group: 'order',
-      initialValue: 'e.g. 24',
+      description: orDefault('e.g. 2'),
+      initialValue: 'e.g. 1',
     }),
     defineField({
       name: 'quantityHelp',
-      title: 'Quantity help text',
+      title: 'Hint: how many pieces?',
       type: 'string',
       group: 'order',
-      description: 'Note about minimums or pricing structure.',
-      initialValue: 'Minimum order is 12 pieces. Pricing drops with larger quantities.',
+      description: HINT,
     }),
-
-    defineField({
-      name: 'monogramDetailsLabel',
-      title: 'Monogram / text details field label',
-      type: 'string',
-      group: 'order',
-      initialValue: 'Monogram or text details',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'monogramDetailsPlaceholder',
-      title: 'Monogram / text details placeholder',
-      type: 'string',
-      group: 'order',
-      initialValue: 'e.g. Three-letter monogram: FJL (last name center)',
-    }),
-    defineField({
-      name: 'monogramDetailsHelp',
-      title: 'Monogram / text details help text',
-      type: 'string',
-      group: 'order',
-      initialValue:
-        'Include the letters or text, and the format if you know it (single initial, three-letter monogram, full name, custom phrase, etc.).',
-    }),
-
-    defineField({
-      name: 'placementLabel',
-      title: 'Placement / position field label',
-      type: 'string',
-      group: 'order',
-      initialValue: 'Embroidery placement',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'placementPlaceholder',
-      title: 'Placement field placeholder',
-      type: 'string',
-      group: 'order',
-      initialValue: 'e.g. Left chest pocket, center chest, hat brim',
-    }),
-    defineField({
-      name: 'placementHelp',
-      title: 'Placement help text',
-      type: 'string',
-      group: 'order',
-      initialValue:
-        'Where on the item would you like the embroidery placed? Common options: left chest, center chest, right sleeve, hat front.',
-    }),
-
-    // ── Design & font fields ──────────────────────────────────────────────────
     defineField({
       name: 'fontPreferenceLabel',
-      title: 'Font preference field label',
+      title: 'Question: which font?',
       type: 'string',
-      group: 'design',
+      group: 'order',
+      description: orDefault('Font Preference (Optional)'),
       initialValue: 'Font preference (optional)',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'fontPreferenceHelp',
-      title: 'Font preference help text',
+      title: 'Hint: which font?',
       type: 'string',
-      group: 'design',
-      initialValue:
-        "Browse the Font & Lettering Guide page for examples. Not sure? Leave blank and I'll suggest options.",
-    }),
-    defineField({
-      name: 'fontPreferenceGuideLinkLabel',
-      title: 'Font guide link label',
-      type: 'string',
-      group: 'design',
-      description: 'Clickable label linking to the font guide page.',
-      initialValue: 'Browse the font guide',
-    }),
-    defineField({
-      name: 'fontPreferenceOtherLabel',
-      title: 'Font "Other" option label',
-      type: 'string',
-      group: 'design',
-      description:
-        'Label for the "Other (describe below)" option in the font dropdown. The real font options come from the Embroidery Font documents.',
-      initialValue: 'Other (describe in notes)',
-      validation: (R) => R.required(),
-    }),
-
-    defineField({
-      name: 'colorPreferenceLabel',
-      title: 'Thread color preference field label',
-      type: 'string',
-      group: 'design',
-      initialValue: 'Thread color preference (optional)',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'colorPreferencePlaceholder',
-      title: 'Thread color preference placeholder',
-      type: 'string',
-      group: 'design',
-      initialValue: 'e.g. Navy blue, or see thread chart for color #305',
-    }),
-    defineField({
-      name: 'colorPreferenceHelp',
-      title: 'Thread color preference help text',
-      type: 'string',
-      group: 'design',
-      initialValue:
-        "Browse the Thread Color Chart for specific colors. You can also describe the color and I'll match as closely as possible.",
-    }),
-    defineField({
-      name: 'colorPreferenceChartLinkLabel',
-      title: 'Thread chart link label',
-      type: 'string',
-      group: 'design',
-      description: 'Clickable label linking to the thread color chart page.',
-      initialValue: 'Browse the thread color chart',
-    }),
-
-    // ── File upload ───────────────────────────────────────────────────────────
-    defineField({
-      name: 'fileUploadLabel',
-      title: 'File upload field label',
-      type: 'string',
-      group: 'files',
-      initialValue: 'Reference photos (optional)',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'fileUploadHelp',
-      title: 'File upload help text',
-      type: 'string',
-      group: 'files',
-      initialValue:
-        'Upload photos of the item(s) or inspiration images. Accepted formats: JPG, PNG, PDF. Max 10 MB per file, 5 files total.',
-    }),
-    defineField({
-      name: 'fileUploadAcceptedTypes',
-      title: 'Accepted file types note',
-      type: 'string',
-      group: 'files',
-      description: 'Short note about accepted formats shown below the upload button.',
-      initialValue: 'JPG, PNG, PDF · 10 MB max per file · 5 files max',
-    }),
-
-    // ── Rush & special instructions ───────────────────────────────────────────
-    defineField({
-      name: 'rushLabel',
-      title: 'Rush order checkbox label',
-      type: 'string',
-      group: 'logistics',
-      initialValue: 'I need this rushed (a rush fee may apply)',
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'rushHelp',
-      title: 'Rush order help text',
-      type: 'string',
-      group: 'logistics',
-      description: 'Explanation of the rush option.',
-      initialValue:
-        "Rush orders are available for an additional fee. I'll confirm the timeline and cost in my quote.",
+      group: 'order',
+      description: orDefault('Not sure? Browse the Font Guide.'),
     }),
     defineField({
       name: 'neededByLabel',
-      title: '"Needed by" date field label',
+      title: 'Question: needed by what date?',
       type: 'string',
-      group: 'logistics',
-      description: 'Shown when rush is checked.',
+      group: 'order',
+      description: orDefault('Date Needed By (Optional)'),
       initialValue: 'Needed by',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'neededByHelp',
-      title: '"Needed by" date help text',
+      title: 'Hint: needed by what date?',
       type: 'string',
-      group: 'logistics',
-      initialValue:
-        "I'll do my best to meet your deadline. Earlier notice = better chance of availability.",
+      group: 'order',
+      description: orDefault('Rush orders may incur additional charges.'),
+    }),
+    defineField({
+      name: 'rushLabel',
+      title: 'Tick box: they need it by a certain date',
+      type: 'string',
+      group: 'order',
+      description: orDefault('I need this rushed (a rush fee may apply)'),
+      initialValue: 'I need this rushed (a rush fee may apply)',
+    }),
+    defineField({
+      name: 'rushHelp',
+      title: 'Hint under that tick box',
+      type: 'string',
+      group: 'order',
+      description: HINT,
     }),
 
+    // ── Questions about them ─────────────────────────────────────────────────
     defineField({
-      name: 'specialInstructionsLabel',
-      title: 'Special instructions field label',
+      name: 'personalInfoHeading',
+      title: 'Heading for this part of the form',
       type: 'string',
-      group: 'logistics',
-      initialValue: 'Special instructions or questions',
-      validation: (R) => R.required(),
+      group: 'contact',
+      description: orDefault('Your Information'),
+      initialValue: 'Your Information',
     }),
     defineField({
-      name: 'specialInstructionsPlaceholder',
-      title: 'Special instructions placeholder',
+      name: 'nameLabel',
+      title: 'Question: their name',
       type: 'string',
-      group: 'logistics',
-      initialValue: 'Any other details, questions, or notes for Mary Ann…',
+      group: 'contact',
+      description: orDefault('Your Name'),
+      initialValue: 'Your name',
     }),
     defineField({
-      name: 'specialInstructionsHelp',
-      title: 'Special instructions help text (optional)',
+      name: 'namePlaceholder',
+      title: 'Faint example inside that box',
       type: 'string',
-      group: 'logistics',
+      group: 'contact',
+      description: orDefault('First and last name'),
+      initialValue: 'Jane Smith',
     }),
-
-    // ── Referral source ───────────────────────────────────────────────────────
+    defineField({
+      name: 'emailLabel',
+      title: 'Question: their email',
+      type: 'string',
+      group: 'contact',
+      description: orDefault('Email Address'),
+      initialValue: 'Email address',
+    }),
+    defineField({
+      name: 'emailPlaceholder',
+      title: 'Faint example inside that box',
+      type: 'string',
+      group: 'contact',
+      description: orDefault('you@example.com'),
+      initialValue: 'you@example.com',
+    }),
+    defineField({
+      name: 'phoneLabel',
+      title: 'Question: their phone number',
+      type: 'string',
+      group: 'contact',
+      description: orDefault('Phone Number (Optional)'),
+      initialValue: 'Phone number',
+    }),
+    defineField({
+      name: 'phonePlaceholder',
+      title: 'Faint example inside that box',
+      type: 'string',
+      group: 'contact',
+      description: orDefault('(843) 555-0100'),
+      initialValue: '(803) 555-1234',
+    }),
     defineField({
       name: 'referralLabel',
-      title: 'Referral source field label',
+      title: 'Question: how did they hear about you?',
       type: 'string',
-      group: 'referral',
+      group: 'contact',
+      description: orDefault('How did you hear about us?'),
       initialValue: 'How did you hear about MAS Monograms? (optional)',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'referralOptions',
-      title: 'Referral source options',
+      title: 'Answers they can pick from',
       type: 'array',
-      group: 'referral',
+      group: 'contact',
       description:
-        'Dropdown options for how the customer found Mary Ann. Add or remove options here.',
+        'The choices in the "how did you hear about me" list. Add, remove or drag to change the order.',
       of: [defineArrayMember({ type: 'string' })],
       initialValue: [
         'Facebook',
@@ -599,61 +388,232 @@ export const requestAQuotePage = defineType({
         'Local event or market',
         'Other',
       ],
-      validation: (R) => R.required().min(2),
     }),
 
-    // ── Submit & confirmation ─────────────────────────────────────────────────
+    // ── Photos, notes and the Send button ────────────────────────────────────
     defineField({
-      name: 'submitLabel',
-      title: 'Submit button label',
+      name: 'attachmentsHeading',
+      title: 'Heading above the photo upload',
       type: 'string',
       group: 'submit',
+      description: orDefault('Photos (Optional)'),
+      initialValue: 'Photos (Optional)',
+    }),
+    defineField({
+      name: 'additionalHeading',
+      title: 'Heading above the last notes box',
+      type: 'string',
+      group: 'submit',
+      description: orDefault('Anything Else?'),
+      initialValue: 'Anything Else?',
+    }),
+    defineField({
+      name: 'submitLabel',
+      title: 'Words on the Send button',
+      type: 'string',
+      group: 'submit',
+      description: orDefault('Send My Quote Request'),
       initialValue: 'Send my quote request',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'privacyNote',
-      title: 'Privacy / spam note',
+      title: 'Small privacy note under the Send button',
       type: 'string',
       group: 'submit',
       description:
-        'Small text below the submit button. E.g. "Your information is never sold or shared."',
+        'For example "Your information is never sold or shared." Leave it empty to hide it.',
       initialValue: 'Your information is kept private and never shared.',
-    }),
-    defineField({
-      name: 'errorMessage',
-      title: 'General error message',
-      type: 'string',
-      group: 'submit',
-      description: 'Shown if the form fails to submit.',
-      initialValue:
-        'Something went wrong submitting your request. Please email me directly at the address below.',
-      validation: (R) => R.required(),
-    }),
-
-    // Required field note
-    defineField({
-      name: 'requiredFieldNote',
-      title: 'Required field note',
-      type: 'string',
-      group: 'hero',
-      description: 'Small note near the top of the form indicating required fields.',
-      initialValue: 'Fields marked * are required.',
     }),
     // No-JavaScript note (2026-10-04): the form needs JavaScript to send (the
     // bot check runs in the browser), so visitors with it switched off see this
     // at the top of the form, followed by the email and phone from Site Settings.
     defineField({
       name: 'noScriptMessage',
-      title: 'Note for visitors whose browser has JavaScript turned off',
+      title: 'Note for the rare browser that cannot send the form',
       type: 'text',
       rows: 3,
       group: 'submit',
       description:
-        'Only shown to the few visitors whose browser cannot run the form. Your email and phone number from Site Settings appear right under it as links.',
+        'Only shown to the few visitors whose browser has the form switched off. Your email and phone number from My business details appear right under it.',
       initialValue:
         'The quote form needs JavaScript to send. Turn it on, or email me your idea and photos and I will reply.',
     }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+    }),
+
+    // ── Hidden: the redesigned form no longer reads these (data kept) ────────
+    defineField({
+      name: 'emailHelp',
+      title: 'Old email hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'phoneHelp',
+      title: 'Old phone hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'itemTypeOtherLabel',
+      title: 'Old "something else" choice (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'monogramDetailsLabel',
+      title: 'Old letters question (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'monogramDetailsPlaceholder',
+      title: 'Old letters example (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'monogramDetailsHelp',
+      title: 'Old letters hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'placementLabel',
+      title: 'Old typed placement question (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'placementPlaceholder',
+      title: 'Old typed placement example (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'placementHelp',
+      title: 'Old typed placement hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'fontPreferenceGuideLinkLabel',
+      title: 'Old font guide link (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'fontPreferenceOtherLabel',
+      title: 'Old font "other" choice (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'colorPreferenceLabel',
+      title: 'Old thread color question (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'colorPreferencePlaceholder',
+      title: 'Old thread color example (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'colorPreferenceHelp',
+      title: 'Old thread color hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'colorPreferenceChartLinkLabel',
+      title: 'Old thread chart link (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'fileUploadLabel',
+      title: 'Old photo upload question (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'fileUploadHelp',
+      title: 'Old photo upload hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'fileUploadAcceptedTypes',
+      title: 'Old photo types note (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'specialInstructionsLabel',
+      title: 'Old notes question (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'specialInstructionsPlaceholder',
+      title: 'Old notes example (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'specialInstructionsHelp',
+      title: 'Old notes hint (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'errorMessage',
+      title: 'Old sending problem message (not used)',
+      type: 'string',
+      hidden: true,
+    }),
   ],
-  preview: { prepare: () => ({ title: 'Request a Quote Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Request a Quote page',
+      subtitle: 'The page at /request-a-quote: the quote form',
+    }),
+  },
 });

@@ -15,13 +15,24 @@ import CtaBanner from '@/components/CtaBanner.astro';
 import SectionHeading from '@/components/SectionHeading.astro';
 import SwatchCard from '@/components/motifs/SwatchCard.astro';
 import HangTag from '@/components/motifs/HangTag.astro';
-import { getSiteSettings, getFontGuidePage, getAllFonts } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editOther } from '@/lib/edit-target';
+import { loadFontGuide, type PageProps, type FontGuideData } from '@/lib/page-data';
 
-const [siteSettings, page, allFonts] = await Promise.all([
-  getSiteSettings(),
-  getFontGuidePage(),
-  getAllFonts(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<FontGuideData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadFontGuide()]);
+const { page, allFonts } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 // Only show fonts that have a real specimen photo — no "coming soon" placeholders.
 const fonts = (allFonts ?? []).filter((f: any) => f.previewImage?.asset);
@@ -57,7 +68,7 @@ const popularLabel: string | undefined = page?.popularLabel || undefined;
 const slugId = (font: any) => `font-${font.slug?.current ?? font._id}`;
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
   {/* Intro */}
   <section class="surface-midnight py-section-lg" aria-labelledby="fonts-heading">
     <div class="mx-auto max-w-content px-m text-center">
@@ -125,7 +136,10 @@ const slugId = (font: any) => `font-${font.slug?.current ?? font._id}`;
                   {(styleFonts as any[]).map((font: any) => {
                     const i = n++;
                     return (
-                      <li data-style-tag={font.styleTag ?? undefined}>
+                      <li
+                        data-style-tag={font.styleTag ?? undefined}
+                        data-sanity={editOther(edit, font._id, 'font', 'previewImage')}
+                      >
                         <SwatchCard
                           tone={TONES[i % TONES.length]}
                           tilt={TILTS[i % TILTS.length]}
@@ -189,7 +203,7 @@ const slugId = (font: any) => `font-${font.slug?.current ?? font._id}`;
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 
 <style>
   .fonts-intro :global(p) {

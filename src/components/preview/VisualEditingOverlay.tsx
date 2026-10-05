@@ -119,6 +119,23 @@ const mpaHistory: HistoryAdapter = {
 // both paths log how long they took. See ./overlay/timing.ts.
 // =============================================================================
 
+// =============================================================================
+// Client-drawn widgets survive a refresh (2026-10-05, Phase C)
+// =============================================================================
+// The canvas now renders the REAL pages, and three things on them are drawn by
+// their own scripts after load: the live stitching stages, hero and studio (a <canvas> whose
+// width and height the engine sets; writing either back clears the drawing),
+// and the golden ThreadLine (its path is rebuilt in real pixels). The server's
+// HTML holds only their starting state, so morphing it in would blank the
+// stitching and snap the thread back on every edit. preview-morph.ts keeps an
+// element as it is when BOTH trees mark it `data-morph-keep`, so both trees are
+// marked here, right before the morph. Their words live outside these
+// elements, so editing still refreshes everything Mary Ann can change.
+const CLIENT_WIDGETS = '[data-atelier-stage], [data-hero-stage], [data-thread-line]';
+function keepClientWidgets(root: Element): void {
+  root.querySelectorAll(CLIENT_WIDGETS).forEach((el) => el.setAttribute('data-morph-keep', ''));
+}
+
 interface Props {
   /** The doc id this preview renders (a singleton id like "homePage"), for the
       live listen filter. */
@@ -245,7 +262,7 @@ export default function VisualEditingOverlay({ pageId }: Props) {
         // nothing new, which is a completed refresh, not a skipped one.
         lastMarkup.current = markup;
         stop('unchanged (skipped)');
-      } else if (morph(current, next)) {
+      } else if ((keepClientWidgets(current), keepClientWidgets(next), morph(current, next))) {
         lastMarkup.current = markup;
         // The instant-text path indexes the old text nodes and may be holding
         // swaps this HTML predates. Tell it to rebuild and re-apply. Belt and

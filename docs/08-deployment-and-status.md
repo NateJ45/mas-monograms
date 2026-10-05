@@ -46,8 +46,19 @@ serves prebuilt HTML — so content only refreshes when a build runs. Two ways t
 content in Sanity:
 
 1. Push any commit to `main`, or
-2. Set up a **Sanity webhook → Cloudflare deploy hook** so publishing in the Studio triggers a
-   rebuild automatically (recommended before handing off to Mary Ann; not yet wired up).
+2. **Sanity webhook → Cloudflare deploy hook (WIRED 2026-10-05).** Publishing in the Studio now
+   rebuilds the site; the change is live in about 2 to 3 minutes. Before that date nothing Mary Ann
+   published ever reached the live site (no webhook and no deploy hook existed). Setup, if it ever
+   needs re-creating:
+   - Cloudflare: Workers & Pages > mas-monograms > Settings > Builds > Deploy Hooks: name
+     `Sanity content publish`, branch `main`. The hook URL is private (it only triggers builds).
+   - Sanity (manage.sanity.io > project xp3elugr > API > Webhooks): name `Rebuild live site`,
+     dataset `production`, POST to the hook URL, trigger on Create, Update and Delete, drafts and
+     versions OFF, filter (deny-list, so new types are covered automatically):
+     `!(_id in path("drafts.**")) && !(_type in ["media.tag", "sanity.imageAsset", "sanity.fileAsset", "sanity.assetSourceData", "sanity.previewUrlSecret"])`.
+   - Test: no-change republish of any published document, then watch Cloudflare > Deployments (or
+     the Workers Builds API): a build with no commit attached appears within seconds. Cloudflare
+     drops repeat builds triggered in a burst. `sanity hooks list --project-id xp3elugr` shows it.
 
 **The Studio is no longer deployed separately.** Since 2026-08-28 it is embedded in the site
 build at **`<site>/studio`** via `@sanity/astro`, so deploying the site deploys the Studio and
@@ -175,6 +186,6 @@ collage, style gallery, and category images are populated.
 - [ ] Set Turnstile build var (`PUBLIC_TURNSTILE_SITE_KEY`) + create the Turnstile widget
 - [ ] Onboard `mas-monograms.com` under Email Service > Email Sending (dashboard) so the `EMAIL` binding can send
 - [ ] Test the quote form end-to-end on a preview deploy (owner + customer email land)
-- [ ] (Recommended) Wire a Sanity webhook → Cloudflare deploy hook for content-triggered rebuilds
+- [x] Wire a Sanity webhook → Cloudflare deploy hook for content-triggered rebuilds (done 2026-10-05)
 - [ ] Point `mas-monograms.com` DNS at the Worker; confirm `_redirects` from old Squarespace URLs
 - [ ] Final Lighthouse / accessibility pass

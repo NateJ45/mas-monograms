@@ -1,12 +1,19 @@
-// FAQ item document. Used on the How It Works page, Pricing page, and
-// potentially individual category pages for embroidery-specific questions.
+// FAQ item document ("Question and answer"). Shown on the How It Works page
+// and the Pricing page, wherever its switches say.
+//
+// 2026-10-05, Mary Ann's Studio pass: plain titles, the two "show on" switches
+// moved up beside the answer (they decide whether the question shows at all),
+// and only the question and answer are required. The topic is optional: the
+// pages show one plain list and only use it to keep related questions together.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
+import { orderRankField } from '@sanity/orderable-document-list';
 import { HelpCircleIcon } from '@sanity/icons';
+import { bracketsLeft } from './_copy';
 
 export const faqItem = defineType({
   name: 'faqItem',
-  title: 'FAQ Item',
+  title: 'Question and answer',
   type: 'document',
   icon: HelpCircleIcon,
   fields: [
@@ -14,20 +21,23 @@ export const faqItem = defineType({
       name: 'question',
       title: 'Question',
       type: 'string',
-      description: 'The question as a customer would ask it. Plain English.',
-      validation: (Rule) => Rule.required(),
+      description: 'The question the way a customer would ask it.',
+      validation: (Rule) => [
+        Rule.required().error('Please type the question.'),
+        Rule.custom(bracketsLeft).warning(),
+      ],
     }),
     defineField({
       name: 'answer',
       title: 'Answer',
       type: 'array',
-      description: "Answer in Mary Ann's voice. Paragraphs and bullet lists are supported.",
+      description: 'Your answer in your own words. You can add a list or a link.',
       of: [
         defineArrayMember({
           type: 'block',
           styles: [
             { title: 'Paragraph', value: 'normal' },
-            { title: 'Sub-heading', value: 'h4' },
+            { title: 'Small heading', value: 'h4' },
           ],
           lists: [
             { title: 'Bullet', value: 'bullet' },
@@ -44,11 +54,11 @@ export const faqItem = defineType({
                 type: 'object',
                 title: 'Link',
                 fields: [
-                  { name: 'href', type: 'url', title: 'URL' },
+                  { name: 'href', type: 'url', title: 'Web address' },
                   {
                     name: 'openInNewTab',
                     type: 'boolean',
-                    title: 'Open in new tab',
+                    title: 'Open in a new tab',
                     initialValue: false,
                   },
                 ],
@@ -57,60 +67,79 @@ export const faqItem = defineType({
           },
         }),
       ],
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'string',
-      description: 'Which group this question belongs in on the FAQ page.',
-      options: {
-        list: [
-          { title: 'Ordering & Getting Started', value: 'Ordering' },
-          { title: 'Pricing', value: 'Pricing' },
-          { title: 'Turnaround Time', value: 'Turnaround' },
-          { title: 'Shipping & Pickup', value: 'Shipping' },
-          { title: 'What I Can Embroider', value: 'Items' },
-          { title: 'Design & Fonts', value: 'Design' },
-          { title: 'Care & Maintenance', value: 'Care' },
-        ],
-        layout: 'dropdown',
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'displayOrder',
-      title: 'Display order',
-      type: 'number',
-      description: 'Lower numbers appear first within the category.',
-      initialValue: 99,
-      validation: (Rule) => Rule.required().integer().min(0),
+      validation: (Rule) => [
+        Rule.required().error('Please type the answer.'),
+        Rule.custom(bracketsLeft).warning(),
+      ],
     }),
     defineField({
       name: 'showOnHowItWorks',
-      title: 'Show on How It Works page',
+      title: 'Show on the How It Works page',
       type: 'boolean',
-      description: 'If checked, this question also appears on the How It Works page FAQ section.',
+      description: 'Turn on to show this question on How It Works.',
       initialValue: false,
     }),
     defineField({
       name: 'showOnPricing',
-      title: 'Show on Pricing page',
+      title: 'Show on the Pricing page',
       type: 'boolean',
-      description: 'If checked, this question also appears on the Pricing page FAQ section.',
+      description: 'Turn on to show this question on Pricing. It can show on both pages.',
       initialValue: false,
     }),
-  ],
-  preview: {
-    select: { question: 'question', category: 'category', displayOrder: 'displayOrder' },
-    prepare: ({ question, category, displayOrder }) => ({
-      title: question ?? '(no question)',
-      subtitle: `${category ?? '?'} · #${displayOrder ?? '?'}`,
+    defineField({
+      name: 'category',
+      title: 'Topic',
+      type: 'string',
+      description: 'Questions on the same topic are kept together on the page.',
+      options: {
+        list: [
+          { title: 'Ordering and getting started', value: 'Ordering' },
+          { title: 'Pricing', value: 'Pricing' },
+          { title: 'How long it takes', value: 'Turnaround' },
+          { title: 'Shipping and pickup', value: 'Shipping' },
+          { title: 'What I can embroider', value: 'Items' },
+          { title: 'Design and fonts', value: 'Design' },
+          { title: 'Care', value: 'Care' },
+        ],
+        layout: 'dropdown',
+      },
     }),
+    // Phase D (2026-10-05): the typed position is replaced by dragging the list
+    // (orderRank, below). Hidden, never deleted: the site still orders by it
+    // after orderRank, so anything without a rank keeps its old place.
+    defineField({
+      name: 'displayOrder',
+      title: 'Position in the list',
+      type: 'number',
+      description: 'Smaller numbers come first within the topic. 1 is first.',
+      initialValue: 99,
+      hidden: true,
+      validation: (Rule) =>
+        Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
+    }),
+    // Phase D: the drag order, written by @sanity/orderable-document-list. Hidden
+    // and read-only; a new item starts at the end of the list.
+    orderRankField({ type: 'faqItem', newItemPosition: 'after' }),
+  ],
+  __experimental_search: [{ path: 'question', weight: 10 }],
+  preview: {
+    select: { question: 'question', how: 'showOnHowItWorks', pricing: 'showOnPricing' },
+    prepare: ({ question, how, pricing }) => {
+      const where = [how ? 'How It Works' : '', pricing ? 'Pricing' : ''].filter(Boolean);
+      return {
+        title: question ?? '(no question yet)',
+        subtitle: where.length ? `Shown on ${where.join(' and ')}` : 'Not shown on any page yet',
+      };
+    },
   },
   orderings: [
     {
-      title: 'Category, then order',
+      title: 'In your order',
+      name: 'orderRank',
+      by: [{ field: 'orderRank', direction: 'asc' }],
+    },
+    {
+      title: 'Topic, then position',
       name: 'categoryOrder',
       by: [
         { field: 'category', direction: 'asc' },
@@ -118,7 +147,7 @@ export const faqItem = defineType({
       ],
     },
     {
-      title: 'Display order',
+      title: 'Position in the list',
       name: 'displayOrder',
       by: [{ field: 'displayOrder', direction: 'asc' }],
     },

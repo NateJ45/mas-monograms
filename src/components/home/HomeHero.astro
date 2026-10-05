@@ -26,14 +26,17 @@ import {
   type ThreadOption,
 } from '@/components/atelier/atelierStudioData';
 import type { AtelierSettings } from '@/lib/queries';
+import { editItem, type Edit } from '@/lib/edit-target';
 
 interface Props {
   page: any;
   atelier: AtelierSettings | null;
   threads: ThreadOption[];
+  /** PREVIEW ONLY: the page document, for list click targets (src/lib/edit-target.ts). */
+  edit?: Edit;
 }
 
-const { page, atelier, threads } = Astro.props as Props;
+const { page, atelier, threads, edit } = Astro.props as Props;
 
 const styleLabels = new Map((atelier?.styles ?? []).map((s) => [s.key, s.label]));
 const styleKeys = (atelier?.styles ?? []).map((s) => s.key as StyleKey);
@@ -51,7 +54,11 @@ const first = samples[0];
 
 const headline: string = page?.heroHeadline ?? 'Custom Embroidery';
 const swash: string | undefined = page?.heroItalicWord;
-const trust: string[] = (page?.trustItems ?? []).filter(Boolean);
+// Each item keeps its place in the Sanity list, so its click target (preview only)
+// points at the right item even when an empty one is skipped.
+const trust = ((page?.trustItems ?? []) as string[])
+  .map((text, index) => ({ text, index }))
+  .filter((t) => Boolean(t.text));
 const primary = page?.heroPrimaryCtaLabel
   ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' }
   : null;
@@ -111,7 +118,7 @@ const hintId = 'hero-try-hint';
         trust.length > 0 && (
           <ul class="home-hero__trust mt-l" role="list">
             {trust.map((item) => (
-              <li>
+              <li data-sanity={editItem(edit, 'trustItems', null, item.index)}>
                 <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
                   <path
                     d="M2.5 2.5l7 7M9.5 2.5l-7 7"
@@ -120,7 +127,7 @@ const hintId = 'hero-try-hint';
                     stroke-linecap="round"
                   />
                 </svg>
-                <span>{item}</span>
+                <span>{item.text}</span>
               </li>
             ))}
           </ul>

@@ -31,7 +31,7 @@ import { ChevronDown, Menu } from 'lucide-react';
 import Logo from './Logo.astro';
 import SanityImage from './SanityImage.astro';
 import { resolveChrome, type NavItem, type RawNavItem } from '@/lib/siteSettings';
-import type { RawNavLink } from '@/lib/nav-href';
+import { plain, type RawNavLink } from '@/lib/nav-href';
 
 interface SocialLink {
   platform?: string;
@@ -64,9 +64,26 @@ interface Props {
   hasClearance?: boolean;
   /** 'overlay' = transparent over a dark first section (BaseLayout header="overlay"). */
   tone?: 'solid' | 'overlay';
+  /**
+   * PREVIEW ONLY. The `data-sanity` click target PreviewLayout puts on the header so a
+   * click in the Studio's canvas opens Business info. Unset on the live site, so the
+   * attribute is never rendered there.
+   */
+  editAttr?: string;
+  /**
+   * PREVIEW ONLY. The live address this header stands for, so the current page's menu
+   * link is marked in the canvas (whose own address starts /preview).
+   */
+  currentPath?: string;
 }
 
-const { siteSettings, hasClearance = true, tone = 'solid' } = Astro.props as Props;
+const {
+  siteSettings,
+  hasClearance = true,
+  tone = 'solid',
+  editAttr,
+  currentPath,
+} = Astro.props as Props;
 
 const chrome = resolveChrome(siteSettings);
 
@@ -80,7 +97,10 @@ const NAV_ITEMS: NavItem[] = chrome.navItems
   // Drop a redundant top-level "Home" link: the logo already links home.
   .filter(
     (item) =>
-      !(item.kind === 'flat' && (item.href === '/' || item.label.trim().toLowerCase() === 'home')),
+      !(
+        item.kind === 'flat' &&
+        (item.href === '/' || plain(item.label).trim().toLowerCase() === 'home')
+      ),
   )
   .filter((it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance'));
 
@@ -89,7 +109,7 @@ const split = Math.ceil(NAV_ITEMS.length / 2);
 const NAV_LEFT = NAV_ITEMS.slice(0, split);
 const NAV_RIGHT = NAV_ITEMS.slice(split);
 
-const pathname = Astro.url.pathname;
+const pathname = currentPath ?? Astro.url.pathname;
 function isActive(href: string) {
   if (href === '/') return pathname === '/';
   return pathname.startsWith(href);
@@ -125,7 +145,7 @@ const mobileNavProps = {
 };
 ---
 
-<header class="site-header" data-tone={tone}>
+<header class="site-header" data-tone={tone} data-sanity={editAttr}>
   <span class="site-header__pill" aria-hidden="true"></span>
   <span class="site-header__ground" aria-hidden="true"></span>
   <div class="site-header__bar">
@@ -252,6 +272,14 @@ const mobileNavProps = {
 </header>
 
 <script>
+  // First-touch source tags (?utm_source=qr&utm_medium=tag...), kept for the
+  // session so a QR scan that lands on any page still reaches the quote form.
+  // Lives in the header's script because the header is on every page and this
+  // bundle is already external (no new <script> tag). Contract: src/lib/utm.ts.
+  import { rememberUtm } from '@/lib/utm';
+  rememberUtm();
+  document.addEventListener('astro:page-load', rememberUtm);
+
   function currentGroups() {
     return Array.from(document.querySelectorAll<HTMLDetailsElement>('.site-nav__group'));
   }

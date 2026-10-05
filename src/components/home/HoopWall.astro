@@ -9,14 +9,17 @@ import HangTag from '@/components/motifs/HangTag.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
 import { swashSplit } from './swashSplit';
+import { editOther, type Edit } from '@/lib/edit-target';
 import { pickCardImage } from '@/lib/hoop';
 
 interface Props {
   page: any;
   categories: any[];
   headingId?: string;
+  /** PREVIEW ONLY: the page document, for photo and list click targets (src/lib/edit-target.ts). */
+  edit?: Edit;
 }
-const { page, categories, headingId = 'hoop-wall-heading' } = Astro.props as Props;
+const { page, categories, headingId = 'hoop-wall-heading', edit } = Astro.props as Props;
 
 const items = (categories ?? []).filter((c) => c?.name && c?.slug?.current).slice(0, 8);
 const head = swashSplit(page?.categoriesHeadline);
@@ -74,7 +77,12 @@ const FOCAL: Record<string, { x: number; y: number }> = {};
           const photo = pickCardImage(cat.cardImage, cat.heroImages);
           const hasPhoto = !!photo?.asset;
           return (
-            <li class="hoop-wall__item" style={`--drop:${h.drop}px`} data-reveal>
+            <li
+              class="hoop-wall__item"
+              style={`--drop:${h.drop}px`}
+              data-reveal
+              data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
+            >
               <a href={`/${slug}`} class="hoop-wall__link">
                 <span class="hoop-wall__hoop" style={`--hs:${h.size}px`}>
                   <HoopFrame

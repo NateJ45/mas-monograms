@@ -19,6 +19,13 @@
 // CLI (sanity.cli.ts) uses it for typegen and dataset commands. There is no
 // separate hosted Studio any more - deploying the site deploys the Studio, so it
 // can never drift stale.
+//
+// MARY ANN'S STUDIO (2026-10-05, Phase A of
+// docs/superpowers/specs/2026-10-05-studio-direction.md): the Studio is built
+// for one older, non-technical editor. Everything below that serves that is
+// marked "Phase A": plain tool names, larger type, one publishing model (no
+// Releases, no Drafts menu, no scheduling), a Create menu with only the things
+// she makes, Undo/Redo and a "Published, wait 2 to 3 minutes" note.
 
 import { defineConfig, buildLegacyTheme } from 'sanity';
 import { structureTool } from 'sanity/structure';
@@ -32,15 +39,26 @@ import { resolve } from './src/sanity/resolve';
 import { PreviewNavigator } from './src/sanity/components/PreviewNavigator';
 import { envVal } from './src/sanity/urls';
 import StudioLogo from './src/sanity/components/StudioLogo';
+import { StudioLayout } from './src/sanity/components/StudioLayout';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';
+import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
+import { SINGLETON_TYPES, withEditorActions } from './src/sanity/editorActions';
+import { STARTING_TEMPLATES } from './src/sanity/templates';
+import { STUDIO_THEME_PROPS, readableFonts } from './src/sanity/theme';
+import { QrCodeTool, QrIcon } from './src/sanity/components/QrCodeTool';
+import { BrandKitTool } from './src/sanity/components/BrandKitPane';
+import { CheckupTool } from './src/sanity/components/CheckupTool';
+import { ActivityIcon, ColorWheelIcon } from '@sanity/icons';
 
 // =============================================================================
 // Studio theme - "Heirloom Coast" (matches the live site, 2026-07-03)
 // =============================================================================
 // Linen/Paper surfaces, Heirloom Ink text, Heritage Indigo primary + navbar
 // (echoes the site header), Claret for the Publish/primary action button (the
-// site's CTA color), Brass for warnings. Values mirror src/styles/globals.css.
+// site's CTA color), Brass for warnings. Values live in src/sanity/theme.ts,
+// which mirrors src/styles/globals.css and is contrast-tested
+// (src/lib/studio-theme.test.ts).
 //
 // KEPT on buildLegacyTheme across the Sanity 6 upgrade, deliberately. The
 // starter migrated to @sanity/ui's buildTheme() to gain a real dark Studio, at
@@ -54,34 +72,11 @@ import { documentBadges } from './src/sanity/components/documentBadges';
 // Appearance to Dark leaves every panel white. If that ever becomes a real
 // complaint, the fix is buildTheme() from '@sanity/ui/theme' and accepting the
 // loss of tinting (see PORTS.md card 10).
-const studioThemeProps = {
-  '--black': '#26312E', // Heirloom Ink — darkest text
-  '--white': '#FBF8F1', // Paper — lightest surface
-  '--gray-base': '#5A5148', // Secondary Taupe — warm neutral ramp (grays lean warm, not cold)
-
-  '--brand-primary': '#28486B', // Heritage Indigo — links, selections, highlights
-  '--brand-primary--inverted': '#FBF8F1',
-  '--focus-color': '#28486B', // Indigo focus rings
-
-  '--input-bg': '#FBF8F1',
-  '--component-bg': '#F4EEE3', // Linen — card / panel backgrounds
-  '--component-text-color': '#26312E',
-
-  '--default-button-color': '#5A5148', // neutral buttons — warm taupe
-  '--default-button-primary-color': '#8C3A2E', // Claret — the Publish / primary action (matches site CTA)
-  '--default-button-success-color': '#3F7A4B',
-  '--default-button-warning-color': '#B98A3E', // Brass (decorative)
-  '--default-button-danger-color': '#B3261E',
-
-  '--state-success-color': '#3F7A4B',
-  '--state-warning-color': '#835A24', // Brass text (AA-safe)
-  '--state-danger-color': '#B3261E',
-
-  '--main-navigation-color': '#28486B', // Indigo navbar — echoes the live site header band
-  '--main-navigation-color--inverted': '#FBF8F1',
-};
-
-const studioTheme = buildLegacyTheme(studioThemeProps);
+//
+// Phase A: readableFonts() then scales the type ramp up (about 16px in lists,
+// 18px in the boxes she types in) and sets the system sans for the interface.
+// See the header of src/sanity/theme.ts.
+const studioTheme = readableFonts(buildLegacyTheme(STUDIO_THEME_PROPS));
 
 // Dev detection must FAIL CLOSED. The previous test was
 // `process.env.NODE_ENV !== 'production'`, which was correct for the old
@@ -94,6 +89,64 @@ const studioTheme = buildLegacyTheme(studioThemeProps);
 const IS_DEV =
   (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true ||
   (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development');
+
+/**
+ * Phase A: the top-bar tools in her words, in the order she needs them. The
+ * names (structure, presentation, media) are unchanged, so every link and
+ * route keeps working; only the visible titles change. sanity-plugin-media
+ * 5.0.11 has no title option, which is why this is done here for all three.
+ */
+const TOOL_TITLES: Record<string, string> = {
+  structure: 'Edit my content',
+  presentation: 'Edit on the page',
+  media: 'My photo library',
+};
+const TOOL_ORDER = ['structure', 'presentation', 'media', 'checkup', 'qr-codes', 'brand-kit'];
+
+/**
+ * Phase B: "What needs attention" (src/sanity/components/CheckupTool.tsx), the
+ * read-only checkup. Also a desk item (DESK.checkup) so a Welcome card can open
+ * it inside "Edit my content".
+ */
+const CHECKUP_TOOL = {
+  name: 'checkup',
+  title: 'What needs attention',
+  icon: ActivityIcon,
+  component: CheckupTool,
+};
+
+/**
+ * Phase E: "Make a QR code" (src/sanity/components/QrCodeTool.tsx). Runs fully
+ * in the browser; no network, so the Studio CSP needs nothing new.
+ */
+const QR_TOOL = { name: 'qr-codes', title: 'Make a QR code', icon: QrIcon, component: QrCodeTool };
+
+/**
+ * Phase F: "My brand kit" (src/sanity/components/BrandKitPane.tsx): logos,
+ * social pictures, colors, fonts, with download buttons. The files are static
+ * in public/brand-kit/ (same origin), so the Studio CSP needs nothing new.
+ */
+const BRAND_KIT_TOOL = {
+  name: 'brand-kit',
+  title: 'My brand kit',
+  icon: ColorWheelIcon,
+  component: BrandKitTool,
+};
+
+/**
+ * Phase A: the only things the global "+ Create" menu offers, in this order.
+ * The three she makes most start from a template (src/sanity/templates.ts);
+ * the rest use the type's plain starting point.
+ */
+const CREATE_MENU = [
+  'new-photo',
+  'new-clearance-item',
+  'new-question',
+  'pricingTier',
+  'font',
+  'threadColor',
+  'itemCategory',
+];
 
 export default defineConfig({
   name: 'mas-monograms-studio',
@@ -108,8 +161,25 @@ export default defineConfig({
   studio: {
     components: {
       logo: StudioLogo,
+      // Phase A: the first-visit tour, opening on Welcome, and hiding the
+      // "Drafts" menu. Sanity has no setting for any of the three; see
+      // src/sanity/components/StudioLayout.tsx.
+      layout: StudioLayout,
     },
   },
+
+  // Phase A: ONE publishing model, the Publish button. Sanity 6 adds Releases
+  // (bundle changes for a later publish), scheduled drafts and scheduled
+  // publishing beside it; for one editor whose site rebuilds on every publish
+  // they are only a second, confusing way to do the same thing. Tasks and
+  // comments are team features with icons she cannot use. The "What's new"
+  // announcements are Sanity's product news, not hers. Turn any of these back
+  // on the day there is a reason.
+  releases: { enabled: false },
+  scheduledDrafts: { enabled: false },
+  scheduledPublishing: { enabled: false },
+  tasks: { enabled: false },
+  announcements: { enabled: false },
 
   form: {
     components: {
@@ -152,48 +222,54 @@ export default defineConfig({
     // Vision (the GROQ query runner) is a developer tool, not an editor tool.
     // Gate it to local dev so the deployed Studio stays uncluttered.
     ...(IS_DEV ? [visionTool()] : []),
+    // Phase A: Ctrl+Z / Ctrl+Shift+Z (Cmd on a Mac) for everything that is not
+    // typing (PORTS.md card 27). The buttons are document actions, added in
+    // src/sanity/editorActions.ts; this plugin only adds the keyboard layer and
+    // stays out of text boxes so their own undo keeps working.
+    undoRedoShortcuts(),
   ],
+
+  tools: (prev) =>
+    [...prev, CHECKUP_TOOL, QR_TOOL, BRAND_KIT_TOOL]
+      .map((tool) => (TOOL_TITLES[tool.name] ? { ...tool, title: TOOL_TITLES[tool.name] } : tool))
+      .sort((a, b) => rank(TOOL_ORDER, a.name) - rank(TOOL_ORDER, b.name)),
 
   schema: {
     types: schemaTypes,
+    // Phase A: ready-made starting points for a new photo, clearance item and
+    // question (src/sanity/templates.ts).
+    templates: (prev) => [...prev, ...STARTING_TEMPLATES],
   },
 
   document: {
+    // Status badges in her words (Sold / Needs a photo / Add a short
+    // description for Google), after Sanity's own.
     badges: (prev) => [...prev, ...documentBadges],
+    // Comments are a team feature; one editor only meets an extra icon.
+    comments: { enabled: false },
     newDocumentOptions: (prev, { creationContext }) => {
+      // 'global' is the "+ Create" menu in the top bar. Offer only the things
+      // she makes, in the order she makes them.
       if (creationContext.type === 'global') {
+        return CREATE_MENU.flatMap((id) => prev.filter((o) => o.templateId === id));
+      }
+      // 'document' is the "Create new" button inside a reference box (a menu
+      // link, a photo's item type). Without this it offered "Create new Home
+      // page", which makes a second, orphaned copy of a singleton under a
+      // random id (fbcm Studio audit, 2026-09-26). Singletons are opened from
+      // the desk by their fixed id, which does not go through this menu.
+      if (creationContext.type === 'document') {
         return prev.filter((option) => !SINGLETON_TYPES.has(option.templateId));
       }
       return prev;
     },
-    actions: (prev, { schemaType }) => {
-      if (SINGLETON_TYPES.has(schemaType)) {
-        return prev.filter(
-          ({ action }) => !['unpublish', 'delete', 'duplicate'].includes(action || ''),
-        );
-      }
-      return prev;
-    },
+    // Singleton rules, the Publish note, Undo and Redo: src/sanity/editorActions.ts.
+    actions: (prev, { schemaType }) => withEditorActions(schemaType, prev),
   },
 });
 
-// Singleton document types — one instance each, not duplicable.
-const SINGLETON_TYPES = new Set<string>([
-  'siteSettings',
-  'homePage',
-  'howItWorksPage',
-  'pricingPage',
-  'aboutPage',
-  'requestAQuotePage',
-  'shopIndexPage',
-  'styleGalleryPage',
-  'fontGuidePage',
-  'threadChartPage',
-  'clearancePage',
-  'thankYouPage',
-  'notFoundPage',
-  'atelierSettings',
-  'studioGuide',
-  'studioNotes',
-  'studioPlaybook',
-]);
+/** Position of a name in an ordering list; unknown names go last, in their order. */
+function rank(order: string[], name: string): number {
+  const i = order.indexOf(name);
+  return i === -1 ? order.length : i;
+}

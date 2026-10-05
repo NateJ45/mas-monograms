@@ -22,6 +22,7 @@
 // =============================================================================
 import { createClient, type SanityClient } from '@sanity/client';
 import { env } from 'cloudflare:workers';
+import { keepClean } from './preview-stega-filter.ts';
 
 export const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID as string;
 export const dataset = (import.meta.env.PUBLIC_SANITY_DATASET as string) || 'production';
@@ -83,63 +84,13 @@ export function previewUnconfiguredResponse(missing: string[]): Response {
 }
 
 // -----------------------------------------------------------------------------
-// NON_STEGA_FIELDS - the single most important list in the preview stack
+// Which strings carry stega - the single most important list in the preview stack
 // -----------------------------------------------------------------------------
-// Fields chosen from a fixed dropdown or radio in the schema. NEVER free text
-// Mary Ann types, and never displayed as prose. They drive class and component
-// selection in the renderers (CtaLink branches on `linkType`, Hero on `layout`
-// and `size`, the thread chart on `colorFamily`, the gallery filter on
-// `styleTag`).
-//
-// Stega encodes a ~1KB run of INVISIBLE marker characters into every string it
-// touches so click-to-edit knows which field to open. On a display string that is
-// the whole point; on one of these it silently breaks the exact-string comparison
-// (`"internal" + <markers>` !== `"internal"`), so the preview mis-renders while
-// the live static site is fine. Excluding them costs nothing: you pick these from
-// a list, there is no text to click into.
-//
-// ADD ANY NEW LOGIC-DRIVING DROPDOWN FIELD HERE THE DAY YOU ADD THE FIELD.
-// Derived by scanning every `options: { list: ... }` field in
-// src/sanity/schemaTypes/ on 2026-08-28, then unioned with the names the rest of
-// the family uses so a block ported in from a sibling repo is covered on arrival.
+// Moved to src/lib/preview-stega-filter.ts on 2026-10-05 (NON_STEGA_FIELDS plus
+// the address-field rule), so it can be unit tested on its own. Read that file
+// before adding a field the page bodies use in logic. ADD ANY NEW
+// LOGIC-DRIVING DROPDOWN FIELD THERE THE DAY YOU ADD THE FIELD.
 // -----------------------------------------------------------------------------
-const NON_STEGA_FIELDS = new Set([
-  // Present in THIS repo's schemas today.
-  'businessType',
-  'category',
-  'colorFamily',
-  'days',
-  'linkType',
-  'navGroup',
-  'platform',
-  'priceRange',
-  'styleTag',
-  // Standard enum names across the site family. Carried so a section ported from
-  // a sibling repo is not a preview-only bug waiting to be found.
-  'align',
-  'aspect',
-  'businessModel',
-  'columns',
-  'format',
-  'headingLevel',
-  'heightHint',
-  'icon',
-  'imageSide',
-  'layout',
-  'mediaSide',
-  'mediaType',
-  'overlay',
-  'padding',
-  'ratio',
-  'size',
-  'source',
-  'sourceType',
-  'style',
-  'surface',
-  'tone',
-  'variant',
-  'width',
-]);
 
 export function getPreviewClient(draftMode: boolean): SanityClient {
   return createClient({
@@ -154,8 +105,7 @@ export function getPreviewClient(draftMode: boolean): SanityClient {
       studioUrl: '/studio',
       // Encode display strings (click-to-edit) but skip the dropdown fields
       // above, whose exact values are used in rendering logic.
-      filter: (props) =>
-        NON_STEGA_FIELDS.has(String(props.sourcePath.at(-1))) ? false : props.filterDefault(props),
+      filter: (props) => (keepClean(props.sourcePath) ? false : props.filterDefault(props)),
     },
   });
 }

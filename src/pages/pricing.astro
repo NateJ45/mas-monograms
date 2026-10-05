@@ -15,19 +15,24 @@ import HangTag from '@/components/motifs/HangTag.astro';
 import Needle from '@/components/motifs/Needle.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { faqPageSchema } from '@/lib/schemas';
-import {
-  getSiteSettings,
-  getPricingPage,
-  getAllPricingTiers,
-  getFaqItemsForPricing,
-} from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editItem, editOther } from '@/lib/edit-target';
+import { loadPricing, type PageProps, type PricingData } from '@/lib/page-data';
 
-const [siteSettings, page, tiers, faqs] = await Promise.all([
-  getSiteSettings(),
-  getPricingPage(),
-  getAllPricingTiers(),
-  getFaqItemsForPricing(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<PricingData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadPricing()]);
+const { page, tiers, faqs } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'Pricing — MAS Monograms';
 const description =
@@ -59,7 +64,14 @@ const TONES = ['kraft', 'paper', 'kraft', 'paper'] as const;
 const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} schemas={pageSchemas}>
+<Layout
+  {title}
+  {description}
+  seoImage={page?.seoImage}
+  {siteSettings}
+  schemas={pageSchemas}
+  {...preview?.layoutProps}
+>
   {/* Intro */}
   <section class="surface-midnight py-section-lg" aria-labelledby="pricing-heading">
     <div class="mx-auto max-w-content px-m text-center">
@@ -105,7 +117,10 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
           />
           <ul class="tag-line mt-section-md" role="list" data-reveal-stagger="110">
             {tiers.map((tier: any, i: number) => (
-              <li class="tag-line__item">
+              <li
+                class="tag-line__item"
+                data-sanity={editOther(edit, tier._id, 'pricingTier', 'label')}
+              >
                 <span class="tag-line__twine" aria-hidden="true" />
                 <HangTag
                   title={tier.label}
@@ -139,8 +154,8 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
             align="center"
           />
           <dl class="price-list mx-auto mt-section-md" data-reveal-stagger="70">
-            {addons.map((addon: any) => (
-              <div class="price-list__row">
+            {addons.map((addon: any, i: number) => (
+              <div class="price-list__row" data-sanity={editItem(edit, 'addons', addon, i)}>
                 <dt class="price-list__label">{addon.label}</dt>
                 <dd class="price-list__price">{addon.price}</dd>
                 {addon.note && <dd class="price-list__note">{addon.note}</dd>}
@@ -203,7 +218,7 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 
 <style>
   /* ---------- The garland ---------- */

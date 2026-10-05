@@ -1,82 +1,119 @@
 ---
 /* ============================================================================
    PreviewLayout - Studio-only shell for /preview/* pages
-   (ported from ncs-astro-sanity-starter 2026-08-28, PORTS.md cards 10 and 11)
+   (ported from ncs-astro-sanity-starter 2026-08-28, PORTS.md cards 10 and 11;
+   rebuilt 2026-10-05 so the canvas IS the site, Phase C of the Studio upgrade)
    ============================================================================
-   Deliberately NOT BaseLayout: it skips analytics, canonical/OG tags, smooth-scroll scripts and
-   the JSON-LD, none of which belong on a draft-content page that only the
-   Presentation Tool's iframe ever loads. `noindex, nofollow` is non-negotiable
-   here: these pages must never appear in search results.
+   The page bodies inside this shell are the SAME components the live pages
+   render (src/components/pages/*Body.astro), so this shell has one job: wrap
+   them in the same page frame BaseLayout gives the live site, minus everything
+   that does not belong on a draft page.
 
-   Renders the REAL Header and Footer around the page body (2026-08-28) so the
-   preview matches production edge to edge. This shell was chrome-less until
-   the click interceptor existed: back then a header link would have bounced
-   Mary Ann's iframe onto the live site. The interceptor closed that hole
-   (edit-mode clicks select only; browse-mode clicks remap into /preview/*).
-   Each piece is wrapped in a `data-sanity` attribute pointed at
-   `siteSettings` - the WordPress-template-part gesture: in Edit mode the
-   chrome outlines as an editable surface and a click opens Site settings in
-   the edit panel.
+   KEPT FROM BaseLayout, on purpose and in the same shape:
+     - globals.css + starwind.css, the early `.js` class on <html>, and
+       `<body class="flex min-h-screen flex-col" data-header=...>`;
+     - the real Header (overlay or solid tone, per page) and Footer, draft-aware;
+     - <main id="main" class="relative isolate flex-1"> with the golden
+       ThreadLine as its first child. `relative isolate` is load-bearing: the
+       Atelier surfaces paint their cloth on ::before at z-index -2, and without
+       the stacking context the cloth falls behind <body> and the bands go bare;
+     - an `astro:page-load` on window load, which is what the ClientRouter fires
+       on the live site. Several page scripts (the how-it-works path, the gallery
+       filter, the header's scroll state) only start on that event.
+
+   LEFT OUT, on purpose:
+     - analytics, canonical/OG/Twitter tags, JSON-LD, the announcement bar and
+       the ClientRouter. `noindex, nofollow` is non-negotiable here, and the
+       route is never in the sitemap (it is SSR, not prerendered).
+     - the scroll REVEALS. RevealScript is not loaded, so nothing is ever hidden
+       (the reveal CSS only hides once that script sets html.reveal-ready), and
+       the block at the bottom forces the end states anyway, so Mary Ann never
+       edits a section that has not faded in yet.
+     - BackToTop: it would sit on top of the Studio's own controls.
+
+   The header and footer carry a `data-sanity` target pointed at siteSettings,
+   so in Edit mode a click on them opens Business info. Their links are kept
+   INSIDE the preview by the click interceptor at the bottom.
 
    There is no theme bootstrap because this site has no dark mode (see CLAUDE.md).
    ============================================================================ */
 import '../styles/globals.css';
+import '../styles/starwind.css';
 import VisualEditingOverlay from '@/components/preview/VisualEditingOverlay.tsx';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import ThreadLine from '@/components/motifs/ThreadLine.astro';
 import { previewFetch } from '@/lib/cms-preview';
 import { docEditAttr } from '@/lib/preview-edit-attr';
 import { SITE_SETTINGS_PROJECTION } from '@/lib/queries';
 
 interface Props {
+  /** The page's own title (its BaseLayout title). */
   title: string;
-  draftMode: boolean;
-  /** Doc id this preview renders (e.g. "homePage"). */
-  pageId: string;
+  /** Draft mode on: drafts, stega and the overlay. Passed by the preview route. */
+  draftMode?: boolean;
+  /** Doc id this preview renders (e.g. "homePage"). Passed by the preview route. */
+  pageId?: string;
+  /** The live page's BaseLayout `header` prop: 'overlay' for the pages that open dark. */
+  header?: 'solid' | 'overlay';
+  /** The live page's BaseLayout `thread` prop. */
+  thread?: boolean;
+  /** The live address this preview stands for, so the header marks the right menu item. */
+  livePath?: string;
+  /**
+   * The category page addresses (/<slug>) that have a preview of their own, so a click on
+   * a category card stays in the canvas. The fourth copy of the path map, and the only
+   * one that is data: categories are documents, not fixed routes.
+   */
+  categorySlugs?: string[];
+  /**
+   * The rest of BaseLayout's props. The page files hand this shell the SAME props they
+   * hand BaseLayout (they render themselves in either), and the ones that only matter
+   * to a public page (description, seoImage, schemas, siteSettings, noindex, ogType)
+   * are deliberately ignored here: no meta, no JSON-LD, and the chrome reads its own
+   * DRAFT siteSettings below.
+   */
+  [baseLayoutProp: string]: unknown;
 }
-const { title, draftMode, pageId } = Astro.props;
+const {
+  title,
+  draftMode = false,
+  pageId = '',
+  header = 'solid',
+  thread = true,
+  livePath,
+  categorySlugs = [],
+} = Astro.props;
 
 // ---------------------------------------------------------------------------
 // THE SOFT-REFRESH RENDER IS A CHEAPER RENDER (2026-08-28)
 // ---------------------------------------------------------------------------
 // The overlay's reconcile refetch sends `x-preview-soft-refresh: 1` and then
 // consumes exactly one thing from the response: `#main`. Everything this shell
-// draws AROUND <main> - the header and the footer - is parsed and thrown away.
-// That cost a Sanity round trip on a route a burst of edits runs repeatedly.
-//
-// So on a soft refresh that fetch is skipped. This is safe in the narrow,
-// checkable sense that matters: NOTHING inside `#main` reads the value.
-// `chromeSettings` feeds only Header and Footer, both of which are siblings of
-// <main> in the body below, and the page body's own settings come from the
-// route's separate fetches in src/pages/preview/[...slug].astro, which are
-// untouched. The `#main` HTML is therefore byte-for-byte what a full render
-// produces - which is the only thing the reconcile can see.
-//
-// The chrome still renders, from its null fallbacks, so this response is a
-// valid page rather than a fragment. Nobody looks at it: the header is only
-// ever sent by the refetch in VisualEditingOverlay.tsx, never by a navigation.
-// Preview-only either way - the static build never reaches this route.
+// draws AROUND <main> - the header and the footer - is parsed and thrown away,
+// so on a soft refresh their fetches are skipped. NOTHING inside `#main` reads
+// these values (the page body's data comes from the route's own loader), so the
+// `#main` HTML is byte-for-byte what a full render produces. The chrome still
+// renders, from its null fallbacks, so the response is a valid page.
 const softRefresh = Astro.request.headers.get('x-preview-soft-refresh') === '1';
 
-// Draft-aware settings for the chrome, so header/footer edits live-update in
-// the preview. Null-safe: Header and Footer render their fallbacks cleanly.
-//
-// Runs the SAME projection the live site runs (SITE_SETTINGS_PROJECTION). It
-// used to fetch the raw document, which was fine while every menu link was a
-// typed address, but a link that points at a PAGE has to be followed through to
-// that page here, or every such link resolves to nothing and the preview
-// quietly falls back to the built-in menus.
-//
-// Loose type: the raw doc, the same shape BaseLayout passes. (The
-// no-explicit-any disable this used to carry is gone - the rule stopped
-// reporting once the fetch moved into the branch below, and an unused
-// directive is itself a lint warning.)
-const chromeSettings = softRefresh
-  ? null
-  : await previewFetch<any>(
-      draftMode,
-      `*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`,
-    ).catch(() => null);
+// Draft-aware chrome, read through the SAME projection the live site runs, so
+// header and footer edits live-update here and page links resolve the same way.
+// `hasClearance` and the legal links mirror BaseLayout's own reads.
+const [chromeSettings, legalPages, clearanceCount] = softRefresh
+  ? [null, [], 1]
+  : await Promise.all([
+      previewFetch<any>(
+        draftMode,
+        `*[_type == "siteSettings"][0]${SITE_SETTINGS_PROJECTION}`,
+      ).catch(() => null),
+      previewFetch<any[]>(
+        draftMode,
+        `*[_type == "legalPage"] | order(displayOrder asc){ _id, title, "slug": slug.current, displayOrder }`,
+      ).catch(() => []),
+      previewFetch<number>(draftMode, `count(*[_type == "clearanceItem"])`).catch(() => 1),
+    ]);
+const hasClearance = (clearanceCount ?? 0) > 0;
 
 // Header opens the doc at its identity, footer at the tagline, so each click
 // lands the editor near what that piece of chrome shows.
@@ -85,20 +122,25 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
 ---
 
 <!doctype html>
-<html lang="en" data-draft={draftMode ? '1' : '0'}>
+<html
+  lang="en"
+  data-draft={draftMode ? '1' : '0'}
+  data-preview-categories={categorySlugs.join(' ')}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>{title}</title>
+    <title>{`Preview: ${title}`}</title>
     <script is:inline>
+      // Same as BaseLayout: CSS can tell a scripted page from a no-JS one
+      // (the header's overlay tone, the ThreadLine).
+      document.documentElement.classList.add('js');
       // Before paint: mark whether this preview page is EMBEDDED in the Studio's
       // Presentation iframe. Two behaviors hang off the class:
       //  - The "Exit preview" button hides when embedded. Inside Presentation it
       //    is a trap: it clears the draft cookie and strands the iframe on the
-      //    live site with no Studio connection, and nothing short of reloading
-      //    the whole Studio re-runs the enable handshake. The way out of
-      //    Presentation is Presentation's own chrome.
+      //    live site with no Studio connection.
       //  - The slim bar shows a reconnect hint if a page ever renders embedded
       //    but WITHOUT draft mode (a dead session), instead of failing silently.
       if (window.self !== window.top) {
@@ -121,44 +163,61 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
       .in-studio-frame.preview-disconnected [data-connected-note] {
         display: none;
       }
+      .preview-note {
+        position: relative;
+        z-index: 60;
+        padding: 0.4rem 1rem;
+        background: var(--color-paper);
+        border-bottom: 1px solid var(--color-border-soft, #d8d0c0);
+        color: var(--color-ink, #1f2a3a);
+        font-size: 0.875rem;
+        line-height: 1.4;
+        text-align: center;
+      }
     </style>
   </head>
-  <body class="relative bg-background text-foreground">
-    <div
-      class="flex items-center justify-between gap-4 border-b border-border-soft bg-card px-4 py-1.5 text-xs text-foreground/70"
-    >
+  <body class="flex min-h-screen flex-col" data-header={header}>
+    <p class="preview-note" data-preview-note>
       <span data-connected-note
-        >Draft preview. Click the header or footer to edit Site settings.</span
+        >You are looking at your changes. Nothing is on your website until you press Publish.</span
       >
-      <span data-reconnect-hint class="font-semibold"
-        >Draft session ended. Reload the Studio browser tab to reconnect the preview.</span
+      <span data-reconnect-hint
+        >This preview lost its connection. Reload the Studio browser tab to reconnect it.</span
       >
-    </div>
-    {
-      /* The real site chrome, draft-aware, each piece an editable surface. The
-        wrapper divs are REAL block boxes on purpose: the overlay outlines the
-        element's rect (same rule as sectionEditAttr). */
-    }
-    <div data-sanity={headerAttr}>
-      <Header siteSettings={chromeSettings} />
-    </div>
-    <main id="main"><slot /></main>
-    <div data-sanity={footerAttr}>
-      <Footer siteSettings={chromeSettings} />
-    </div>
+    </p>
+
+    <Header
+      siteSettings={chromeSettings}
+      {hasClearance}
+      tone={header}
+      editAttr={headerAttr}
+      currentPath={livePath}
+    />
+
+    <main id="main" class="relative isolate flex-1">
+      {thread && <ThreadLine />}
+      <slot />
+    </main>
+
+    <Footer
+      siteSettings={chromeSettings}
+      legalPages={legalPages}
+      {hasClearance}
+      editAttr={footerAttr}
+    />
 
     {
-      /* The motion system's END states, forced. BaseLayout's IntersectionObserver
-        script is not loaded here (this shell is deliberately minimal), and the
-        image-curtain reveal hides content until it runs, so without this block
-        the preview would render INVISIBLE sections. Keep it in step with the
-        motion vocabulary in src/styles/globals.css. */
+      /* The motion system's END states, forced. RevealScript is not loaded here
+        (nothing hides without it), and the image curtain and the step connector
+        are BaseLayout's observers, also not loaded, so their end states are set
+        here. Keep this in step with the motion vocabulary in globals.css. */
     }
     <style is:global>
       [data-reveal],
       .img-curtain {
         opacity: 1 !important;
         translate: 0 0 !important;
+        clip-path: none !important;
       }
       .img-curtain::after {
         display: none !important;
@@ -182,34 +241,59 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
 
     <script>
       // =======================================================================
+      // astro:page-load, as the ClientRouter fires it on the live site
+      // =======================================================================
+      // The live pages run the ClientRouter, which dispatches `astro:page-load`
+      // on window load. Several page scripts start ONLY on that event, and the
+      // others start on module run AND on that event (so they are written to be
+      // run twice). Firing it once here, at the same moment, gives every script
+      // in a shared page body the start it gets on the live site.
+      window.addEventListener('load', () => {
+        document.dispatchEvent(new Event('astro:page-load'));
+      });
+
+      // =======================================================================
+      // Forms never send from the canvas
+      // =======================================================================
+      // The quote form here is the REAL form, wired to the real /api/quote. A
+      // preview is for looking and editing words, so a submit is stopped before
+      // the page's own handler sees it: nothing is emailed from a draft.
+      document.addEventListener(
+        'submit',
+        (event) => {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        },
+        true,
+      );
+
+      // =======================================================================
       // Keep clicks INSIDE the preview surface (PORTS.md card 11)
       // =======================================================================
       // Page bodies are full of real-site links (/pricing, /about, the quote
       // CTA). Left alone, clicking one navigates the Presentation iframe to the
       // LIVE page, which has no Studio connection: the URL bar, the page
       // navigator and the edit panel all silently freeze on the previous page
-      // while the iframe shows the real site, chrome and all. An editor reported
-      // exactly this against a production site in the family.
+      // while the iframe shows the real site.
       //
       // So: same-origin links with a preview equivalent are remapped into
       // /preview/* (the visual-editing history adapter then reports the new
       // location, and Presentation resolves the document, so the navigator and
-      // the edit panel follow the click). Links with NO preview route (the
-      // per-category shop pages, /legal/*, /api, /studio, external origins)
-      // split by context:
+      // the edit panel follow the click). Links with NO preview route (/legal/*,
+      // /api, /studio, external origins) split by context:
       //  - EMBEDDED in the Studio: the navigation is SUPPRESSED entirely. A click
-      //    on a card there is an EDIT gesture (the stega overlay already selects
-      //    the right field and document), and a live tab popping open on every
-      //    card click forces a tab-switch back to the Studio each time.
+      //    there is an EDIT gesture (the stega overlay already selects the right
+      //    field and document).
       //  - Standalone /preview tab: NEW TAB, so the preview surface is never
       //    hijacked.
       //
       // THE ROUTE MAP IS PER-SITE. This set is the THIRD copy of the same map and
       // the one that degrades SILENTLY when it falls out of step (a missed entry
       // does not error, it just lets a click escape to the live site). The other
-      // two are SINGLETON_BY_PATH in src/pages/preview/[...slug].astro and
+      // two are PREVIEW_PAGES in src/pages/preview/[...slug].astro and
       // SINGLETON_PREVIEW_PATHS in src/sanity/resolve.ts. Change one, change all
-      // three.
+      // three. Category pages (/<slug>) are the fourth, data-driven copy: the
+      // route writes their slugs into <html data-preview-categories>.
       const FIRST_SEGMENT_PREVIEWABLE = new Set([
         'how-it-works',
         'pricing',
@@ -221,7 +305,11 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
         'thread-color-chart',
         'clearance',
         'thank-you',
+        '404',
       ]);
+      const CATEGORY_SLUGS = new Set(
+        (document.documentElement.dataset.previewCategories ?? '').split(' ').filter(Boolean),
+      );
 
       document.addEventListener(
         'click',
@@ -233,13 +321,11 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
           if (anchor.target === '_blank' || anchor.hasAttribute('download')) return;
 
           const embedded = document.documentElement.classList.contains('in-studio-frame');
-          // EDIT MODE (2026-08-28, editor feedback on presacademy): while
-          // Presentation's Edit toggle is ON, the visual-editing overlay keeps
-          // its outline boxes ([data-sanity-overlay-element]) in the DOM. In
-          // that mode EVERY click is a selection gesture - buttons with
-          // preview equivalents included - so suppress ALL navigation and let
-          // the overlay's selection be the whole result. With Edit toggled
-          // OFF the boxes are gone and clicks browse normally (remap below).
+          // EDIT MODE: while Presentation's Edit toggle is ON, the visual-editing
+          // overlay keeps its outline boxes ([data-sanity-overlay-element]) in the
+          // DOM. In that mode EVERY click is a selection gesture, so suppress ALL
+          // navigation and let the overlay's selection be the whole result. With
+          // Edit toggled OFF the boxes are gone and clicks browse normally.
           if (embedded && document.querySelector('[data-sanity-overlay-element]')) {
             event.preventDefault();
             return;
@@ -259,11 +345,14 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
 
           const segments = path === '/' ? [] : path.slice(1).split('/');
           const previewable =
-            path === '/' || (segments.length === 1 && FIRST_SEGMENT_PREVIEWABLE.has(first));
+            path === '/' ||
+            (segments.length === 1 &&
+              (FIRST_SEGMENT_PREVIEWABLE.has(first) || CATEGORY_SLUGS.has(first)));
 
           event.preventDefault();
           if (previewable) {
-            window.location.assign(path === '/' ? '/preview' : `/preview${path}`);
+            // Keep the query string: the quote form reads ?item= and friends.
+            window.location.assign((path === '/' ? '/preview' : `/preview${path}`) + url.search);
           } else if (!embedded) {
             // Standalone tab: routes without a preview open in a new tab.
             window.open(url.href, '_blank', 'noopener');

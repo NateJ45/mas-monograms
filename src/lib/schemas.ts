@@ -7,7 +7,9 @@
 // needs them. Test every schema against Google Rich Results before launch:
 // https://search.google.com/test/rich-results
 
-import { site } from '@/data/site';
+// Relative with the extension (not '@/data/site') so the unit tests in
+// schemas.test.ts can import this file in bare Node.
+import { site } from '../data/site.ts';
 
 // ---------- Types (loose — Sanity provides the actual document shapes) ----
 
@@ -30,6 +32,8 @@ interface SiteSettings {
     closes?: string | null;
   }> | null;
   socialLinks?: SocialLink[] | null;
+  /** Her Google Business Profile link (siteSettings.googleBusinessUrl). */
+  googleBusinessUrl?: string | null;
   businessType?: string;
   priceRange?: string;
 }
@@ -53,6 +57,29 @@ interface Breadcrumb {
 
 // ---------- LocalBusiness (site-wide, BaseLayout injects on every page) ----
 
+/** True for a full https address with a dotted host (what Google accepts in sameAs). */
+function isHttpsUrl(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  try {
+    const u = new URL(value.trim());
+    return u.protocol === 'https:' && u.hostname.includes('.');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The profiles that are "the same business" for Google: every social link and
+ * her Google Business Profile link (2026-10-05, Get found). Only valid https
+ * addresses, each once, in the order she entered them.
+ */
+export function sameAsLinks(s: Pick<SiteSettings, 'socialLinks' | 'googleBusinessUrl'>): string[] {
+  const urls = [...(s.socialLinks ?? []).map((l) => l?.url), s.googleBusinessUrl]
+    .filter(isHttpsUrl)
+    .map((u) => u.trim());
+  return Array.from(new Set(urls));
+}
+
 export function localBusinessSchema(settings: SiteSettings | null | undefined): string {
   const s = settings ?? {};
   const schema: Record<string, any> = {
@@ -64,9 +91,7 @@ export function localBusinessSchema(settings: SiteSettings | null | undefined): 
     image: `${site.url}${site.assets.ogDefault}`,
     email: s.email ?? undefined,
     priceRange: s.priceRange ?? '$$',
-    sameAs: Array.from(
-      new Set((s.socialLinks ?? []).map((l) => l.url).filter((u): u is string => Boolean(u))),
-    ),
+    sameAs: sameAsLinks(s),
   };
 
   // Address — only emit when we have city or state from the address object.

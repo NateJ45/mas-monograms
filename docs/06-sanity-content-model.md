@@ -11,15 +11,106 @@ Two principles the model follows:
 1. **Structure over freeform** where content repeats (steps, FAQ items, pricing tiers), so Mary Ann fills
    fields instead of formatting a blob and the front end renders consistently.
 2. **Singletons** for one-of-a-kind pages, **collections** for repeatable content, so the Studio stays
-   tidy. Singletons are enforced (not duplicable/deletable) in `the repo-root sanity.config.ts`.
+   tidy. Singletons are enforced (not duplicable/deletable) by `src/sanity/editorActions.ts`, wired in the repo-root `sanity.config.ts`.
+
+---
+
+## Mary Ann's Studio pass (2026-10-05, Phase A)
+
+Spec: `docs/superpowers/specs/2026-10-05-studio-direction.md`. What changed in the schema, all render-neutral
+(field NAMES are unchanged; no data was written):
+
+- **Titles, descriptions and messages are plain words**, written for Mary Ann: what the box is and where it
+  shows on the website, never "field", "slug", "schema", "URL", "CTA", `<em>` or an em-dash. The wording
+  every page repeats (Google title and description, share picture, headline lines, closing banner, photo
+  words) lives once in `src/sanity/schemaTypes/_copy.ts` and is spread into each literal `defineField`.
+  `scripts/audit-studio.mjs` check 5 keeps it that way.
+- **Fields are in page order** with at most six tabs per form, named after the parts of the page a visitor
+  sees ("Top of the page", "Item circles", "Closing banner at the bottom"...), and "Google and sharing" is
+  always last and collapsed. "All fields" stays the default tab (her 2026-07-03 request), so a form reads the
+  page top to bottom.
+- **Required means required for the page to work.** Only the page headlines, the collection essentials
+  (a photo of her work, a clearance item's name, photo, sale price and Stripe link, a question and its answer,
+  names, web addresses and colour codes) and the Monogram preview's control labels (no fallback in code) stay
+  required, each with a friendly message. Every length limit is a yellow warning, never a red error. Labels
+  with a fallback in code say what shows when they are left empty.
+- **Hidden, data kept** (the site no longer reads them): `homePage.heroImages` (it was required and showed a
+  red "No items"), `homePage.gallery*` (the old gallery band), `homePage.cta*` (shadowed: `FinalCta.astro`
+  reads `final*` first, all filled), `howItWorksPage.stepsSubhead`, `aboutPage.heroImage` (fallback for
+  `makerPhoto`, which is set), `styleGalleryPage.additionalFilterTags`, 21 old `requestAQuotePage` labels
+  (`emailHelp`, `phoneHelp`, `itemTypeOtherLabel`, `monogramDetails*`, `placementLabel/Placeholder/Help`,
+  `fontPreferenceGuideLinkLabel`, `fontPreferenceOtherLabel`, `colorPreference*`, `fileUpload*`,
+  `specialInstructions*`, `errorMessage`), `notFoundPage.body` (`404.astro` reads an undeclared `subhead`;
+  see `docs/PENDING.md`), `siteSettings.standardTurnaround` / `rushOrdersAvailable` / `rushTurnaround`
+  (`googleBusinessUrl` was hidden too, and unhidden the same day by the Get found site pass),
+  `itemCategory.featured`, `threadColor.swatchImage`, `pricingTier.minQuantity` /
+  `maxQuantity`, `clearanceItem.featured`. A hidden field is still queried where it was; unhide it in the same
+  change that makes the page read it again.
+- **No longer required** (they were red marks on live documents): `font.previewImage` (10 of 18 fonts have no
+  photo; a font without one is simply left off the guide, and the "Needs a photo" badge says so),
+  `itemCategory.heroImages` / `cardImage` (the item page borrows gallery photos; "Bring Your Own Item" has
+  neither on purpose), and seven quote-form labels that were empty.
+- **Document type titles** are what she calls them: "Photo of my work" (`galleryItem`), "Clearance item",
+  "Price tag" (`pricingTier`), "Question and answer" (`faqItem`), "Shop category" (`itemCategory`), "Thread
+  color", "Embroidery font", "Legal page", "My business details" (`siteSettings`), "Monogram preview"
+  (`atelierSettings`), "Home page" and so on. Page previews carry a one-line subtitle (where the page lives).
+- **Search weights** (`__experimental_search`, PORTS card 34): name/question/label/photo words and tags on the
+  collections; headline and Google title on the 13 pages (applied in `schemaTypes/index.ts`).
+- **Starting templates** (`src/sanity/templates.ts`): "New photo of my work", "New clearance item", "New
+  question and answer", with [bracketed prompts] in her voice; a box still holding brackets gets a yellow note
+  (`bracketsLeft` in `_copy.ts`). Tested by `src/lib/studio-templates.test.ts`.
+- **Phase B (2026-10-05): `studioNotes.helpContact`** ("Who to ask for help", optional string, Studio-only,
+  never on the website). The Help page's "Still stuck? Ask ..." line reads it; empty, it says "the person who
+  built your website" (`HELP_CONTACT_FALLBACK` in `src/sanity/components/HelpPane.tsx`). Nothing is
+  pre-filled: Nathan fills it in. `studioNotes` shows on the desk as Help > "My notes". The `studioGuide`
+  document is no longer on the desk (the repo handbook in `src/sanity/guides` replaced it) but is kept.
+
+## Phase D: safety and polish (2026-10-05)
+
+- **Drag order: `orderRank`** (a LexoRank string, `@sanity/orderable-document-list` 2.0.9 `orderRankField`,
+  hidden, new items at the end) on `galleryItem`, `clearanceItem`, `pricingTier`, `faqItem`, `font` and
+  `itemCategory`. Their `displayOrder` boxes are **hidden, not deleted**: every site query orders by
+  `orderRank asc, displayOrder asc` (`RANK_ORDER` in `src/lib/queries.ts`), so anything without a rank keeps
+  its old place. The FAQ queries project `displayOrder` as the item's 1-based position in rank order
+  (`FAQ_POSITION`; `FaqAccordion` re-sorts each topic by it), falling back to the old number. `threadColor` is
+  left out on purpose: the chart sorts by hue in code. Backfilled 2026-10-05 by
+  `scripts/backfill-order-rank.mjs` (105 documents, ranks in `displayOrder asc, _id asc` order, the order GROQ
+  already used; second apply 0 changes; backup `tmp/backups/production-2026-10-05-order-rank.tar.gz`). A drag
+  patches the PUBLISHED copy at once (no Publish needed) and the "Rebuild live site" webhook (create, update,
+  delete on published documents) rebuilds the site.
+- **`trashedItem`** ("Something in the Trash"): what "Move to Trash" keeps (`title`, `kind`, `deletedAt`,
+  `wasPublished`; hidden `originalType`, `originalId`, `payload`). `payload` is JSON text holding the published
+  copy and the unpublished changes separately (`src/sanity/lib/trash.ts`). The site never reads this type; the
+  original is deleted when it goes to the Trash (one transaction), so no site query needs a filter.
+- **`seoPreview`** ("How this looks on Google"): a value-less box at the top of "Google and sharing" on the 10
+  page singletons with Google boxes, `itemCategory` and `legalPage`; its input
+  (`components/GooglePreviewInput.tsx`) draws the Google result and the shared-link card and stores nothing.
+- **Locked addresses:** `itemCategory.slug` and `legalPage.slug` use `components/LockedAddressInput.tsx`: the
+  normal box (with Generate) until the page has a published address, then the address and "Ask Nathan to change
+  this: it changes the page address." No redirects are filed (see `.claude/rules/sanity-studio.md`).
 
 ---
 
 ## Singletons
 
-**`siteSettings`** — global identity used in the header/footer and JSON-LD: title, tagline, email, phone,
-address, service area, opening hours, nav items, footer columns, social links, Google Business URL, SEO
-defaults, `businessType` (drives the LocalBusiness schema.org type), price range, and turnaround times.
+**`siteSettings`** ("My business details") — global identity used in the header/footer and JSON-LD: title,
+tagline, email, phone, address, service area, opening hours, nav items, footer columns, social links, SEO
+defaults, `businessType` (drives the LocalBusiness schema.org type) and price range. The turnaround fields
+are hidden since 2026-10-05 (nothing reads them). `googleReviewUrl` ("Your Google review link", optional
+`url`, http/https, a warning not an error, added 2026-10-05 for Phase E) is the short link people use to
+leave her a Google review. The Studio's "Make a QR code" tool reads it (empty, the tool falls back to a link
+she pastes into the tool, kept in her browser's localStorage), and since the Get found site pass
+(2026-10-05) so does the site.
+
+Get found site pass (2026-10-05, all optional, plain titles):
+
+| Field                                 | Title                      | What the site does with it                                                                                                                                                                                                                                                                              |
+| ------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `siteSettings.googleReviewUrl`        | Your Google review link    | A small review link in the footer's contact cluster and a line under the next steps on `/thank-you`, both opening in a new tab, drawn ONLY when it is a real `https` address (`src/lib/review-link.ts`). Empty: nothing drawn, HTML unchanged.                                                          |
+| `siteSettings.reviewLinkLabel`        | Words on your review link  | The words on both links; empty falls back to "Leave a review".                                                                                                                                                                                                                                          |
+| `siteSettings.googleBusinessUrl`      | Your Google listing link   | Unhidden. Added (when a valid `https` address) to the LocalBusiness `sameAs`, after the social links (`sameAsLinks()` in `src/lib/schemas.ts`). Not drawn on the page.                                                                                                                                  |
+| `siteSettings.socialLinks[].platform` | Which site                 | Gained `Nextdoor`. TikTok, YouTube and Nextdoor now have their own footer and phone-menu icons (Nextdoor uses a house: Tabler has no Nextdoor mark).                                                                                                                                                    |
+| `requestAQuotePage.referralOptions`   | Answers they can pick from | Content only: "Pinterest", "Nextdoor", "Google Maps" and "A QR code on a tag or card" added before "Other" by `scripts/seed-referral-options.mjs` (append-if-missing, published doc and any draft, `ifRevisionId`; backup `tmp/backups/production-2026-10-05-referral.tar.gz`; second apply 0 changes). |
 
 **Page singletons** — one per page, each holding all the words + images for that page:
 `homePage`, `howItWorksPage`, `pricingPage`, `aboutPage`, `requestAQuotePage`, `shopIndexPage`,
@@ -30,10 +121,10 @@ section `eyebrow`/`headline`/`subhead`; control labels (`initialsLabel`, `initia
 `threadLabel`, `fabricLabel`); `styles[]` (`key` is one of `classic|script|block|circle|single` and is fixed by
 the code, `label`, `blurb`); `fabrics[]` (`key`, `label`, `color` hex, `note`); `sampleMonograms[]` (made-up
 initials only, 1 to 3 letters); `replayLabel`, `ctaLabel`, `disclaimer` (the "preview, Mary Ann confirms the
-proof" line); `heroTryLabel`, `heroPlaceholder`. Desk: Website pages > "Monogram Preview (live stitching)".
+proof" line); `heroTryLabel`, `heroPlaceholder`. Desk: Pages on my website > "Monogram preview".
 Read with `getAtelierSettings()`. Seeded by `scripts/seed-atelier.mjs` (dry run by default, `--apply` to write;
-`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is registered in the `SINGLETON_TYPES`
-sets in both `src/sanity/structure.ts` and the repo-root `sanity.config.ts`, so the Studio cannot duplicate or delete it.
+`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is in `SINGLETON_TYPES` in
+`src/sanity/editorActions.ts` (since 2026-10-05 the one list), so the Studio cannot duplicate or delete it.
 
 **`homePage` additions (2026-10-04, all optional):** `marqueeEyebrow` (trust group), `categoriesNote`,
 `makerQuote` / `makerSignature` / `makerFacts[]` (about group), studio wall `wallEyebrow` / `wallHeadline` /
@@ -88,6 +179,10 @@ label, help line, placeholder, section heading, and the referral-source options.
 | `clearanceItem` | the Clearance page                                          | name, description, images, original + sale price, `stripePaymentLink`, quantity, sold, order                                                                                                                                                                                     |
 | `faqItem`       | the How It Works + Pricing FAQs                             | question, answer (Portable Text), category, `showOnHowItWorks` / `showOnPricing` flags                                                                                                                                                                                           |
 | `legalPage`     | `/legal/[slug]` (Privacy, Terms, Accessibility)             | title, slug, body (Portable Text), last-updated, optional `lastUpdatedLabel`                                                                                                                                                                                                     |
+| `trashedItem`   | nothing on the site (Studio Trash only)                     | Phase D: a restorable copy of something moved to the Trash; see "Phase D" above                                                                                                                                                                                                  |
+
+"Order" in the rows above is the drag order (`orderRank`) since Phase D; the old `displayOrder` number is hidden
+and only breaks ties.
 
 **`galleryItem.hoopFit` (2026-10-04).** Some photos cannot make a good circular crop (two items side by side, a
 small design in a tall photo, a close-up that fills the circle). `poor` keeps a photo out of every round hoop
@@ -108,7 +203,9 @@ starter template and are gone.
 
 ## Studio-only helper singletons ("Start Here" handbook)
 
-Not rendered on the public site — they drive the onboarding handbook Mary Ann sees in the Studio:
+Not rendered on the public site. Since 2026-10-05 they sit under "Help (how do I...?) > Older guides (some
+parts are out of date)" in the desk, below the short answers pane; Phase B replaces them with a handbook held
+as repo data:
 
 - `studioGuide` — "How your website works" (site map + step-by-step how-tos + tip cards + optional video link).
 - `studioNotes` — the editable business notes behind "Your business at a glance".

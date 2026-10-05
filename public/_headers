@@ -26,3 +26,16 @@
 # change the art by writing -v2 and updating the URLs, never by overwriting -v1.
 /brand/email-*
   Cache-Control: public, max-age=31536000, immutable
+
+# Mary Ann's brand kit (scripts/generate-brand-kit.mjs, the Studio's "My brand kit" pane).
+# Downloads are same-origin links from /studio, so no CSP grant is needed.
+# Not for search engines: a ZIP or PNG cannot carry a noindex tag, so the header does it.
+# Every file except the ZIP keeps Cloudflare's default (revalidate each time), because those
+# names are NOT versioned. The ZIP name IS versioned (-v1), so it is cached for a year: change
+# the kit by writing -v2 (KIT_ZIP in src/lib/brand/brandKit.ts), never by overwriting -v1.
+# Keep Cache-Control on ONE rule per file: Cloudflare joins the values of every matching rule.
+/brand-kit/*
+  X-Robots-Tag: noindex
+
+/brand-kit/mas-monograms-brand-kit-v1.zip
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,80 @@
+MAS Monograms: my colors
+
+CMYK numbers are approximate (worked out from the color code with the plain textbook formula).
+For printing, ask the printer to match the color code (hex) or show you a printed proof.
+
+Linen
+  Color code (hex): #F4EEE3
+  RGB: 244, 238, 227
+  CMYK (approximate): C 0  M 2  Y 7  K 4
+  Use it for: Your main background: a warm, soft off-white. Most of your website sits on it.
+
+Paper
+  Color code (hex): #FBF8F1
+  RGB: 251, 248, 241
+  CMYK (approximate): C 0  M 1  Y 4  K 2
+  Use it for: Cards and boxes that sit on Linen. A touch brighter.
+
+Midnight
+  Color code (hex): #0F1B2D
+  RGB: 15, 27, 45
+  CMYK (approximate): C 67  M 40  Y 0  K 82
+  Use it for: The deep dark blue behind the gold logo. Use it for dark backgrounds.
+
+Heritage Indigo
+  Color code (hex): #28486B
+  RGB: 40, 72, 107
+  CMYK (approximate): C 63  M 33  Y 0  K 58
+  Use it for: The brand blue: the hoops in your logo, links and calm dark bands.
+
+Heirloom Ink
+  Color code (hex): #26312E
+  RGB: 38, 49, 46
+  CMYK (approximate): C 22  M 0  Y 6  K 81
+  Use it for: Words on light backgrounds. A deep, warm near-black.
+
+Claret
+  Color code (hex): #8C3A2E
+  RGB: 140, 58, 46
+  CMYK (approximate): C 0  M 59  Y 67  K 45
+  Use it for: The button that matters most, like Request a Quote. Use it once per design so it stays special. Never in the logo.
+
+Brass
+  Color code (hex): #835A24
+  RGB: 131, 90, 36
+  CMYK (approximate): C 0  M 31  Y 73  K 49
+  Use it for: Prices and small labels on light backgrounds.
+
+Gold thread
+  Color code (hex): #D9B15F
+  RGB: 217, 177, 95
+  CMYK (approximate): C 0  M 18  Y 56  K 15
+  Use it for: The gold of the thread in your logo. Only on Midnight or Indigo, never on a light background.
+
+Gold thread, light
+  Color code (hex): #F0D58A
+  RGB: 240, 213, 138
+  CMYK (approximate): C 0  M 11  Y 43  K 6
+  Use it for: The bright end of the gold thread. Lovely for one special word on Midnight.
+
+Gold thread, deep
+  Color code (hex): #A9772A
+  RGB: 169, 119, 42
+  CMYK (approximate): C 0  M 30  Y 75  K 34
+  Use it for: The shadow end of the gold thread. For lines and decoration, not for words.
+
+Sage
+  Color code (hex): #E4E2D3
+  RGB: 228, 226, 211
+  CMYK (approximate): C 0  M 1  Y 7  K 11
+  Use it for: A quiet green-grey for a band or a box when Linen needs a change.
+
+Kraft
+  Color code (hex): #E2CFA9
+  RGB: 226, 207, 169
+  CMYK (approximate): C 0  M 8  Y 25  K 11
+  Use it for: The brown-paper color of your hang tags. Nice for labels and tags.
+
+The gold thread
+  A gradient: #A9772A at 0%, #D9B15F at 22%, #F0D58A at 46%, #D9B15F at 70%, #A9772A at 100%
+  The shine on the gold thread. In Canva, make a gradient from Gold thread, deep to Gold thread, light. Only on dark backgrounds.

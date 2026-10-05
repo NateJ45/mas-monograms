@@ -1,102 +1,64 @@
 // Home page singleton. Every piece of text on the homepage comes from here.
-// No pageBuilder — this page has a fixed section order designed for conversion.
+// No pageBuilder: this page has a fixed section order designed for conversion.
+//
+// 2026-10-05, Mary Ann's Studio pass (Phase A of
+// docs/superpowers/specs/2026-10-05-studio-direction.md):
+//   - Fields are in the order a visitor meets them on the redesigned page
+//     (src/pages/index.astro and src/components/home/*), in six tabs named after
+//     what she sees, with "Google and sharing" last.
+//   - Obsolete boxes are HIDDEN, never deleted (the data stays):
+//       heroImages: the Direction D hero draws live stitching, not photos. It
+//         was required, so it put a red "No items" error on her form.
+//       gallery*: the old "gallery preview" band is gone from the page.
+//       cta*: the old bottom banner. The closing banner reads final* first and
+//         only falls back to cta* (FinalCta.astro), and every final* box is
+//         filled in, so cta* never shows. Kept as the fallback, out of sight.
+//   - Nothing here is required except the headline. A box the page works
+//     without must never put a red mark on her form.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { HomeIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  PHOTO_WORDS_NEEDED,
+  HERO_EYEBROW,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BUTTON_LINK_HELP,
+} from './_copy';
+import { SEO_PREVIEW } from './_seoPreview';
 
 export const homePage = defineType({
   name: 'homePage',
-  title: 'Home Page',
+  title: 'Home page',
   type: 'document',
   icon: HomeIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'hero', title: 'Top of the page', default: true },
-    { name: 'trust', title: 'Trust strip' },
-    { name: 'categories', title: 'Shop categories' },
-    { name: 'about', title: 'About / Maker blurb' },
-    { name: 'process', title: 'Process preview' },
-    { name: 'gallery', title: 'Gallery preview' },
-    { name: 'wall', title: 'Studio wall (photo cards)' },
-    { name: 'cta', title: 'Bottom banner' },
-    { name: 'final', title: 'Closing thread banner' },
+    { name: 'hero', title: 'Top of the page' },
+    { name: 'categories', title: 'Item circles' },
+    { name: 'about', title: 'About you' },
+    { name: 'process', title: 'How it works' },
+    { name: 'final', title: 'Photo wall and closing banner' },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    // ── SEO ──────────────────────────────────────────────────────────────────
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      description: 'Browser tab + Google title. Aim for 50–60 characters.',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      description: 'Google results sentence. Aim for 150–160 characters.',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
-    // ── Hero ─────────────────────────────────────────────────────────────────
-    defineField({
-      name: 'heroImages',
-      title: 'Top-of-page photos',
-      type: 'array',
-      group: 'hero',
-      description:
-        'Two or more images create a slow cross-fading slideshow. Landscape orientation works best.',
-      of: [
-        defineArrayMember({
-          type: 'image',
-          options: { hotspot: true },
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Photo description (helps screen readers & Google)',
-              type: 'string',
-              validation: (R) => R.required(),
-            }),
-          ],
-        }),
-      ],
-      validation: (Rule) => Rule.required().min(1),
-    }),
+    // ── Top of the page (HomeHero.astro) ─────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'hero',
-      description: 'Small label above the headline. E.g. "Handcrafted in St. Matthews, SC".',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
@@ -104,132 +66,137 @@ export const homePage = defineType({
       type: 'string',
       group: 'hero',
       description:
-        'The main hero headline. Can wrap two lines. Use <em> syntax for italic accent words.',
-      validation: (R) => R.required().max(100),
+        'The big heading at the very top of your home page, for example "Custom monogramming,".',
+      // Two rules, not one chain: `.warning()` at the end of a chain would turn
+      // the required rule into a warning too.
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroItalicWord',
-      title: 'Word to slant (italic) — optional',
+      title: 'Words in slanted gold letters after the headline',
       type: 'string',
       group: 'hero',
       description:
-        'One word from the headline to show in slanted italic. Type it exactly as it appears in the headline.',
+        'Shown right after the headline in slanted gold letters, for example "made just for you." Leave it empty to show the headline on its own.',
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'hero',
-      description: 'One or two sentences below the headline.',
-      validation: (R) => R.required().max(200),
+      validation: (R) => R.max(200).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroPrimaryCtaLabel',
-      title: 'Main button text',
+      title: 'Words on the main button',
       type: 'string',
       group: 'hero',
+      description: 'For example "Request a Free Quote".',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(40),
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroPrimaryCtaHref',
-      title: 'Main button link',
+      title: 'Where the main button goes',
       type: 'string',
       group: 'hero',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to the quote form.`,
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'heroSecondaryCtaLabel',
-      title: 'Second button text (optional)',
+      title: 'Words on the second button',
       type: 'string',
       group: 'hero',
+      description:
+        'A quieter second button, for example "Browse by Item". Leave it empty to hide it.',
     }),
     defineField({
       name: 'heroSecondaryCtaHref',
-      title: 'Second button link (optional)',
+      title: 'Where the second button goes',
       type: 'string',
       group: 'hero',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to Shop by Item.`,
     }),
-
-    // ── Trust strip ───────────────────────────────────────────────────────────
     defineField({
       name: 'trustItems',
-      title: 'Trust strip items',
+      title: 'Short promises under the buttons',
       type: 'array',
-      group: 'trust',
+      group: 'hero',
       description:
-        'Short reassuring lines in the strip below the hero. E.g. "No minimums on custom orders" or "Satisfaction guaranteed".',
+        'Two or three short reassuring lines, for example "No payment to request a quote". Drag to change the order.',
       of: [defineArrayMember({ type: 'string' })],
-      validation: (Rule) => Rule.required().min(2).max(6),
+      validation: (R) => R.max(6).warning('More than six of these crowds the top of the page.'),
     }),
     defineField({
       name: 'marqueeEyebrow',
-      title: 'Small label on the scrolling item strip (optional)',
+      title: 'Small label on the moving ribbon of item names',
       type: 'string',
-      group: 'trust',
+      group: 'hero',
       description:
-        'The slowly scrolling strip of item names (towels, totes, hats...) can carry a small label, e.g. "Stitched on".',
-      validation: (R) => R.max(60),
+        'The slowly moving ribbon of item names (towels, totes, hats...) under the top of the page can carry a small label, for example "Stitched on". It is not shown on phones.',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
 
-    // ── Shop categories section ───────────────────────────────────────────────
+    // ── Item circles (HoopWall.astro) ────────────────────────────────────────
     defineField({
       name: 'categoriesEyebrow',
-      title: 'Small label above the heading',
+      title: 'Small line above the heading',
       type: 'string',
       group: 'categories',
-      description: 'Small label above the categories heading. E.g. "Shop by item".',
-      validation: (R) => R.required().max(60),
+      description:
+        'Above the row of round item photos, for example "Shop by item". The circles themselves come from your shop categories.',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'categoriesHeadline',
-      title: 'Headline',
+      title: 'Heading',
       type: 'string',
       group: 'categories',
-      description: 'Section heading. E.g. "What would you like embroidered?"',
-      validation: (R) => R.required().max(80),
+      description: 'For example "What would you like embroidered?"',
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'categoriesSubhead',
-      title: 'Short line under the heading (optional)',
+      title: 'Line under the heading',
       type: 'text',
       rows: 2,
       group: 'categories',
+      description: 'Leave it empty to hide it.',
     }),
     defineField({
       name: 'categoriesNote',
-      title: 'Small note under the item circles (optional)',
+      title: 'Small note under the circles',
       type: 'string',
       group: 'categories',
       description:
-        'A short reassurance below the row of item circles. E.g. about bringing your own item.',
-      validation: (R) => R.max(160),
+        'A short reassurance under the row of item circles, for example about bringing your own item. Leave it empty to hide it.',
+      validation: (R) => R.max(160).warning(TOO_LONG),
     }),
 
-    // ── About / Maker blurb ───────────────────────────────────────────────────
+    // ── About you (MakerBand.astro) ──────────────────────────────────────────
     defineField({
       name: 'aboutEyebrow',
-      title: 'Small label above the heading',
+      title: 'Small line above the heading',
       type: 'string',
       group: 'about',
-      description: 'E.g. "Meet Mary Ann".',
-      validation: (R) => R.required().max(60),
+      description: 'For example "Meet Mary Ann".',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'aboutHeadline',
-      title: 'Headline',
+      title: 'Heading',
       type: 'string',
       group: 'about',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'aboutBody',
-      title: 'Body copy',
+      title: 'A few words about you',
       type: 'array',
       group: 'about',
-      description: 'Two to three sentences about Mary Ann. Warm, personal.',
+      description: 'Two or three warm sentences about you and your studio.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -244,97 +211,102 @@ export const homePage = defineType({
           },
         }),
       ],
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'aboutPhoto',
-      title: 'Photo',
+      title: 'Your photo',
       type: 'image',
       group: 'about',
+      description: 'Shown beside the words about you.',
       options: { hotspot: true },
       fields: [
         defineField({
           name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
+          ...PHOTO_WORDS,
           type: 'string',
-          validation: (R) => R.required(),
+          validation: (R) =>
+            R.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value ? PHOTO_WORDS_NEEDED : true,
+            ),
         }),
       ],
-      validation: (R) => R.required(),
-    }),
-    defineField({
-      name: 'aboutCtaLabel',
-      title: 'Button text',
-      type: 'string',
-      group: 'about',
-      initialValue: 'Learn about Mary Ann',
-      validation: (R) => R.required().max(50),
-    }),
-    defineField({
-      name: 'aboutCtaHref',
-      title: 'Button link (where it goes)',
-      type: 'string',
-      group: 'about',
-      initialValue: '/about',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'makerQuote',
-      title: 'Pull-quote in your own words (optional)',
+      title: 'A short quote in your own words',
       type: 'text',
       rows: 3,
       group: 'about',
       description:
-        'One or two short sentences shown large beside your photo. Must be something you would say.',
-      validation: (R) => R.max(220),
+        'One or two short sentences shown large beside your photo. Something you would really say.',
+      validation: (R) => R.max(220).warning(TOO_LONG),
     }),
     defineField({
       name: 'makerSignature',
-      title: 'Signature line (optional)',
+      title: 'Signature under the quote',
       type: 'string',
       group: 'about',
-      description: 'Shown in handwriting under the quote. E.g. "Mary Ann".',
-      validation: (R) => R.max(60),
+      description: 'Shown in handwriting under the quote, for example "Mary Ann".',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'makerFacts',
-      title: 'Small facts about the studio (optional)',
+      title: 'Small facts about your studio',
       type: 'array',
       group: 'about',
       description:
         'Two to four short true statements, shown as a little list. Only things that are true today.',
-      of: [defineArrayMember({ type: 'string', validation: (R) => R.max(80) })],
-      validation: (R) => R.max(5),
+      of: [defineArrayMember({ type: 'string', validation: (R) => R.max(80).warning(TOO_LONG) })],
+      validation: (R) => R.max(5).warning('More than five of these crowds the section.'),
+    }),
+    defineField({
+      name: 'aboutCtaLabel',
+      title: 'Words on the button',
+      type: 'string',
+      group: 'about',
+      description: 'For example "Learn about Mary Ann".',
+      initialValue: 'Learn about Mary Ann',
+      validation: (R) => R.max(50).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'aboutCtaHref',
+      title: 'Where the button goes',
+      type: 'string',
+      group: 'about',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to your About page.`,
+      initialValue: '/about',
     }),
 
-    // ── Process preview ───────────────────────────────────────────────────────
+    // ── How it works (ProcessPath.astro) ─────────────────────────────────────
     defineField({
       name: 'processEyebrow',
-      title: 'Small label above the heading',
+      title: 'Small line above the heading',
       type: 'string',
       group: 'process',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'processHeadline',
-      title: 'Headline',
+      title: 'Heading',
       type: 'string',
       group: 'process',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'processSubhead',
-      title: 'Short line under the heading (optional)',
+      title: 'Line under the heading',
       type: 'text',
       rows: 2,
       group: 'process',
+      description: 'Leave it empty to hide it.',
     }),
     defineField({
       name: 'processSteps',
-      title: 'Process steps',
+      title: 'The steps',
       type: 'array',
       group: 'process',
-      description: 'Short preview steps (3–4). More detail lives on the How It Works page.',
+      description:
+        'Three or four short steps. The full story lives on the How It Works page. Drag to change the order.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -344,192 +316,234 @@ export const homePage = defineType({
               name: 'number',
               title: 'Step number',
               type: 'string',
-              description: 'E.g. "01"',
-              validation: (R) => R.required(),
+              description: 'For example "01".',
             }),
             defineField({
               name: 'label',
               title: 'Step name',
               type: 'string',
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please give this step a name.'),
             }),
             defineField({
               name: 'body',
               title: 'Short description',
               type: 'text',
               rows: 2,
-              validation: (R) => R.required(),
             }),
           ],
           preview: { select: { title: 'label', subtitle: 'number' } },
         }),
       ],
-      validation: (Rule) => Rule.required().min(2).max(5),
+      validation: (R) => R.max(5).warning('More than five steps crowds this section.'),
     }),
     defineField({
       name: 'processCtaLabel',
-      title: 'Button text',
+      title: 'Words on the button',
       type: 'string',
       group: 'process',
+      description: 'For example "See how it works".',
       initialValue: 'See how it works',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'processCtaHref',
-      title: 'Button link (where it goes)',
+      title: 'Where the button goes',
       type: 'string',
       group: 'process',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to How It Works.`,
       initialValue: '/how-it-works',
-      validation: (R) => R.required(),
     }),
 
-    // ── Gallery preview ───────────────────────────────────────────────────────
-    defineField({
-      name: 'galleryEyebrow',
-      title: 'Small label above the heading',
-      type: 'string',
-      group: 'gallery',
-      validation: (R) => R.required().max(60),
-    }),
-    defineField({
-      name: 'galleryHeadline',
-      title: 'Headline',
-      type: 'string',
-      group: 'gallery',
-      validation: (R) => R.required().max(80),
-    }),
-    defineField({
-      name: 'gallerySubhead',
-      title: 'Short line under the heading (optional)',
-      type: 'text',
-      rows: 2,
-      group: 'gallery',
-    }),
-    defineField({
-      name: 'galleryCtaLabel',
-      title: 'Button text',
-      type: 'string',
-      group: 'gallery',
-      initialValue: 'View full style gallery',
-      validation: (R) => R.required().max(50),
-    }),
-    defineField({
-      name: 'galleryCtaHref',
-      title: 'Button link (where it goes)',
-      type: 'string',
-      group: 'gallery',
-      initialValue: '/style-gallery',
-      validation: (R) => R.required(),
-    }),
-
-    // ── Studio wall (swatch-card photo wall) ──────────────────────────────────
+    // ── Photo wall (StudioWall.astro) ────────────────────────────────────────
     defineField({
       name: 'wallEyebrow',
-      title: 'Small label above the heading (optional)',
+      title: 'Photo wall: small line above the heading',
       type: 'string',
-      group: 'wall',
-      validation: (R) => R.max(60),
+      group: 'final',
+      description:
+        'The wall of photo cards near the bottom of the page. The photos come from Photos of my work.',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'wallHeadline',
-      title: 'Headline (optional)',
+      title: 'Photo wall: heading',
       type: 'string',
-      group: 'wall',
-      validation: (R) => R.max(80),
+      group: 'final',
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'wallSubhead',
-      title: 'Short line under the heading (optional)',
+      title: 'Photo wall: line under the heading',
       type: 'text',
       rows: 2,
-      group: 'wall',
-      validation: (R) => R.max(200),
+      group: 'final',
+      validation: (R) => R.max(200).warning(TOO_LONG),
     }),
     defineField({
       name: 'wallCtaLabel',
-      title: 'Button text (optional)',
-      type: 'string',
-      group: 'wall',
-      description: 'The button links to the Style Gallery.',
-      validation: (R) => R.max(50),
-    }),
-
-    // ── Final CTA banner ──────────────────────────────────────────────────────
-    defineField({
-      name: 'ctaEyebrow',
-      title: 'Small label above the heading',
-      type: 'string',
-      group: 'cta',
-      validation: (R) => R.required().max(60),
-    }),
-    defineField({
-      name: 'ctaHeadline',
-      title: 'Headline',
-      type: 'string',
-      group: 'cta',
-      validation: (R) => R.required().max(100),
-    }),
-    defineField({
-      name: 'ctaSubhead',
-      title: 'Body copy (optional)',
-      type: 'text',
-      rows: 2,
-      group: 'cta',
-    }),
-    defineField({
-      name: 'ctaLabel',
-      title: 'Button text',
-      type: 'string',
-      group: 'cta',
-      initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
-    }),
-    defineField({
-      name: 'ctaHref',
-      title: 'Button link (where it goes)',
-      type: 'string',
-      group: 'cta',
-      initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
-    }),
-
-    // ── Closing thread banner (the golden thread ends here) ───────────────────
-    defineField({
-      name: 'finalEyebrow',
-      title: 'Small label above the heading (optional)',
+      title: 'Photo wall: words on the button',
       type: 'string',
       group: 'final',
-      validation: (R) => R.max(60),
+      description: 'The button goes to your Style Gallery.',
+      validation: (R) => R.max(50).warning(TOO_LONG),
+    }),
+
+    // ── Closing banner (FinalCta.astro) ──────────────────────────────────────
+    defineField({
+      name: 'finalEyebrow',
+      title: 'Closing banner: small line above the headline',
+      type: 'string',
+      group: 'final',
+      description: 'The dark banner at the very bottom of your home page.',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'finalHeadline',
-      title: 'Headline (optional)',
+      title: 'Closing banner: headline',
       type: 'string',
       group: 'final',
-      validation: (R) => R.max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'finalSubhead',
-      title: 'Body copy (optional)',
+      title: 'Closing banner: text',
       type: 'text',
       rows: 2,
       group: 'final',
-      validation: (R) => R.max(220),
+      validation: (R) => R.max(220).warning(TOO_LONG),
     }),
     defineField({
       name: 'finalCtaLabel',
-      title: 'Button text (optional)',
+      title: 'Closing banner: words on the button',
       type: 'string',
       group: 'final',
-      validation: (R) => R.max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'finalCtaHref',
-      title: 'Button link (optional)',
+      title: 'Closing banner: where the button goes',
       type: 'string',
       group: 'final',
-      description: 'Usually /request-a-quote.',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to the quote form.`,
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    // Phase D: the live Google and shared-link preview (writes nothing).
+    defineField({
+      name: 'seoPreview',
+      ...SEO_PREVIEW,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+    }),
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+    }),
+
+    // ── Hidden: no longer on the page (data kept, see the header) ────────────
+    defineField({
+      name: 'heroImages',
+      title: 'Old top-of-page photos (not used)',
+      type: 'array',
+      hidden: true,
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+        }),
+      ],
+    }),
+    defineField({
+      name: 'galleryEyebrow',
+      title: 'Old gallery band: small line (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'galleryHeadline',
+      title: 'Old gallery band: heading (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'gallerySubhead',
+      title: 'Old gallery band: text (not used)',
+      type: 'text',
+      rows: 2,
+      hidden: true,
+    }),
+    defineField({
+      name: 'galleryCtaLabel',
+      title: 'Old gallery band: button (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'galleryCtaHref',
+      title: 'Old gallery band: button address (not used)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'ctaEyebrow',
+      title: 'Old bottom banner: small line (backup only)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'ctaHeadline',
+      title: 'Old bottom banner: headline (backup only)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'ctaSubhead',
+      title: 'Old bottom banner: text (backup only)',
+      type: 'text',
+      rows: 2,
+      hidden: true,
+    }),
+    defineField({
+      name: 'ctaLabel',
+      title: 'Old bottom banner: button (backup only)',
+      type: 'string',
+      hidden: true,
+    }),
+    defineField({
+      name: 'ctaHref',
+      title: 'Old bottom banner: button address (backup only)',
+      type: 'string',
+      hidden: true,
     }),
   ],
-  preview: { prepare: () => ({ title: 'Home Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Home page',
+      subtitle: "Your website's front page: mas-monograms.com",
+    }),
+  },
 });

@@ -16,13 +16,24 @@ import HoopFrame from '@/components/motifs/HoopFrame.astro';
 import SwatchCard from '@/components/motifs/SwatchCard.astro';
 import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
 import { splitSwash } from '@/components/gallery/swash';
-import { getSiteSettings, getClearancePage, getAllClearanceItems } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editOther } from '@/lib/edit-target';
+import { loadClearance, type PageProps, type ClearanceData } from '@/lib/page-data';
 
-const [siteSettings, page, items] = await Promise.all([
-  getSiteSettings(),
-  getClearancePage(),
-  getAllClearanceItems(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<ClearanceData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadClearance()]);
+const { page, items } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'Clearance — MAS Monograms';
 const description =
@@ -47,7 +58,7 @@ const TONES = ['paper', 'linen', 'blush', 'sage'] as const;
 const TILTS = [-1.2, 1, -0.6, 1.4];
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
   <section class="clr-intro surface-midnight py-section-lg" aria-labelledby="clearance-heading">
     <div
       class:list={[
@@ -138,7 +149,11 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
               const sale = money(item.salePrice);
               const original = money(item.originalPrice);
               return (
-                <li class:list={['clr-item', isSold && 'clr-item--sold']} data-reveal>
+                <li
+                  class:list={['clr-item', isSold && 'clr-item--sold']}
+                  data-reveal
+                  data-sanity={editOther(edit, item._id, 'clearanceItem', 'images')}
+                >
                   <SwatchCard
                     as="article"
                     tone={TONES[i % TONES.length]}
@@ -221,7 +236,7 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 
 <style>
   /* The two notes hang off the band like tags on a rail. */

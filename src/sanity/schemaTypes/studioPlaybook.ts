@@ -110,7 +110,7 @@ export const studioPlaybook = defineType({
                             }),
                             defineField({
                               name: 'url',
-                              title: 'URL',
+                              title: 'Web address',
                               type: 'url',
                               validation: (R) => R.required(),
                             }),
