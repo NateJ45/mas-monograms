@@ -1,0 +1,517 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [
+      "src/sanity/components",
+      "src/components/preview/VisualEditingOverlay.tsx",
+      "src/sanity/**",
+      "src/components/preview/**"
+    ],
+    "ignoreValues": [
+      {
+        "rule": "design-system-radius",
+        "value": "1.5rem",
+        "files": ["src/components/CategoryCard.astro"],
+        "createdAt": "2026-10-05T02:25:25.196Z",
+        "reason": "rounds the focus ring around a round hoop and its caption, not a surface corner"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.6rem",
+        "files": ["src/components/MobileNav.tsx"],
+        "createdAt": "2026-10-05T02:25:25.358Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "9rem",
+        "files": ["src/components/atelier/AtelierStage.astro"],
+        "createdAt": "2026-10-05T02:25:25.471Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.18)",
+        "files": ["src/components/atelier/AtelierStage.astro"],
+        "createdAt": "2026-10-05T02:25:25.643Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#000",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:25.811Z",
+        "reason": "mask alpha (opaque = shown) in a mask-image or SVG shading overlay, not a colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#f3d8a4",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:25.930Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#6b4c1c",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:26.045Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.07)",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:26.221Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.1)",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:26.333Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.2)",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:26.443Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ead9bb",
+        "files": ["src/components/atelier/AtelierStudio.astro"],
+        "createdAt": "2026-10-05T02:25:26.555Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": ["src/components/gallery/Lightbox.astro"],
+        "createdAt": "2026-10-05T02:25:33.729Z",
+        "reason": "src is set by the lightbox script before the dialog opens"
+      },
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": ["src/styles/globals.css"],
+        "createdAt": "2026-10-05T02:25:39.376Z",
+        "reason": "Fraunces is the brand display face (DESIGN.md); these are its own @font-face rules"
+      },
+      {
+        "rule": "em-dash-overuse",
+        "value": "*",
+        "files": ["src/layouts/PreviewLayout.astro"],
+        "createdAt": "2026-10-05T02:25:39.579Z",
+        "reason": "developer comments in the editor-only preview layout, not visitor copy"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "*",
+        "files": ["src/pages/api/quote.ts"],
+        "createdAt": "2026-10-05T02:25:39.778Z",
+        "reason": "email body: inline px sizes and email-safe fonts are required"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(0, 0, 0, 0.7)",
+        "files": ["src/components/gallery/Lightbox.astro"],
+        "createdAt": "2026-10-05T02:25:50.264Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "6.5rem",
+        "files": ["src/components/home/FinalCta.astro"],
+        "createdAt": "2026-10-05T02:25:50.395Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "7.25rem",
+        "files": ["src/components/home/HomeHero.astro"],
+        "createdAt": "2026-10-05T02:25:50.576Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(60 35 14 / 0.5)",
+        "files": ["src/components/home/HomeHero.astro"],
+        "createdAt": "2026-10-05T02:25:50.695Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(30 18 8 / 0.26)",
+        "files": ["src/components/home/HomeHero.astro"],
+        "createdAt": "2026-10-05T02:25:50.883Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.5)",
+        "files": ["src/components/home/HomeHero.astro"],
+        "createdAt": "2026-10-05T02:25:51.024Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.6rem",
+        "files": ["src/components/home/HomeHero.astro"],
+        "createdAt": "2026-10-05T02:25:51.203Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.75rem",
+        "files": ["src/components/home/MakerBand.astro"],
+        "createdAt": "2026-10-05T02:25:51.378Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "8rem",
+        "files": ["src/components/home/MakerBand.astro"],
+        "createdAt": "2026-10-05T02:25:51.554Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "3.75rem",
+        "files": ["src/components/home/MakerBand.astro"],
+        "createdAt": "2026-10-05T02:25:51.860Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.25rem",
+        "files": ["src/components/home/ProcessPath.astro"],
+        "createdAt": "2026-10-05T02:25:51.981Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#7b4f27",
+        "files": ["src/components/home/StudioWall.astro"],
+        "createdAt": "2026-10-05T02:25:52.096Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#a8743d",
+        "files": ["src/components/home/StudioWall.astro"],
+        "createdAt": "2026-10-05T02:25:52.213Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.35rem",
+        "files": ["src/components/motifs/HangTag.astro"],
+        "createdAt": "2026-10-05T02:25:52.388Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.4rem",
+        "files": ["src/components/motifs/HangTag.astro"],
+        "createdAt": "2026-10-05T02:25:52.510Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.1rem",
+        "files": ["src/components/motifs/HangTag.astro"],
+        "createdAt": "2026-10-05T02:25:52.632Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(60, 35, 14, 0.5)",
+        "files": ["src/components/motifs/HoopFrame.astro"],
+        "createdAt": "2026-10-05T02:25:52.744Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(30, 18, 8, 0.32)",
+        "files": ["src/components/motifs/HoopFrame.astro"],
+        "createdAt": "2026-10-05T02:25:52.936Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(30, 18, 8, 0.34)",
+        "files": ["src/components/motifs/HoopFrame.astro"],
+        "createdAt": "2026-10-05T02:25:53.097Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(255, 214, 160, 0.16)",
+        "files": ["src/components/motifs/HoopFrame.astro"],
+        "createdAt": "2026-10-05T02:25:53.303Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.9rem",
+        "files": ["src/components/motifs/Marquee.astro"],
+        "createdAt": "2026-10-05T02:25:53.427Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.35rem",
+        "files": ["src/components/motifs/Marquee.astro"],
+        "createdAt": "2026-10-05T02:25:53.552Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#000",
+        "files": ["src/components/motifs/SwatchCard.astro"],
+        "createdAt": "2026-10-05T02:25:53.681Z",
+        "reason": "mask alpha (opaque = shown) in a mask-image or SVG shading overlay, not a colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(38 26 14 / 0.45)",
+        "files": ["src/components/thread/SpoolRack.astro"],
+        "createdAt": "2026-10-05T02:25:53.977Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#efe6d6",
+        "files": ["src/components/thread/StitchPanel.astro"],
+        "createdAt": "2026-10-05T02:25:54.095Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.35rem",
+        "files": ["src/components/thread/StitchPanel.astro"],
+        "createdAt": "2026-10-05T02:25:54.210Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.07)",
+        "files": ["src/components/thread/StitchPanel.astro"],
+        "createdAt": "2026-10-05T02:25:54.322Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.2rem",
+        "files": ["src/components/thread/StitchPanel.astro"],
+        "createdAt": "2026-10-05T02:25:54.436Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.65rem",
+        "files": ["src/pages/[slug].astro"],
+        "createdAt": "2026-10-05T02:25:54.734Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "6rem",
+        "files": ["src/pages/about.astro"],
+        "createdAt": "2026-10-05T02:25:54.847Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.9rem",
+        "files": ["src/pages/about.astro"],
+        "createdAt": "2026-10-05T02:25:54.965Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "4.75rem",
+        "files": ["src/pages/about.astro"],
+        "createdAt": "2026-10-05T02:25:55.075Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.1875rem",
+        "files": ["src/pages/about.astro"],
+        "createdAt": "2026-10-05T02:25:55.250Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.45rem",
+        "files": ["src/pages/about.astro"],
+        "createdAt": "2026-10-05T02:25:55.361Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.4rem",
+        "files": ["src/pages/about.astro"],
+        "createdAt": "2026-10-05T02:25:55.474Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "2.15rem",
+        "files": ["src/pages/clearance.astro"],
+        "createdAt": "2026-10-05T02:25:55.874Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.6rem",
+        "files": ["src/pages/clearance.astro"],
+        "createdAt": "2026-10-05T02:25:55.996Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.2rem",
+        "files": ["src/pages/font-lettering-guide.astro"],
+        "createdAt": "2026-10-05T02:25:56.112Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.75rem",
+        "files": ["src/pages/font-lettering-guide.astro"],
+        "createdAt": "2026-10-05T02:25:56.225Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.3rem",
+        "files": ["src/pages/font-lettering-guide.astro"],
+        "createdAt": "2026-10-05T02:25:56.396Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.6rem",
+        "files": ["src/pages/how-it-works.astro"],
+        "createdAt": "2026-10-05T02:25:56.518Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.85rem",
+        "files": ["src/pages/how-it-works.astro"],
+        "createdAt": "2026-10-05T02:25:56.640Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.3rem",
+        "files": ["src/pages/legal/[slug].astro"],
+        "createdAt": "2026-10-05T02:25:56.760Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#f3e1b0",
+        "files": ["src/pages/pricing.astro"],
+        "createdAt": "2026-10-05T02:25:56.945Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#c49a4a",
+        "files": ["src/pages/pricing.astro"],
+        "createdAt": "2026-10-05T02:25:57.058Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#6b4c1c",
+        "files": ["src/pages/pricing.astro"],
+        "createdAt": "2026-10-05T02:25:57.177Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.6rem",
+        "files": ["src/pages/pricing.astro"],
+        "createdAt": "2026-10-05T02:25:57.296Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.45rem",
+        "files": ["src/pages/pricing.astro"],
+        "createdAt": "2026-10-05T02:25:57.415Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.75rem",
+        "files": ["src/pages/style-gallery.astro"],
+        "createdAt": "2026-10-05T02:25:57.589Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.2rem",
+        "files": ["src/pages/thank-you.astro"],
+        "createdAt": "2026-10-05T02:25:57.703Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.35rem",
+        "files": ["src/pages/thank-you.astro"],
+        "createdAt": "2026-10-05T02:25:57.823Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.6)",
+        "files": ["src/pages/thread-color-chart.astro"],
+        "createdAt": "2026-10-05T02:25:57.941Z",
+        "reason": "material rendering (turned wood, brass, fabric sheen, hoop and shelf shadows), not a UI colour"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "1.375rem",
+        "files": ["src/styles/globals.css"],
+        "createdAt": "2026-10-05T02:25:58.271Z",
+        "reason": "component display or fluid size set against its own artwork (numerals, prices, pull quotes, titles), local by design"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#000",
+        "files": ["src/styles/globals.css"],
+        "createdAt": "2026-10-05T02:25:58.387Z",
+        "reason": "mask alpha (opaque = shown) in a mask-image or SVG shading overlay, not a colour"
+      },
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": ["src/components/quote/QuotePrefillScript.astro"],
+        "createdAt": "2026-10-05T02:26:20.034Z",
+        "reason": "a code comment describing a hostile query param, not markup"
+      },
+      {
+        "rule": "overused-font",
+        "value": "*",
+        "files": ["src/pages/api/quote.ts"],
+        "createdAt": "2026-10-05T02:26:20.257Z",
+        "reason": "email body: inline styles need email-safe fonts (Georgia, Helvetica); the site faces are web fonts"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "*",
+        "files": ["src/pages/api/quote.ts"],
+        "createdAt": "2026-10-05T02:26:20.480Z",
+        "reason": "email body: inline styles need email-safe fonts (Georgia, Helvetica); the site faces are web fonts"
+      }
+    ]
+  }
+}

@@ -95,7 +95,7 @@ export default function FaqAccordion({ faqs, categoryOrder, idPrefix = 'faq' }: 
         .faq-stitch { border-color: color-mix(in srgb, var(--stitch-color) 55%, transparent); }
         .faq-cross {
           position: relative; flex: none; width: 2.25rem; height: 2.25rem;
-          border-radius: 9999px;
+          border-radius: var(--radius-pill);
           box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--stitch-color) 70%, transparent);
           transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1), background-color 400ms;
         }

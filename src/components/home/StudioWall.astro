@@ -116,7 +116,7 @@ function focus(img: any): string {
   /* the board: linen stretched in a turned-wood frame */
   .studio-wall__frame {
     padding: clamp(10px, 1.6vw, 18px);
-    border-radius: 6px;
+    border-radius: var(--radius-soft);
     background: linear-gradient(135deg, #c69660, #8d5c2e 30%, #b98450 55%, #7b4f27 80%, #a8743d);
     box-shadow:
       0 50px 80px -40px rgb(0 0 0 / 0.75),
@@ -176,7 +176,7 @@ function focus(img: any): string {
   .studio-wall__caption {
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
     line-height: 1.35;
     color: var(--foreground);
   }

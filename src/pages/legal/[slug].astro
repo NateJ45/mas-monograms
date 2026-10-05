@@ -106,7 +106,7 @@ const showToc = toc.length >= 2;
     }
   }
   .legal-toc__title {
-    font-size: 0.72rem;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -122,7 +122,7 @@ const showToc = toc.length >= 2;
     align-items: center;
     min-height: 44px;
     padding-block: 0.35rem;
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
     line-height: 1.35;
     color: var(--color-text-secondary);
     text-decoration: none;
@@ -136,12 +136,13 @@ const showToc = toc.length >= 2;
   }
   .legal-toc__sub a {
     padding-left: 0.9rem;
-    font-size: 0.88rem;
+    font-size: var(--text-small);
   }
 
   .legal-prose {
-    max-width: 68ch;
-    font-size: 1.0625rem;
+    /* about 70 characters a line: 68ch ran ~86 (ch is Mulish's wide 0) */
+    max-width: 56ch;
+    font-size: var(--text-reading);
     line-height: 1.75;
   }
   .legal-prose :global(p),

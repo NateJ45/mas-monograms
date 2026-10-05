@@ -202,7 +202,11 @@ const announcementStyle =
         the @fontsource @imports in globals.css. The two faces every page paints
         above the fold (Fraunces roman: the headline, the LCP element; Mulish:
         body and nav) are preloaded so they download alongside the CSS instead
-        of after it, which also removes the headline's swap shift. The ?url
+        of after it, which also removes the headline's swap shift. The swash italic (a 46 KB
+        subset, see globals.css) is deliberately NOT preloaded: measured 2026-10-04, a
+        preload made Lighthouse LCP 70ms better but held the roman back about 400ms on a
+        throttled real network; unpreloaded it still lands ~450ms sooner than the old full
+        italic. The ?url
         imports resolve to the same hashed files the CSS references. Latin
         subset only: the other subsets are unicode-range gated and rarely used. */
     }

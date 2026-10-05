@@ -28,6 +28,14 @@ colors:
   taupe-secondary: "#5A5148"
   taupe-tertiary: "#67614F"
   error-text: "#B91C1C"
+  error-surface: "#F9E8E6"
+  error-border: "#E0B4AC"
+  white: "#FFFFFF"
+  wood-edge: "#F0D6AD"
+  wood-light: "#D4A873"
+  wood: "#B98450"
+  wood-dark: "#8A5A2F"
+  wood-mount: "#C79A63"
 typography:
   display:
     fontFamily: "Fraunces Variable, serif"
@@ -40,12 +48,49 @@ typography:
     fontSize: "clamp(2.6rem, 1.5rem + 4.4vw, 6.25rem)"
     fontWeight: 360
     letterSpacing: "-0.028em"
+  h1:
+    fontFamily: "Fraunces Variable, serif"
+    fontSize: "clamp(2.5rem, 6vw, 5rem)"
+    fontWeight: 440
+  h2:
+    fontFamily: "Fraunces Variable, serif"
+    fontSize: "clamp(2rem, 4vw, 3rem)"
+    fontWeight: 440
+  h3:
+    fontFamily: "Fraunces Variable, serif"
+    fontSize: "clamp(1.5rem, 2.5vw, 2rem)"
+    fontWeight: 440
   heading-small:
     fontFamily: "Fraunces Variable, serif"
     fontSize: "clamp(1.25rem, 2vw, 1.5rem)"
     fontWeight: 560
+  h5:
+    fontFamily: "Fraunces Variable, serif"
+    fontSize: "clamp(1.125rem, 1.5vw, 1.25rem)"
+    fontWeight: 560
+  swash:
+    fontFamily: "Fraunces Swash, Fraunces Variable, serif"
+    fontStyle: italic
+    fontWeight: 330
+  lead-sm:
+    fontFamily: "Mulish Variable, sans-serif"
+    fontSize: "1.125rem"
+  reading:
+    fontFamily: "Mulish Variable, sans-serif"
+    fontSize: "1.0625rem"
+    lineHeight: 1.7
   body:
     fontFamily: "Mulish Variable, sans-serif"
+    fontSize: "1rem"
+  compact:
+    fontFamily: "Mulish Variable, sans-serif"
+    fontSize: "0.9375rem"
+  small:
+    fontFamily: "Mulish Variable, sans-serif"
+    fontSize: "0.875rem"
+  meta:
+    fontFamily: "Mulish Variable, sans-serif"
+    fontSize: "0.8125rem"
   label:
     fontFamily: "Mulish Variable, sans-serif"
     fontSize: "0.75rem"
@@ -57,6 +102,9 @@ typography:
 rounded:
   base: "0.25rem"
   button: "2px"
+  soft: "6px"
+  mount: "10px"
+  pill: "999px"
 spacing:
   xs: "clamp(0.25rem, 0.5vw, 0.5rem)"
   s: "clamp(0.5rem, 1vw, 1rem)"
@@ -110,20 +158,24 @@ Tokens live in `src/styles/globals.css` (`@theme` and `:root`); there is no `tok
 - **Fabric grounds** for swatch cards, hang tags and the engine's cloth: Kraft `#E2CFA9`, Blush `#F1DFD7`, Sage `#DDE2D0` (and Linen, Paper). Ink reads on all of them; Claret passes on Kraft (4.98:1); brass-text does not (3.98:1), so use Ink there.
 - **Errors** use a token set (`#B91C1C` text, `#F9E8E6` wash, `#E0B4AC` border), not the shadcn red. A form field's edge on a dark ground is `#8A96A8`.
 - Near-black `#1A1512` survives only as the base of the photo scrim in `HeroBackground`.
+- **White** `#FFFFFF` is `--color-white-pure`: the label on a Claret button or chip and white form fields. Write the token, never `#fff`.
+- **Wood** (props only, never text or a control edge): `--color-wood-edge` `#F0D6AD`, `-wood-light` `#D4A873`, `-wood` `#B98450`, `-wood-dark` `#8A5A2F`, `-wood-mount` `#C79A63`, combined as the `--wood-shelf` and `--wood-mount` gradients for the thread-rack shelf and the stitched-stage mounts. Other material shading (the studio wall, brass knobs, hoop and shelf shadows, fabric sheen) stays local to its component and is listed with a reason in `.impeccable/config.json`.
 - **Ground contexts.** `.surface-midnight`, `.surface-indigo` and `.on-dark` re-point the semantic tokens (`--foreground`, `--link`, `--ring`, secondary text, brass text, stitch colour, button tokens), so existing utilities turn light-on-dark with no per-component work; `.on-light` and `.surface-linen/-paper/-sage` restore the light set.
 
 ## 3. Typography
 
 - **Fraunces Variable** (display and headings). Roman from the opsz build; italic from the full build (wght, opsz, SOFT, WONK) so the `.swash` word can run SOFT 100 and WONK 1. Never synthesise an oblique. Display sizes are light: `.display` weight 340 at `--text-display` clamp(3.25rem, 1.4rem + 7vw, 9.5rem), `.display-sm` 360 at clamp(2.6rem, 1.5rem + 4.4vw, 6.25rem), base headings 440, h4 to h6 560. Hierarchy comes from size and the optical axis, not boldness.
+- **Italic delivery (2026-10-04).** Two small subsets cut from the full italic by `scripts/subset-fraunces-italic.py` paint every italic: **Fraunces Swash** (`--font-swash`, SOFT 100 and WONK 1 pinned, wght 300 to 360, 46 KB) for `.swash` and every other SOFT 100 italic (marquee words, pull quotes, process numerals), and a plain italic (SOFT 0, WONK 1, 56 KB) declared as Fraunces Variable italic. The 150 KB full italic is only a per-character fallback outside their range (no route fetches it). Use `var(--font-swash)` for any new swash-voiced italic.
 - **`.swash`**: the one italic word or phrase that carries a headline. Claret on light grounds; the thread-gold gradient on dark ones (glyph-clipped, with `color` kept at gold-light so contrast tools measure a real colour).
 - **Mulish Variable** (body and UI). `.lede` for opening paragraphs; `.eyebrow` for tracked caps (12px, weight 700, 0.24em, led by a short running stitch; brass on light, gold on dark).
 - **Petemoss** (script): monogram artifacts and ONE script kicker per page via `ScriptKicker.astro` (at least 2.75rem). Never for prose, buttons, nav or small text.
 - **Lettering fonts for the engine** (Great Vibes, Playfair Display, Cinzel from `@fontsource`) are NOT site typography: they are fetched lazily by the canvas renderer only. Embroidery font choices in the Font Guide are still content (each `font` document carries a photo of the lettering).
 - **Scale.** `--text-h1` clamp(2.5rem, 6vw, 5rem), h2 clamp(2rem, 4vw, 3rem), h3 clamp(1.5rem, 2.5vw, 2rem), h4 clamp(1.25rem, 2vw, 1.5rem), h5 clamp(1.125rem, 1.5vw, 1.25rem), h6 1rem.
+- **Text steps below the headings** (fixed, in `@theme`; component CSS writes `var(--text-*)`, never a literal): `--text-label` 0.75rem (tracked-caps labels, eyebrows, tag and card flags; the floor for functional text), `--text-meta` 0.8125rem (hints, form help), `--text-small` 0.875rem (secondary UI, notes), `--text-compact` 0.9375rem (card and panel body), `--text-body` 1rem, `--text-reading` 1.0625rem (long-form paragraphs), `--text-lead-sm` 1.125rem. Larger component sizes (hang-tag prices, numerals, pull quotes, ornament glyphs) are local to their artwork. Reading measure: about 70 characters (`52ch` to `56ch` in Mulish, whose `0` is wide). Form labels are sentence case, not tracked caps.
 
 ## 4. Elevation and surface
 
-Surfaces separate by tone and by texture rather than shadow: Midnight twill, Linen weave, Paper grain. Cards are pinked-edge swatch cards and kraft hang tags with stitched borders and a slight tilt; photos sit in wooden embroidery hoops with a brass clasp and a soft inner shadow. The engine's thread has its own physical lighting (contact and ambient shadow on the cloth, a glint sweep on finish). No glow and no coloured shadows on UI. Tight `0.25rem` radius; buttons are 2px.
+Surfaces separate by tone and by texture rather than shadow: Midnight twill, Linen weave, Paper grain. Cards are pinked-edge swatch cards and kraft hang tags with stitched borders and a slight tilt; photos sit in wooden embroidery hoops with a brass clasp and a soft inner shadow. The engine's thread has its own physical lighting (contact and ambient shadow on the cloth, a glint sweep on finish). No glow and no coloured shadows on UI. Radii: base `0.25rem`, buttons 2px, `--radius-soft` 6px (cubbies, swatch wells, the arch base), `--radius-mount` 10px (mounts, the quote card, panels), `--radius-pill` 999px (pills, arches, round chips, the scrolled header).
 
 **Full-width bands use a surface class, not a `bg-*` utility.** `<main>` is `relative isolate`; the golden ThreadLine sits in it at z-index -1; a top-level surface (a direct child of `<main>`) paints its ground on `::before` at -2, so the thread runs over the cloth and under every word, card and photo. Never put `data-reveal`, a transform, opacity or a filter on a top-level surface itself.
 
@@ -135,7 +187,7 @@ Surfaces separate by tone and by texture rather than shadow: Midnight twill, Lin
 - **Spools read as real turned wood and wound thread** (redrawn 2026-10-04): lathe-turned flanges with a lit chamfered face, a carved ring, grain and the spindle hole; fine wraps that curve round the cylinder; a soft sheen and occlusion under each flange, shaded from the thread's own colour so white and black both read; a loose tail on the shelf. Crisp vector, recolourable from one hex, never a photo.
 - **Buttons (`.btn`, `CtaLink.astro`).** One recipe: 48px minimum height, 2px radius, tracked uppercase Mulish label, a fill sweep on hover and focus-visible. `.btn-primary` is Claret on light grounds and Paper (Ink label) on Midnight and Indigo; `.btn-secondary` is the outline. "Request a Quote" is the one primary action; keep it sparing.
 - **A stitch follows the shape it is sewn into.** Every inner running stitch (buttons, the header pill, cards, frames) is concentric with its container: inner radius = outer radius minus the inset. A pill button gets a pill stitch, a square one a square stitch; never a square stitch inside a rounded edge. On `.btn`, round the button with `--btn-radius` so the stitch can follow.
-- **Header and footer (2026-10-04).** Header: no top rail. A centred editorial row: the menu split either side of the Hoop Seal, the quote button at the right, a running-stitch hem that breaks under the seal; transparent over a Midnight hero, Linen on pages that open light. Past 24px of scroll it detaches into an inset, rounded paper-glass pill with a stitched inner edge, and the seal gives way to the wordmark (the Reid Design pattern); the reserved height never changes. Phones: seal + wordmark and a menu button, also a pill on scroll; the phone menu is a full-screen Midnight panel with the contact details under "At the bench". Footer: compact; a pinked top edge and a gold hem ending in a thread tail and needle, the seal beside the wordmark with the tagline and one contact cluster, the link columns side by side, one bottom row. BackToTop is a 48px Midnight button with a gold thread ring that winds with scroll.
+- **Header and footer (2026-10-04).** Header: no top rail. A centred editorial row: the menu split either side of the Hoop Seal, the quote button at the right, a running-stitch hem that breaks under the seal; transparent over a Midnight hero, Linen on pages that open light. Past 24px of scroll it detaches into an inset, rounded paper-glass pill with a stitched inner edge, and the seal gives way to the wordmark (the Reid Design pattern); the reserved height never changes. The morph is compositor-only: the row keeps one layout in both states and its pieces glide with translate and scale, while the pill itself is a clip-path on the header ground plus two rect layers (shadow, stitch); no layout property is transitioned and nothing reports layout shift. Phones: seal + wordmark and a menu button, also a pill on scroll; the phone menu is a full-screen Midnight panel with the contact details under "At the bench"; the panel is its own scroll box carrying the twill itself (attached `local`), fits a 360 by 640 screen without scrolling, and scrolls only when a group is expanded. Footer: compact; a pinked top edge and a gold hem ending in a thread tail and needle, the seal beside the wordmark with the tagline and one contact cluster, the link columns side by side, one bottom row. BackToTop is a 48px Midnight button with a gold thread ring that winds with scroll.
 - **Logo (`Logo.astro`, 2026-10-04), blue and gold.** `<Logo mark />` is the Hoop Seal (a script S in a gold satin stitch sewn over and under a roman M and A, in a pair of embroidery hoops with their clasp): Indigo hoops and Midnight letters on light grounds, gold hoops and Linen letters on dark ones; the primary brand mark. `<Logo />` is the Signature Thread wordmark (MAS roman caps, Monograms in the soft italic, one gold thread from a running stitch through a loop into the underline): the horizontal lockup. `<Logo seal />` adds ring lettering. `variant="adaptive"` (default) paints through the `--logo-*` context tokens. Claret is never in the logo; it stays the button colour. Drawing: `src/lib/brand/brandSvg.js`; favicons, `public/brand/*.svg` and OG cards come from the same code.
 - **Home sections** (`components/home/`): hero (Midnight, live stitching), marquee (Indigo), the Atelier studio (Linen), hoop wall of categories (Midnight), maker band with Mary Ann in an arched portrait (Indigo), stitched process path (Paper), studio wall of swatch cards (Midnight), thread-tied final CTA (Indigo).
 - **Lightbox** (`gallery/Lightbox.astro`): native `<dialog>` with focus loop, arrow keys, swipe and a live counter.

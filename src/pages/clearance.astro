@@ -97,7 +97,7 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
     <div class="mx-auto max-w-content px-m">
       {
         page?.intro && (
-          <div class="mx-auto mb-l max-w-3xl">
+          <div class="mx-auto mb-l max-w-[52ch]">
             <PortableText value={page.intro} />
           </div>
         )
@@ -240,7 +240,7 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
   }
   .clr-notes :global(.hangtag__extra) {
     text-align: center;
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
     color: var(--color-text-secondary);
   }
 
@@ -336,7 +336,7 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
   }
   .clr-item__was {
     text-align: center;
-    font-size: 0.85rem;
+    font-size: var(--text-small);
     color: var(--color-text-secondary);
   }
   /* SOLD: a claret stamp pressed over the photo; the card goes quiet. */

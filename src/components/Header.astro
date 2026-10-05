@@ -17,7 +17,9 @@
 //   tone="overlay"  transparent over the page's dark hero, light-on-dark tokens; with no JS
 //                   it is painted solid Midnight, so it can never be light text on a light page
 // The outer <header> is sticky and reserves --header-h in both states, so the pill condenses
-// INSIDE a fixed box and the page never reflows (no layout shift). Reduced motion keeps the
+// INSIDE a fixed box and the page never reflows (no layout shift). The row's own layout never
+// changes either: the pill is a clip-path on .site-header__ground plus two rect layers, and
+// the content glides into it with translate/scale. Reduced motion keeps the
 // same states with no transitions (the global reset zeroes them).
 //
 // The menu comes from Site Settings (resolveChrome); the dropdown script below is the
@@ -124,6 +126,8 @@ const mobileNavProps = {
 ---
 
 <header class="site-header" data-tone={tone}>
+  <span class="site-header__pill" aria-hidden="true"></span>
+  <span class="site-header__ground" aria-hidden="true"></span>
   <div class="site-header__bar">
     <nav class="site-header__nav site-header__nav--left site-nav" aria-label="Primary">
       {
@@ -364,9 +368,12 @@ const mobileNavProps = {
   document.addEventListener('astro:page-load', initMobileNav);
 
   // Rest <-> pill. One passive, rAF-throttled listener that only toggles an attribute; CSS
-  // does the rest. Bound once (window survives View Transitions); it re-queries the header
-  // each frame because the router swaps the <header> element on navigation. A small
-  // threshold, like Reid Design's header, so the pill arrives as soon as the page moves.
+  // does the rest, with transform, opacity and clip-path only (no layout per frame; see
+  // "Site header" in globals.css). Bound once (window survives View Transitions); it
+  // re-queries the header each frame because the router swaps the <header> element on
+  // navigation. A small threshold, like Reid Design's header, so the pill arrives as soon
+  // as the page moves. toggleAttribute with the same value is a no-op, so steady scrolling
+  // never restyles the header.
   const hw = window as typeof window & { __headerScrollBound?: boolean };
   function syncHeaderScrolled() {
     const header = document.querySelector<HTMLElement>('.site-header');

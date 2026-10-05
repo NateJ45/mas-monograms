@@ -372,7 +372,7 @@ const fan = [
   /* Stitched filter chips: a dashed brass running stitch at rest, Claret
      cloth when pressed. 44px tap areas come from .hit-44 (PR #72). */
   .chip {
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1.5px dashed var(--color-brass-text);
     background: rgba(251, 248, 241, 0.6);
     color: var(--color-text-secondary);
@@ -413,7 +413,7 @@ const fan = [
     font-variant-numeric: tabular-nums;
   }
   .gallery-count__of {
-    font-size: 0.95rem;
+    font-size: var(--text-compact);
   }
 
   /* Hide the default disclosure triangle on our filter summaries. */

@@ -91,7 +91,7 @@
     let valid = true;
     let firstInvalidId: string | null = null;
     // For selects, a non-empty value is valid — "Recommend for me" / "Not sure"
-    // are legitimate submitted values, only the "— Select one —" placeholder
+    // are legitimate submitted values, only the "Select one" placeholder
     // (value "") is treated as empty.
     const nonEmpty = (v: string) => v.trim().length > 0;
     const required: Array<{ id: string; check: (v: string) => boolean }> = [

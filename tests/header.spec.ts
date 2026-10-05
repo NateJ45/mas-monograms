@@ -25,7 +25,15 @@ async function headerBox(page: Page) {
       height: r.height,
       scrolled: h.hasAttribute('data-scrolled'),
       radius: parseFloat(getComputedStyle(bar).borderTopLeftRadius),
-      barWidth: bar.getBoundingClientRect().width,
+      // the pill is drawn by a layer at its rect (the row's own layout never changes)
+      pillWidth: (
+        document.querySelector('.site-header__pill') as HTMLElement
+      ).getBoundingClientRect().width,
+      pillOpacity: parseFloat(
+        getComputedStyle(document.querySelector('.site-header__pill') as HTMLElement).opacity,
+      ),
+      barLeft: bar.getBoundingClientRect().left,
+      barHeight: bar.getBoundingClientRect().height,
     };
   });
 }
@@ -50,6 +58,15 @@ test.describe('Header: rest and pill', () => {
       const rest = await headerBox(page);
       expect(rest.scrolled).toBe(false);
       expect(rest.radius).toBe(0);
+      // the pill layer is hidden at rest (polled: under a loaded test run the page can still
+      // be settling a transition when load fires)
+      await expect
+        .poll(() =>
+          page
+            .locator('.site-header__pill')
+            .evaluate((el) => parseFloat(getComputedStyle(el).opacity)),
+        )
+        .toBe(0);
       // the hero's first heading starts below the header (nothing hides under it)
       const h1Top = await page
         .locator('h1')
@@ -63,7 +80,11 @@ test.describe('Header: rest and pill', () => {
       const pill = await headerBox(page);
       expect(pill.height, 'reserved header height is the same in both states').toBe(rest.height);
       expect(pill.radius).toBeGreaterThan(20);
-      expect(pill.barWidth).toBeLessThan(viewport.width);
+      expect(pill.pillWidth).toBeLessThan(viewport.width);
+      expect(pill.pillOpacity).toBe(1);
+      // compositor-only morph: the content row keeps its layout box in both states
+      expect(pill.barLeft).toBe(rest.barLeft);
+      expect(pill.barHeight).toBe(rest.barHeight);
 
       await page.evaluate(() => window.scrollTo(0, 0));
       await expect(page.locator('.site-header[data-scrolled]')).toHaveCount(0);
@@ -105,11 +126,14 @@ test.describe('Header: no JavaScript', () => {
   test.use({ javaScriptEnabled: false });
   test('the overlay header is a solid Midnight row with its links', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const bg = await page
-      .locator('.site-header__bar')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(bg).toBe('rgb(15, 27, 45)');
+    // 'load', not 'domcontentloaded': with JS off nothing holds DOMContentLoaded back for the
+    // stylesheet, so a busy run could read the bar before the CSS applies
+    await page.goto('/', { waitUntil: 'load' });
+    await expect
+      .poll(() =>
+        page.locator('.site-header__bar').evaluate((el) => getComputedStyle(el).backgroundColor),
+      )
+      .toBe('rgb(15, 27, 45)');
     await expect(page.locator('.site-header__brand')).toBeVisible();
     await expect(page.locator('.site-header__cta')).toBeVisible();
   });

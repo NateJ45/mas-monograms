@@ -125,7 +125,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
     position: relative;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    border-radius: 999px 999px 6px 6px;
+    border-radius: var(--radius-pill) var(--radius-pill) var(--radius-soft) var(--radius-soft);
     box-shadow:
       0 40px 60px -30px rgb(0 0 0 / 0.6),
       0 0 0 1px rgb(240 213 138 / 0.25);
@@ -149,7 +149,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
   .maker__arch-stitch {
     position: absolute;
     inset: 0;
-    border-radius: 999px 999px 10px 10px;
+    border-radius: var(--radius-pill) var(--radius-pill) var(--radius-mount) var(--radius-mount);
     border: 2px dashed rgb(217 177 95 / 0.7);
     pointer-events: none;
   }
@@ -177,7 +177,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
   }
   .maker__quote blockquote p {
     position: relative;
-    font-family: var(--font-display);
+    font-family: var(--font-swash);
     font-style: italic;
     font-weight: 330;
     font-variation-settings:
@@ -199,7 +199,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
     margin-top: var(--spacing-l);
     max-width: 58ch;
     color: var(--color-text-secondary);
-    font-size: 1.0625rem;
+    font-size: var(--text-reading);
     line-height: 1.7;
   }
   .maker__body :global(p + p) {
@@ -222,7 +222,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
     display: flex;
     gap: 0.75rem;
     align-items: flex-start;
-    font-size: 0.975rem;
+    font-size: var(--text-body);
     line-height: 1.45;
     color: var(--foreground);
   }

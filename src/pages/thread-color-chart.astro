@@ -211,14 +211,15 @@ const heroSpools = rack.length
     height: 0.85rem;
     border-radius: 2px;
     background:
-      linear-gradient(180deg, #f0d6ad 0 2px, transparent 2px),
-      linear-gradient(180deg, #d4a873, #b98450 55%, #8a5a2f);
+      linear-gradient(180deg, var(--color-wood-edge) 0 2px, transparent 2px), var(--wood-shelf);
     box-shadow: 0 16px 22px -10px rgb(0 0 0 / 0.6);
     z-index: -1;
   }
   .chart-intro {
-    max-width: 46rem;
-    font-size: 1.0625rem;
+    /* a reading measure, not a box width: 46rem ran ~97 characters a line and 65ch
+       still ~88 (Mulish's 0, which ch measures, is wide); 52ch is about 70 characters */
+    max-width: 52ch;
+    font-size: var(--text-reading);
     line-height: 1.7;
     color: var(--color-text-secondary);
   }
