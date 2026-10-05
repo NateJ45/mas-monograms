@@ -18,23 +18,25 @@ import QuoteFormScript from '@/components/quote/QuoteFormScript.astro';
 import QuotePrefillScript from '@/components/quote/QuotePrefillScript.astro';
 import { normHex, textureForFabric } from '@/components/thread/threadData';
 import { telHref } from '@/lib/phone';
-import {
-  getSiteSettings,
-  getRequestAQuotePage,
-  getAllItemCategories,
-  getAllFonts,
-  getAtelierSettings,
-  getAllThreadColors,
-} from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { takeRun } from '@/lib/stega-text';
+import { editField, editItem } from '@/lib/edit-target';
+import { loadRequestQuote, type PageProps, type RequestQuoteData } from '@/lib/page-data';
 
-const [siteSettings, page, itemCategories, fonts, atelier, threadColors] = await Promise.all([
-  getSiteSettings(),
-  getRequestAQuotePage(),
-  getAllItemCategories(),
-  getAllFonts(),
-  getAtelierSettings(),
-  getAllThreadColors(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<RequestQuoteData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadRequestQuote()]);
+const { page, itemCategories, fonts, atelier, threadColors } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 // ── Item-type dropdown options ──────────────────────────────────────────────
 // Real item categories from Sanity, followed by a low-friction "not sure"
@@ -229,12 +231,22 @@ const steps = [
 
 // Headline swash: the last word in the gold italic.
 const headline: string = page?.heroHeadline ?? 'Request a Custom Quote';
-const hWords = headline.trim().split(/\s+/);
-const hLast = hWords.pop() ?? '';
+// Stega-safe: in the Studio's canvas the click-to-edit marker is taken off
+// before the split and put back on the swash word (src/lib/stega-text.ts).
+const { text: hText, run: hRun } = takeRun(headline);
+const hWords = hText.trim().split(/\s+/);
+const hLast = (hWords.pop() ?? '') + hRun;
 const hLead = hWords.join(' ');
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings} header="overlay">
+<Layout
+  {title}
+  {description}
+  seoImage={page?.seoImage}
+  {siteSettings}
+  header="overlay"
+  {...preview?.layoutProps}
+>
   {/* Intro */}
   <section class="surface-midnight pt-header pb-section-lg" aria-labelledby="quote-title">
     <div
@@ -256,8 +268,11 @@ const hLead = hWords.join(' ');
         {
           (page?.heroTrustItems ?? []).length > 0 && (
             <ul class="mt-l list-none space-y-s">
-              {(page.heroTrustItems as string[]).map((item: string) => (
-                <li class="flex items-start gap-s text-sm text-[var(--color-text-secondary)]">
+              {(page.heroTrustItems as string[]).map((item: string, i: number) => (
+                <li
+                  class="flex items-start gap-s text-sm text-[var(--color-text-secondary)]"
+                  data-sanity={editItem(edit, 'heroTrustItems', null, i)}
+                >
                   <span class="quote-trust-mark" aria-hidden="true" />
                   {item}
                 </li>
@@ -268,7 +283,10 @@ const hLead = hWords.join(' ');
       </div>
       {
         page?.heroImage?.asset ? (
-          <div class="overflow-hidden rounded-2xl shadow-xl">
+          <div
+            class="overflow-hidden rounded-2xl shadow-xl"
+            data-sanity={editField(edit, 'heroImage')}
+          >
             <SanityImage
               source={page.heroImage}
               width={700}
@@ -879,7 +897,7 @@ const hLead = hWords.join(' ');
       </div>
     </div>
   </section>
-</BaseLayout>
+</Layout>
 
 {
   turnstileSiteKey && (

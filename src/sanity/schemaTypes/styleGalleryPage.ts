@@ -1,139 +1,91 @@
-// Style Gallery page singleton. The gallery images live in the galleryItem
-// collection. This singleton controls all the copy and filter labels.
+// Style Gallery page singleton. The photos live in the galleryItem collection
+// (Photos of my work). This singleton holds the words around them and the
+// labels on the filters and the photo viewer.
+//
+// 2026-10-05, Mary Ann's Studio pass: page order with Google last, only the
+// headline required, plain titles from ./_copy.ts. `additionalFilterTags` is
+// hidden: the redesigned page builds its filters from `filterGroups` and never
+// reads it (data kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { ImagesIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BANNER_GROUP_TITLE,
+  BANNER_EYEBROW,
+  BANNER_HEADLINE,
+  BANNER_SUBHEAD,
+  BANNER_BUTTON,
+  BANNER_LINK,
+} from './_copy';
 
 export const styleGalleryPage = defineType({
   name: 'styleGalleryPage',
-  title: 'Style Gallery Page',
+  title: 'Style Gallery page',
   type: 'document',
   icon: ImagesIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'hero', title: 'Top of the page', default: true },
-    { name: 'filters', title: 'Filter labels' },
-    { name: 'viewer', title: 'Photo viewer' },
-    { name: 'cta', title: 'CTA' },
+    { name: 'hero', title: 'Top of the page' },
+    { name: 'filters', title: 'Filters above the photos' },
+    { name: 'viewer', title: 'Words under and around the photos' },
+    { name: 'cta', title: BANNER_GROUP_TITLE },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'hero',
     }),
     defineField({
       name: 'introCtaLabel',
-      title: 'Button under the intro (optional)',
+      title: 'Button under the intro',
       type: 'string',
       group: 'hero',
       description:
-        'The button under the short intro that takes people to the quote form, e.g. "Start your quote".',
-      validation: (R) => R.max(40),
+        'The button that takes people to the quote form, for example "Start your quote". Leave it empty to hide it.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
 
-    defineField({
-      name: 'filterAllLabel',
-      title: '"All" filter chip label',
-      type: 'string',
-      group: 'filters',
-      description: 'Label for the "show everything" chip. E.g. "All styles" or "All items".',
-      initialValue: 'All',
-      validation: (R) => R.required().max(30),
-    }),
-    defineField({
-      name: 'additionalFilterTags',
-      title: 'Additional filter tags',
-      type: 'array',
-      group: 'filters',
-      description:
-        'Custom tag filters shown in addition to the item category filters. E.g. "Wedding", "Gifts", "Teams".',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'filterTag',
-          fields: [
-            defineField({
-              name: 'label',
-              title: 'Label',
-              type: 'string',
-              validation: (R) => R.required(),
-            }),
-            defineField({
-              name: 'tag',
-              title: 'Tag value (matches galleryItem tags)',
-              type: 'string',
-              validation: (R) => R.required(),
-            }),
-          ],
-          preview: { select: { title: 'label', subtitle: 'tag' } },
-        }),
-      ],
-    }),
+    // ── Filters above the photos ─────────────────────────────────────────────
     defineField({
       name: 'filterGroups',
       title: 'Filter groups',
       type: 'array',
       group: 'filters',
       description:
-        'Group the gallery filter tags under headings (e.g. "Item", "Theme & Occasion") so browsers see a tidy, organized filter instead of one long wall of tags. Each heading lists the raw tags that should appear beneath it. Only tags that actually appear on a photo will show — you can safely list a tag here before any photo uses it. Tags you leave out of every group are hidden from the filter entirely, which is handy for internal-only tags like "closeup" or "customer-photo".',
+        'The filter buttons above the photos, sorted under small headings like "Item" or "Theme and Occasion". Each heading lists the tags (from your photos) that belong under it. A tag only shows once a photo uses it, so you can list one early. Tags you leave out of every group stay hidden, which is handy for private tags like "closeup".',
       of: [
         defineArrayMember({
           type: 'object',
@@ -141,186 +93,248 @@ export const styleGalleryPage = defineType({
           fields: [
             defineField({
               name: 'groupLabel',
-              title: 'Group heading',
+              title: 'Heading for this group',
               type: 'string',
-              description:
-                'Shown above this group of filter chips. E.g. "Item", "Theme & Occasion", "Technique & Style", "Recipient".',
-              validation: (R) => R.required().max(40),
+              description: 'Shown above this group of buttons, for example "Item" or "Recipient".',
+              validation: (R) => [
+                R.required().error('Please give this group a heading.'),
+                R.max(40).warning(TOO_LONG),
+              ],
             }),
             defineField({
               name: 'tags',
               title: 'Tags in this group',
               type: 'array',
               description:
-                'The raw galleryItem tag values that belong under this heading (e.g. "tote", "napkin", "baby-hat"). Chips display in title case automatically. Order does not matter — the site shows the most-photographed tags first.',
+                'Type each tag exactly as it is written on your photos, for example "tote" or "baby-hat". The buttons show them with capital letters on their own, and the most used tags come first.',
               of: [defineArrayMember({ type: 'string' })],
-              validation: (R) => R.required().min(1),
             }),
           ],
           preview: {
             select: { title: 'groupLabel', tags: 'tags' },
             prepare: ({ title, tags }) => ({
-              title: title ?? '(no heading)',
+              title: title ?? '(no heading yet)',
               subtitle: Array.isArray(tags)
                 ? `${tags.length} tag${tags.length === 1 ? '' : 's'}`
-                : 'No tags',
+                : 'No tags yet',
             }),
           },
         }),
       ],
     }),
     defineField({
-      name: 'emptyStateMessage',
-      title: 'Empty state message',
+      name: 'filterAllLabel',
+      title: 'Words on the "show everything" button',
       type: 'string',
       group: 'filters',
-      description: 'Shown when no gallery items match the current filter.',
-      initialValue: 'No photos for that filter yet — check back soon!',
-      validation: (R) => R.required(),
+      description: 'For example "All styles" or "All".',
+      initialValue: 'All',
+      validation: (R) => R.max(30).warning(TOO_LONG),
     }),
     defineField({
       name: 'filterToggleLabel',
-      title: 'Filter button on phones (optional)',
+      title: 'Filter button on phones',
       type: 'string',
       group: 'filters',
       description:
-        'On a phone the filters fold away behind one button. These are the words on it, e.g. "Filter photos".',
-      validation: (R) => R.max(30),
-    }),
-    defineField({
-      name: 'resultsAnnouncement',
-      title: 'What screen readers hear after a filter (optional)',
-      type: 'string',
-      group: 'filters',
-      description:
-        'Read aloud to people using a screen reader when they pick a filter. Use {filter} for the filter name, {count} for the photos shown and {total} for all photos, e.g. "{filter}: showing {count} of {total} photos".',
-      validation: (R) => R.max(120),
-    }),
-    defineField({
-      name: 'requestLabel',
-      title: '"Request this" link under each photo (optional)',
-      type: 'string',
-      group: 'filters',
-      description:
-        'The small link under a photo that starts a quote for that kind of item, e.g. "Request this". Leave blank to use "Request this".',
-      validation: (R) => R.max(40),
-    }),
-    defineField({
-      name: 'fontCaption',
-      title: 'Font line under each photo (optional)',
-      type: 'string',
-      group: 'filters',
-      description:
-        'The line under a photo that names the embroidery font. Use {font} for the font name, e.g. "{font} font". Also used on the shop category pages and in the photo viewer.',
-      validation: (R) => R.max(40),
-    }),
-    defineField({
-      name: 'filterGroupName',
-      title: 'Name of the filter area (for screen readers)',
-      type: 'string',
-      group: 'filters',
-      description:
-        'Screen readers announce the block of filter buttons by this name, e.g. "Filter gallery".',
-      validation: (R) => R.max(40),
-    }),
-    defineField({
-      name: 'filterFallbackHeading',
-      title: 'Filter heading when no groups are set up (optional)',
-      type: 'string',
-      group: 'filters',
-      description:
-        'Only shown if "Filter groups" above is empty: then every tag shows under this one heading, e.g. "Filters".',
-      validation: (R) => R.max(40),
+        'On a phone the filters fold away behind one button. These are the words on it, for example "Filter photos".',
+      validation: (R) => R.max(30).warning(TOO_LONG),
     }),
     defineField({
       name: 'moreTagsLabel',
-      title: '"Show more tags" button (optional)',
+      title: '"Show more" button in a long group',
       type: 'string',
       group: 'filters',
       description:
-        'A long group of filters shows the first few and folds the rest behind this button. Use {count} for how many are hidden, e.g. "+ {count} more".',
-      validation: (R) => R.max(30),
+        'A long group shows its first few buttons and folds the rest away. Write {count} where the number of hidden ones goes, for example "+ {count} more".',
+      validation: (R) => R.max(30).warning(TOO_LONG),
     }),
     defineField({
       name: 'lessTagsLabel',
-      title: '"Show fewer tags" button (optional)',
+      title: '"Show fewer" button',
       type: 'string',
       group: 'filters',
-      description: 'The same button once the extra filters are showing, e.g. "Less".',
-      validation: (R) => R.max(30),
+      description: 'The same button once everything is showing, for example "Less".',
+      validation: (R) => R.max(30).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'filterFallbackHeading',
+      title: 'Heading when there are no filter groups',
+      type: 'string',
+      group: 'filters',
+      description:
+        'Only used if "Filter groups" above is empty: then every tag shows under this one heading, for example "Filters".',
+      validation: (R) => R.max(40).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'emptyStateMessage',
+      title: 'Message when a filter finds no photos',
+      type: 'string',
+      group: 'filters',
+      description: 'For example "No photos for that filter yet. Check back soon."',
+      initialValue: 'No photos for that filter yet. Check back soon.',
+    }),
+    defineField({
+      name: 'filterGroupName',
+      title: 'Name of the filter area, read aloud',
+      type: 'string',
+      group: 'filters',
+      description:
+        'People who use a screen reader hear the filter buttons announced by this name, for example "Filter gallery".',
+      validation: (R) => R.max(40).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'resultsAnnouncement',
+      title: 'What is read aloud after picking a filter',
+      type: 'string',
+      group: 'filters',
+      description:
+        'For people who use a screen reader. Write {filter} for the filter name, {count} for the photos shown and {total} for all photos, for example "{filter}: showing {count} of {total} photos".',
+      validation: (R) => R.max(120).warning(TOO_LONG),
     }),
 
+    // ── Words under and around the photos ────────────────────────────────────
     defineField({
-      name: 'lightboxLabel',
-      title: 'Name of the photo viewer (optional)',
+      name: 'requestLabel',
+      title: 'Small link under each photo',
       type: 'string',
       group: 'viewer',
       description:
-        'Clicking a photo opens it large. Screen readers announce the viewer by this name, e.g. "Photo viewer". Also used on the shop category pages.',
-      validation: (R) => R.max(40),
+        'The link under a photo that starts a quote for that kind of item. Leave it empty to use "Request this".',
+      validation: (R) => R.max(40).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'fontCaption',
+      title: 'Font line under each photo',
+      type: 'string',
+      group: 'viewer',
+      description:
+        'Names the embroidery font under a photo. Write {font} where the font name goes, for example "{font} font". Also used on the item pages and in the large photo view.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'lightboxLabel',
+      title: 'Name of the large photo view, read aloud',
+      type: 'string',
+      group: 'viewer',
+      description:
+        'Clicking a photo opens it large. Screen readers announce it by this name, for example "Photo viewer". Also used on the item pages.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
     defineField({
       name: 'lightboxCloseLabel',
-      title: 'Close button (for screen readers)',
+      title: 'Close button, read aloud',
       type: 'string',
       group: 'viewer',
-      description: 'The button shows an ×; screen readers say these words, e.g. "Close".',
-      validation: (R) => R.max(40),
+      description: 'The button shows an ×. Screen readers say these words, for example "Close".',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
     defineField({
       name: 'lightboxPrevLabel',
-      title: 'Previous photo button (for screen readers)',
+      title: 'Previous photo button, read aloud',
       type: 'string',
       group: 'viewer',
-      description: 'E.g. "Previous photo".',
-      validation: (R) => R.max(40),
+      description: 'For example "Previous photo".',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
     defineField({
       name: 'lightboxNextLabel',
-      title: 'Next photo button (for screen readers)',
+      title: 'Next photo button, read aloud',
       type: 'string',
       group: 'viewer',
-      description: 'E.g. "Next photo".',
-      validation: (R) => R.max(40),
+      description: 'For example "Next photo".',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
 
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
-      title: 'Small label above the banner',
+      ...BANNER_EYEBROW,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHeadline',
-      title: 'Banner headline',
+      ...BANNER_HEADLINE,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaSubhead',
-      title: 'Banner text (optional)',
+      ...BANNER_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'cta',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button text',
+      ...BANNER_BUTTON,
       type: 'string',
       group: 'cta',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Button link (where it goes)',
+      ...BANNER_LINK,
       type: 'string',
       group: 'cta',
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+    }),
+
+    // ── Hidden: not read by the redesigned page (data kept) ──────────────────
+    defineField({
+      name: 'additionalFilterTags',
+      title: 'Old extra filter buttons (not used)',
+      type: 'array',
+      hidden: true,
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'filterTag',
+          fields: [
+            defineField({ name: 'label', title: 'Words on the button', type: 'string' }),
+            defineField({ name: 'tag', title: 'Tag', type: 'string' }),
+          ],
+          preview: { select: { title: 'label', subtitle: 'tag' } },
+        }),
+      ],
     }),
   ],
-  preview: { prepare: () => ({ title: 'Style Gallery Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Style Gallery page',
+      subtitle: 'The page at /style-gallery: the words around your photos',
+    }),
+  },
 });

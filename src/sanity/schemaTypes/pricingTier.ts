@@ -1,87 +1,99 @@
-// Pricing tier document. Each tier represents a quantity bracket with a
-// price per piece. The pricing page pulls these in display order.
+// Pricing tier document ("Price tag"). Each one is a hang tag on the Pricing
+// page: a name, a starting price per piece and a short note.
+//
+// 2026-10-05, Mary Ann's Studio pass: plain titles. `minQuantity` and
+// `maxQuantity` are hidden: the tags are now kinds of work ("Basic Monogram",
+// "Custom Appliqué"), not quantity brackets, and the page never shows them.
+// minQuantity was required, which a new tag could not satisfy without a number
+// that means nothing to her. Data kept.
 
 import { defineType, defineField } from 'sanity';
 import { BillIcon } from '@sanity/icons';
+import { TOO_LONG } from './_copy';
 
 export const pricingTier = defineType({
   name: 'pricingTier',
-  title: 'Pricing Tier',
+  title: 'Price tag',
   type: 'document',
   icon: BillIcon,
   fields: [
     defineField({
       name: 'label',
-      title: 'Quantity label',
+      title: 'Name on the tag',
       type: 'string',
-      description: 'E.g. "12–23 pieces" or "100+ pieces". Shown as the row header.',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'minQuantity',
-      title: 'Minimum quantity',
-      type: 'number',
-      description: 'The smallest order size for this tier.',
-      validation: (Rule) => Rule.required().integer().min(1),
-    }),
-    defineField({
-      name: 'maxQuantity',
-      title: 'Maximum quantity (optional)',
-      type: 'number',
-      description: 'Leave blank if this is the top tier (no upper limit).',
-      validation: (Rule) => Rule.integer().min(1),
+      description: 'For example "Basic Monogram" or "Custom Embroidery".',
+      validation: (Rule) => Rule.required().error('Please give this price tag a name.'),
     }),
     defineField({
       name: 'pricePerPiece',
-      title: 'Price per piece ($)',
+      title: 'Price per piece, in dollars',
       type: 'number',
-      description: 'Dollar amount per embroidered piece at this quantity.',
-      validation: (Rule) => Rule.required().min(0).precision(2),
+      description: 'Just the number, for example 16 or 12.50. The $ sign is added for you.',
+      validation: (Rule) => [
+        Rule.required().error('Please type the price, for example 16.'),
+        Rule.min(0).precision(2).warning('Please type a price like 16 or 12.50.'),
+      ],
     }),
     defineField({
       name: 'note',
-      title: 'Note (optional)',
+      title: 'Short note',
       type: 'string',
-      description:
-        'Short clarifying note for this tier. E.g. "Best for sports teams" or "Most popular tier".',
+      description: 'For example "Up to 3 letters" or "Most popular". Leave it empty to show none.',
     }),
     defineField({
       name: 'highlighted',
-      title: 'Highlighted row',
+      title: 'Make this tag stand out',
       type: 'boolean',
-      description: 'Mark as the recommended or most popular tier. Shows a visual highlight.',
+      description: 'Turn on for the one you recommend most. It gets a highlight on the page.',
       initialValue: false,
     }),
     defineField({
       name: 'highlightLabel',
-      title: 'Badge on the highlighted price (optional)',
+      title: 'Badge on the highlighted tag',
       type: 'string',
       description:
-        'A few words shown on the highlighted price tag, e.g. "Most popular". Only shows when "Highlighted row" is on. Leave blank for no badge.',
-      validation: (Rule) => Rule.max(30),
+        'A few words on the highlighted tag, for example "Most popular". Only shows when "Make this tag stand out" is on.',
+      validation: (Rule) => Rule.max(30).warning(TOO_LONG),
     }),
     defineField({
       name: 'displayOrder',
-      title: 'Display order',
+      title: 'Position on the page',
       type: 'number',
-      description: 'Lower numbers appear first in the pricing table.',
+      description: 'Smaller numbers come first. 1 is first.',
       initialValue: 99,
-      validation: (Rule) => Rule.required().integer().min(0),
+      validation: (Rule) =>
+        Rule.integer().min(0).warning('Please use a whole number, like 1, 2 or 3.'),
+    }),
+
+    // ── Hidden: from the old quantity price list (data kept) ─────────────────
+    defineField({
+      name: 'minQuantity',
+      title: 'Old smallest order (not used)',
+      type: 'number',
+      hidden: true,
+    }),
+    defineField({
+      name: 'maxQuantity',
+      title: 'Old largest order (not used)',
+      type: 'number',
+      hidden: true,
     }),
   ],
+  __experimental_search: [{ path: 'label', weight: 10 }],
   preview: {
-    select: { label: 'label', price: 'pricePerPiece', min: 'minQuantity', max: 'maxQuantity' },
-    prepare: ({ label, price, min, max }) => ({
-      title: label ?? `${min}${max ? `–${max}` : '+'}`,
-      subtitle: price != null ? `$${price.toFixed(2)} per piece` : '(no price set)',
+    select: { label: 'label', price: 'pricePerPiece', highlighted: 'highlighted' },
+    prepare: ({ label, price, highlighted }) => ({
+      title: label ?? '(no name yet)',
+      subtitle:
+        (typeof price === 'number' ? `$${price.toFixed(2)} per piece` : 'No price yet') +
+        (highlighted ? ' · stands out' : ''),
     }),
   },
   orderings: [
     {
-      title: 'Display order',
+      title: 'Position on the page',
       name: 'displayOrder',
       by: [{ field: 'displayOrder', direction: 'asc' }],
     },
-    { title: 'Min quantity', name: 'minQty', by: [{ field: 'minQuantity', direction: 'asc' }] },
   ],
 });

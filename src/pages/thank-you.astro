@@ -10,9 +10,24 @@ import ScriptKicker from '@/components/ScriptKicker.astro';
 import PortableText from '@/components/PortableText';
 import HoopFrame from '@/components/motifs/HoopFrame.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
-import { getSiteSettings, getThankYouPage } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editField, editItem } from '@/lib/edit-target';
+import { loadThankYou, type PageProps, type ThankYouData } from '@/lib/page-data';
 
-const [siteSettings, page] = await Promise.all([getSiteSettings(), getThankYouPage()]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<ThankYouData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadThankYou()]);
+const { page } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'Thank You — MAS Monograms';
 const description =
@@ -23,16 +38,20 @@ const swash = ['Thank you', 'Thank You'].find((c) => headline.includes(c));
 const i = swash ? headline.indexOf(swash) : -1;
 const before = i >= 0 ? headline.slice(0, i) : headline;
 const after = i >= 0 ? headline.slice(i + (swash?.length ?? 0)) : '';
-const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
+// Each step keeps its place in the Sanity list, so its click target (preview
+// only) points at the right item even when an empty one is skipped.
+const steps = ((page?.nextSteps ?? []) as string[])
+  .map((text, index) => ({ text, index }))
+  .filter((s) => Boolean(s.text));
 ---
 
-<BaseLayout {title} {description} {siteSettings} noindex thread={false}>
+<Layout {title} {description} {siteSettings} noindex thread={false} {...preview?.layoutProps}>
   <section class="surface-linen py-section-lg" aria-labelledby="ty-heading">
     <div
       class="mx-auto grid max-w-content items-center gap-section-md px-m lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]"
     >
       {/* The tie-off. */}
-      <div class="tie mx-auto" aria-hidden="true">
+      <div class="tie mx-auto" aria-hidden="true" data-sanity={editField(edit, 'image')}>
         <HoopFrame image={page?.image?.asset ? page.image : null} alt="" size={420} tilt={-3} />
         <svg class="tie__svg" viewBox="0 0 200 200" focusable="false">
           <defs>
@@ -133,11 +152,11 @@ const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
               aria-labelledby={page?.nextStepsLabel ? 'ty-next' : undefined}
             >
               {steps.map((step, n) => (
-                <li>
+                <li data-sanity={editItem(edit, 'nextSteps', null, step.index)}>
                   <span class="ty-steps__num" aria-hidden="true">
                     {String(n + 1).padStart(2, '0')}
                   </span>
-                  <span>{step}</span>
+                  <span>{step.text}</span>
                 </li>
               ))}
             </ol>
@@ -167,7 +186,7 @@ const steps: string[] = (page?.nextSteps ?? []).filter(Boolean);
       </div>
     </div>
   </section>
-</BaseLayout>
+</Layout>
 
 <style>
   .tie {

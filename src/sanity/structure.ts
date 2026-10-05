@@ -1,36 +1,67 @@
-// MAS Monograms Studio desk structure.
-// Every document type is placed explicitly so nothing floats loose at the
-// desk root. Pages = all singletons; Content = all reusable collections.
-// The trailing default-list filter is a safety net for unplaced types.
+// MAS Monograms Studio desk ("Edit my content").
+//
+// Rebuilt 2026-10-05 around Mary Ann's JOBS, not around the data (Phase A of
+// docs/superpowers/specs/2026-10-05-studio-direction.md, principle 1):
+//
+//   Welcome                       the landing pane: big task cards (WelcomePane)
+//   Help (how do I...?)           short answers, plus the older Start Here guides
+//   ─
+//   My business details           phone, email, address, hours, menus, footer
+//   Pages on my website           every page, as a visitor thinks of them,
+//                                 with the legal pages INSIDE (no stray entry)
+//   ─
+//   Photos of my work             the gallery photos, newest first
+//   Clearance and prices          clearance items and the price tags
+//   Fonts, threads and categories the reference lists
+//   Questions and answers         the FAQ
+//
+// THE ID RULE. Every pane has an explicit `.id()`, and the ids live in DESK
+// (./studioTargets.ts) wherever anything links to them. A list item with no
+// id gets one DERIVED FROM ITS TITLE, so a deep link to it silently opens the
+// parent list instead, and rewording a title breaks every link to it. That bit
+// Stone Steps on 2026-09-12 ("Race day (date, times, fees)" became
+// `raceDayDateTimesFees`). With fixed ids, a title can change freely.
+//
+// Singletons are document list items with the document's own id, so a
+// "Take me there" edit link for `homePage` lands on the Home page form, and
+// the row shows the page's preview (its subtitle says where it lives).
+//
+// Preview: "Edit on the page" (the Presentation tool) is where she sees a page
+// while she edits it; the desk forms are the fallback (spec principle 6).
 
-import type { StructureBuilder, StructureResolverContext } from 'sanity/structure';
+import type { ListItemBuilder, StructureBuilder, StructureResolverContext } from 'sanity/structure';
 import {
-  CogIcon,
-  HomeIcon,
-  UserIcon,
-  PackageIcon,
-  HelpCircleIcon,
-  InfoOutlineIcon,
-  EnvelopeIcon,
-  DocumentTextIcon,
-  ThListIcon,
-  TagIcon,
-  PresentationIcon,
-  ThumbsUpIcon,
-  ColorWheelIcon,
-  RocketIcon,
-  ImagesIcon,
-  TextIcon,
-  SparklesIcon,
-  ControlsIcon,
   BillIcon,
+  CogIcon,
+  ColorWheelIcon,
+  DocumentTextIcon,
+  DocumentsIcon,
+  HelpCircleIcon,
+  HomeIcon,
+  ImagesIcon,
+  InfoOutlineIcon,
+  PackageIcon,
+  RocketIcon,
+  TagIcon,
+  TextIcon,
+  ThumbsUpIcon,
+  PresentationIcon,
+  ThListIcon,
 } from '@sanity/icons';
+import type { ComponentType } from 'react';
+import { DESK } from './studioTargets';
+import { WelcomePane } from './components/WelcomePane';
+import { HelpPane } from './components/HelpPane';
 import StudioGuide from './components/StudioGuide';
 import BusinessOverview from './components/BusinessOverview';
 import BrandKit from './components/BrandKit';
 import StudioPlaybook from './components/StudioPlaybook';
 
-const SINGLETON_TYPES = [
+/**
+ * Every type the desk places on purpose. The safety net at the bottom lists
+ * anything NOT in here, so a type added later still shows up somewhere.
+ */
+const PLACED = new Set<string>([
   'siteSettings',
   'homePage',
   'howItWorksPage',
@@ -45,11 +76,7 @@ const SINGLETON_TYPES = [
   'thankYouPage',
   'notFoundPage',
   'atelierSettings',
-] as const;
-
-const HIDDEN_FROM_DEFAULT = new Set<string>([
-  ...SINGLETON_TYPES,
-  // Content collections explicitly placed in the Content section
+  'legalPage',
   'galleryItem',
   'itemCategory',
   'font',
@@ -57,79 +84,127 @@ const HIDDEN_FROM_DEFAULT = new Set<string>([
   'pricingTier',
   'clearanceItem',
   'faqItem',
-  // Start Here helper documents explicitly placed in the Start Here section
   'studioGuide',
   'studioNotes',
   'studioPlaybook',
-  // sanity-plugin-media internal type — belongs in the Media tool, not the desk root
+  // System types that must never sit at the desk root: sanity-plugin-media's
+  // tags belong in "My photo library".
   'media.tag',
 ]);
 
-// One desk entry for a singleton document, opening straight into its form.
-//
-// The second "Preview" view here used to be a sanity-plugin-iframe-pane frame of
-// the LIVE page: it showed PUBLISHED content only and could not follow an edit.
-// Dropped 2026-08-28 with the Sanity 6 upgrade, because the Presentation tool
-// (sanity.config.ts + src/sanity/resolve.ts) renders real DRAFTS with
-// click-to-edit, which is what that pane was standing in for. The plugin is gone
-// from package.json.
-function singleton(S: StructureBuilder, schemaType: string, title: string, icon: any) {
+/**
+ * One page (a singleton): the row shows the page's own preview and opens its
+ * form. The id IS the document id, which is what makes edit links land here.
+ */
+function page(S: StructureBuilder, type: string): ListItemBuilder {
+  return S.documentListItem().id(type).schemaType(type);
+}
+
+/** A list of one type, with its own pane id, sort and "+" starting point. */
+function list(
+  S: StructureBuilder,
+  opts: {
+    id: string;
+    type: string;
+    title: string;
+    icon: ComponentType;
+    newestFirst?: boolean;
+    template?: string;
+  },
+): ListItemBuilder {
+  let child = S.documentTypeList(opts.type).id(`${opts.id}-list`).title(opts.title);
+  if (opts.newestFirst) {
+    child = child.defaultOrdering([{ field: '_createdAt', direction: 'desc' }]);
+  }
+  if (opts.template) {
+    child = child.initialValueTemplates([S.initialValueTemplateItem(opts.template)]);
+  }
   return S.listItem()
-    .title(title)
-    .icon(icon)
-    .child(S.document().schemaType(schemaType).documentId(schemaType).views([S.view.form()]));
+    .id(opts.id)
+    .title(opts.title)
+    .icon(opts.icon)
+    .schemaType(opts.type)
+    .child(child);
 }
 
 export const deskStructure = (S: StructureBuilder, _context: StructureResolverContext) =>
   S.list()
+    .id('root')
     .title('MAS Monograms')
     .items([
-      // Start Here — handbook for Mary Ann. First item so it's always visible.
+      // ── Welcome ─────────────────────────────────────────────────────────────
+      // The landing pane. StudioLayout opens it whenever the desk is empty, so
+      // it is the first thing she sees.
       S.listItem()
-        .title('Start Here')
-        .icon(InfoOutlineIcon)
+        .id(DESK.welcome)
+        .title('Welcome')
+        .icon(HomeIcon)
+        .child(S.component(WelcomePane).id('welcome-pane').title('Welcome')),
+
+      // ── Help ────────────────────────────────────────────────────────────────
+      // Phase B replaces the short answers with the full handbook. The older
+      // Start Here guides stay reachable here so nothing she had is lost; they
+      // are labelled honestly, because parts of them describe the old Studio.
+      S.listItem()
+        .id(DESK.help)
+        .title('Help (how do I...?)')
+        .icon(HelpCircleIcon)
         .child(
           S.list()
-            .title('Start Here')
+            .id('help-list')
+            .title('Help')
             .items([
               S.listItem()
+                .id('help-answers')
+                .title('How do I...? (short answers)')
+                .icon(HelpCircleIcon)
+                .child(S.component(HelpPane).id('help-answers-pane').title('How do I...?')),
+              S.divider().title('Older guides (some parts are out of date)'),
+              S.listItem()
+                .id('studioGuide')
                 .title('How the website works')
                 .icon(PresentationIcon)
                 .child(
                   S.document()
+                    .id('studioGuide')
                     .schemaType('studioGuide')
                     .documentId('studioGuide')
                     .views([
-                      S.view.component(StudioGuide).title('Guide'),
-                      S.view.form().title('Edit'),
+                      S.view.component(StudioGuide).id('guide').title('Guide'),
+                      S.view.form().id('edit').title('Edit'),
                     ]),
                 ),
               S.listItem()
+                .id('studioNotes')
                 .title('Your business at a glance')
                 .icon(ThumbsUpIcon)
                 .child(
                   S.document()
+                    .id('studioNotes')
                     .schemaType('studioNotes')
                     .documentId('studioNotes')
                     .views([
-                      S.view.component(BusinessOverview).title('Overview'),
-                      S.view.form().title('Edit notes'),
+                      S.view.component(BusinessOverview).id('overview').title('Overview'),
+                      S.view.form().id('edit').title('Edit notes'),
                     ]),
                 ),
               S.listItem()
-                .title('Brand kit')
+                .id('brand-kit')
+                .title('Your brand colors and fonts')
                 .icon(ColorWheelIcon)
-                .child(S.component(BrandKit).title('Brand kit')),
+                .child(S.component(BrandKit).id('brand-kit-pane').title('Brand kit')),
               S.listItem()
-                .title('Grow your studio')
+                .id('studioPlaybook')
+                .title('Ideas to grow your studio')
                 .icon(RocketIcon)
                 .child(
                   S.document()
+                    .id('studioPlaybook')
                     .schemaType('studioPlaybook')
                     .documentId('studioPlaybook')
                     .views([
-                      S.view.component(StudioPlaybook).title('Guides'),
-                      S.view.form().title('Edit'),
+                      S.view.component(StudioPlaybook).id('guides').title('Guides'),
+                      S.view.form().id('edit').title('Edit'),
                     ]),
                 ),
             ]),
@@ -137,81 +212,145 @@ export const deskStructure = (S: StructureBuilder, _context: StructureResolverCo
 
       S.divider(),
 
-      // Site Settings — global identity, SEO defaults, social links, contact info
-      singleton(S, 'siteSettings', 'Business info & contact', CogIcon),
-
-      S.divider(),
-
-      // Pages — every page singleton lives here.
+      // ── My business details ─────────────────────────────────────────────────
+      // Phone, email, address, hours, socials, menus and footer: siteSettings.
+      // The Welcome card "Change my phone number or email" opens this form on
+      // the phone box.
       S.listItem()
-        .title('Website pages (edit the words)')
+        .id(DESK.business)
+        .title('My business details')
+        .icon(CogIcon)
+        .child(
+          S.document()
+            .id(DESK.business)
+            .schemaType('siteSettings')
+            .documentId('siteSettings')
+            .title('My business details')
+            .views([S.view.form()]),
+        ),
+
+      // ── Pages on my website ─────────────────────────────────────────────────
+      // Grouped the way a visitor meets them: the main pages in menu order,
+      // then the guides customers browse, the clearance page, and the pages
+      // people only see now and then. The legal pages are here too (they used
+      // to float at the desk root as "Legal / Policy Page").
+      S.listItem()
+        .id(DESK.pages)
+        .title('Pages on my website')
         .icon(DocumentTextIcon)
         .child(
           S.list()
-            .title('Website pages')
+            .id('pages-list')
+            .title('Pages on my website')
             .items([
-              singleton(S, 'homePage', 'Home', HomeIcon),
-              singleton(S, 'howItWorksPage', 'How It Works', ControlsIcon),
-              singleton(S, 'pricingPage', 'Pricing', BillIcon),
-              singleton(S, 'aboutPage', 'About', UserIcon),
-              singleton(S, 'requestAQuotePage', 'Request a Quote', EnvelopeIcon),
-
-              S.divider(),
-
-              singleton(S, 'shopIndexPage', 'Shop by Item', PackageIcon),
-              singleton(S, 'styleGalleryPage', 'Style Gallery', ImagesIcon),
-              singleton(S, 'fontGuidePage', 'Font & Lettering Guide', TextIcon),
-              singleton(S, 'threadChartPage', 'Thread Color Chart', ColorWheelIcon),
-              singleton(S, 'atelierSettings', 'Monogram Preview (live stitching)', SparklesIcon),
-
-              S.divider(),
-
-              singleton(S, 'clearancePage', 'Clearance', TagIcon),
-              singleton(S, 'thankYouPage', 'Thank You', SparklesIcon),
-              singleton(S, 'notFoundPage', '404 Page', HelpCircleIcon),
+              page(S, 'homePage'),
+              page(S, 'shopIndexPage'),
+              page(S, 'styleGalleryPage'),
+              page(S, 'pricingPage'),
+              page(S, 'howItWorksPage'),
+              page(S, 'aboutPage'),
+              page(S, 'requestAQuotePage'),
+              S.divider().title('Guides for your customers'),
+              page(S, 'fontGuidePage'),
+              page(S, 'threadChartPage'),
+              page(S, 'atelierSettings'),
+              S.divider().title('Clearance'),
+              page(S, 'clearancePage'),
+              S.divider().title('Pages people see now and then'),
+              page(S, 'thankYouPage'),
+              page(S, 'notFoundPage'),
+              list(S, {
+                id: DESK.legal,
+                type: 'legalPage',
+                title: 'Privacy, terms and other legal pages',
+                icon: DocumentsIcon,
+              }),
             ]),
         ),
 
       S.divider(),
 
-      // Photos & products — the collections Mary Ann adds to most often, ordered
-      // by how frequently she touches them (photos first, admin last).
+      // ── Photos of my work ───────────────────────────────────────────────────
+      // Newest first, so the photo she just added is at the top. Each row shows
+      // the photo itself and its words (galleryItem's preview).
+      list(S, {
+        id: DESK.photos,
+        type: 'galleryItem',
+        title: 'Photos of my work',
+        icon: ImagesIcon,
+        newestFirst: true,
+        template: 'new-photo',
+      }),
+
+      // ── Clearance and prices ────────────────────────────────────────────────
       S.listItem()
-        .title('Photos & products')
-        .icon(ThListIcon)
+        .id(DESK.clearance)
+        .title('Clearance and prices')
+        .icon(TagIcon)
         .child(
           S.list()
-            .title('Photos & products')
+            .id('clearance-and-prices-list')
+            .title('Clearance and prices')
             .items([
-              // The two most common "add something" tasks, up top.
-              S.documentTypeListItem('galleryItem')
-                .title('Style gallery — photos of your work')
-                .icon(ImagesIcon),
-              S.documentTypeListItem('clearanceItem')
-                .title('Clearance — ready-to-ship items')
-                .icon(TagIcon),
-
-              S.divider(),
-
-              // The shop pages (Hats, Totes, …) and their prices.
-              S.documentTypeListItem('itemCategory')
-                .title('Shop categories (Hats, Totes…)')
-                .icon(PackageIcon),
-              S.documentTypeListItem('pricingTier').title('Prices').icon(BillIcon),
-
-              S.divider(),
-
-              // Reference lists that change less often.
-              S.documentTypeListItem('font').title('Embroidery fonts').icon(TextIcon),
-              S.documentTypeListItem('threadColor').title('Thread colors').icon(ColorWheelIcon),
-              S.documentTypeListItem('faqItem')
-                .title('FAQ — questions & answers')
-                .icon(HelpCircleIcon),
+              list(S, {
+                id: DESK.clearanceItems,
+                type: 'clearanceItem',
+                title: 'Clearance items for sale',
+                icon: TagIcon,
+                newestFirst: true,
+                template: 'new-clearance-item',
+              }),
+              list(S, {
+                id: DESK.priceTags,
+                type: 'pricingTier',
+                title: 'Price tags on the Pricing page',
+                icon: BillIcon,
+              }),
             ]),
         ),
 
-      // Safety net — any type not explicitly placed above surfaces here
-      ...S.documentTypeListItems().filter(
-        (item) => !HIDDEN_FROM_DEFAULT.has(item.getId() as string),
-      ),
+      // ── Fonts, threads and categories ───────────────────────────────────────
+      S.listItem()
+        .id(DESK.reference)
+        .title('Fonts, threads and categories')
+        .icon(ThListIcon)
+        .child(
+          S.list()
+            .id('fonts-threads-categories-list')
+            .title('Fonts, threads and categories')
+            .items([
+              list(S, {
+                id: DESK.fonts,
+                type: 'font',
+                title: 'Embroidery fonts',
+                icon: TextIcon,
+              }),
+              list(S, {
+                id: DESK.threads,
+                type: 'threadColor',
+                title: 'Thread colors',
+                icon: ColorWheelIcon,
+              }),
+              list(S, {
+                id: DESK.categories,
+                type: 'itemCategory',
+                title: 'Shop categories (Hats, Totes...)',
+                icon: PackageIcon,
+              }),
+            ]),
+        ),
+
+      // ── Questions and answers ───────────────────────────────────────────────
+      list(S, {
+        id: DESK.questions,
+        type: 'faqItem',
+        title: 'Questions and answers',
+        icon: InfoOutlineIcon,
+        template: 'new-question',
+      }),
+
+      // ── Safety net ──────────────────────────────────────────────────────────
+      // Any type NOT placed above surfaces here under its own (plain) schema
+      // title, so a type added later is never unreachable. Empty today.
+      ...S.documentTypeListItems().filter((item) => !PLACED.has(item.getId() as string)),
     ]);

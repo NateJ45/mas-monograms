@@ -1,77 +1,79 @@
-// Site-wide singleton — identity, nav, footer, SEO defaults, social links,
-// contact info, and JSON-LD data for every page.
+// Site-wide singleton ("My business details"): name, contact details, menus,
+// footer, Google defaults and the business facts Google reads on every page.
 // One instance only; enforced in sanity.config.ts + structure.ts.
+//
+// 2026-10-05, Mary Ann's Studio pass (Phase A of
+// docs/superpowers/specs/2026-10-05-studio-direction.md):
+//   - Four tabs in the order she needs them: contact details first (the
+//     Welcome card "Change my phone number or email" opens here), then the top
+//     menu, the footer, and Google last.
+//   - Only the business name and email stay required: both are shown on every
+//     page and she can always fix them. Everything else has a fallback.
+//   - HIDDEN (data kept): standardTurnaround, rushOrdersAvailable and
+//     rushTurnaround (the site reads none of them since the redesign; the reply
+//     promise now lives on the quote and thank-you pages) and googleBusinessUrl
+//     (the footer declares it but never draws it).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { CogIcon, LinkIcon, ChevronDownIcon, ListIcon } from '@sanity/icons';
+import { SEO_FIELDSET, SEO_GROUP, SEO_DESCRIPTION_TOO_LONG, PHOTO_WORDS, TOO_LONG } from './_copy';
 
 export const siteSettings = defineType({
   name: 'siteSettings',
-  title: 'Site Settings',
+  title: 'My business details',
   type: 'document',
   icon: CogIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'identity', title: 'Identity & contact', default: true },
-    { name: 'navigation', title: 'Navigation' },
-    { name: 'social', title: 'Social & footer' },
-    { name: 'seo', title: 'SEO defaults' },
-    { name: 'business', title: 'Business details' },
+    { name: 'identity', title: 'Name and contact details' },
+    { name: 'navigation', title: 'Top menu' },
+    { name: 'social', title: 'Footer' },
+    { ...SEO_GROUP, title: 'Google' },
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    // ── Identity ──────────────────────────────────────────────────────────────
+    // ── Name and contact details ─────────────────────────────────────────────
     defineField({
       name: 'title',
-      title: 'Site title',
+      title: 'Business name',
       type: 'string',
       group: 'identity',
-      description: 'Used in the browser tab and JSON-LD. E.g. "MAS Monograms".',
+      description: 'Shown on the browser tab and read by Google, for example "MAS Monograms".',
       initialValue: 'MAS Monograms',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().error('Please type your business name.'),
     }),
     defineField({
-      name: 'tagline',
-      title: 'Tagline',
+      name: 'phone',
+      title: 'Phone number',
       type: 'string',
       group: 'identity',
       description:
-        'Short tagline shown under the logo in the footer. E.g. "Custom embroidery from St. Matthews, SC."',
-      validation: (Rule) => Rule.required().max(120),
+        'Shown in the footer and in the menu on phones. Leave it empty to hide it everywhere.',
     }),
     defineField({
       name: 'email',
       title: 'Email address',
       type: 'string',
       group: 'identity',
-      description: 'Public email address — shown in the footer and on the quote form.',
-      validation: (Rule) => Rule.required().regex(/.+@.+\..+/, { name: 'email', invert: false }),
-    }),
-    defineField({
-      name: 'phone',
-      title: 'Phone number (optional)',
-      type: 'string',
-      group: 'identity',
-      description: 'Public phone number. Leave blank to hide.',
+      description: 'Shown in the footer and in the menu on phones.',
+      validation: (Rule) =>
+        Rule.required()
+          .regex(/.+@.+\..+/, { name: 'email', invert: false })
+          .error('Please type your email address, like name@example.com.'),
     }),
     defineField({
       name: 'address',
       title: 'Business address',
       type: 'object',
       group: 'identity',
-      description: 'Used in JSON-LD LocalBusiness schema on every page.',
+      description:
+        'Read by Google so people nearby can find you. Not shown as a full address on the page.',
       fields: [
-        defineField({ name: 'street', title: 'Street address', type: 'string' }),
-        defineField({ name: 'city', title: 'City', type: 'string', initialValue: 'St. Matthews' }),
+        defineField({ name: 'street', title: 'Street', type: 'string' }),
+        defineField({ name: 'city', title: 'Town', type: 'string', initialValue: 'St. Matthews' }),
         defineField({
           name: 'state',
-          title: 'State (2-letter)',
+          title: 'State (two letters)',
           type: 'string',
           initialValue: 'SC',
         }),
@@ -79,67 +81,19 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
-      name: 'logo',
-      title: 'Your logo (optional)',
-      type: 'image',
-      group: 'identity',
-      description:
-        'A picture of your logo for the top of every page and the footer. Leave this empty and the site keeps the drawn MAS Monograms logo it already uses, which is the one that was designed for it. If you do add one, upload it with the empty space around the edges already trimmed off.',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'What the logo says',
-          type: 'string',
-          description:
-            'For people who use a screen reader, and for Google. Usually just "MAS Monograms".',
-          validation: (Rule) =>
-            Rule.custom((value, ctx: any) =>
-              ctx.parent?.asset && !value
-                ? 'Please say what the logo says, so screen readers can read it'
-                : true,
-            ),
-        }),
-      ],
-    }),
-    defineField({
       name: 'serviceArea',
-      title: 'Service area note',
+      title: 'The area you serve',
       type: 'string',
       group: 'identity',
-      description:
-        'Short description of service area for footer and SEO. E.g. "St. Matthews and surrounding Calhoun County."',
-    }),
-    defineField({
-      name: 'geo',
-      title: 'Map coordinates (optional)',
-      type: 'object',
-      group: 'business',
-      description:
-        'Latitude & longitude for the LocalBusiness map pin in Google. Optional — leave blank until you have exact coordinates (find them on Google Maps: right-click your location → the first line is "latitude, longitude").',
-      fields: [
-        defineField({
-          name: 'latitude',
-          title: 'Latitude',
-          type: 'number',
-          description: 'E.g. 33.6640',
-        }),
-        defineField({
-          name: 'longitude',
-          title: 'Longitude',
-          type: 'number',
-          description: 'E.g. -80.7776',
-        }),
-      ],
-      options: { collapsible: true, collapsed: true },
+      description: 'Read by Google, for example "St. Matthews and surrounding Calhoun County."',
     }),
     defineField({
       name: 'openingHours',
-      title: 'Opening hours (optional)',
+      title: 'Opening hours',
       type: 'array',
-      group: 'business',
+      group: 'identity',
       description:
-        'Business hours for the Google listing. Add one row per set of days that share the same hours (e.g. Mon–Fri 9:00–17:00). Optional — leave empty to omit hours entirely.',
+        'Read by Google for your listing. Add one row for each set of days with the same hours, for example Monday to Friday, 09:00 to 17:00. Leave it empty to show no hours.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -162,42 +116,137 @@ export const siteSettings = defineType({
                   { title: 'Sunday', value: 'Sunday' },
                 ],
               },
-              validation: (R) => R.required().min(1),
+              validation: (R) => R.required().min(1).error('Please tick at least one day.'),
             }),
             defineField({
               name: 'opens',
-              title: 'Opens',
+              title: 'Opens at',
               type: 'string',
-              description: '24-hour time, e.g. "09:00".',
-              validation: (R) => R.required().regex(/^\d{2}:\d{2}$/, { name: '24h time (HH:MM)' }),
+              description: 'On the 24-hour clock, for example "09:00".',
+              validation: (R) =>
+                R.required()
+                  .regex(/^\d{2}:\d{2}$/, { name: '24h time (HH:MM)' })
+                  .error('Please type a time like 09:00.'),
             }),
             defineField({
               name: 'closes',
-              title: 'Closes',
+              title: 'Closes at',
               type: 'string',
-              description: '24-hour time, e.g. "17:00".',
-              validation: (R) => R.required().regex(/^\d{2}:\d{2}$/, { name: '24h time (HH:MM)' }),
+              description: 'On the 24-hour clock, for example "17:00" for 5 in the afternoon.',
+              validation: (R) =>
+                R.required()
+                  .regex(/^\d{2}:\d{2}$/, { name: '24h time (HH:MM)' })
+                  .error('Please type a time like 17:00.'),
             }),
           ],
           preview: {
             select: { days: 'days', opens: 'opens', closes: 'closes' },
             prepare: ({ days, opens, closes }) => ({
-              title: Array.isArray(days) && days.length ? days.join(', ') : '(no days)',
-              subtitle: opens && closes ? `${opens}–${closes}` : '',
+              title: Array.isArray(days) && days.length ? days.join(', ') : '(no days yet)',
+              subtitle: opens && closes ? `${opens} to ${closes}` : '',
             }),
           },
         }),
       ],
     }),
+    defineField({
+      name: 'socialLinks',
+      title: 'Your Facebook, Instagram and other pages',
+      type: 'array',
+      group: 'identity',
+      description:
+        'One row for each. They show as small round buttons in the footer and in the menu on phones.',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'socialLink',
+          fields: [
+            defineField({
+              name: 'platform',
+              title: 'Which site',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Facebook', value: 'Facebook' },
+                  { title: 'Instagram', value: 'Instagram' },
+                  { title: 'Pinterest', value: 'Pinterest' },
+                  { title: 'TikTok', value: 'TikTok' },
+                  { title: 'YouTube', value: 'YouTube' },
+                  { title: 'Other', value: 'Other' },
+                ],
+                layout: 'dropdown',
+              },
+              validation: (R) => R.required().error('Please pick which site this is.'),
+            }),
+            defineField({
+              name: 'url',
+              title: 'Web address of your page',
+              type: 'url',
+              description:
+                'Copy it from your browser, for example https://www.facebook.com/masmonograms',
+              validation: (R) =>
+                R.required()
+                  .uri({ scheme: ['http', 'https'] })
+                  .error('Please paste the full address, starting with https://'),
+            }),
+            defineField({
+              name: 'label',
+              title: 'Name to show (only for "Other")',
+              type: 'string',
+            }),
+          ],
+          preview: {
+            select: { platform: 'platform', url: 'url' },
+            prepare: ({ platform, url }) => ({
+              title: platform ?? 'Social page',
+              subtitle: url ?? '',
+            }),
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: 'tagline',
+      title: 'Your one-line description',
+      type: 'string',
+      group: 'identity',
+      description:
+        'Shown under your name in the footer, for example "Custom embroidery from St. Matthews, SC."',
+      validation: (Rule) => Rule.max(120).warning(TOO_LONG),
+    }),
+    defineField({
+      name: 'logo',
+      title: 'Your logo',
+      type: 'image',
+      group: 'identity',
+      description:
+        'Leave this empty and the site keeps the drawn MAS Monograms logo it already uses, which is the one designed for it. If you do add one, trim the empty space around the edges first.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'What the logo says',
+          type: 'string',
+          description:
+            'For people who use a screen reader, and for Google. Usually just "MAS Monograms".',
+          validation: (Rule) =>
+            Rule.custom((value, ctx: any) =>
+              ctx.parent?.asset && !value
+                ? 'Please say what the logo says, so screen readers can read it'
+                : true,
+            ),
+        }),
+      ],
+    }),
 
-    // ── Navigation ────────────────────────────────────────────────────────────
+    // ── Top menu ─────────────────────────────────────────────────────────────
     defineField({
       name: 'navItems',
-      title: 'Top menu links',
+      title: 'Links in the top menu',
       type: 'array',
       group: 'navigation',
       description:
-        'Header navigation links, in order. Add a Link for a single page, or a Dropdown to group links. Leave empty to use the built-in default menu.',
+        'In order, left to right. Add a Link for one page, or a Dropdown to group a few links. Drag to change the order. Leave it empty to use the built-in menu.',
       of: [
         // The shared link (./navLink.ts). Every link already in this menu is
         // stored as a "navLink", so they all keep working exactly as they are
@@ -211,13 +260,13 @@ export const siteSettings = defineType({
           fields: [
             defineField({
               name: 'label',
-              title: 'Menu label',
+              title: 'Words on the menu',
               type: 'string',
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please type the words for this menu.'),
             }),
             defineField({
               name: 'links',
-              title: 'Menu links',
+              title: 'Links in this dropdown',
               type: 'array',
               of: [
                 // Shared link first, so "Add item" reaches for the one with the
@@ -233,27 +282,28 @@ export const siteSettings = defineType({
                   fields: [
                     defineField({
                       name: 'label',
-                      title: 'Label',
+                      title: 'Words on the link',
                       type: 'string',
-                      validation: (R) => R.required(),
+                      validation: (R) => R.required().error('Please type the words for this link.'),
                     }),
                     defineField({
                       name: 'href',
-                      title: 'URL',
+                      title: 'Address',
                       type: 'string',
-                      validation: (R) => R.required(),
+                      description: 'A page on your website, written like /pricing.',
+                      validation: (R) => R.required().error('Please type where this link goes.'),
                     }),
                   ],
                   preview: { select: { title: 'label', subtitle: 'href' } },
                 }),
               ],
-              validation: (R) => R.required().min(1),
+              validation: (R) => R.min(1).warning('A dropdown with no links shows nothing.'),
             }),
           ],
           preview: {
             select: { title: 'label', links: 'links' },
             prepare: ({ title, links }) => ({
-              title: title ?? '(no label)',
+              title: title ?? '(no words yet)',
               subtitle: `Dropdown: ${Array.isArray(links) ? links.length : 0} links`,
             }),
           },
@@ -261,29 +311,90 @@ export const siteSettings = defineType({
       ],
     }),
     defineField({
+      name: 'headerCta',
+      title: 'The quote button',
+      type: 'object',
+      group: 'navigation',
+      description:
+        'The one colored button in the top bar, and the matching button in the phone menu. Leave the boxes empty and it keeps saying what the box below says and goes to the Request a Quote page.',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({
+          name: 'show',
+          title: 'Show the button',
+          type: 'boolean',
+          description: 'Turn this off to take the button out of the top bar and the phone menu.',
+          initialValue: true,
+        }),
+        defineField({
+          name: 'label',
+          title: 'Words on the button',
+          type: 'string',
+          description: 'Leave it empty to use the box below.',
+        }),
+        defineField({
+          name: 'link',
+          title: 'Where the button goes',
+          type: 'navLink',
+          description: 'Leave it empty to keep going to the Request a Quote page.',
+        }),
+      ],
+      preview: {
+        select: { show: 'show', label: 'label' },
+        prepare: ({ show, label }) => ({
+          title: label || 'Request a Quote',
+          subtitle: show === false ? 'Hidden' : 'The quote button',
+        }),
+      },
+    }),
+    defineField({
       name: 'quoteCtaLabel',
-      title: 'Text on the "Request a Quote" button',
+      title: 'Words on the quote button',
       type: 'string',
       group: 'navigation',
-      description: 'The blush CTA button in the nav bar. E.g. "Request a Quote".',
+      description: 'The colored button in the top bar, for example "Request a Quote".',
       initialValue: 'Request a Quote',
-      validation: (Rule) => Rule.required().max(40),
+      validation: (Rule) => Rule.max(40).warning(TOO_LONG),
     }),
     defineField({
       name: 'menuContactLabel',
-      title: 'Label above your phone and email in the phone menu (optional)',
+      title: 'Small label above your phone and email in the phone menu',
       type: 'string',
       group: 'navigation',
       description:
-        'On a phone, the menu ends with your phone number and email. This small label sits above them, e.g. "At the bench".',
-      validation: (Rule) => Rule.max(40),
+        'On a phone, the menu ends with your phone number and email. This small label sits above them, for example "At the bench".',
+      validation: (Rule) => Rule.max(40).warning(TOO_LONG),
+    }),
+    // Small on/off switches for the contact details in the menus. All three are
+    // ON unless they are turned off, so a site nobody has touched looks exactly
+    // the same as before these switches existed.
+    defineField({
+      name: 'showEmail',
+      title: 'Show your email address in the phone menu',
+      type: 'boolean',
+      group: 'navigation',
+      description:
+        'Your email in the "Get in touch" part of the menu on phones. On unless you turn it off.',
+      initialValue: true,
     }),
     defineField({
-      name: 'footerColumns',
-      title: 'Footer link columns',
-      type: 'array',
+      name: 'showSocials',
+      title: 'Show the social buttons in the phone menu',
+      type: 'boolean',
       group: 'navigation',
-      description: 'Titled link columns in the footer. Leave empty to use the built-in default.',
+      description:
+        'The little Facebook and Instagram buttons at the bottom of the menu on phones. On unless you turn it off.',
+      initialValue: true,
+    }),
+
+    // ── Footer ───────────────────────────────────────────────────────────────
+    defineField({
+      name: 'footerColumns',
+      title: 'Columns of links in the footer',
+      type: 'array',
+      group: 'social',
+      description:
+        'Each column has a heading and a few links. Leave it empty to use the built-in footer.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -295,7 +406,7 @@ export const siteSettings = defineType({
               name: 'title',
               title: 'Column heading',
               type: 'string',
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please give this column a heading.'),
             }),
             defineField({
               name: 'links',
@@ -315,245 +426,124 @@ export const siteSettings = defineType({
                   fields: [
                     defineField({
                       name: 'label',
-                      title: 'Label',
+                      title: 'Words on the link',
                       type: 'string',
-                      validation: (R) => R.required(),
+                      validation: (R) => R.required().error('Please type the words for this link.'),
                     }),
                     defineField({
                       name: 'href',
-                      title: 'URL',
+                      title: 'Address',
                       type: 'string',
-                      validation: (R) => R.required(),
+                      description: 'A page on your website, written like /pricing.',
+                      validation: (R) => R.required().error('Please type where this link goes.'),
                     }),
                   ],
                   preview: { select: { title: 'label', subtitle: 'href' } },
                 }),
               ],
-              validation: (R) => R.required().min(1),
+              validation: (R) => R.min(1).warning('A column with no links shows only its heading.'),
             }),
           ],
           preview: {
             select: { title: 'title', links: 'links' },
             prepare: ({ title, links }) => ({
-              title: title ?? '(no heading)',
+              title: title ?? '(no heading yet)',
               subtitle: `${Array.isArray(links) ? links.length : 0} links`,
             }),
           },
         }),
       ],
     }),
-
     defineField({
       name: 'legalNav',
       title: 'Small-print links at the very bottom',
       type: 'array',
-      group: 'navigation',
+      group: 'social',
       description:
         'The little links on the bottom bar, beside the copyright line. Leave this empty and the site lists your legal pages there on its own, which is usually what you want. Anything you add here is shown instead of that list.',
-      validation: (Rule) => Rule.max(6),
+      validation: (Rule) => Rule.max(6).warning('More than six small-print links is a lot.'),
       of: [defineArrayMember({ type: 'navLink' })],
-    }),
-    defineField({
-      name: 'headerCta',
-      title: 'The quote button',
-      type: 'object',
-      group: 'navigation',
-      description:
-        'The one coloured button in the top bar, and the matching button in the phone menu. Leave the boxes empty and it keeps saying what the box above says and goes to the Request a Quote page.',
-      options: { collapsible: true, collapsed: true },
-      fields: [
-        defineField({
-          name: 'show',
-          title: 'Show the button',
-          type: 'boolean',
-          description: 'Turn this off to take the button out of the top bar and the phone menu.',
-          initialValue: true,
-        }),
-        defineField({
-          name: 'label',
-          title: 'Words on the button',
-          type: 'string',
-          description: 'Leave empty to keep using the box above.',
-        }),
-        defineField({
-          name: 'link',
-          title: 'Where the button goes',
-          type: 'navLink',
-          description: 'Leave empty to keep going to the Request a Quote page.',
-        }),
-      ],
-      preview: {
-        select: { show: 'show', label: 'label' },
-        prepare: ({ show, label }) => ({
-          title: label || 'Request a Quote',
-          subtitle: show === false ? 'Hidden' : 'The quote button',
-        }),
-      },
-    }),
-    // Small on/off switches for the contact details in the menus. All three are
-    // ON unless they are turned off, so a site nobody has touched looks exactly
-    // the same as before these switches existed.
-    defineField({
-      name: 'showEmail',
-      title: 'Show your email address in the menus',
-      type: 'boolean',
-      group: 'navigation',
-      description:
-        'Your email in the strip across the very top of the page on a computer, and in the "Get in touch" part of the phone menu. On unless you turn it off.',
-      initialValue: true,
-    }),
-    defineField({
-      name: 'showSocials',
-      title: 'Show the social buttons in the menus',
-      type: 'boolean',
-      group: 'navigation',
-      description:
-        'The little Facebook and Instagram buttons in the strip across the very top of the page, and at the bottom of the phone menu. On unless you turn it off.',
-      initialValue: true,
     }),
     defineField({
       name: 'showFooterSocials',
       title: 'Show the social buttons in the footer',
       type: 'boolean',
-      group: 'navigation',
+      group: 'social',
       description: 'The row of round social buttons down in the footer. On unless you turn it off.',
       initialValue: true,
     }),
-
-    // ── Social & footer ───────────────────────────────────────────────────────
-    defineField({
-      name: 'socialLinks',
-      title: 'Social links',
-      type: 'array',
-      group: 'social',
-      description: 'One entry per platform. Shown in the footer and optionally in the nav.',
-      of: [
-        defineArrayMember({
-          type: 'object',
-          name: 'socialLink',
-          fields: [
-            defineField({
-              name: 'platform',
-              title: 'Platform',
-              type: 'string',
-              options: {
-                list: [
-                  { title: 'Facebook', value: 'Facebook' },
-                  { title: 'Instagram', value: 'Instagram' },
-                  { title: 'Pinterest', value: 'Pinterest' },
-                  { title: 'TikTok', value: 'TikTok' },
-                  { title: 'YouTube', value: 'YouTube' },
-                  { title: 'Other', value: 'Other' },
-                ],
-                layout: 'dropdown',
-              },
-              validation: (R) => R.required(),
-            }),
-            defineField({
-              name: 'url',
-              title: 'URL',
-              type: 'url',
-              validation: (R) => R.required().uri({ scheme: ['http', 'https'] }),
-            }),
-            defineField({ name: 'label', title: 'Custom label (for "Other")', type: 'string' }),
-          ],
-          preview: {
-            select: { platform: 'platform', url: 'url' },
-            prepare: ({ platform, url }) => ({
-              title: platform ?? 'Social link',
-              subtitle: url ?? '',
-            }),
-          },
-        }),
-      ],
-    }),
-    defineField({
-      name: 'googleBusinessUrl',
-      title: 'Google Business Profile URL',
-      type: 'url',
-      group: 'social',
-      description:
-        'Link to the Google Business listing. Used in the LocalBusiness structured data.',
-    }),
     defineField({
       name: 'footerCredit',
-      title: 'Footer credit',
+      title: 'Website credit line',
       type: 'string',
       group: 'social',
-      description: 'Optional credit line. E.g. "Site by Nate\'s Creations".',
+      description: 'The small "website by" line in the footer. You do not need to change it.',
     }),
     defineField({
       name: 'footerCreditUrl',
-      title: 'Footer credit URL',
+      title: 'Where the credit line links to',
       type: 'url',
       group: 'social',
-      description: 'When set, the credit becomes a link.',
+      description: 'You do not need to change it.',
     }),
 
-    // ── SEO defaults ──────────────────────────────────────────────────────────
+    // ── Google ───────────────────────────────────────────────────────────────
     defineField({
       name: 'seoTitle',
-      title: 'Default SEO title',
+      title: 'Usual title in Google',
       type: 'string',
       group: 'seo',
       fieldset: 'seo',
       description:
-        'Used on pages that don\'t have their own SEO title. E.g. "MAS Monograms — Custom Embroidery in St. Matthews, SC".',
-      validation: (Rule) => Rule.required().max(70),
+        'Used for any page that has no Google title of its own, for example "MAS Monograms | Custom Embroidery in St. Matthews, SC".',
+      validation: (Rule) =>
+        Rule.max(70).warning('Google cuts titles longer than about 60 letters short.'),
     }),
     defineField({
       name: 'seoDescription',
-      title: 'Default SEO description',
+      title: 'Usual description for Google',
       type: 'text',
       rows: 3,
       group: 'seo',
       fieldset: 'seo',
       description:
-        "Used on pages that don't have their own SEO description. Aim for 150–160 characters.",
-      validation: (Rule) => Rule.required().max(160),
+        'Used for any page that has no Google description of its own. About 150 to 160 letters.',
+      validation: (Rule) => Rule.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
     }),
     defineField({
       name: 'seoImage',
-      title: 'Photo shown when the site is shared',
+      title: 'Usual picture when a page is shared',
       type: 'image',
       group: 'seo',
       fieldset: 'seo',
-      description: 'Image shown when the site is shared on social media. ~1200 × 630 px.',
+      description:
+        'Shown when someone shares a link to your website on Facebook or in a text message. A wide picture, about 1200 by 630.',
       options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
     }),
-
-    // ── Business details (JSON-LD) ─────────────────────────────────────────────
     defineField({
       name: 'businessType',
-      title: 'Business type',
+      title: 'What kind of business Google should list you as',
       type: 'string',
-      group: 'business',
-      description: 'Schema.org type for JSON-LD. Affects how Google shows the listing.',
+      group: 'seo',
+      fieldset: 'seo',
       options: {
         list: [
-          { title: 'Local Business (generic)', value: 'LocalBusiness' },
+          { title: 'Local business', value: 'LocalBusiness' },
           { title: 'Store', value: 'Store' },
-          { title: 'Professional Service', value: 'ProfessionalService' },
-          { title: 'Clothing Store', value: 'ClothingStore' },
+          { title: 'Professional service', value: 'ProfessionalService' },
+          { title: 'Clothing store', value: 'ClothingStore' },
         ],
         layout: 'radio',
       },
       initialValue: 'LocalBusiness',
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'priceRange',
-      title: 'Price range',
+      title: 'Price range Google shows',
       type: 'string',
-      group: 'business',
-      description: 'Schema.org priceRange. E.g. "$" or "$$". Shown in Google local results.',
+      group: 'seo',
+      fieldset: 'seo',
       options: {
         list: [
           { title: '$ (budget)', value: '$' },
@@ -565,32 +555,60 @@ export const siteSettings = defineType({
       initialValue: '$$',
     }),
     defineField({
+      name: 'geo',
+      title: 'Map pin for Google',
+      type: 'object',
+      group: 'seo',
+      fieldset: 'seo',
+      description:
+        'Leave it empty until you know the exact spot. To find it in Google Maps, right-click your location: the first line shows the two numbers.',
+      fields: [
+        defineField({
+          name: 'latitude',
+          title: 'First number (latitude)',
+          type: 'number',
+          description: 'For example 33.6640',
+        }),
+        defineField({
+          name: 'longitude',
+          title: 'Second number (longitude)',
+          type: 'number',
+          description: 'For example -80.7776',
+        }),
+      ],
+      options: { collapsible: true, collapsed: true },
+    }),
+
+    // ── Hidden: the site no longer reads these (data kept, see the header) ───
+    defineField({
       name: 'standardTurnaround',
-      title: 'Standard turnaround time',
+      title: 'Old usual turnaround time (not used)',
       type: 'string',
-      group: 'business',
-      description: 'Shown on the quote form and thank-you page. E.g. "7–10 business days".',
-      initialValue: '7–10 business days',
-      validation: (Rule) => Rule.required(),
+      hidden: true,
     }),
     defineField({
       name: 'rushOrdersAvailable',
-      title: 'Rush orders available',
+      title: 'Old rush orders switch (not used)',
       type: 'boolean',
-      group: 'business',
-      description: 'When on, the quote form offers a rush order option.',
-      initialValue: true,
+      hidden: true,
     }),
     defineField({
       name: 'rushTurnaround',
-      title: 'Rush turnaround time',
+      title: 'Old rush turnaround time (not used)',
       type: 'string',
-      group: 'business',
-      description:
-        'Only shown when rush orders are available. E.g. "3–5 business days (additional fee applies)".',
+      hidden: true,
+    }),
+    defineField({
+      name: 'googleBusinessUrl',
+      title: 'Google business listing address (not shown yet)',
+      type: 'url',
+      hidden: true,
     }),
   ],
   preview: {
-    prepare: () => ({ title: 'Site Settings' }),
+    prepare: () => ({
+      title: 'My business details',
+      subtitle: 'Phone, email, address, hours, menus and footer',
+    }),
   },
 });

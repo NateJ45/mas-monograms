@@ -1,97 +1,121 @@
-// 404 page singleton. Every word on the /404 page — headline, body,
-// and CTA links — comes from here. Mary Ann can keep it on-brand.
+// 404 page singleton: the page people see when they follow a broken link.
+// Every word on /404 comes from here.
+//
+// 2026-10-05, Mary Ann's Studio pass: only the headline is required; plain
+// titles. `body` is HIDDEN (data kept): src/pages/404.astro reads `page.subhead`,
+// which this schema has never declared, so the line under the headline always
+// shows its built-in words and editing `body` changed nothing on the website.
+// docs/PENDING.md tracks the one-line fix (read `body` in 404.astro); unhide
+// `body` in the same change.
 
 import { defineType, defineField } from 'sanity';
+import { HelpCircleIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  TOO_LONG,
+  BUTTON_LINK_HELP,
+} from './_copy';
 
 export const notFoundPage = defineType({
   name: 'notFoundPage',
-  title: '404 Page',
+  title: '"Page not found" page',
   type: 'document',
+  icon: HelpCircleIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'content', title: 'Content', default: true },
-    { name: 'ctas', title: 'Links' },
+    { name: 'content', title: 'The message' },
+    { name: 'ctas', title: 'Buttons' },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      initialValue: 'Page not found — MAS Monograms',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 2,
-      group: 'seo',
-      fieldset: 'seo',
-      initialValue: 'That page wandered off. Head back to the homepage or request a quote.',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-
     defineField({
       name: 'headline',
       title: 'Headline',
       type: 'string',
       group: 'content',
+      description:
+        'The big heading people see when they follow a broken or mistyped link, for example "That page wandered off."',
       initialValue: 'That page wandered off.',
-      validation: (R) => R.required().max(100),
-    }),
-    defineField({
-      name: 'body',
-      title: 'Body copy',
-      type: 'text',
-      rows: 3,
-      group: 'content',
-      initialValue:
-        "It happens! Maybe a link got stale or the URL has a small typo. Here's where to head next.",
-      validation: (R) => R.required(),
+      validation: (R) => [
+        R.required().error('Please type a headline. It is the big heading on this page.'),
+        R.max(100).warning(TOO_LONG),
+      ],
     }),
 
+    // ── Buttons ──────────────────────────────────────────────────────────────
     defineField({
       name: 'primaryCtaLabel',
-      title: 'Main button text',
+      title: 'Words on the main button',
       type: 'string',
       group: 'ctas',
+      description: 'Leave it empty to use "Request a Quote".',
       initialValue: 'Back to home',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'primaryCtaHref',
-      title: 'Main button link',
+      title: 'Where the main button goes',
       type: 'string',
       group: 'ctas',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to the quote form.`,
       initialValue: '/',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'secondaryCtaLabel',
-      title: 'Second button text',
+      title: 'Words on the second button',
       type: 'string',
       group: 'ctas',
+      description: 'Leave it empty to use "Shop by Item".',
       initialValue: 'Request a quote',
-      validation: (R) => R.required(),
     }),
     defineField({
       name: 'secondaryCtaHref',
-      title: 'Second button link',
+      title: 'Where the second button goes',
       type: 'string',
       group: 'ctas',
+      description: `${BUTTON_LINK_HELP} Leave it empty to go to Shop by Item.`,
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      initialValue: 'Page not found | MAS Monograms',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 2,
+      group: 'seo',
+      fieldset: 'seo',
+      initialValue: 'That page wandered off. Head back to the homepage or request a quote.',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+
+    // ── Hidden: the page does not read it yet (see the header) ───────────────
+    defineField({
+      name: 'body',
+      title: 'Line under the headline (not shown yet)',
+      type: 'text',
+      rows: 3,
+      hidden: true,
     }),
   ],
-  preview: { prepare: () => ({ title: '404 Page' }) },
+  preview: {
+    prepare: () => ({
+      title: '"Page not found" page',
+      subtitle: 'Shown when someone follows a broken link',
+    }),
+  },
 });

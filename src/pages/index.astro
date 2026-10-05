@@ -17,23 +17,23 @@ import ProcessPath from '@/components/home/ProcessPath.astro';
 import StudioWall from '@/components/home/StudioWall.astro';
 import FinalCta from '@/components/home/FinalCta.astro';
 import AtelierStudio from '@/components/atelier/AtelierStudio.astro';
-import {
-  getSiteSettings,
-  getHomePage,
-  getAllItemCategories,
-  getAtelierSettings,
-  getAllThreadColors,
-  getGalleryItemsForWall,
-} from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { loadHome, type PageProps, type HomeData } from '@/lib/page-data';
 
-const [siteSettings, page, categories, atelier, threads, wallItems] = await Promise.all([
-  getSiteSettings(),
-  getHomePage(),
-  getAllItemCategories(),
-  getAtelierSettings(),
-  getAllThreadColors(),
-  getGalleryItemsForWall(12),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<HomeData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadHome()]);
+const { page, categories, atelier, threads, wallItems } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title =
   page?.seoTitle ??
@@ -49,14 +49,15 @@ const marqueeItems: string[] = (categories ?? [])
   .filter((n: unknown): n is string => typeof n === 'string' && !!n.trim());
 ---
 
-<BaseLayout
+<Layout
   {title}
   {description}
   seoImage={page?.seoImage ?? siteSettings?.seoImage}
   {siteSettings}
   header="overlay"
+  {...preview?.layoutProps}
 >
-  <HomeHero page={page} atelier={atelier} threads={threads ?? []} />
+  <HomeHero page={page} atelier={atelier} threads={threads ?? []} {edit} />
 
   {
     marqueeItems.length > 0 && (
@@ -94,16 +95,16 @@ const marqueeItems: string[] = (categories ?? [])
     )
   }
 
-  {categories.length > 0 && <HoopWall page={page} categories={categories} />}
+  {categories.length > 0 && <HoopWall page={page} categories={categories} {edit} />}
 
-  {(page?.aboutHeadline || page?.makerQuote) && <MakerBand page={page} />}
+  {(page?.aboutHeadline || page?.makerQuote) && <MakerBand page={page} {edit} />}
 
-  <ProcessPath page={page} />
+  <ProcessPath page={page} {edit} />
 
-  <StudioWall page={page} items={wallItems ?? []} />
+  <StudioWall page={page} items={wallItems ?? []} {edit} />
 
   <FinalCta page={page} />
-</BaseLayout>
+</Layout>
 
 <style>
   .home-marquee {

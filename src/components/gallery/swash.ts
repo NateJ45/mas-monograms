@@ -5,6 +5,8 @@
 // needed" -> "no quote needed"), otherwise the last word. Trailing
 // punctuation stays roman, outside the swash.
 
+import { takeRun } from '../../lib/stega-text.ts';
+
 export interface SwashParts {
   before: string;
   word: string;
@@ -12,7 +14,16 @@ export interface SwashParts {
 }
 
 export function splitSwash(headline: string | null | undefined): SwashParts {
-  const text = (headline ?? '').trim();
+  // Stega-safe (src/lib/stega-text.ts): the canvas's click-to-edit marker is
+  // cut off first and put back on the end of the last piece.
+  const { text: visible, run } = takeRun(headline);
+  const parts = splitVisible(visible.trim());
+  if (!run) return parts;
+  if (parts.after) return { ...parts, after: parts.after + run };
+  return { ...parts, word: parts.word + run };
+}
+
+function splitVisible(text: string): SwashParts {
   if (!text) return { before: '', word: '', after: '' };
 
   const trail = text.match(/[.?!:;,]+$/);

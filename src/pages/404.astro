@@ -1,149 +1,28 @@
 ---
-// 404 (Direction D, "The Atelier", 2026-10-04): a loose thread. A running
-// stitch along the top stops short; its thread hangs down with the needle
-// on the end, swaying gently like a pendulum. Pure CSS/SVG; the resting
-// state is a still needle, so reduced motion simply shows it hanging.
-// Copy from Sanity (notFoundPage); the short fallbacks are for a missing doc.
+// 404. The page is drawn by src/components/pages/NotFoundBody.astro, which the
+// Studio's "Edit on the page" canvas renders too (from draft data), so this file
+// only loads the published data and sets the page's head.
+//
+// WHY THIS PAGE HAS A BODY COMPONENT AND THE OTHERS DO NOT (2026-10-05): every
+// other page renders ITSELF in the canvas (the preview route imports the page
+// file and passes `preview`). Astro also builds the 404 page into the server
+// bundle, and once the preview route imported it, its own styles moved ahead of
+// the site stylesheet in the live <head> (a cascade change; `npm run parity
+// compare` caught it). Rendering the 404 body as a component keeps this page's
+// head exactly as it was.
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getSiteSettings, getNotFoundPage } from '@/lib/queries';
+import NotFoundBody from '@/components/pages/NotFoundBody.astro';
+import { getSiteSettings } from '@/lib/queries';
+import { loadNotFound } from '@/lib/page-data';
 
-const [siteSettings, page] = await Promise.all([getSiteSettings(), getNotFoundPage()]);
+const [siteSettings, data] = await Promise.all([getSiteSettings(), loadNotFound()]);
+const { page } = data;
 
 const title = page?.seoTitle ?? 'Page Not Found — MAS Monograms';
 const description =
   page?.seoDescription ?? "The page you're looking for doesn't exist. Let's get you back on track.";
-
-const headline = page?.headline ?? 'Page Not Found';
-const swash = ['wandered off', 'Not Found'].find((c) => headline.includes(c));
-const i = swash ? headline.indexOf(swash) : -1;
-const before = i >= 0 ? headline.slice(0, i) : headline;
-const after = i >= 0 ? headline.slice(i + (swash?.length ?? 0)) : '';
 ---
 
 <BaseLayout {title} {description} {siteSettings} noindex thread={false}>
-  <section class="surface-midnight nf py-section-lg" aria-labelledby="nf-heading">
-    <div
-      class="mx-auto grid max-w-content items-center gap-l px-m md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
-    >
-      <div class="nf__scene" aria-hidden="true">
-        <svg viewBox="0 0 320 330" focusable="false">
-          <defs>
-            <linearGradient id="nf-steel" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0" stop-color="#6d747c"></stop>
-              <stop offset="0.38" stop-color="#f4f6f8"></stop>
-              <stop offset="0.6" stop-color="#b9c0c7"></stop>
-              <stop offset="1" stop-color="#565c63"></stop>
-            </linearGradient>
-          </defs>
-          {/* The seam: a running stitch that stops short. */}
-          <path
-            d="M14 40 H178"
-            stroke="#d9b15f"
-            stroke-width="3"
-            stroke-dasharray="12 8"
-            stroke-linecap="round"></path>
-          <path
-            d="M178 40 H306"
-            stroke="rgba(217, 177, 95, 0.35)"
-            stroke-width="1.2"
-            stroke-dasharray="1 10"
-            stroke-linecap="round"></path>
-          {/* The frayed start of the thread, left. */}
-          <path
-            d="M14 40 C 8 42, 6 48, 2 50 M14 40 C 9 37, 6 34, 3 34"
-            stroke="#d9b15f"
-            stroke-width="1.2"
-            fill="none"
-            stroke-linecap="round"></path>
-          {/* The loose thread and the needle, swinging from the last stitch. */}
-          <g class="nf__pendulum">
-            <path
-              d="M186 40 C 194 80, 180 120, 192 160 C 200 188, 194 206, 196 222"
-              stroke="#d9b15f"
-              stroke-width="2"
-              fill="none"
-              stroke-linecap="round"></path>
-            <g transform="translate(196 214) rotate(4)">
-              <path
-                d="M-3 0 Q0 -8 3 0 L3.6 80 Q1.6 100 0 112 Q-1.6 100 -3.6 80 Z"
-                fill="url(#nf-steel)"></path>
-              <rect x="-1" y="2" width="2" height="16" rx="1" fill="#0f1b2d"></rect>
-              <path d="M-0.6 26 L-0.2 86" stroke="rgba(255,255,255,0.8)" stroke-width="0.8"></path>
-              <path
-                d="M0 6 C 8 10, 12 18, 6 26"
-                stroke="#d9b15f"
-                stroke-width="2"
-                fill="none"
-                stroke-linecap="round"></path>
-            </g>
-          </g>
-          <circle cx="186" cy="40" r="3.4" fill="#f0d58a"></circle>
-        </svg>
-      </div>
-
-      <div class="nf__text">
-        <p class="eyebrow mb-m">404</p>
-        <h1 id="nf-heading" class="display-sm">
-          {before}
-          {swash && <em class="swash">{swash}</em>}
-          {after}
-        </h1>
-        <p class="lede mt-l">
-          {page?.subhead ?? "The page you're looking for doesn't exist or may have moved."}
-        </p>
-        <div class="mt-l flex flex-wrap gap-m">
-          <a href={page?.primaryCtaHref ?? '/request-a-quote'} class="btn btn-primary">
-            <span>{page?.primaryCtaLabel ?? 'Request a Quote'}</span>
-            <span class="btn__arrow" aria-hidden="true">&rarr;</span>
-          </a>
-          <a href={page?.secondaryCtaHref ?? '/shop-by-item'} class="btn btn-secondary">
-            {page?.secondaryCtaLabel ?? 'Shop by Item'}
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <NotFoundBody {...data} />
 </BaseLayout>
-
-<style>
-  .nf {
-    min-height: min(78vh, 52rem);
-    display: flex;
-    align-items: center;
-  }
-  .nf > div {
-    width: 100%;
-  }
-  .nf__scene {
-    width: min(100%, 27rem);
-    margin-inline: auto;
-  }
-  .nf__scene svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
-  }
-  .nf__pendulum {
-    transform-origin: 186px 40px;
-    animation: nf-sway 4.2s ease-in-out infinite;
-  }
-  @keyframes nf-sway {
-    0%,
-    100% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(5deg);
-    }
-    75% {
-      transform: rotate(-5deg);
-    }
-  }
-  @media (max-width: 47.99rem) {
-    .nf__scene {
-      width: min(70%, 15rem);
-    }
-  }
-</style>

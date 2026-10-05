@@ -95,3 +95,82 @@ and `internal\ncs-astro-sanity-starter` (library of record, PORTABLE files must 
   click-to-edit, in-canvas controls), not a summary.
 - **D. Safety and polish**: Trash/archive instead of Delete, drag-to-reorder lists, SEO snippet preview,
   copy share link, safe rename (redirects) for category addresses.
+
+## Phase B addition: "Get found" (Nathan, 2026-10-05)
+
+Mary Ann was disappointed that the website got no interest earlier this year. The honest reason is that
+nobody knew it existed (the site only went live on the new platform on 2026-09-04 and nothing was done
+to be found). She does not know how to do any of the following, so the handbook must TEACH it, step by
+step, in the same plain, large, calm style, as a whole category called **Get found (so customers can find me)**
+sitting right beside the editing guides, with a "start here" order and a weekly 15-minute routine.
+
+Cover, each as its own guide with numbered steps, what she needs ready before she starts, how long it takes,
+what it costs (free or not, honestly), what can go wrong, and how she knows it worked:
+- **Google Business Profile** (the free listing that shows on Google Search and Google Maps): claiming or
+  creating it for a home-based business (service-area business with the address hidden if she prefers),
+  categories, hours, photos, the website link, verification (video or phone, whichever Google currently
+  offers), posting updates, asking for and answering reviews, and a link she can send customers for a review.
+- **Apple Business Connect** (shows on Apple Maps, Siri, Wallet) and **Bing Places** (Bing and Microsoft;
+  it can import from Google): the same one-page walkthrough for each.
+- **Facebook Page** and **Instagram business account**: creating them, linking them, the profile picture
+  and cover (the new Hoop Seal logo files are in `public/brand/`), what to post in the first month (a weekly
+  rhythm using her real work photos; examples of captions in her voice), hashtags, linking to the website,
+  and how to reuse one photo across both.
+- **Pinterest business account**: boards that work for monograms and gifts, pins that link to the website.
+- Other free places worth the effort for a local craft business: Nextdoor business page, local Facebook
+  community and "buy local" groups, the St. Matthews / Calhoun County / Columbia, SC chambers and craft
+  fairs, Etsy only as an option with its trade-offs (do not push it), and local business directories (Yelp,
+  Yellow Pages style listings) with the warning to keep name, address, phone identical everywhere.
+- **Google Search Console and the sitemap** at beginner level: "tell Google the site exists" (check what is
+  already wired: the studio-status/vault notes mention Search Console and GA4 are set up; verify in the repo
+  `public-data-policy.json`, `docs/` and the analytics code before telling her anything).
+- **Simple online ads**, honestly: what they are, what to expect from a small budget, the safest first step
+  (boosting one good photo post on Facebook/Instagram for a few dollars a day, aimed at a small radius and
+  a specific audience; or a Google Business Profile local ad is NOT a thing she needs yet), when to
+  stop, how to read the results, and a clear "do not spend more than $X you are not comfortable losing"
+  rule. Never promise results. Compare free vs paid plainly and recommend free first for 60 days.
+- **QR codes**: what they are, where to put them (tags and labels on products she sells or gives out,
+  business cards, packaging inserts, thank-you cards, a flyer on a craft-fair table, the back of invoices,
+  a sticker on shipping boxes, her car or booth sign), how big to print them and what to leave around
+  them, and how to test them with a phone. She cannot make QR codes herself today: build the tool (below).
+- **Everyday word of mouth**: asking happy customers for a review and a photo, a referral card, an email or
+  text list (a simple "newsletter" option only if the site can support it today: otherwise say so), a
+  one-page "how to describe my business in one sentence" and a standard intro message she can paste.
+- **Photos that sell**: how to photograph her work with a phone near a window (the site's weak spot is photo
+  quality: this is a real lever), a shot list (close-up of the stitching, whole item, in use, before/after),
+  and how to add them to the site (cross-link to the editing guides).
+- **Keeping it going**: a weekly 15-minute checklist and a monthly 30-minute one, and "how do I know if
+  it is working?" (what to look at in Google Business Profile insights, Facebook/Instagram insights and
+  the site's analytics at a beginner level, with realistic expectations).
+
+Accuracy rules for this content (it is advice to a real person about real accounts):
+1. The writing agent MUST verify current steps and screens by researching the official help pages (web
+   search/fetch of Google Business Profile help, Apple Business Connect, Bing Places help, Meta Business
+   Help Center, Pinterest business help, Search Console help) and name the source and the date checked
+   in the guide's maintenance notes (not shown to Mary Ann). These UIs change: write steps in terms of
+   what she is trying to do and what she should see, and keep a "this screen may look a little different"
+   reassurance. Prices and policies are quoted only if verified and dated.
+2. No invented numbers, results or guarantees. Where advice depends on her choice (budget, how much time
+   she has), give a recommended default and say why.
+3. No em-dashes. Large readable type, numbered steps, "what you will see", a time estimate, a cost line,
+   and a "stuck? Nathan can help with this part" badge on anything that needs a business document, a
+   phone verification or a credit card, using the three-state badge idea from Stone Steps
+   ('You can do this yourself' / 'Mostly yourself' / 'Check with Nathan first').
+4. Where the site itself helps (the LocalBusiness data, the sitemap, UTM-tagged links, the Hoop Seal logo
+   files, the OG share image, the Instagram/Facebook links in Site settings, the Request a Quote link to use
+   in every profile), point at it precisely and make sure the site really supports it (check
+   `siteSettings` social fields, `src/components/Footer.astro`, `BaseLayout.astro` JSON-LD). If a needed
+   site feature is missing (e.g. social links not shown), record it as a build task.
+
+## Phase E (new): "Print and share" tool (QR codes)
+
+A Studio tool (and a Welcome card: "Make a QR code for my website") that lets her make QR codes without
+knowing what one is: pick where it should lead (Home, Request a quote, Style gallery, Thread colors,
+Clearance, her Google review link, her Facebook/Instagram page when set in Site settings), pick where she
+will put it (a hang tag, a business card, a flyer, a package insert, a sign), and get a clean print-ready
+image (SVG and PNG, with the brand seal at the centre only if error correction allows, a quiet-zone border,
+and a plain label such as "Scan to see my work") sized for that use, plus a one-line instruction on how big to
+print it. Each QR carries a tag in the link (utm_source=qr&utm_medium=<placement>&utm_campaign=<date or name>)
+so the site's analytics can show which placement worked. Generate client-side in the Studio (no network, no
+third-party QR service; add a small, vetted dependency or write the encoder; check the bundle impact and the
+Studio CSP), include a "test it with your phone" step, and keep copy in plain words.

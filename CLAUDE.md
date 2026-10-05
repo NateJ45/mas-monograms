@@ -19,9 +19,13 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 
 - Rules: `.claude/rules/atelier-engine.md` (engine), `design-system.md` (look), `site-routes.md` (routes
   and the quote query-string contract), `sanity-studio.md` (fields and seed scripts).
-- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28, with the
-  Heirloom Coast theme, the "Start Here" handbook and a task-first desk. A stale hosted copy may still
-  exist; see `docs/PENDING.md`.
+- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28. Being
+  rebuilt for her in phases (spec `docs/superpowers/specs/2026-10-05-studio-direction.md`). **Phase A
+  (2026-10-05):** a desk built around her jobs with an explicit id on every pane, a Welcome pane it opens
+  on, a first-visit tour, plain tool names, larger type, Releases and the Drafts menu off, Undo/Redo, a
+  "Published, 2 to 3 minutes" note, plain-language forms with no needless red errors (obsolete fields
+  hidden, data kept), badges, search weights and starting templates. Map and rules:
+  `.claude/rules/sanity-studio.md`. A stale hosted copy may still exist; see `docs/PENDING.md`.
 - Repo `NateJ45/mas-monograms` (private); merging to `main` deploys via **Cloudflare Workers Builds**.
 - Quote form: Cloudflare Email Service + Turnstile + R2 backup (live 2026-10-04).
 - **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build**
@@ -41,6 +45,7 @@ Run from the repo root. Node scripts are in `package.json`.
 - `npm run typegen`: after ANY schema change, then commit `src/lib/sanity.types.ts`
 - `npm run test:unit` (node tests), `npm test` (Playwright smoke/axe/reflow), `npm run format:check`
 - `npm run parity` (render parity), `npm run sync-check` (PORTABLE drift)
+- `npm run audit:studio`: read-only Studio audit (hidden-and-required, unknown keys, required-but-blank, banned words); must say "Studio is clean." after any schema change
 - Full-page screenshots for review: scroll through the page first or `[data-reveal]` bands capture blank (`docs/TESTING.md`)
 - `npm run deploy`: build + `wrangler deploy -c dist/server/wrangler.json`. Not the normal path.
 

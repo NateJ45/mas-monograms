@@ -114,10 +114,10 @@ export type FaqItem = {
     _type: 'block';
     _key: string;
   }>;
-  category?: 'Ordering' | 'Pricing' | 'Turnaround' | 'Shipping' | 'Items' | 'Design' | 'Care';
-  displayOrder?: number;
   showOnHowItWorks?: boolean;
   showOnPricing?: boolean;
+  category?: 'Ordering' | 'Pricing' | 'Turnaround' | 'Shipping' | 'Items' | 'Design' | 'Care';
+  displayOrder?: number;
 };
 
 export type SanityImageAssetReference = {
@@ -134,7 +134,7 @@ export type ClearanceItem = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  description?: string;
+  sold?: boolean;
   images?: Array<{
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -144,13 +144,13 @@ export type ClearanceItem = {
     _type: 'image';
     _key: string;
   }>;
-  originalPrice?: number;
+  description?: string;
   salePrice?: number;
+  originalPrice?: number;
   stripePaymentLink?: string;
   quantityAvailable?: number;
-  sold?: boolean;
-  featured?: boolean;
   displayOrder?: number;
+  featured?: boolean;
 };
 
 export type SanityImageCrop = {
@@ -176,13 +176,13 @@ export type PricingTier = {
   _updatedAt: string;
   _rev: string;
   label?: string;
-  minQuantity?: number;
-  maxQuantity?: number;
   pricePerPiece?: number;
   note?: string;
   highlighted?: boolean;
   highlightLabel?: string;
   displayOrder?: number;
+  minQuantity?: number;
+  maxQuantity?: number;
 };
 
 export type ItemCategoryReference = {
@@ -218,8 +218,8 @@ export type GalleryItem = {
   relatedFont?: FontReference;
   tags?: Array<string>;
   featured?: boolean;
-  displayOrder?: number;
   hoopFit?: 'good' | 'poor';
+  displayOrder?: number;
 };
 
 export type ThreadColor = {
@@ -229,9 +229,12 @@ export type ThreadColor = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  slug?: Slug;
   hexColor?: string;
+  colorFamily?:
+    'blue' | 'green' | 'red' | 'orange' | 'purple' | 'brown' | 'gray' | 'white' | 'metallic';
   dmcNumber?: string;
+  displayOrder?: number;
+  slug?: Slug;
   swatchImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -240,9 +243,6 @@ export type ThreadColor = {
     alt?: string;
     _type: 'image';
   };
-  colorFamily?:
-    'blue' | 'green' | 'red' | 'orange' | 'purple' | 'brown' | 'gray' | 'white' | 'metallic';
-  displayOrder?: number;
 };
 
 export type Slug = {
@@ -258,7 +258,6 @@ export type Font = {
   _updatedAt: string;
   _rev: string;
   name?: string;
-  slug?: Slug;
   previewImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -273,6 +272,7 @@ export type Font = {
   popular?: boolean;
   atelierStyle?: 'classic' | 'script' | 'block' | 'circle' | 'single';
   displayOrder?: number;
+  slug?: Slug;
 };
 
 export type NotFoundPage = {
@@ -281,14 +281,14 @@ export type NotFoundPage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
   headline?: string;
-  body?: string;
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  body?: string;
 };
 
 export type AtelierSettings = {
@@ -320,12 +320,12 @@ export type AtelierSettings = {
     _type: 'atelierFabric';
     _key: string;
   }>;
-  sampleMonograms?: Array<string>;
   replayLabel?: string;
   ctaLabel?: string;
   disclaimer?: string;
   pauseLabel?: string;
   playLabel?: string;
+  sampleMonograms?: Array<string>;
   heroTryLabel?: string;
   heroPlaceholder?: string;
 };
@@ -337,15 +337,30 @@ export type SiteSettings = {
   _updatedAt: string;
   _rev: string;
   title?: string;
-  tagline?: string;
-  email?: string;
   phone?: string;
+  email?: string;
   address?: {
     street?: string;
     city?: string;
     state?: string;
     zip?: string;
   };
+  serviceArea?: string;
+  openingHours?: Array<{
+    days?: Array<string>;
+    opens?: string;
+    closes?: string;
+    _type: 'hoursSpec';
+    _key: string;
+  }>;
+  socialLinks?: Array<{
+    platform?: 'Facebook' | 'Instagram' | 'Pinterest' | 'TikTok' | 'YouTube' | 'Other';
+    url?: string;
+    label?: string;
+    _type: 'socialLink';
+    _key: string;
+  }>;
+  tagline?: string;
   logo?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -354,18 +369,6 @@ export type SiteSettings = {
     alt?: string;
     _type: 'image';
   };
-  serviceArea?: string;
-  geo?: {
-    latitude?: number;
-    longitude?: number;
-  };
-  openingHours?: Array<{
-    days?: Array<string>;
-    opens?: string;
-    closes?: string;
-    _type: 'hoursSpec';
-    _key: string;
-  }>;
   navItems?: Array<
     | ({
         _key: string;
@@ -387,8 +390,15 @@ export type SiteSettings = {
         _key: string;
       }
   >;
+  headerCta?: {
+    show?: boolean;
+    label?: string;
+    link?: NavLink;
+  };
   quoteCtaLabel?: string;
   menuContactLabel?: string;
+  showEmail?: boolean;
+  showSocials?: boolean;
   footerColumns?: Array<{
     title?: string;
     links?: Array<
@@ -410,22 +420,7 @@ export type SiteSettings = {
       _key: string;
     } & NavLink
   >;
-  headerCta?: {
-    show?: boolean;
-    label?: string;
-    link?: NavLink;
-  };
-  showEmail?: boolean;
-  showSocials?: boolean;
   showFooterSocials?: boolean;
-  socialLinks?: Array<{
-    platform?: 'Facebook' | 'Instagram' | 'Pinterest' | 'TikTok' | 'YouTube' | 'Other';
-    url?: string;
-    label?: string;
-    _type: 'socialLink';
-    _key: string;
-  }>;
-  googleBusinessUrl?: string;
   footerCredit?: string;
   footerCreditUrl?: string;
   seoTitle?: string;
@@ -440,9 +435,14 @@ export type SiteSettings = {
   };
   businessType?: 'LocalBusiness' | 'Store' | 'ProfessionalService' | 'ClothingStore';
   priceRange?: '$' | '$$' | '$$$';
+  geo?: {
+    latitude?: number;
+    longitude?: number;
+  };
   standardTurnaround?: string;
   rushOrdersAvailable?: boolean;
   rushTurnaround?: string;
+  googleBusinessUrl?: string;
 };
 
 export type HomePageReference = {
@@ -558,10 +558,6 @@ export type LegalPage = {
   _updatedAt: string;
   _rev: string;
   title?: string;
-  slug?: Slug;
-  seoDescription?: string;
-  lastUpdated?: string;
-  lastUpdatedLabel?: string;
   body?: Array<{
     children?: Array<{
       marks?: Array<string>;
@@ -580,7 +576,11 @@ export type LegalPage = {
     _type: 'block';
     _key: string;
   }>;
+  lastUpdated?: string;
+  lastUpdatedLabel?: string;
+  slug?: Slug;
   displayOrder?: number;
+  seoDescription?: string;
 };
 
 export type ItemCategory = {
@@ -602,6 +602,7 @@ export type ItemCategory = {
     _type: 'image';
     _key: string;
   }>;
+  trustItems?: Array<string>;
   cardImage?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
@@ -610,8 +611,8 @@ export type ItemCategory = {
     alt?: string;
     _type: 'image';
   };
-  trustItems?: Array<string>;
   startingPrice?: string;
+  displayOrder?: number;
   ctaLabel?: string;
   galleryHeading?: string;
   requestSimilarLabel?: string;
@@ -619,8 +620,6 @@ export type ItemCategory = {
   bannerEyebrow?: string;
   bannerHeadline?: string;
   bannerSubhead?: string;
-  displayOrder?: number;
-  featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -631,6 +630,7 @@ export type ItemCategory = {
     alt?: string;
     _type: 'image';
   };
+  featured?: boolean;
 };
 
 export type ThankYouPage = {
@@ -639,7 +639,6 @@ export type ThankYouPage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  seoTitle?: string;
   eyebrow?: string;
   headline?: string;
   body?: Array<{
@@ -656,8 +655,8 @@ export type ThankYouPage = {
     _type: 'block';
     _key: string;
   }>;
-  expectedResponseTime?: string;
   responseTimeLabel?: string;
+  expectedResponseTime?: string;
   nextStepsLabel?: string;
   nextSteps?: Array<string>;
   image?: {
@@ -672,6 +671,7 @@ export type ThankYouPage = {
   ctaHref?: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
+  seoTitle?: string;
 };
 
 export type ClearancePage = {
@@ -680,16 +680,6 @@ export type ClearancePage = {
   _createdAt: string;
   _updatedAt: string;
   _rev: string;
-  seoTitle?: string;
-  seoDescription?: string;
-  seoImage?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -709,9 +699,9 @@ export type ClearancePage = {
   }>;
   paymentNote?: string;
   pickupNote?: string;
+  buyButtonLabel?: string;
   soldOutLabel?: string;
   quantityLeftLabel?: string;
-  buyButtonLabel?: string;
   emptyStateMessage?: string;
   emptyStateCtaLabel?: string;
   emptyStateCtaHref?: string;
@@ -722,14 +712,6 @@ export type ClearancePage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type ThreadChartPage = {
-  _id: string;
-  _type: 'threadChartPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -740,6 +722,14 @@ export type ThreadChartPage = {
     alt?: string;
     _type: 'image';
   };
+};
+
+export type ThreadChartPage = {
+  _id: string;
+  _type: 'threadChartPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -757,22 +747,14 @@ export type ThreadChartPage = {
     _type: 'block';
     _key: string;
   }>;
+  filterLabel?: string;
   matchingNote?: string;
   customColorNote?: string;
-  filterLabel?: string;
   ctaEyebrow?: string;
   ctaHeadline?: string;
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type FontGuidePage = {
-  _id: string;
-  _type: 'fontGuidePage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -783,6 +765,14 @@ export type FontGuidePage = {
     alt?: string;
     _type: 'image';
   };
+};
+
+export type FontGuidePage = {
+  _id: string;
+  _type: 'fontGuidePage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -810,14 +800,6 @@ export type FontGuidePage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type StyleGalleryPage = {
-  _id: string;
-  _type: 'styleGalleryPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -828,32 +810,34 @@ export type StyleGalleryPage = {
     alt?: string;
     _type: 'image';
   };
+};
+
+export type StyleGalleryPage = {
+  _id: string;
+  _type: 'styleGalleryPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
   introCtaLabel?: string;
-  filterAllLabel?: string;
-  additionalFilterTags?: Array<{
-    label?: string;
-    tag?: string;
-    _type: 'filterTag';
-    _key: string;
-  }>;
   filterGroups?: Array<{
     groupLabel?: string;
     tags?: Array<string>;
     _type: 'filterGroup';
     _key: string;
   }>;
-  emptyStateMessage?: string;
+  filterAllLabel?: string;
   filterToggleLabel?: string;
+  moreTagsLabel?: string;
+  lessTagsLabel?: string;
+  filterFallbackHeading?: string;
+  emptyStateMessage?: string;
+  filterGroupName?: string;
   resultsAnnouncement?: string;
   requestLabel?: string;
   fontCaption?: string;
-  filterGroupName?: string;
-  filterFallbackHeading?: string;
-  moreTagsLabel?: string;
-  lessTagsLabel?: string;
   lightboxLabel?: string;
   lightboxCloseLabel?: string;
   lightboxPrevLabel?: string;
@@ -863,14 +847,6 @@ export type StyleGalleryPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type ShopIndexPage = {
-  _id: string;
-  _type: 'shopIndexPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -881,6 +857,20 @@ export type ShopIndexPage = {
     alt?: string;
     _type: 'image';
   };
+  additionalFilterTags?: Array<{
+    label?: string;
+    tag?: string;
+    _type: 'filterTag';
+    _key: string;
+  }>;
+};
+
+export type ShopIndexPage = {
+  _id: string;
+  _type: 'shopIndexPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -890,14 +880,6 @@ export type ShopIndexPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type RequestAQuotePage = {
-  _id: string;
-  _type: 'requestAQuotePage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -908,6 +890,14 @@ export type RequestAQuotePage = {
     alt?: string;
     _type: 'image';
   };
+};
+
+export type RequestAQuotePage = {
+  _id: string;
+  _type: 'requestAQuotePage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -931,21 +921,10 @@ export type RequestAQuotePage = {
   }>;
   heroTrustItems?: Array<string>;
   turnaroundCallout?: string;
+  requiredFieldNote?: string;
   orderInfoHeading?: string;
-  personalInfoHeading?: string;
-  attachmentsHeading?: string;
-  additionalHeading?: string;
-  nameLabel?: string;
-  namePlaceholder?: string;
-  emailLabel?: string;
-  emailPlaceholder?: string;
-  emailHelp?: string;
-  phoneLabel?: string;
-  phonePlaceholder?: string;
-  phoneHelp?: string;
   itemTypeLabel?: string;
   itemTypeHelp?: string;
-  itemTypeOtherLabel?: string;
   ownershipLabel?: string;
   ownershipHelp?: string;
   itemDescriptionLabel?: string;
@@ -962,45 +941,26 @@ export type RequestAQuotePage = {
   quantityLabel?: string;
   quantityPlaceholder?: string;
   quantityHelp?: string;
-  monogramDetailsLabel?: string;
-  monogramDetailsPlaceholder?: string;
-  monogramDetailsHelp?: string;
-  placementLabel?: string;
-  placementPlaceholder?: string;
-  placementHelp?: string;
   fontPreferenceLabel?: string;
   fontPreferenceHelp?: string;
-  fontPreferenceGuideLinkLabel?: string;
-  fontPreferenceOtherLabel?: string;
-  colorPreferenceLabel?: string;
-  colorPreferencePlaceholder?: string;
-  colorPreferenceHelp?: string;
-  colorPreferenceChartLinkLabel?: string;
-  fileUploadLabel?: string;
-  fileUploadHelp?: string;
-  fileUploadAcceptedTypes?: string;
-  rushLabel?: string;
-  rushHelp?: string;
   neededByLabel?: string;
   neededByHelp?: string;
-  specialInstructionsLabel?: string;
-  specialInstructionsPlaceholder?: string;
-  specialInstructionsHelp?: string;
+  rushLabel?: string;
+  rushHelp?: string;
+  personalInfoHeading?: string;
+  nameLabel?: string;
+  namePlaceholder?: string;
+  emailLabel?: string;
+  emailPlaceholder?: string;
+  phoneLabel?: string;
+  phonePlaceholder?: string;
   referralLabel?: string;
   referralOptions?: Array<string>;
+  attachmentsHeading?: string;
+  additionalHeading?: string;
   submitLabel?: string;
   privacyNote?: string;
-  errorMessage?: string;
-  requiredFieldNote?: string;
   noScriptMessage?: string;
-};
-
-export type AboutPage = {
-  _id: string;
-  _type: 'aboutPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1011,10 +971,40 @@ export type AboutPage = {
     alt?: string;
     _type: 'image';
   };
+  emailHelp?: string;
+  phoneHelp?: string;
+  itemTypeOtherLabel?: string;
+  monogramDetailsLabel?: string;
+  monogramDetailsPlaceholder?: string;
+  monogramDetailsHelp?: string;
+  placementLabel?: string;
+  placementPlaceholder?: string;
+  placementHelp?: string;
+  fontPreferenceGuideLinkLabel?: string;
+  fontPreferenceOtherLabel?: string;
+  colorPreferenceLabel?: string;
+  colorPreferencePlaceholder?: string;
+  colorPreferenceHelp?: string;
+  colorPreferenceChartLinkLabel?: string;
+  fileUploadLabel?: string;
+  fileUploadHelp?: string;
+  fileUploadAcceptedTypes?: string;
+  specialInstructionsLabel?: string;
+  specialInstructionsPlaceholder?: string;
+  specialInstructionsHelp?: string;
+  errorMessage?: string;
+};
+
+export type AboutPage = {
+  _id: string;
+  _type: 'aboutPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
-  heroImage?: {
+  makerPhoto?: {
     asset?: SanityImageAssetReference;
     media?: unknown;
     hotspot?: SanityImageHotspot;
@@ -1022,6 +1012,7 @@ export type AboutPage = {
     alt?: string;
     _type: 'image';
   };
+  makerAttribution?: string;
   storyHeadline?: string;
   storyContent?: Array<{
     children?: Array<{
@@ -1042,15 +1033,6 @@ export type AboutPage = {
     _type: 'block';
     _key: string;
   }>;
-  makerPhoto?: {
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-  };
-  makerAttribution?: string;
   studioNote?: string;
   recentWorkHeadline?: string;
   valuesHeadline?: string;
@@ -1065,14 +1047,6 @@ export type AboutPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type PricingPage = {
-  _id: string;
-  _type: 'pricingPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1083,6 +1057,22 @@ export type PricingPage = {
     alt?: string;
     _type: 'image';
   };
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+};
+
+export type PricingPage = {
+  _id: string;
+  _type: 'pricingPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
@@ -1118,14 +1108,6 @@ export type PricingPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type HowItWorksPage = {
-  _id: string;
-  _type: 'howItWorksPage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1136,11 +1118,18 @@ export type HowItWorksPage = {
     alt?: string;
     _type: 'image';
   };
+};
+
+export type HowItWorksPage = {
+  _id: string;
+  _type: 'howItWorksPage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
   stepsHeadline?: string;
-  stepsSubhead?: string;
   steps?: Array<{
     number?: string;
     label?: string;
@@ -1176,14 +1165,6 @@ export type HowItWorksPage = {
   ctaSubhead?: string;
   ctaLabel?: string;
   ctaHref?: string;
-};
-
-export type HomePage = {
-  _id: string;
-  _type: 'homePage';
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
   seoTitle?: string;
   seoDescription?: string;
   seoImage?: {
@@ -1194,15 +1175,15 @@ export type HomePage = {
     alt?: string;
     _type: 'image';
   };
-  heroImages?: Array<{
-    asset?: SanityImageAssetReference;
-    media?: unknown;
-    hotspot?: SanityImageHotspot;
-    crop?: SanityImageCrop;
-    alt?: string;
-    _type: 'image';
-    _key: string;
-  }>;
+  stepsSubhead?: string;
+};
+
+export type HomePage = {
+  _id: string;
+  _type: 'homePage';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
   heroEyebrow?: string;
   heroHeadline?: string;
   heroItalicWord?: string;
@@ -1241,11 +1222,11 @@ export type HomePage = {
     alt?: string;
     _type: 'image';
   };
-  aboutCtaLabel?: string;
-  aboutCtaHref?: string;
   makerQuote?: string;
   makerSignature?: string;
   makerFacts?: Array<string>;
+  aboutCtaLabel?: string;
+  aboutCtaHref?: string;
   processEyebrow?: string;
   processHeadline?: string;
   processSubhead?: string;
@@ -1258,25 +1239,44 @@ export type HomePage = {
   }>;
   processCtaLabel?: string;
   processCtaHref?: string;
-  galleryEyebrow?: string;
-  galleryHeadline?: string;
-  gallerySubhead?: string;
-  galleryCtaLabel?: string;
-  galleryCtaHref?: string;
   wallEyebrow?: string;
   wallHeadline?: string;
   wallSubhead?: string;
   wallCtaLabel?: string;
-  ctaEyebrow?: string;
-  ctaHeadline?: string;
-  ctaSubhead?: string;
-  ctaLabel?: string;
-  ctaHref?: string;
   finalEyebrow?: string;
   finalHeadline?: string;
   finalSubhead?: string;
   finalCtaLabel?: string;
   finalCtaHref?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  heroImages?: Array<{
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+    _key: string;
+  }>;
+  galleryEyebrow?: string;
+  galleryHeadline?: string;
+  gallerySubhead?: string;
+  galleryCtaLabel?: string;
+  galleryCtaHref?: string;
+  ctaEyebrow?: string;
+  ctaHeadline?: string;
+  ctaSubhead?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
 };
 
 export type MediaTag = {

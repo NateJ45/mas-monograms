@@ -173,6 +173,12 @@ jobs:
         # 2026-08-28 this ALSO builds the embedded Studio at /studio.
         run: npm run build
 
+      # The preview route's LOCAL `?dev-draft=1` switch (drafts without the
+      # Studio cookie, for agents and screenshots against `astro dev`) sits
+      # behind `import.meta.env.DEV`. Prove the production bundle dropped it.
+      - name: Preview dev switch is not shipped
+        run: node scripts/check-preview-bypass.mjs dist/server
+
       # Every internal link in dist/client resolves. /studio, /preview and /api
       # are SSR (dist/server) or a bare React mount shell, so links into them
       # are skipped rather than followed.

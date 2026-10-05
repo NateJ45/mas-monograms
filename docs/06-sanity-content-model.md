@@ -11,15 +11,62 @@ Two principles the model follows:
 1. **Structure over freeform** where content repeats (steps, FAQ items, pricing tiers), so Mary Ann fills
    fields instead of formatting a blob and the front end renders consistently.
 2. **Singletons** for one-of-a-kind pages, **collections** for repeatable content, so the Studio stays
-   tidy. Singletons are enforced (not duplicable/deletable) in `the repo-root sanity.config.ts`.
+   tidy. Singletons are enforced (not duplicable/deletable) by `src/sanity/editorActions.ts`, wired in the repo-root `sanity.config.ts`.
+
+---
+
+## Mary Ann's Studio pass (2026-10-05, Phase A)
+
+Spec: `docs/superpowers/specs/2026-10-05-studio-direction.md`. What changed in the schema, all render-neutral
+(field NAMES are unchanged; no data was written):
+
+- **Titles, descriptions and messages are plain words**, written for Mary Ann: what the box is and where it
+  shows on the website, never "field", "slug", "schema", "URL", "CTA", `<em>` or an em-dash. The wording
+  every page repeats (Google title and description, share picture, headline lines, closing banner, photo
+  words) lives once in `src/sanity/schemaTypes/_copy.ts` and is spread into each literal `defineField`.
+  `scripts/audit-studio.mjs` check 5 keeps it that way.
+- **Fields are in page order** with at most six tabs per form, named after the parts of the page a visitor
+  sees ("Top of the page", "Item circles", "Closing banner at the bottom"...), and "Google and sharing" is
+  always last and collapsed. "All fields" stays the default tab (her 2026-07-03 request), so a form reads the
+  page top to bottom.
+- **Required means required for the page to work.** Only the page headlines, the collection essentials
+  (a photo of her work, a clearance item's name, photo, sale price and Stripe link, a question and its answer,
+  names, web addresses and colour codes) and the Monogram preview's control labels (no fallback in code) stay
+  required, each with a friendly message. Every length limit is a yellow warning, never a red error. Labels
+  with a fallback in code say what shows when they are left empty.
+- **Hidden, data kept** (the site no longer reads them): `homePage.heroImages` (it was required and showed a
+  red "No items"), `homePage.gallery*` (the old gallery band), `homePage.cta*` (shadowed: `FinalCta.astro`
+  reads `final*` first, all filled), `howItWorksPage.stepsSubhead`, `aboutPage.heroImage` (fallback for
+  `makerPhoto`, which is set), `styleGalleryPage.additionalFilterTags`, 21 old `requestAQuotePage` labels
+  (`emailHelp`, `phoneHelp`, `itemTypeOtherLabel`, `monogramDetails*`, `placementLabel/Placeholder/Help`,
+  `fontPreferenceGuideLinkLabel`, `fontPreferenceOtherLabel`, `colorPreference*`, `fileUpload*`,
+  `specialInstructions*`, `errorMessage`), `notFoundPage.body` (`404.astro` reads an undeclared `subhead`;
+  see `docs/PENDING.md`), `siteSettings.standardTurnaround` / `rushOrdersAvailable` / `rushTurnaround` /
+  `googleBusinessUrl`, `itemCategory.featured`, `threadColor.swatchImage`, `pricingTier.minQuantity` /
+  `maxQuantity`, `clearanceItem.featured`. A hidden field is still queried where it was; unhide it in the same
+  change that makes the page read it again.
+- **No longer required** (they were red marks on live documents): `font.previewImage` (10 of 18 fonts have no
+  photo; a font without one is simply left off the guide, and the "Needs a photo" badge says so),
+  `itemCategory.heroImages` / `cardImage` (the item page borrows gallery photos; "Bring Your Own Item" has
+  neither on purpose), and seven quote-form labels that were empty.
+- **Document type titles** are what she calls them: "Photo of my work" (`galleryItem`), "Clearance item",
+  "Price tag" (`pricingTier`), "Question and answer" (`faqItem`), "Shop category" (`itemCategory`), "Thread
+  color", "Embroidery font", "Legal page", "My business details" (`siteSettings`), "Monogram preview"
+  (`atelierSettings`), "Home page" and so on. Page previews carry a one-line subtitle (where the page lives).
+- **Search weights** (`__experimental_search`, PORTS card 34): name/question/label/photo words and tags on the
+  collections; headline and Google title on the 13 pages (applied in `schemaTypes/index.ts`).
+- **Starting templates** (`src/sanity/templates.ts`): "New photo of my work", "New clearance item", "New
+  question and answer", with [bracketed prompts] in her voice; a box still holding brackets gets a yellow note
+  (`bracketsLeft` in `_copy.ts`). Tested by `src/lib/studio-templates.test.ts`.
 
 ---
 
 ## Singletons
 
-**`siteSettings`** — global identity used in the header/footer and JSON-LD: title, tagline, email, phone,
-address, service area, opening hours, nav items, footer columns, social links, Google Business URL, SEO
-defaults, `businessType` (drives the LocalBusiness schema.org type), price range, and turnaround times.
+**`siteSettings`** ("My business details") — global identity used in the header/footer and JSON-LD: title,
+tagline, email, phone, address, service area, opening hours, nav items, footer columns, social links, SEO
+defaults, `businessType` (drives the LocalBusiness schema.org type) and price range. The turnaround fields
+and `googleBusinessUrl` are hidden since 2026-10-05 (nothing reads them).
 
 **Page singletons** — one per page, each holding all the words + images for that page:
 `homePage`, `howItWorksPage`, `pricingPage`, `aboutPage`, `requestAQuotePage`, `shopIndexPage`,
@@ -30,10 +77,10 @@ section `eyebrow`/`headline`/`subhead`; control labels (`initialsLabel`, `initia
 `threadLabel`, `fabricLabel`); `styles[]` (`key` is one of `classic|script|block|circle|single` and is fixed by
 the code, `label`, `blurb`); `fabrics[]` (`key`, `label`, `color` hex, `note`); `sampleMonograms[]` (made-up
 initials only, 1 to 3 letters); `replayLabel`, `ctaLabel`, `disclaimer` (the "preview, Mary Ann confirms the
-proof" line); `heroTryLabel`, `heroPlaceholder`. Desk: Website pages > "Monogram Preview (live stitching)".
+proof" line); `heroTryLabel`, `heroPlaceholder`. Desk: Pages on my website > "Monogram preview".
 Read with `getAtelierSettings()`. Seeded by `scripts/seed-atelier.mjs` (dry run by default, `--apply` to write;
-`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is registered in the `SINGLETON_TYPES`
-sets in both `src/sanity/structure.ts` and the repo-root `sanity.config.ts`, so the Studio cannot duplicate or delete it.
+`createIfNotExists` so a re-run never overwrites Mary Ann's edits). It is in `SINGLETON_TYPES` in
+`src/sanity/editorActions.ts` (since 2026-10-05 the one list), so the Studio cannot duplicate or delete it.
 
 **`homePage` additions (2026-10-04, all optional):** `marqueeEyebrow` (trust group), `categoriesNote`,
 `makerQuote` / `makerSignature` / `makerFacts[]` (about group), studio wall `wallEyebrow` / `wallHeadline` /
@@ -108,7 +155,9 @@ starter template and are gone.
 
 ## Studio-only helper singletons ("Start Here" handbook)
 
-Not rendered on the public site — they drive the onboarding handbook Mary Ann sees in the Studio:
+Not rendered on the public site. Since 2026-10-05 they sit under "Help (how do I...?) > Older guides (some
+parts are out of date)" in the desk, below the short answers pane; Phase B replaces them with a handbook held
+as repo data:
 
 - `studioGuide` — "How your website works" (site map + step-by-step how-tos + tip cards + optional video link).
 - `studioNotes` — the editable business notes behind "Your business at a glance".

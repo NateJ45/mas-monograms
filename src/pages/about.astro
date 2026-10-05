@@ -14,14 +14,26 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import HoopFrame from '@/components/motifs/HoopFrame.astro';
 import HangTag from '@/components/motifs/HangTag.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
-import { getSiteSettings, getAboutPage, getFeaturedGalleryItems } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { splitKeep, takeRun } from '@/lib/stega-text';
+import { editField, editItem, editOther } from '@/lib/edit-target';
+import { loadAbout, type PageProps, type AboutData } from '@/lib/page-data';
 import { isPoorHoopFit } from '@/lib/hoop';
 
-const [siteSettings, page, recentWork] = await Promise.all([
-  getSiteSettings(),
-  getAboutPage(),
-  getFeaturedGalleryItems(3),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<AboutData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadAbout()]);
+const { page, recentWork } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 // Round hoops: the query already leaves out photos marked hoopFit "poor"; the
 // check here keeps that true if the query is ever shared with a square view.
@@ -54,20 +66,20 @@ const blockText = (b: any) =>
     : '';
 const story: any[] = Array.isArray(page?.storyContent) ? page.storyContent : [];
 const quoteIdx = story.findIndex((b) => /^\s*[“"]/.test(blockText(b)));
-const pullQuote =
-  quoteIdx >= 0
-    ? blockText(story[quoteIdx])
-        .trim()
-        .replace(/^[“"]\s*/, '')
-        .replace(/\s*[”"]$/, '')
-    : null;
+// Stega-safe: the canvas's click-to-edit marker is taken off before the quote
+// marks are trimmed and put back after (src/lib/stega-text.ts).
+const quoteText = quoteIdx >= 0 ? takeRun(blockText(story[quoteIdx])) : null;
+const pullQuote = quoteText
+  ? quoteText.text
+      .trim()
+      .replace(/^[“"]\s*/, '')
+      .replace(/\s*[”"]$/, '') + quoteText.run
+  : null;
 const storyBody = quoteIdx >= 0 ? story.filter((_, i) => i !== quoteIdx) : story;
 
 // Facts: the hero eyebrow is already a "·"-separated list of true facts.
-const facts: string[] = (page?.heroEyebrow ?? '')
-  .split(/\s*[·•|]\s*/)
-  .map((s: string) => s.trim())
-  .filter(Boolean);
+// (splitKeep keeps the canvas's click-to-edit marker on the last fact.)
+const facts: string[] = splitKeep(page?.heroEyebrow, /\s*[·•|]\s*/);
 
 const values: any[] = (page?.values ?? []).filter((v: any) => v?.label);
 const TILTS = [-2.5, 2, -1, 3, -3, 1.5];
@@ -76,7 +88,7 @@ const hasPortrait = !!page?.makerPhoto?.asset || !!page?.heroImage?.asset;
 const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
 ---
 
-<BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
+<Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
   {/* Opening: the arched portrait. */}
   <section class="surface-linen about-hero py-section-lg" aria-labelledby="about-heading">
     <div
@@ -115,7 +127,12 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
 
       {
         hasPortrait && (
-          <figure class="arch" data-reveal="fade" style="--reveal-delay: 160ms">
+          <figure
+            class="arch"
+            data-reveal="fade"
+            style="--reveal-delay: 160ms"
+            data-sanity={editField(edit, page?.makerPhoto?.asset ? 'makerPhoto' : 'heroImage')}
+          >
             <div class="arch__frame">
               <div class="arch__photo">
                 <SanityImage
@@ -207,7 +224,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
           />
           <ul class="hoop-row mt-section-md" role="list" data-reveal-stagger="120">
             {recentWorkPhotos.map((item: any, i: number) => (
-              <li>
+              <li data-sanity={editOther(edit, item._id, 'galleryItem', 'image')}>
                 <HoopFrame image={item.image} size={300} tilt={[-3, 2, -1.5][i % 3]} />
               </li>
             ))}
@@ -231,7 +248,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
           />
           <ul class="value-tags mt-section-md" role="list" data-reveal-stagger="90">
             {values.map((v: any, i: number) => (
-              <li>
+              <li data-sanity={editItem(edit, 'values', v, i)}>
                 <HangTag
                   title={v.label}
                   titleTag="h3"
@@ -258,7 +275,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 
 <style>
   /* ---------- Facts ---------- */

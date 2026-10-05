@@ -27,10 +27,12 @@
 //
 // Three rules, each learned the hard way somewhere in the family:
 //
-//  1. PREVIEW SURFACES ONLY. The live site never renders these attributes: the
-//     static pages never call this helper. `npm run parity compare` is the gate
-//     on that promise, and it is why the preview surface is a separate route
-//     rather than a flag threaded through the real pages.
+//  1. PREVIEW SURFACES ONLY. The live site never renders these attributes.
+//     Since 2026-10-05 the page BODIES are shared between the live pages and
+//     the preview (src/components/pages/*Body.astro), so the bodies call these
+//     helpers through src/lib/edit-target.ts, which returns `undefined` (no
+//     attribute at all) unless the preview route handed the body an `edit`
+//     target. `npm run parity compare` is the gate on that promise.
 //  2. The attribute must sit on a REAL block box. The overlay outlines the
 //     element's rect, and a `display: contents` element has none.
 //  3. The field name must be the array the items actually live in. Point the
@@ -53,6 +55,7 @@ export type EditableArrayField =
   // homePage
   | 'trustItems'
   | 'processSteps'
+  | 'makerFacts'
   // howItWorksPage
   | 'steps'
   // pricingPage

@@ -29,6 +29,8 @@ interface Props {
   /** Skip the category line (a category page, where every photo shares it). */
   showCategory?: boolean;
   sizes?: string;
+  /** PREVIEW ONLY: `data-sanity` click target for this photo (src/lib/edit-target.ts). */
+  editAttr?: string;
 }
 
 const {
@@ -40,6 +42,7 @@ const {
   showRequest = true,
   showCategory = true,
   sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+  editAttr,
 } = Astro.props as Props;
 
 const TONES = ['paper', 'linen', 'blush', 'sage', 'kraft', 'paper', 'sage', 'blush'] as const;
@@ -55,7 +58,11 @@ const caption = [item?.relatedCategory?.name, fontLine].filter(Boolean).join(' Â
 const hasBody = !!(categoryName || fontName);
 ---
 
-<div class="gallery-item" data-tags={tags ? JSON.stringify(tags) : undefined}>
+<div
+  class="gallery-item"
+  data-tags={tags ? JSON.stringify(tags) : undefined}
+  data-sanity={editAttr}
+>
   {
     item?.image?.asset && (
       <SwatchCard tone={tone} tilt={tilt} interactive bodyClass="px-m pt-xs pb-m">

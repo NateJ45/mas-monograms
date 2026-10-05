@@ -19,13 +19,24 @@ import SectionHeading from '@/components/SectionHeading.astro';
 import ProcessStepIllustration from '@/components/ProcessStepIllustration.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { faqPageSchema } from '@/lib/schemas';
-import { getSiteSettings, getHowItWorksPage, getFaqItemsForHowItWorks } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/queries';
+import { editItem } from '@/lib/edit-target';
+import { loadHowItWorks, type PageProps, type HowItWorksData } from '@/lib/page-data';
 
-const [siteSettings, page, faqs] = await Promise.all([
-  getSiteSettings(),
-  getHowItWorksPage(),
-  getFaqItemsForHowItWorks(),
-]);
+// THE STUDIO'S CANVAS RENDERS THIS FILE TOO (2026-10-05, "Edit on the page").
+// src/pages/preview/[...slug].astro imports this page and passes `preview`:
+// draft data (stega on), the page document for photo and list click targets,
+// and PreviewLayout to draw it in. On the live site `preview` is absent, so the
+// page loads its published data and wears BaseLayout exactly as before
+// (`npm run parity compare` is the gate). One file, one markup: the canvas
+// cannot drift from the site.
+const { preview } = Astro.props as PageProps<HowItWorksData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadHowItWorks()]);
+const { page, faqs } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
 
 const title = page?.seoTitle ?? 'How It Works — MAS Monograms';
 const description =
@@ -62,13 +73,14 @@ if (heroSwash) {
   /* thread={false}: the stitched step path IS this page's thread; the global
     gold ThreadLine crossed it and read as two threads fighting. */
 }
-<BaseLayout
+<Layout
   {title}
   {description}
   seoImage={page?.seoImage}
   {siteSettings}
   schemas={pageSchemas}
   thread={false}
+  {...preview?.layoutProps}
 >
   {/* Intro: Midnight, the headline at display scale, and a stitched index of the steps. */}
   <section class="hiw-hero surface-midnight py-section-lg" aria-labelledby="hiw-heading">
@@ -180,6 +192,7 @@ if (heroSwash) {
                   id={`step-${i + 1}`}
                   class:list={['process-step', i % 2 === 1 && 'process-step--flip']}
                   data-pp-step
+                  data-sanity={editItem(edit, 'steps', step, i)}
                 >
                   <div class="process-step__node" data-pp-node>
                     <span class="process-step__num">{stepNum(step, i)}</span>
@@ -248,7 +261,7 @@ if (heroSwash) {
     ctaLabel={page?.ctaLabel}
     ctaHref={page?.ctaHref}
   />
-</BaseLayout>
+</Layout>
 
 <script>
   type Pt = { x: number; y: number };

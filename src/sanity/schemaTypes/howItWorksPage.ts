@@ -1,108 +1,87 @@
 // How It Works page singleton. Walks through the ordering process step by step.
+//
+// 2026-10-05, Mary Ann's Studio pass: fields in page order (top, the steps,
+// questions, closing banner) with Google last; only the headline is required;
+// plain titles from ./_copy.ts. `stepsSubhead` is hidden (the redesigned page
+// never draws it; the data is kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { ControlsIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BANNER_GROUP_TITLE,
+  BANNER_EYEBROW,
+  BANNER_HEADLINE,
+  BANNER_SUBHEAD,
+  BANNER_BUTTON,
+  BANNER_LINK,
+} from './_copy';
 
 export const howItWorksPage = defineType({
   name: 'howItWorksPage',
-  title: 'How It Works Page',
+  title: 'How It Works page',
   type: 'document',
   icon: ControlsIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'hero', title: 'Top of the page', default: true },
-    { name: 'steps', title: 'Steps' },
-    { name: 'faq', title: 'FAQ' },
-    { name: 'cta', title: 'Bottom banner' },
+    { name: 'hero', title: 'Top of the page' },
+    { name: 'steps', title: 'The steps' },
+    { name: 'faq', title: 'Questions' },
+    { name: 'cta', title: BANNER_GROUP_TITLE },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
-    // Hero
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'hero',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'hero',
     }),
 
-    // Steps intro
+    // ── The steps ────────────────────────────────────────────────────────────
     defineField({
       name: 'stepsHeadline',
-      title: 'Steps section headline',
+      title: 'Heading above the steps',
       type: 'string',
       group: 'steps',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
-    defineField({
-      name: 'stepsSubhead',
-      title: 'Steps section subhead (optional)',
-      type: 'text',
-      rows: 2,
-      group: 'steps',
-    }),
-
-    // Steps
     defineField({
       name: 'steps',
-      title: 'Process steps',
+      title: 'The steps',
       type: 'array',
       group: 'steps',
-      description: 'Ordered steps. Each one has a number, title, and description.',
+      description:
+        'Each step has a number, a name and a few sentences. Drag a step to change the order.',
       of: [
         defineArrayMember({
           type: 'object',
@@ -112,18 +91,17 @@ export const howItWorksPage = defineType({
               name: 'number',
               title: 'Step number',
               type: 'string',
-              description: 'E.g. "01"',
-              validation: (R) => R.required(),
+              description: 'For example "01".',
             }),
             defineField({
               name: 'label',
               title: 'Step name',
               type: 'string',
-              validation: (R) => R.required(),
+              validation: (R) => R.required().error('Please give this step a name.'),
             }),
             defineField({
               name: 'body',
-              title: 'Description',
+              title: 'What happens in this step',
               type: 'array',
               of: [
                 defineArrayMember({
@@ -138,83 +116,117 @@ export const howItWorksPage = defineType({
                   },
                 }),
               ],
-              validation: (R) => R.required(),
             }),
             defineField({
               name: 'image',
-              title: 'Step image (optional)',
+              title: 'Photo for this step',
               type: 'image',
+              description: 'Leave it empty to show a small stitched drawing instead.',
               options: { hotspot: true },
-              fields: [
-                defineField({
-                  name: 'alt',
-                  title: 'Photo description (helps screen readers & Google)',
-                  type: 'string',
-                }),
-              ],
+              fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
             }),
           ],
           preview: { select: { title: 'label', subtitle: 'number' } },
         }),
       ],
-      validation: (Rule) => Rule.required().min(2).max(8),
+      validation: (R) => R.max(8).warning('More than eight steps is a lot to read.'),
     }),
 
-    // FAQ section
+    // ── Questions ────────────────────────────────────────────────────────────
     defineField({
       name: 'faqHeadline',
-      title: 'FAQ section headline',
+      title: 'Heading above the questions',
       type: 'string',
       group: 'faq',
-      validation: (R) => R.required().max(100),
+      description:
+        'The questions themselves live in Questions and answers. Tick "Show on How It Works" on a question to show it here.',
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'faqSubhead',
-      title: 'FAQ intro note (optional)',
+      title: 'Line under the heading',
       type: 'text',
       rows: 2,
       group: 'faq',
-      description: 'One line under the heading. E.g. "More questions? Send me an email."',
+      description: 'For example "More questions? Send me an email." Leave it empty to hide it.',
     }),
 
-    // Final CTA
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
-      title: 'Small label above the banner',
+      ...BANNER_EYEBROW,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHeadline',
-      title: 'Banner headline',
+      ...BANNER_HEADLINE,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaSubhead',
-      title: 'Banner text (optional)',
+      ...BANNER_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'cta',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button text',
+      ...BANNER_BUTTON,
       type: 'string',
       group: 'cta',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Button link (where it goes)',
+      ...BANNER_LINK,
       type: 'string',
       group: 'cta',
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
+    }),
+
+    // ── Hidden: not on the redesigned page (data kept) ───────────────────────
+    defineField({
+      name: 'stepsSubhead',
+      title: 'Old line under the steps heading (not used)',
+      type: 'text',
+      rows: 2,
+      hidden: true,
     }),
   ],
-  preview: { prepare: () => ({ title: 'How It Works Page' }) },
+  preview: {
+    prepare: () => ({ title: 'How It Works page', subtitle: 'The page at /how-it-works' }),
+  },
 });

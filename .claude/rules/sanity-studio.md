@@ -36,11 +36,44 @@ generate`), not from a `studio/` workspace.
   localhost:4321 and the Studio at **localhost:4321/studio**; deploying the site deploys the
   Studio. For CLI work (`sanity dataset`, `sanity cors`, typegen) run `npx sanity ...` from
   the repo root; `sanity.cli.ts` configures it. Do **not** run `npx sanity deploy`.
-  The Studio theme is **Heirloom Coast** (`buildLegacyTheme` in the repo-root
-  `sanity.config.ts` — Linen/Ink/Indigo/Claret, matches the site; kept deliberately across
-  the Sanity 6 upgrade, see the file header). The "Start Here" handbook
-  (StudioGuide/BusinessOverview/BrandKit/StudioPlaybook, now in `src/sanity/components/`)
-  is what Mary Ann sees first — keep it current with the live site.
+  The Studio theme is **Heirloom Coast** (`buildLegacyTheme`, colours in `src/sanity/theme.ts`,
+  contrast-tested by `src/lib/studio-theme.test.ts`; kept deliberately across the Sanity 6
+  upgrade, see the `sanity.config.ts` header), with Mary Ann's larger type from `readableFonts()`.
+- **Mary Ann's Studio (2026-10-05, Phase A; spec `docs/superpowers/specs/2026-10-05-studio-direction.md`).**
+  The desk (`src/sanity/structure.ts`) is built around her JOBS: Welcome, Help (how do I...?), My business
+  details, Pages on my website (legal pages inside), Photos of my work (newest first), Clearance and prices,
+  Fonts, threads and categories, Questions and answers. **Every pane has an explicit `.id()`**, and the ids
+  anything links to live in `DESK` (`src/sanity/studioTargets.ts`); a derived id comes from the title and
+  breaks deep links (the Stone Steps lesson). `src/lib/studio-targets.test.ts` fails if a Welcome card points
+  at a pane the desk lacks or a builder call has no `.id()`.
+  - `StudioLayout.tsx` (registered as `studio.components.layout`) mounts the first-visit tour
+    (`StudioTour.tsx`, key `mas-studio-tour-v1`, replay event `mas-studio-tour-open`), sends an EMPTY desk to
+    the Welcome pane (`shouldOpenWelcome`, checked against sanity 6.9.1's router: tool state is scoped under
+    the tool name, open panes in `panes`), and hides the "Drafts" perspective menu with one CSS rule
+    (`[data-ui="ReleasesNav"]`; `releases: { enabled: false }` alone leaves it drawn).
+  - In-Studio links go through `useStudioLink()` (`components/studioLink.ts`): the embedded Studio is
+    hash-routed, so a plain `href="/studio/..."` leaves it. Targets: `{doc, field}`, `{pane}`, `{create,
+template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`.
+  - Config: tool titles "Edit my content" / "Edit on the page" / "My photo library" (set in the `tools`
+    resolver: sanity-plugin-media 5.0.11 has no title option); releases, scheduled drafts, scheduled
+    publishing, tasks, comments and announcements are OFF; the global "+" menu offers only the seven things
+    she makes (`CREATE_MENU`), and a reference box can never create a singleton (`creationContext.type ===
+'document'`, the fbcm fix).
+  - Document actions live in `src/sanity/editorActions.ts`: the singleton rules (`SINGLETON_TYPES`, the ONE
+    list now), the Publish note (`components/publishNote.tsx`: a toast once the publish has landed, "about 2
+    to 3 minutes"; no behaviour change), and Undo/Redo (PORTABLE `components/UndoRedo.tsx` + `undoRedo.ts`,
+    card 27, keyboard layer `undoRedoShortcuts()`).
+  - Badges (`components/documentBadges.tsx`): "Sold", "Needs a photo" (gallery photo, clearance item's first
+    photo, font), "Add a short description for Google" (the 10 pages with both SEO boxes).
+  - Schema wording rules and the hidden-field list: `docs/06-sanity-content-model.md` "Mary Ann's Studio
+    pass". Shared wording lives in `src/sanity/schemaTypes/_copy.ts`, spread into LITERAL
+    `defineField({ name: '...' })` calls (two checks read the schema files as text).
+  - **`npm run audit:studio`** (`scripts/audit-studio.mjs`, read-only GROQ): hidden-and-required fields,
+    non-string preview titles, stored keys the schema does not declare, required fields blank in live data,
+    and banned words (em-dash, `<em>`, slug, schema, field, document, URL, CTA...). Must print "Studio is
+    clean." after any schema change.
+  - The older "Start Here" guides (StudioGuide/BusinessOverview/BrandKit/StudioPlaybook) are under Help >
+    "Older guides (some parts are out of date)" until Phase B replaces them.
 - A note on `npx sanity build`: it writes to `./dist` by default, which would clobber the
   Astro build. The Studio is built by `astro build`, so there is no `studio:build` script.
   A standalone bundle needs an explicit dir: `npx sanity build .studio-dist`.
@@ -73,9 +106,8 @@ generate`), not from a `studio/` workspace.
   Seeded by **`scripts/seed-hoopfit.mjs`** (sanity-lib dry-run gate, setIfMissing on doc and draft, second
   `--apply` = 0 changes). Backup: `tmp/backups/production-2026-10-04-hoopfit.tar.gz`. Details in `docs/06`.
 - **Atelier content (2026-10-04).** `atelierSettings` is a new singleton (schema
-  `src/sanity/schemaTypes/atelierSettings.ts`, desk entry "Monogram Preview (live stitching)" under
-  Website pages, listed in both `SINGLETON_TYPES` sets: `src/sanity/structure.ts` and the repo-root
-  `sanity.config.ts`). It holds every word of the live preview: section copy, control labels,
+  `src/sanity/schemaTypes/atelierSettings.ts`, desk entry "Monogram preview" under
+  Pages on my website since 2026-10-05, in `SINGLETON_TYPES` in `src/sanity/editorActions.ts`). It holds every word of the live preview: section copy, control labels,
   `styles[]` (`key` is fixed by the code: classic, script, block, circle, single), `fabrics[]`
   (`key`, `label`, `color` hex, `note`), `sampleMonograms[]` (initials only, never real people's names),
   button labels, the "preview, Mary Ann confirms your proof" `disclaimer`, and the hero try-it words.

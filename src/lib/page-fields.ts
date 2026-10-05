@@ -38,27 +38,32 @@
 //   pick-a-word control would therefore be a lie about what the renderer does,
 //   so `heroItalicWord` gets a plain text card like any other line.
 //
-// What is left is the text card, on the lines the preview surface really
-// renders. That is a small result, and it is the honest one.
+// What is left is the text card, on every line of words the real pages render.
 //
 // -----------------------------------------------------------------------------
-// WHY THESE FIELD NAMES AND NO OTHERS
+// WHY THESE FIELD NAMES AND NO OTHERS (rewritten 2026-10-05, Phase C)
 // -----------------------------------------------------------------------------
-// Every page here is a fixed-field singleton, so a line is a TOP-LEVEL FIELD on
-// the page document and the studio path is just its name. Three rules decided
-// the list:
+// Since 2026-10-05 the canvas renders the REAL pages (the preview route renders
+// each page file itself, src/pages/preview/[...slug].astro), so every line Mary
+// Ann reads on her site is a line she can point at. Every page here is a
+// fixed-field singleton, so a line is a TOP-LEVEL FIELD on the page document
+// and the studio path is just its name. Three rules decided the list:
 //
-//   1. The field must be declared by at least one REGISTERED page singleton.
-//      `finalCtaHeadline`, which the preview route coalesces, is declared by no
-//      registered schema, so it is not here.
-//   2. The preview route must RENDER it. `ctaEyebrow` is a real field that the
-//      live CtaBanner draws, but the preview's closing band leaves it out, so
-//      there is no element for a card to hang on. Add it here on the day the
-//      preview band grows an eyebrow.
-//   3. `onTypes` lists the page types that declare it, and the card checks the
-//      document's own `_type` against that list. Carrying the field is a
-//      per-TYPE fact; `heroItalicWord` is on the home page only, and offering
-//      it anywhere else would write a field that page has no box for.
+//   1. The field must be declared by a REGISTERED page singleton, and be a
+//      plain line of words (string or text). Photos, lists and addresses are
+//      not text cards: photos and list items get click targets instead
+//      (src/lib/edit-target.ts), and addresses are edited in the form.
+//   2. The page must RENDER it as visible words. A field that only feeds an
+//      attribute (a placeholder, a screen-reader label, a template such as
+//      "{count} left") has no line for a card to hang on, so it is left to the
+//      form. Neither are obsolete fields a page no longer draws.
+//   3. `onTypes` lists the page types that both declare AND render it, and the
+//      card checks the document's own `_type` against that list. Carrying the
+//      field is a per-TYPE fact; `heroItalicWord` is on the home page only, and
+//      offering it anywhere else would write a field that page has no box for.
+//
+// src/lib/page-fields.test.ts checks all three against the schemas and the
+// page files, so the list cannot drift from what the pages draw.
 // =============================================================================
 
 // Explicit `.ts` extensions: the test command is bare Node
@@ -83,33 +88,6 @@ export const PAGE_TYPES: readonly string[] = [
   'notFoundPage',
 ];
 
-/** The ten pages that carry the shared `hero*` set. */
-const HERO_PAGES: readonly string[] = [
-  'homePage',
-  'howItWorksPage',
-  'pricingPage',
-  'aboutPage',
-  'requestAQuotePage',
-  'shopIndexPage',
-  'styleGalleryPage',
-  'fontGuidePage',
-  'threadChartPage',
-  'clearancePage',
-];
-
-/** The nine pages that carry the shared closing-banner set. */
-const BANNER_PAGES: readonly string[] = [
-  'homePage',
-  'howItWorksPage',
-  'pricingPage',
-  'aboutPage',
-  'shopIndexPage',
-  'styleGalleryPage',
-  'fontGuidePage',
-  'threadChartPage',
-  'clearancePage',
-];
-
 /** One line the card may edit. */
 export interface EditableLine {
   /** The field name, exactly as the schema declares it. */
@@ -127,28 +105,467 @@ export interface EditableLine {
 }
 
 /**
- * The registry, in the order the preview surface draws them: the hero from the
- * top down, then the closing banner.
+ * The registry: the hero lines first, then each page's own lines, then the
+ * closing banner shared by most pages. Labels are the words the card shows, in
+ * plain language.
  */
 export const EDITABLE_LINES: readonly EditableLine[] = [
-  { name: 'heroEyebrow', label: 'Small label above the heading', rows: 1, onTypes: HERO_PAGES },
+  {
+    name: 'heroEyebrow',
+    label: 'Small label above the heading',
+    rows: 1,
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'requestAQuotePage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+    ],
+  },
   { name: 'eyebrow', label: 'Small label above the heading', rows: 1, onTypes: ['thankYouPage'] },
-  { name: 'heroHeadline', label: 'Headline', rows: 2, onTypes: HERO_PAGES },
+  {
+    name: 'heroHeadline',
+    label: 'Headline',
+    rows: 2,
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'requestAQuotePage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+    ],
+  },
   { name: 'headline', label: 'Headline', rows: 2, onTypes: ['thankYouPage', 'notFoundPage'] },
-  { name: 'heroItalicWord', label: 'Word to slant (italic)', rows: 1, onTypes: ['homePage'] },
+  {
+    name: 'heroItalicWord',
+    label: 'Slanted words at the end of the headline',
+    rows: 1,
+    onTypes: ['homePage'],
+  },
   {
     name: 'heroSubhead',
     label: 'Short line under the heading',
     rows: 3,
-    onTypes: HERO_PAGES,
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'requestAQuotePage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+    ],
   },
-  { name: 'ctaHeadline', label: 'Banner headline', rows: 2, onTypes: BANNER_PAGES },
-  { name: 'ctaSubhead', label: 'Banner text', rows: 3, onTypes: BANNER_PAGES },
+  { name: 'heroPrimaryCtaLabel', label: 'First button', rows: 1, onTypes: ['homePage'] },
+  { name: 'heroSecondaryCtaLabel', label: 'Second button', rows: 1, onTypes: ['homePage'] },
+  {
+    name: 'marqueeEyebrow',
+    label: 'Label beside the moving list of items',
+    rows: 1,
+    onTypes: ['homePage'],
+  },
+  {
+    name: 'categoriesEyebrow',
+    label: 'Small label above the item types',
+    rows: 1,
+    onTypes: ['homePage'],
+  },
+  { name: 'categoriesHeadline', label: 'Item types heading', rows: 2, onTypes: ['homePage'] },
+  {
+    name: 'categoriesSubhead',
+    label: 'Line under the item types heading',
+    rows: 3,
+    onTypes: ['homePage'],
+  },
+  { name: 'categoriesNote', label: 'Note under the item types', rows: 2, onTypes: ['homePage'] },
+  {
+    name: 'aboutEyebrow',
+    label: 'Small label above your introduction',
+    rows: 1,
+    onTypes: ['homePage'],
+  },
+  { name: 'aboutHeadline', label: 'Introduction heading', rows: 2, onTypes: ['homePage'] },
+  { name: 'makerQuote', label: 'Your quote', rows: 3, onTypes: ['homePage'] },
+  { name: 'makerSignature', label: 'Your signature', rows: 1, onTypes: ['homePage'] },
+  { name: 'aboutCtaLabel', label: 'Introduction button', rows: 1, onTypes: ['homePage'] },
+  { name: 'processEyebrow', label: 'Small label above the steps', rows: 1, onTypes: ['homePage'] },
+  { name: 'processHeadline', label: 'Steps heading', rows: 2, onTypes: ['homePage'] },
+  { name: 'processSubhead', label: 'Line under the steps heading', rows: 3, onTypes: ['homePage'] },
+  { name: 'processCtaLabel', label: 'Steps button', rows: 1, onTypes: ['homePage'] },
+  {
+    name: 'wallEyebrow',
+    label: 'Small label above the photo wall',
+    rows: 1,
+    onTypes: ['homePage'],
+  },
+  { name: 'wallHeadline', label: 'Photo wall heading', rows: 2, onTypes: ['homePage'] },
+  {
+    name: 'wallSubhead',
+    label: 'Line under the photo wall heading',
+    rows: 3,
+    onTypes: ['homePage'],
+  },
+  { name: 'wallCtaLabel', label: 'Photo wall button', rows: 1, onTypes: ['homePage'] },
+  {
+    name: 'finalEyebrow',
+    label: 'Small label above the closing message',
+    rows: 1,
+    onTypes: ['homePage'],
+  },
+  { name: 'finalHeadline', label: 'Closing heading', rows: 2, onTypes: ['homePage'] },
+  { name: 'finalSubhead', label: 'Closing words', rows: 3, onTypes: ['homePage'] },
+  { name: 'finalCtaLabel', label: 'Closing button', rows: 1, onTypes: ['homePage'] },
+  { name: 'stepsHeadline', label: 'Steps heading', rows: 2, onTypes: ['howItWorksPage'] },
+  {
+    name: 'faqHeadline',
+    label: 'Questions heading',
+    rows: 2,
+    onTypes: ['howItWorksPage', 'pricingPage'],
+  },
+  {
+    name: 'faqSubhead',
+    label: 'Line under the questions heading',
+    rows: 3,
+    onTypes: ['howItWorksPage'],
+  },
+  { name: 'tiersHeadline', label: 'Prices heading', rows: 2, onTypes: ['pricingPage'] },
+  {
+    name: 'tiersSubhead',
+    label: 'Line under the prices heading',
+    rows: 3,
+    onTypes: ['pricingPage'],
+  },
+  {
+    name: 'tierPricePrefix',
+    label: 'Small word above each price',
+    rows: 1,
+    onTypes: ['pricingPage'],
+  },
+  { name: 'addonsHeadline', label: 'Add-ons heading', rows: 2, onTypes: ['pricingPage'] },
+  { name: 'rushHeadline', label: 'Rush orders heading', rows: 2, onTypes: ['pricingPage'] },
+  { name: 'makerAttribution', label: 'Your name under the photo', rows: 1, onTypes: ['aboutPage'] },
+  { name: 'storyHeadline', label: 'Story heading', rows: 1, onTypes: ['aboutPage'] },
+  { name: 'studioNote', label: 'Studio note', rows: 3, onTypes: ['aboutPage'] },
+  { name: 'recentWorkHeadline', label: 'Recent work heading', rows: 2, onTypes: ['aboutPage'] },
+  { name: 'valuesHeadline', label: 'Values heading', rows: 2, onTypes: ['aboutPage'] },
+  { name: 'turnaroundCallout', label: 'Turnaround note', rows: 2, onTypes: ['requestAQuotePage'] },
+  {
+    name: 'requiredFieldNote',
+    label: 'Note about required questions',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'orderInfoHeading',
+    label: 'Order section heading',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'personalInfoHeading',
+    label: 'Contact section heading',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'attachmentsHeading',
+    label: 'Photos section heading',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'additionalHeading',
+    label: 'Last section heading',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'itemTypeLabel',
+    label: 'Question: type of item',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'itemTypeHelp',
+    label: 'Help under: type of item',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'ownershipLabel',
+    label: 'Question: whose item',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'ownershipHelp',
+    label: 'Help under: whose item',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'itemDescriptionLabel',
+    label: 'Question: describe the item',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'itemDescriptionHelp',
+    label: 'Help under: describe the item',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'monogramStyleLabel',
+    label: 'Question: monogram style',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'monogramStyleHelp',
+    label: 'Help under: monogram style',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'placementSelectLabel',
+    label: 'Question: placement',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'placementSelectHelp',
+    label: 'Help under: placement',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  { name: 'sizeLabel', label: 'Question: size', rows: 1, onTypes: ['requestAQuotePage'] },
+  { name: 'sizeHelp', label: 'Help under: size', rows: 2, onTypes: ['requestAQuotePage'] },
+  {
+    name: 'threadCountLabel',
+    label: 'Question: thread colors',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'threadCountHelp',
+    label: 'Help under: thread colors',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  { name: 'quantityLabel', label: 'Question: how many', rows: 1, onTypes: ['requestAQuotePage'] },
+  { name: 'quantityHelp', label: 'Help under: how many', rows: 2, onTypes: ['requestAQuotePage'] },
+  {
+    name: 'fontPreferenceLabel',
+    label: 'Question: lettering',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  {
+    name: 'fontPreferenceHelp',
+    label: 'Help under: lettering',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  { name: 'neededByLabel', label: 'Question: needed by', rows: 1, onTypes: ['requestAQuotePage'] },
+  { name: 'neededByHelp', label: 'Help under: needed by', rows: 2, onTypes: ['requestAQuotePage'] },
+  { name: 'rushLabel', label: 'Question: rush order', rows: 1, onTypes: ['requestAQuotePage'] },
+  { name: 'rushHelp', label: 'Help under: rush order', rows: 2, onTypes: ['requestAQuotePage'] },
+  { name: 'nameLabel', label: 'Question: name', rows: 1, onTypes: ['requestAQuotePage'] },
+  { name: 'emailLabel', label: 'Question: email', rows: 1, onTypes: ['requestAQuotePage'] },
+  { name: 'phoneLabel', label: 'Question: phone', rows: 1, onTypes: ['requestAQuotePage'] },
+  {
+    name: 'referralLabel',
+    label: 'Question: how did you hear about us',
+    rows: 1,
+    onTypes: ['requestAQuotePage'],
+  },
+  { name: 'submitLabel', label: 'Send button', rows: 1, onTypes: ['requestAQuotePage'] },
+  {
+    name: 'privacyNote',
+    label: 'Privacy note under the button',
+    rows: 2,
+    onTypes: ['requestAQuotePage'],
+  },
+  { name: 'gridIntro', label: 'Line above the item types', rows: 3, onTypes: ['shopIndexPage'] },
+  {
+    name: 'introCtaLabel',
+    label: 'Button under the heading',
+    rows: 1,
+    onTypes: ['styleGalleryPage'],
+  },
+  {
+    name: 'filterAllLabel',
+    label: 'Show everything button',
+    rows: 1,
+    onTypes: ['styleGalleryPage'],
+  },
+  { name: 'filterToggleLabel', label: 'Filter button', rows: 1, onTypes: ['styleGalleryPage'] },
+  { name: 'lessTagsLabel', label: 'Show fewer button', rows: 1, onTypes: ['styleGalleryPage'] },
+  {
+    name: 'filterFallbackHeading',
+    label: 'Filter heading',
+    rows: 1,
+    onTypes: ['styleGalleryPage'],
+  },
+  {
+    name: 'emptyStateMessage',
+    label: 'Message when there is nothing to show',
+    rows: 2,
+    onTypes: ['styleGalleryPage', 'clearancePage'],
+  },
+  { name: 'requestLabel', label: 'Link under each photo', rows: 1, onTypes: ['styleGalleryPage'] },
+  {
+    name: 'fontGridEyebrow',
+    label: 'Small label above the lettering styles',
+    rows: 1,
+    onTypes: ['fontGuidePage'],
+  },
+  {
+    name: 'fontGridHeadline',
+    label: 'Lettering styles heading',
+    rows: 2,
+    onTypes: ['fontGuidePage'],
+  },
+  { name: 'popularLabel', label: 'Popular tag', rows: 1, onTypes: ['fontGuidePage'] },
+  { name: 'tryItLabel', label: 'Try it link', rows: 1, onTypes: ['fontGuidePage'] },
+  {
+    name: 'customFontNote',
+    label: 'Note about other lettering',
+    rows: 3,
+    onTypes: ['fontGuidePage'],
+  },
+  {
+    name: 'filterLabel',
+    label: 'Label above the search box',
+    rows: 1,
+    onTypes: ['threadChartPage'],
+  },
+  {
+    name: 'matchingNote',
+    label: 'Note about matching colors',
+    rows: 3,
+    onTypes: ['threadChartPage'],
+  },
+  {
+    name: 'customColorNote',
+    label: 'Note about other colors',
+    rows: 2,
+    onTypes: ['threadChartPage'],
+  },
+  { name: 'paymentNote', label: 'Payment note', rows: 2, onTypes: ['clearancePage'] },
+  { name: 'pickupNote', label: 'Pickup note', rows: 2, onTypes: ['clearancePage'] },
+  { name: 'buyButtonLabel', label: 'Buy button', rows: 1, onTypes: ['clearancePage'] },
+  { name: 'soldOutLabel', label: 'Sold out label', rows: 1, onTypes: ['clearancePage'] },
+  {
+    name: 'emptyStateCtaLabel',
+    label: 'Button when nothing is for sale',
+    rows: 1,
+    onTypes: ['clearancePage'],
+  },
+  {
+    name: 'emptyStateSecondaryLabel',
+    label: 'Second button when nothing is for sale',
+    rows: 1,
+    onTypes: ['clearancePage'],
+  },
+  {
+    name: 'responseTimeLabel',
+    label: 'Label above the reply time',
+    rows: 1,
+    onTypes: ['thankYouPage'],
+  },
+  { name: 'expectedResponseTime', label: 'Reply time', rows: 1, onTypes: ['thankYouPage'] },
+  {
+    name: 'nextStepsLabel',
+    label: 'Label above what happens next',
+    rows: 1,
+    onTypes: ['thankYouPage'],
+  },
+  {
+    name: 'secondaryCtaLabel',
+    label: 'Second button',
+    rows: 1,
+    onTypes: ['thankYouPage', 'notFoundPage'],
+  },
+  { name: 'primaryCtaLabel', label: 'First button', rows: 1, onTypes: ['notFoundPage'] },
+  {
+    name: 'ctaEyebrow',
+    label: 'Small label above the banner',
+    rows: 1,
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+    ],
+  },
+  {
+    name: 'ctaHeadline',
+    label: 'Banner headline',
+    rows: 2,
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+    ],
+  },
+  {
+    name: 'ctaSubhead',
+    label: 'Banner text',
+    rows: 3,
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+    ],
+  },
   {
     name: 'ctaLabel',
     label: 'Button text',
     rows: 1,
-    onTypes: [...BANNER_PAGES, 'thankYouPage'],
+    onTypes: [
+      'homePage',
+      'howItWorksPage',
+      'pricingPage',
+      'aboutPage',
+      'shopIndexPage',
+      'styleGalleryPage',
+      'fontGuidePage',
+      'threadChartPage',
+      'clearancePage',
+      'thankYouPage',
+    ],
   },
 ];
 
@@ -187,9 +604,9 @@ export type OverlayControl = 'text';
  * nothing and the host's own overlay is left exactly as it was.
  *
  * A path with more than one segment is never offered. Every line here is a
- * top-level field on the page document; anything deeper is an array item, and
- * the preview draws those as a plain list rather than as the real page, so a
- * card there would promise an edit against markup the live site never renders.
+ * top-level field on the page document; anything deeper is an array item, which
+ * the host overlay already opens in the form when it is clicked, and which gets
+ * the in-canvas list controls from its `data-sanity` target.
  */
 export function overlayControlsForPath(path?: string | null): OverlayControl[] {
   const segments = parseSanityPath(path);

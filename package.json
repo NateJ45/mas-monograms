@@ -24,6 +24,7 @@
     "free-dist": "node scripts/free-dist.mjs",
     "parity": "node scripts/page-parity.mjs",
     "sync-check": "node scripts/sync-check.mjs",
+    "audit:studio": "node scripts/audit-studio.mjs",
     "lighthouse": "npm run build && npx lhci autorun",
     "test": "playwright test",
     "test:ui": "playwright test --ui",

@@ -4,6 +4,18 @@
 
 import { sanityFetch } from './sanity';
 
+/**
+ * How a query reaches Sanity. Every page getter below defaults to `sanityFetch`
+ * (published, build time). The draft preview passes its own (src/lib/page-data.ts
+ * `previewFetcher`), so the "Edit on the page" canvas runs the SAME GROQ as the
+ * live page and hands the shared page bodies data of the same shape.
+ */
+export type Fetcher = <T>(
+  query: string,
+  params: Record<string, unknown>,
+  fallback: T,
+) => Promise<T>;
+
 // Reusable image projection — expands the asset reference and coalesces alt text.
 const IMG = `{
   asset->,
@@ -115,8 +127,8 @@ export function getSiteSettings(): Promise<any> {
 
 // ─── Home Page ──────────────────────────────────────────────────────────────
 
-export function getHomePage(): Promise<any> {
-  return sanityFetch(
+export function getHomePage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "homePage"][0]{
       seoTitle,
       seoDescription,
@@ -148,7 +160,7 @@ export function getHomePage(): Promise<any> {
       processEyebrow,
       processHeadline,
       processSubhead,
-      processSteps[] { number, label, body },
+      processSteps[] { _key, number, label, body },
       processCtaLabel,
       processCtaHref,
       galleryEyebrow,
@@ -204,8 +216,8 @@ export interface AtelierSettings {
   playLabel?: string;
 }
 
-export function getAtelierSettings(): Promise<AtelierSettings | null> {
-  return sanityFetch<AtelierSettings | null>(
+export function getAtelierSettings(fetch: Fetcher = sanityFetch): Promise<AtelierSettings | null> {
+  return fetch<AtelierSettings | null>(
     `*[_type == "atelierSettings"][0]{
       eyebrow,
       headline,
@@ -233,8 +245,8 @@ export function getAtelierSettings(): Promise<AtelierSettings | null> {
 
 // ─── How It Works Page ──────────────────────────────────────────────────────
 
-export function getHowItWorksPage(): Promise<any> {
-  return sanityFetch(
+export function getHowItWorksPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "howItWorksPage"][0]{
       seoTitle,
       seoDescription,
@@ -244,6 +256,7 @@ export function getHowItWorksPage(): Promise<any> {
       heroSubhead,
       stepsHeadline,
       steps[] {
+        _key,
         number,
         label,
         body ${PT_BODY},
@@ -264,8 +277,8 @@ export function getHowItWorksPage(): Promise<any> {
 
 // ─── Pricing Page ───────────────────────────────────────────────────────────
 
-export function getPricingPage(): Promise<any> {
-  return sanityFetch(
+export function getPricingPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "pricingPage"][0]{
       seoTitle,
       seoDescription,
@@ -277,7 +290,7 @@ export function getPricingPage(): Promise<any> {
       tiersSubhead,
       tierPricePrefix,
       addonsHeadline,
-      addons[] { label, price, note },
+      addons[] { _key, label, price, note },
       rushHeadline,
       rushBody ${PT_BODY},
       faqHeadline,
@@ -294,8 +307,8 @@ export function getPricingPage(): Promise<any> {
 
 // ─── About Page ─────────────────────────────────────────────────────────────
 
-export function getAboutPage(): Promise<any> {
-  return sanityFetch(
+export function getAboutPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "aboutPage"][0]{
       seoTitle,
       seoDescription,
@@ -311,7 +324,7 @@ export function getAboutPage(): Promise<any> {
       studioNote,
       recentWorkHeadline,
       valuesHeadline,
-      values[] { label, body },
+      values[] { _key, label, body },
       ctaEyebrow,
       ctaHeadline,
       ctaSubhead,
@@ -325,8 +338,8 @@ export function getAboutPage(): Promise<any> {
 
 // ─── Request a Quote Page ───────────────────────────────────────────────────
 
-export function getRequestAQuotePage(): Promise<any> {
-  return sanityFetch(
+export function getRequestAQuotePage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "requestAQuotePage"][0]{
       seoTitle,
       seoDescription,
@@ -407,8 +420,8 @@ export function getRequestAQuotePage(): Promise<any> {
 
 // ─── Shop Index Page ────────────────────────────────────────────────────────
 
-export function getShopIndexPage(): Promise<any> {
-  return sanityFetch(
+export function getShopIndexPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "shopIndexPage"][0]{
       seoTitle,
       seoDescription,
@@ -430,8 +443,8 @@ export function getShopIndexPage(): Promise<any> {
 
 // ─── Item Categories ────────────────────────────────────────────────────────
 
-export function getAllItemCategories(): Promise<any[]> {
-  return sanityFetch(
+export function getAllItemCategories(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "itemCategory"] | order(displayOrder asc){
       _id,
       name,
@@ -451,8 +464,8 @@ export function getAllItemCategories(): Promise<any[]> {
   );
 }
 
-export function getItemCategoryBySlug(slug: string): Promise<any> {
-  return sanityFetch(
+export function getItemCategoryBySlug(slug: string, fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "itemCategory" && slug.current == $slug][0]{
       _id,
       name,
@@ -480,8 +493,8 @@ export function getItemCategoryBySlug(slug: string): Promise<any> {
 
 // ─── Style Gallery Page ─────────────────────────────────────────────────────
 
-export function getStyleGalleryPage(): Promise<any> {
-  return sanityFetch(
+export function getStyleGalleryPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "styleGalleryPage"][0]{
       seoTitle,
       seoDescription,
@@ -517,8 +530,8 @@ export function getStyleGalleryPage(): Promise<any> {
   );
 }
 
-export function getAllGalleryItems(): Promise<any[]> {
-  return sanityFetch(
+export function getAllGalleryItems(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "galleryItem"] | order(displayOrder asc){
       _id,
       image ${IMG_HOOP},
@@ -536,8 +549,8 @@ export function getAllGalleryItems(): Promise<any[]> {
 
 // ─── Font Guide Page ────────────────────────────────────────────────────────
 
-export function getFontGuidePage(): Promise<any> {
-  return sanityFetch(
+export function getFontGuidePage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "fontGuidePage"][0]{
       seoTitle,
       seoDescription,
@@ -562,8 +575,8 @@ export function getFontGuidePage(): Promise<any> {
   );
 }
 
-export function getAllFonts(): Promise<any[]> {
-  return sanityFetch(
+export function getAllFonts(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "font"] | order(displayOrder asc){
       _id,
       name,
@@ -583,8 +596,8 @@ export function getAllFonts(): Promise<any[]> {
 
 // ─── Thread Color Chart Page ─────────────────────────────────────────────────
 
-export function getThreadChartPage(): Promise<any> {
-  return sanityFetch(
+export function getThreadChartPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "threadChartPage"][0]{
       seoTitle,
       seoDescription,
@@ -607,8 +620,8 @@ export function getThreadChartPage(): Promise<any> {
   );
 }
 
-export function getAllThreadColors(): Promise<any[]> {
-  return sanityFetch(
+export function getAllThreadColors(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "threadColor"] | order(colorFamily asc, displayOrder asc){
       _id,
       name,
@@ -626,8 +639,8 @@ export function getAllThreadColors(): Promise<any[]> {
 
 // ─── Clearance Page ──────────────────────────────────────────────────────────
 
-export function getClearancePage(): Promise<any> {
-  return sanityFetch(
+export function getClearancePage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "clearancePage"][0]{
       seoTitle,
       seoDescription,
@@ -657,8 +670,8 @@ export function getClearancePage(): Promise<any> {
   );
 }
 
-export function getAllClearanceItems(): Promise<any[]> {
-  return sanityFetch(
+export function getAllClearanceItems(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "clearanceItem"] | order(displayOrder asc){
       _id,
       name,
@@ -679,8 +692,8 @@ export function getAllClearanceItems(): Promise<any[]> {
 
 // ─── Thank You Page ──────────────────────────────────────────────────────────
 
-export function getThankYouPage(): Promise<any> {
-  return sanityFetch(
+export function getThankYouPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "thankYouPage"][0]{
       seoTitle,
       seoDescription,
@@ -704,8 +717,8 @@ export function getThankYouPage(): Promise<any> {
 
 // ─── 404 Page ────────────────────────────────────────────────────────────────
 
-export function getNotFoundPage(): Promise<any> {
-  return sanityFetch(
+export function getNotFoundPage(fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
     `*[_type == "notFoundPage"][0]{
       seoTitle,
       seoDescription,
@@ -723,8 +736,8 @@ export function getNotFoundPage(): Promise<any> {
 
 // ─── Pricing Tiers ───────────────────────────────────────────────────────────
 
-export function getAllPricingTiers(): Promise<any[]> {
-  return sanityFetch(
+export function getAllPricingTiers(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "pricingTier"] | order(displayOrder asc){
       _id,
       label,
@@ -743,8 +756,8 @@ export function getAllPricingTiers(): Promise<any[]> {
 
 // ─── FAQ Items ───────────────────────────────────────────────────────────────
 
-export function getFaqItemsForHowItWorks(): Promise<any[]> {
-  return sanityFetch(
+export function getFaqItemsForHowItWorks(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "faqItem" && showOnHowItWorks == true] | order(displayOrder asc){
       _id,
       question,
@@ -757,8 +770,8 @@ export function getFaqItemsForHowItWorks(): Promise<any[]> {
   );
 }
 
-export function getFaqItemsForPricing(): Promise<any[]> {
-  return sanityFetch(
+export function getFaqItemsForPricing(fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "faqItem" && showOnPricing == true] | order(displayOrder asc){
       _id,
       question,
@@ -801,8 +814,8 @@ export function getLegalPageBySlug(slug: string): Promise<any> {
 // Used by /about's "recent work" hoops, so photos marked hoopFit "poor" are left
 // out here (they cannot make a good round crop). Add a parameter if a square
 // view ever needs every featured photo.
-export function getFeaturedGalleryItems(limit = 9): Promise<any[]> {
-  return sanityFetch(
+export function getFeaturedGalleryItems(limit = 9, fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "galleryItem" && featured == true && hoopFit != "poor"] | order(displayOrder asc)[0...$limit]{
       _id,
       hoopFit,
@@ -823,8 +836,8 @@ export function getFeaturedGalleryItems(limit = 9): Promise<any[]> {
 // hotspot set, so `hotspot` and `crop` come back null and callers must default
 // to the centre.
 
-export function getGalleryItemsForWall(limit = 12): Promise<any[]> {
-  return sanityFetch(
+export function getGalleryItemsForWall(limit = 12, fetch: Fetcher = sanityFetch): Promise<any[]> {
+  return fetch(
     `*[_type == "galleryItem" && defined(image.asset)] | order(featured desc, displayOrder asc)[0...$limit]{
       _id,
       featured,

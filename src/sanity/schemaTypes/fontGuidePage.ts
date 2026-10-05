@@ -1,90 +1,76 @@
 // Font & Lettering Guide page singleton. The font cards come from the font
-// collection. This singleton controls the page heading, intro, and guide copy.
+// collection. This singleton holds the heading, intro and the words around
+// the cards.
+//
+// 2026-10-05, Mary Ann's Studio pass: page order with Google last, only the
+// headline required, plain titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { TextIcon } from '@sanity/icons';
+import {
+  SEO_FIELDSET,
+  SEO_GROUP,
+  SEO_TITLE,
+  SEO_TITLE_TOO_LONG,
+  SEO_DESCRIPTION,
+  SEO_DESCRIPTION_TOO_LONG,
+  SEO_IMAGE,
+  PHOTO_WORDS,
+  HERO_EYEBROW,
+  HERO_HEADLINE,
+  HEADLINE_NEEDED,
+  HERO_SUBHEAD,
+  TOO_LONG,
+  BANNER_GROUP_TITLE,
+  BANNER_EYEBROW,
+  BANNER_HEADLINE,
+  BANNER_SUBHEAD,
+  BANNER_BUTTON,
+  BANNER_LINK,
+} from './_copy';
 
 export const fontGuidePage = defineType({
   name: 'fontGuidePage',
-  title: 'Font & Lettering Guide Page',
+  title: 'Font and Lettering Guide page',
   type: 'document',
   icon: TextIcon,
   options: { canvasApp: { exclude: true } },
   groups: [
-    { name: 'seo', title: 'Google & sharing' },
-    { name: 'page', title: 'Page content', default: true },
-    { name: 'cta', title: 'CTA' },
+    { name: 'page', title: 'Top of the page' },
+    { name: 'fonts', title: 'The font cards' },
+    { name: 'cta', title: BANNER_GROUP_TITLE },
+    SEO_GROUP,
   ],
-  fieldsets: [
-    {
-      name: 'seo',
-      title: 'Google & sharing — you rarely need to touch this',
-      options: { collapsible: true, collapsed: true },
-    },
-  ],
+  fieldsets: [SEO_FIELDSET],
   fields: [
-    defineField({
-      name: 'seoTitle',
-      title: 'Google & browser-tab title',
-      type: 'string',
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(60).warning('Over 60 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoDescription',
-      title: 'Google search description',
-      type: 'text',
-      rows: 3,
-      group: 'seo',
-      fieldset: 'seo',
-      validation: (R) => R.max(160).warning('Over 160 chars may be cut off.'),
-    }),
-    defineField({
-      name: 'seoImage',
-      title: 'Photo shown when the page is shared',
-      type: 'image',
-      group: 'seo',
-      fieldset: 'seo',
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: 'alt',
-          title: 'Photo description (helps screen readers & Google)',
-          type: 'string',
-        }),
-      ],
-    }),
-
+    // ── Top of the page ──────────────────────────────────────────────────────
     defineField({
       name: 'heroEyebrow',
-      title: 'Small label above the heading',
+      ...HERO_EYEBROW,
       type: 'string',
       group: 'page',
-      validation: (R) => R.required().max(80),
+      validation: (R) => R.max(80).warning(TOO_LONG),
     }),
     defineField({
       name: 'heroHeadline',
-      title: 'Headline',
+      ...HERO_HEADLINE,
       type: 'string',
       group: 'page',
-      validation: (R) => R.required().max(100),
+      validation: (R) => [R.required().error(HEADLINE_NEEDED), R.max(100).warning(TOO_LONG)],
     }),
     defineField({
       name: 'heroSubhead',
-      title: 'Short line under the heading (optional)',
+      ...HERO_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'page',
     }),
-
     defineField({
       name: 'intro',
-      title: 'Intro (before the font grid)',
+      title: 'Your note before the fonts',
       type: 'array',
       group: 'page',
-      description:
-        'One to two paragraphs introducing the fonts. Tips on choosing a style work well here.',
+      description: 'One or two short paragraphs, for example tips on choosing a style.',
       of: [
         defineArrayMember({
           type: 'block',
@@ -104,88 +90,121 @@ export const fontGuidePage = defineType({
       ],
     }),
 
+    // ── The font cards ───────────────────────────────────────────────────────
     defineField({
       name: 'fontGridEyebrow',
-      title: 'Font grid section eyebrow',
+      title: 'Small line above the font cards',
       type: 'string',
-      group: 'page',
-      description: 'Label above the grid of font cards.',
-      validation: (R) => R.required().max(60),
+      group: 'fonts',
+      description:
+        'The fonts themselves are in Fonts, threads and categories. A font only shows here once it has a photo.',
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'fontGridHeadline',
-      title: 'Font grid section headline',
+      title: 'Heading above the font cards',
       type: 'string',
-      group: 'page',
-      validation: (R) => R.required().max(100),
+      group: 'fonts',
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
-
     defineField({
       name: 'popularLabel',
-      title: 'Badge on popular fonts (optional)',
+      title: 'Badge on popular fonts',
       type: 'string',
-      group: 'page',
+      group: 'fonts',
       description:
-        'Shown on every font marked "Popular pick", e.g. "Popular". Leave blank for no badge.',
-      validation: (R) => R.max(30),
+        'Shown on every font marked as a popular pick, for example "Popular". Leave it empty for no badge.',
+      validation: (R) => R.max(30).warning(TOO_LONG),
     }),
     defineField({
       name: 'tryItLabel',
-      title: '"Try it" link text (optional)',
+      title: '"Try it" link on a font card',
       type: 'string',
-      group: 'page',
+      group: 'fonts',
       description:
-        'The link on a font card that opens the Monogram Preview with a matching style, e.g. "Try this style". Only fonts with a "Closest style" set get the link. Leave blank to hide the links.',
-      validation: (R) => R.max(40),
+        'Opens the monogram preview on your home page with a matching style, for example "Try this style". Only fonts with a closest style picked get the link. Leave it empty to hide the links.',
+      validation: (R) => R.max(40).warning(TOO_LONG),
     }),
-
     defineField({
       name: 'customFontNote',
-      title: 'Custom font note (optional)',
+      title: 'Note about fonts that are not shown',
       type: 'text',
       rows: 2,
-      group: 'page',
+      group: 'fonts',
       description:
-        'Note about requesting a font not shown in the guide. E.g. "Don\'t see the style you want? Contact me."',
+        'For example "Don\'t see the style you want? Just ask." Leave it empty to hide it.',
     }),
 
+    // ── Closing banner ───────────────────────────────────────────────────────
     defineField({
       name: 'ctaEyebrow',
-      title: 'Small label above the banner',
+      ...BANNER_EYEBROW,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(60),
+      validation: (R) => R.max(60).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHeadline',
-      title: 'Banner headline',
+      ...BANNER_HEADLINE,
       type: 'string',
       group: 'cta',
-      validation: (R) => R.required().max(100),
+      validation: (R) => R.max(100).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaSubhead',
-      title: 'Banner text (optional)',
+      ...BANNER_SUBHEAD,
       type: 'text',
       rows: 2,
       group: 'cta',
     }),
     defineField({
       name: 'ctaLabel',
-      title: 'Button text',
+      ...BANNER_BUTTON,
       type: 'string',
       group: 'cta',
       initialValue: 'Request a Quote',
-      validation: (R) => R.required().max(50),
+      validation: (R) => R.max(50).warning(TOO_LONG),
     }),
     defineField({
       name: 'ctaHref',
-      title: 'Button link (where it goes)',
+      ...BANNER_LINK,
       type: 'string',
       group: 'cta',
       initialValue: '/request-a-quote',
-      validation: (R) => R.required(),
+    }),
+
+    // ── Google and sharing ───────────────────────────────────────────────────
+    defineField({
+      name: 'seoTitle',
+      ...SEO_TITLE,
+      type: 'string',
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(60).warning(SEO_TITLE_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoDescription',
+      ...SEO_DESCRIPTION,
+      type: 'text',
+      rows: 3,
+      group: 'seo',
+      fieldset: 'seo',
+      validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
+    }),
+    defineField({
+      name: 'seoImage',
+      ...SEO_IMAGE,
+      type: 'image',
+      group: 'seo',
+      fieldset: 'seo',
+      options: { hotspot: true },
+      fields: [defineField({ name: 'alt', ...PHOTO_WORDS, type: 'string' })],
     }),
   ],
-  preview: { prepare: () => ({ title: 'Font & Lettering Guide Page' }) },
+  preview: {
+    prepare: () => ({
+      title: 'Font and Lettering Guide page',
+      subtitle: 'The page at /font-lettering-guide',
+    }),
+  },
 });
