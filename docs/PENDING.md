@@ -9,9 +9,12 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: needs a human (Nathan or Mary Ann)
 
-- **Click-check Phase D (Trash, drag order, share link, Google preview, locked addresses; 2026-10-05) in the
-  signed-in browser.** Verified by types, lint, unit tests, audit, a scratch build and parity 23/23 (live data
-  already carries the ranks), not by clicking. The full click list is in the Phase D notes of
+- **Click-check Phase D (drag order, Google preview, locked addresses; 2026-10-05) in the signed-in browser.**
+  Done on the live Studio 2026-10-05 with a throwaway draft FAQ (since discarded): Move to Trash (confirm,
+  atomic move to `trashedItem`) and Bring it back (restored, Trash row gone), and "Copy a link..." (shows
+  "link copied", writes a `share-link` preview secret). NOT done: dragging a row (Chrome automation cannot
+  drive the sortable's pointer events, so a person must try it), Google preview, locked addresses. Verified
+  otherwise by types, lint, unit tests, audit, a scratch build and parity 23/23. The full click list is in the Phase D notes of
   `.claude/rules/sanity-studio.md`; the essentials: a test photo moved to Trash shows the confirm, leaves the
   list and appears in "Trash (bring things back)"; "Bring it back" returns it to the same place; "Delete
   forever" asks twice; dragging a row in "Photos of my work" sticks after a reload and the menu shows only the
@@ -63,8 +66,8 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   Overview and "Edit notes" tabs and the new "Who to ask for help" box. "What needs attention" opens from the
   desk, the Welcome card and the top-bar tool, shows "All clear" or cards with working buttons, and lists no
   Sanity system records as unpublished changes. "How the website works" is gone from the desk.
-- **Fill in "Who to ask for help"** (Help > My notes > Edit notes, `studioNotes.helpContact`): the name and
-  email or phone Mary Ann should use. Empty, the Help page says "the person who built your website".
+- **"Who to ask for help"** is set (2026-10-05): "Nathan Nixon, nathanjnixon86@gmail.com", published, and the
+  live Help page shows it. Add a phone number there if Nathan wants her to be able to call.
 - **Tell Mary Ann her editor moved** and move her bookmark to `<site>/studio`. (The old "Start Here" guide
   patch, `scripts/patch-studio-guide-presentation.mjs`, is moot since 2026-10-05: the `studioGuide` page is
   no longer on the desk; the repo handbook in `src/sanity/guides` replaced it. The document is kept.)
@@ -89,9 +92,9 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   purpose, so change them together with the Sanity titles if the separator changes.
 - **Review the font-to-style mapping** (`font.atelierStyle`, chosen by Claude on 2026-10-04 in
   `scripts/seed-pending-fields.mjs`).
-- **Get found: Nathan's parts (2026-10-05, from the handbook).** Add Mary Ann's Google account
-  (mastone37@gmail.com) to the Search Console Domain property (Owner if Google Business Profile's instant
-  "verify with Search Console" is to work for her, else Restricted), and as a Viewer on GA4 property
+- **Get found: Nathan's parts (2026-10-05, from the handbook).** Done: mastone37@gmail.com is on the Search
+  Console Domain property with **Full** permission (2026-10-05). Google Business Profile's instant "verify
+  with Search Console" needs Owner, so promote her only if that route is wanted. Still open: a Viewer on GA4 property
   557338771 if she should see visits herself (the `is-it-working` guide says "Nathan can show you"). When
   Pinterest asks to claim the site, add its TXT record in Cloudflare DNS (no code change). Do the Google
   Business Profile and Apple Business setup with her on a call (both may need a video or a business paper).
