@@ -19,13 +19,17 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 
 - Rules: `.claude/rules/atelier-engine.md` (engine), `design-system.md` (look), `site-routes.md` (routes
   and the quote query-string contract), `sanity-studio.md` (fields and seed scripts).
-- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28. Being
-  rebuilt for her in phases (spec `docs/superpowers/specs/2026-10-05-studio-direction.md`). **Phase A
-  (2026-10-05):** a desk built around her jobs with an explicit id on every pane, a Welcome pane it opens
-  on, a first-visit tour, plain tool names, larger type, Releases and the Drafts menu off, Undo/Redo, a
-  "Published, 2 to 3 minutes" note, plain-language forms with no needless red errors (obsolete fields
-  hidden, data kept), badges, search weights and starting templates. Map and rules:
-  `.claude/rules/sanity-studio.md`. A stale hosted copy may still exist; see `docs/PENDING.md`.
+- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28. Rebuilt for
+  her 2026-10-05 (PR #85, spec `docs/superpowers/specs/2026-10-05-studio-direction.md`, phases A to F all
+  live): Welcome pane and first-visit tour, a desk built around her jobs (explicit pane ids), plain-language
+  forms, Edit on the real pages, a repo-data handbook (`src/sanity/guides`: 26 editing + 18 Get found
+  guides), "What needs attention", a QR tool, a brand kit with ZIP, Trash instead of Delete, drag-to-reorder,
+  Google preview, share link, locked addresses. **Publish goes live in 2 to 3 minutes** through a Sanity
+  webhook ("Rebuild live site") to a Cloudflare deploy hook ("Sanity content publish"), wired 2026-10-05
+  (`docs/08`); before that nothing she published ever deployed. Nathan is the Help-page contact
+  (`studioNotes.helpContact`). Map and rules: `.claude/rules/sanity-studio.md`. Run `npm run audit:studio`
+  and `npm run audit:data` after any schema change or seed script. A stale hosted copy may still exist;
+  see `docs/PENDING.md`.
 - Repo `NateJ45/mas-monograms` (private); merging to `main` deploys via **Cloudflare Workers Builds**.
 - Quote form: Cloudflare Email Service + Turnstile + R2 backup (live 2026-10-04).
 - **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build**
