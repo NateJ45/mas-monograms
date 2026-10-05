@@ -34,6 +34,8 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 - **Audit-fix pass (2026-10-04, branch `chore/audit-fixes`):** phone-menu scroll fix, compositor-only header
   morph, Fraunces italic subsets (LCP 3.38 to 3.01s on `/`), text-step/radius/wood tokens (detector src
   findings 257 to 0), Heirloom Coast quote emails. What remains is in `docs/PENDING.md`.
+- **Pill blur fix (2026-10-05, branch `fix/pill-blur`):** the scrolled pill is now frosted glass; the
+  header's view-transition name had made it a backdrop root (gotcha 16 in `.claude/rules/design-system.md`).
 - **Logo, header and footer rework (2026-10-04, branch `redesign/header-logo`).** New logo system in
   blue and gold: the **Hoop Seal** (a script S sewn through a roman M and A, in embroidery hoops) is
   the brand mark and the **Signature Thread** wordmark the horizontal lockup; both drawn by

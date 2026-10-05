@@ -167,6 +167,17 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
     layout shift for the snap. Pieces move with `translate`/`scale` from offsets in container units
     (`.site-header` is `container-type: inline-size`); the pill is `.site-header__ground`'s `clip-path`.
     The brand's `::after` is its hit area and focus ring (the link itself is `pointer-events: none`).
+    **Never make `<header>` a backdrop root** (2026-10-05). A `backdrop-filter` blurs the image of its
+    nearest ANCESTOR backdrop root: the root, or any element with `filter`, `opacity` < 1, `mask`,
+    `clip-path`, `backdrop-filter`, `mix-blend-mode`, a `will-change` of those, or a
+    `view-transition-name`. `view-transition-name: site-header` on `<header>` kept the pill's glass
+    blurring nothing for its whole life (bisected in Chromium: removing only that flipped stripe energy
+    under the pill from 31.9 to 0.16; clip-path on the glass ITSELF is harmless). The router now pins
+    the row (`site-header`, carrying the stitch as `__bar::before`), the glass (`site-header-glass`) and
+    the shadow (`site-header-pill`) as siblings, old snapshots `display: none`. `tests/header.spec.ts`
+    walks the glass's ancestors for every trigger and checks stripes behind the pill come out blurred.
+    Playwright's Windows WebKit never paints `backdrop-filter` (not even on a bare page), so frosting can
+    only be proven in Chromium on this PC; real Safari renders it via `-webkit-backdrop-filter`.
 17. **A scroll box paints its own texture** (2026-10-04, phone menu). A `.surface-*` ground is a
     `::before` the size of the box's first screen; inside a scroll container it scrolls away and leaves a
     flat strip. Put `texture-*` on the scroll box with `background-attachment: local`, size it `100dvh`,
