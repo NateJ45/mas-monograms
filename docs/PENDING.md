@@ -94,8 +94,7 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   `scripts/seed-pending-fields.mjs`).
 - **Get found: Nathan's parts (2026-10-05, from the handbook).** Done: mastone37@gmail.com is on the Search
   Console Domain property with **Full** permission (2026-10-05). Google Business Profile's instant "verify
-  with Search Console" needs Owner, so promote her only if that route is wanted. Still open: a Viewer on GA4 property
-  557338771 if she should see visits herself (the `is-it-working` guide says "Nathan can show you"). When
+  with Search Console" needs Owner, so promote her only if that route is wanted. Done: she is a Viewer on GA4 property 557338771 (2026-10-05, no invitation email sent) (the `is-it-working` guide says "Nathan can show you"). When
   Pinterest asks to claim the site, add its TXT record in Cloudflare DNS (no code change). Do the Google
   Business Profile and Apple Business setup with her on a call (both may need a video or a business paper).
 
