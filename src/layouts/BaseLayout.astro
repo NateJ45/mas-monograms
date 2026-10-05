@@ -3,7 +3,7 @@
 // Site-wide layout. Provides:
 //   - <html lang>, document head, OG/Twitter meta
 //   - Fraunces / Mulish / Petemoss fonts (loaded via @fontsource in globals.css)
-//   - Cloudflare Web Analytics beacon (conditional)
+//   - <Analytics />: Cloudflare Web Analytics beacon + GA4, each conditional
 //   - Astro View Transitions <ClientRouter />
 //   - Skip-to-main link, Header, <main id="main">, Footer
 //   - BackToTop React island
@@ -16,6 +16,7 @@ import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
 import { getActiveAnnouncement, getAllLegalPages, getAllClearanceItems } from '@/lib/queries';
+import Analytics from '@/components/Analytics.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
@@ -113,9 +114,6 @@ const fullTitle =
 // Auto-inject LocalBusiness on every page when siteSettings is available.
 // Pages can still pass their own additional schemas (Service, FAQPage, BreadcrumbList).
 const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas] : schemas;
-
-// Cloudflare Web Analytics token — only render the beacon when present.
-const cfToken = import.meta.env.PUBLIC_CF_ANALYTICS_TOKEN;
 
 // Optional site-wide announcement banner (Announcement collection in Sanity).
 // Fetched here once so every page gets it without each page running its own
@@ -244,16 +242,15 @@ const announcementStyle =
     {/* JSON-LD (LocalBusiness auto-injected from siteSettings + per-page schemas) */}
     {allSchemas.map((json) => <script type="application/ld+json" set:html={json} />)}
 
-    {/* Cloudflare Web Analytics — conditional, no cookie banner needed. */}
     {
-      cfToken && (
-        <script
-          defer
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon={`{"token": "${cfToken}"}`}
-        />
-      )
+      /*
+      Analytics: the Cloudflare beacon and GA4, each conditional on its own build
+      variable and each a silent no-op when unset. The beacon is cookieless; GA4
+      sets first-party _ga cookies, so turning it on needs a privacy policy
+      disclosure. See src/components/Analytics.astro.
+    */
     }
+    <Analytics />
 
     <ClientRouter />
   </head>

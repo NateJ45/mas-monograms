@@ -52,6 +52,8 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
   a few image gaps (About portrait, OG images), quote-form secrets + R2 bucket. Full checklist +
   env-var matrix in `docs/08-deployment-and-status.md`.
 
+- **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build** variable in Cloudflare Workers Builds (`G-JTX5TMPVQ0`, property 557338771; never put it in `ci.yml`). It fires only on `mas-monograms.com`. The Privacy page names Google Analytics and its cookies; keep it true. `docs/08`.
+
 ## Commands
 
 Run from the repo root. Node scripts are in `package.json`.

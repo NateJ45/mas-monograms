@@ -88,6 +88,19 @@ Read during `npm run build`. Required for the site to pull content:
 | `SANITY_API_READ_TOKEN`     | Viewer token from sanity.io/manage | **yes**                    |
 | `PUBLIC_TURNSTILE_SITE_KEY` | Turnstile site key                 | no (embedded in form HTML) |
 | `PUBLIC_CF_ANALYTICS_TOKEN` | optional                           | no                         |
+| `PUBLIC_GA_ID`              | optional (GA4 Measurement ID)      | no                         |
+
+**Analytics (GA4 live since 2026-10-04).** `src/components/Analytics.astro` (PORTABLE, rendered from
+`BaseLayout.astro`) renders the Cloudflare beacon only when `PUBLIC_CF_ANALYTICS_TOKEN` is set (it is
+not) and GA4 only when `PUBLIC_GA_ID` matches `G-[A-Z0-9]+`. `PUBLIC_GA_ID` is set to `G-JTX5TMPVQ0`
+(GA4 property 557338771, in the Nixon Creative Studio account) as a **build** variable in Cloudflare
+Workers Builds; it is inlined at build time, so a runtime variable does nothing. GA4 fires only on
+`mas-monograms.com` and `www.`, so localhost and `*.workers.dev` never file hits. GA4 sets `_ga`
+cookies, and the Privacy page in Sanity (`legalPage` "privacy", mirrored in `scripts/seed-legal.mjs`)
+says so; if GA4 is ever removed, change that sentence back. The id is deliberately not in `ci.yml`
+(starter PORTS card 54). To check it is alive, look for the id in the live home page HTML. Search
+Console: `mas-monograms.com` is a verified Domain property (DNS TXT record in Cloudflare; do not
+remove it).
 
 ### Runtime secrets (the Worker's Variables & Secrets, or `wrangler secret put`)
 
