@@ -242,7 +242,13 @@ const pageSchemas = [
           </div>
           <div class="columns-2 gap-m sm:columns-3 lg:columns-4">
             {relatedGallery.map((item: any, i: number) => (
-              <GallerySwatch item={item} index={i + 1} showRequest={false} showCategory={false} />
+              <GallerySwatch
+                item={item}
+                index={i + 1}
+                fontCaption={galleryPage?.fontCaption}
+                showRequest={false}
+                showCategory={false}
+              />
             ))}
           </div>
           {/* Photo → quote bridge: turn "I like this" into an action, with the

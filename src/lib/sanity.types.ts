@@ -831,6 +831,7 @@ export type StyleGalleryPage = {
   heroEyebrow?: string;
   heroHeadline?: string;
   heroSubhead?: string;
+  introCtaLabel?: string;
   filterAllLabel?: string;
   additionalFilterTags?: Array<{
     label?: string;
@@ -848,6 +849,11 @@ export type StyleGalleryPage = {
   filterToggleLabel?: string;
   resultsAnnouncement?: string;
   requestLabel?: string;
+  fontCaption?: string;
+  filterGroupName?: string;
+  filterFallbackHeading?: string;
+  moreTagsLabel?: string;
+  lessTagsLabel?: string;
   lightboxLabel?: string;
   lightboxCloseLabel?: string;
   lightboxPrevLabel?: string;

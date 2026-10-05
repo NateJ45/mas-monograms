@@ -77,7 +77,7 @@ export const thankYouPage = defineType({
       title: 'Expected response time',
       type: 'string',
       group: 'content',
-      description: 'E.g. "I respond to all requests within 1–2 business days."',
+      description: 'E.g. "I respond to every request within 1 business day."',
       validation: (R) => R.required(),
     }),
     defineField({

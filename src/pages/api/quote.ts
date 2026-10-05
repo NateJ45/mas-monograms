@@ -12,6 +12,12 @@
  */
 
 import type { APIContext } from 'astro';
+import {
+  buildCustomerEmail,
+  buildOwnerEmail,
+  type EmailContext,
+  type QuoteSubmission,
+} from '@/lib/quote-email';
 
 export const prerender = false;
 
@@ -203,122 +209,40 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   // "Thank you" for a quote Mary Ann was not told about. If the owner email is
   // not configured or fails, say so (502) so the form shows its error state.
   if (!env.EMAIL || !env.QUOTE_OWNER_EMAIL) {
-    console.error('Email not configured — missing EMAIL binding or QUOTE_OWNER_EMAIL');
+    console.error('Email not configured: missing EMAIL binding or QUOTE_OWNER_EMAIL');
     return jsonError('We could not send your request. Please email us directly.', 502);
   }
 
-  // All values below originate from the public form, so every interpolation
-  // into email HTML must be escaped to prevent HTML/attribute injection into
-  // Mary Ann's (and the customer's) inbox. escapeHtml() handles the raw fields;
-  // multi-line fields escape FIRST, then swap newlines for <br/>.
-  const eName = escapeHtml(name);
-  const eEmail = escapeHtml(email);
-  const ePhone = escapeHtml(phone);
-  const eReferral = escapeHtml(referral);
-  const eItemType = escapeHtml(itemType);
-  const eOwnership = escapeHtml(ownership);
-  const eItemDescription = escapeHtml(itemDescription);
-  const eQuantity = escapeHtml(quantity);
-  const eMonogramStyle = escapeHtml(monogramStyle);
-  const ePlacement = escapeHtml(placement);
-  const eSize = escapeHtml(size);
-  const eThreadCount = escapeHtml(threadCount);
-  const eFontPreference = escapeHtml(fontPreference);
-  const eThreadColor = escapeHtml(threadColor);
-  const eNeededBy = escapeHtml(neededBy);
-  const ePersonalization = escapeHtml(personalization);
-  const eNotes = escapeHtml(notes);
-
-  const attachmentRows = attachments.length
-    ? `<p style="margin:0 0 10px;"><strong style="color:#0f1b2d;">Attachments:</strong> ${attachments.map((f) => escapeHtml(f.name)).join(', ')}</p>`
-    : '';
-
-  // Both bodies wear Heirloom Coast in inline styles (email clients ignore stylesheets):
-  // a Linen ground, a Paper card with a soft border, Midnight and Indigo headings in a
-  // serif, Ink text, a dashed brass hairline between sections, Brass for the small meta
-  // line, Claret only for the one thing that needs emphasis (a rush). Every submitted
-  // value is still escaped above; htmlToText() makes the plain-text twin from the same HTML.
-  const S = {
-    body: 'margin:0;padding:0;background-color:#f4eee3;',
-    wrap: 'max-width:600px;margin:0 auto;padding:24px 16px;',
-    card: 'background-color:#fbf8f1;border:1px solid #d8cfbc;padding:28px 24px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#26312e;',
-    h2: 'margin:0 0 14px;font-family:Georgia,Times New Roman,serif;font-size:24px;font-weight:normal;line-height:1.25;color:#0f1b2d;',
-    h3: 'margin:0 0 10px;font-family:Georgia,Times New Roman,serif;font-size:18px;font-weight:normal;line-height:1.3;color:#28486b;',
-    p: 'margin:0 0 10px;',
-    label: 'color:#0f1b2d;',
-    link: 'color:#28486b;',
-    hr: 'border:0;border-top:1px dashed #b98a3e;margin:20px 0;',
-    meta: 'margin:0;font-size:12px;line-height:1.5;color:#835a24;',
-    em: 'color:#8c3a2e;font-weight:bold;',
+  // The bodies are built (and every form value escaped) in src/lib/quote-email.ts.
+  const submission: QuoteSubmission = {
+    submissionId,
+    submittedAt: new Date(),
+    name,
+    email,
+    phone,
+    referral,
+    itemType,
+    ownership,
+    itemDescription,
+    quantity,
+    personalization,
+    monogramStyle,
+    placement,
+    size,
+    threadCount,
+    fontPreference,
+    threadColor,
+    neededBy,
+    isRush,
+    isGift: isGift === 'yes',
+    notes,
+    attachmentNames: attachments.map((f) => f.name),
   };
-  const hr = `<hr style="${S.hr}"/>`;
-  // A question label ("Owns the item?") takes no colon, as before.
-  const row = (label: string, value: string) =>
-    `<p style="${S.p}"><strong style="${S.label}">${label}${label.endsWith('?') ? '' : ':'}</strong> ${value}</p>`;
-  const shell = (inner: string) => `
-<!DOCTYPE html><html><body style="${S.body}"><div style="${S.wrap}"><div style="${S.card}">
-${inner}
-</div></div></body></html>
-`;
-
-  const ownerHtml = shell(`
-<h2 style="${S.h2}">New quote request</h2>
-${row('Submission ID', submissionId)}
-${row('Date', new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }))}
-${hr}
-<h3 style="${S.h3}">Contact</h3>
-${row('Name', eName)}
-${row('Email', `<a href="mailto:${eEmail}" style="${S.link}">${eEmail}</a>`)}
-${row('Phone', ePhone)}
-${eReferral ? row('How they heard about us', eReferral) : ''}
-${hr}
-<h3 style="${S.h3}">Item</h3>
-${row('Item Type', eItemType)}
-${row('Owns the item?', eOwnership)}
-${eItemDescription ? row('Item Description', eItemDescription) : ''}
-${eQuantity ? row('Quantity', eQuantity) : ''}
-${hr}
-<h3 style="${S.h3}">Monogram Spec</h3>
-<p style="${S.p}"><strong style="${S.label}">Personalization:</strong><br/>${ePersonalization.replace(/\n/g, '<br/>')}</p>
-${row('Monogram Style', eMonogramStyle)}
-${row('Placement', ePlacement)}
-${row('Approximate Size', eSize)}
-${row('Number of Thread Colors', eThreadCount)}
-${eFontPreference ? row('Font Preference', eFontPreference) : ''}
-${eThreadColor ? row('Thread Color Preference', eThreadColor) : ''}
-${hr}
-<h3 style="${S.h3}">Logistics</h3>
-${eNeededBy ? row('Needed By', eNeededBy) : ''}
-${row('Rush?', isRush ? `<span style="${S.em}">Yes, rush requested</span>` : 'No')}
-${row('Gift?', isGift === 'yes' ? 'Yes' : 'No')}
-${eNotes ? `<p style="${S.p}"><strong style="${S.label}">Notes:</strong><br/>${eNotes.replace(/\n/g, '<br/>')}</p>` : ''}
-${attachmentRows}
-${hr}
-<p style="${S.meta}">Reply directly to this email to respond to the customer.</p>
-`);
-
-  const customerHtml = shell(`
-<h2 style="${S.h2}">We received your quote request!</h2>
-<p style="${S.p}">Hi ${eName},</p>
-<p style="${S.p}">Thank you for reaching out to MAS Monograms! Mary Ann has received your request and will be in touch within 1–2 business days to discuss your order.</p>
-${hr}
-<h3 style="${S.h3}">What you submitted</h3>
-${row('Item', `${eItemType}${eQuantity ? ` (Qty: ${eQuantity})` : ''}`)}
-${row('Do you own the item?', eOwnership)}
-${eItemDescription ? row('Item description', eItemDescription) : ''}
-${row('Personalization', ePersonalization)}
-${row('Monogram style', eMonogramStyle)}
-${row('Placement', ePlacement)}
-${row('Approximate size', eSize)}
-${row('Number of thread colors', eThreadCount)}
-${eFontPreference ? row('Font preference', eFontPreference) : ''}
-${eThreadColor ? row('Thread color', eThreadColor) : ''}
-${eNeededBy ? row('Needed by', eNeededBy) : ''}
-${isRush ? row('Rush requested', `<span style="${S.em}">Yes, a rush fee may apply.</span>`) : ''}
-${hr}
-<p style="${S.p}">If you have any questions in the meantime, you can reply to this email or contact Mary Ann directly.</p>
-<p style="${S.meta}">MAS Monograms, St. Matthews, SC</p>
-`);
+  const ctx = await loadEmailContext();
+  // The customer can always reach Mary Ann: Sanity's email first, the owner inbox if Sanity is down.
+  if (!ctx.email) ctx.email = env.QUOTE_OWNER_EMAIL;
+  const owner = buildOwnerEmail(submission, ctx);
+  const customer = buildCustomerEmail(submission, ctx);
 
   const from = { email: 'noreply@mas-monograms.com', name: 'MAS Monograms' };
   const results = await Promise.allSettled([
@@ -327,17 +251,17 @@ ${hr}
       from,
       to: env.QUOTE_OWNER_EMAIL,
       replyTo: email,
-      subject: `New Quote Request from ${name}`,
-      html: ownerHtml,
-      text: htmlToText(ownerHtml),
+      subject: owner.subject,
+      html: owner.html,
+      text: owner.text,
     }),
     // Customer confirmation (index 1)
     env.EMAIL.send({
       from,
       to: email,
-      subject: 'We got your quote request! | MAS Monograms',
-      html: customerHtml,
-      text: htmlToText(customerHtml),
+      subject: customer.subject,
+      html: customer.html,
+      text: customer.text,
     }),
   ]);
   results.forEach((r, i) => {
@@ -356,23 +280,6 @@ ${hr}
   return new Response(null, { status: 303, headers: { Location: '/thank-you' } });
 }
 
-/** Plain-text twin of the HTML bodies (helps deliverability and text-only clients). */
-function htmlToText(html: string): string {
-  return html
-    .replace(/<(style|script)[\s\S]*?<\/\1>/gi, '')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|h[1-6]|div|tr)>/gi, '\n')
-    .replace(/<hr[^>]*>/gi, '\n---\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
-
 function jsonError(error: string, status: number) {
   return new Response(JSON.stringify({ error }), {
     status,
@@ -386,11 +293,41 @@ function jsonError(error: string, status: number) {
  * inject markup, break out of attributes (e.g. the mailto: href), or spoof
  * content in Mary Ann's / the customer's inbox.
  */
-function escapeHtml(input: string): string {
-  return input
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+
+/**
+ * Contact details and the "what's next" lines for the emails, read from Sanity's
+ * public CDN at send time so Mary Ann's edits reach the emails too. Bounded (2.5s)
+ * and never fatal: on any failure the emails use their built-in wording.
+ */
+async function loadEmailContext(): Promise<EmailContext> {
+  const projectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
+  const dataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
+  if (!projectId) return {};
+  const query = `{
+    "site": *[_id == "siteSettings"][0]{ title, email, phone, "city": address.city, "state": address.state },
+    "ty": *[_id == "thankYouPage"][0]{ nextStepsLabel, nextSteps }
+  }`;
+  try {
+    const res = await fetch(
+      `https://${projectId}.apicdn.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(query)}`,
+      { signal: AbortSignal.timeout(2500) },
+    );
+    if (!res.ok) throw new Error(`Sanity ${res.status}`);
+    const { result } = (await res.json()) as { result?: any };
+    const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
+    return {
+      businessName: str(result?.site?.title),
+      email: str(result?.site?.email),
+      phone: str(result?.site?.phone),
+      city: str(result?.site?.city),
+      state: str(result?.site?.state),
+      nextStepsLabel: str(result?.ty?.nextStepsLabel),
+      nextSteps: Array.isArray(result?.ty?.nextSteps)
+        ? result.ty.nextSteps.map(str).filter(Boolean)
+        : undefined,
+    };
+  } catch (err) {
+    console.error('Email context fetch failed (using built-in wording):', err);
+    return {};
+  }
 }

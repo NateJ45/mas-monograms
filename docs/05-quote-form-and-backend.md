@@ -121,8 +121,20 @@ meant requests were saved to R2 but nobody was emailed.) Setup, one time, in the
 2. `QUOTE_OWNER_EMAIL` is a plain var in `wrangler.jsonc` (Mary Ann's published address). Change it
    there if her address changes.
 3. Messages go from `noreply@mas-monograms.com` ("MAS Monograms") with `replyTo` set to the customer
-   on the owner email, plus an auto plain-text twin of each HTML body.
-4. Failure behaviour: the submission is saved to R2 first. If the owner email cannot be sent (binding
+   on the owner email, plus a hand-written plain-text twin of each HTML body.
+4. **The bodies live in `src/lib/quote-email.ts`** (2026-10-05, unit tests in `quote-email.test.ts`):
+   designed in the Atelier language within email constraints (tables, inline styles, 600px, no SVG
+   or web fonts, a table-cell button, hidden preheader). A Midnight band carries the gold Hoop Seal
+   and the wordmark as hosted PNGs (`public/brand/email-seal-v1.png`, `email-wordmark-v1.png`,
+   made by `scripts/generate-favicons.mjs`, referenced by absolute `https://mas-monograms.com`
+   URLs and cached as immutable in `public/_headers`, so change the art as `-v2`, never in place).
+   The customer gets a warm summary, the initials set large when the prefill sent them, the
+   one-business-day promise and the three "What's next" lines; Mary Ann gets the customer and item
+   as the headline, a Reply button, tap to call, the rush flag and needed-by date first, then the
+   grouped details. At send time the Worker reads `siteSettings` (name, email, phone, city) and
+   `thankYouPage.nextSteps` from Sanity's public CDN (2.5s cap; on failure the same words are built
+   in), so Mary Ann's edits reach the emails. Every form value is escaped.
+5. Failure behaviour: the submission is saved to R2 first. If the owner email cannot be sent (binding
    missing, domain not onboarded, rate limit) the Worker answers 502 and the form shows its error
    state, instead of the old silent "Thank you". A failed customer confirmation is logged only.
 

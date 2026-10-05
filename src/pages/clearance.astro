@@ -27,7 +27,7 @@ const [siteSettings, page, items] = await Promise.all([
 const title = page?.seoTitle ?? 'Clearance — MAS Monograms';
 const description =
   page?.seoDescription ??
-  'Shop pre-made clearance embroidery items at reduced prices. Ready to ship — no custom order wait time.';
+  'Shop pre-made clearance embroidery items at reduced prices. Ready to ship, no custom order wait time.';
 
 const inStockItems = items.filter((item: any) => !item.sold);
 const soldOutItems = items.filter((item: any) => item.sold);

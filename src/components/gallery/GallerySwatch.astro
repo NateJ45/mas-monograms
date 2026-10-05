@@ -22,6 +22,8 @@ interface Props {
   tags?: string[];
   /** Label for the per-photo quote link. */
   requestLabel?: string | null;
+  /** Font line template (styleGalleryPage.fontCaption), {font} = the font name. */
+  fontCaption?: string | null;
   /** Skip the "Request this" link (e.g. a category page with its own CTA). */
   showRequest?: boolean;
   /** Skip the category line (a category page, where every photo shares it). */
@@ -34,6 +36,7 @@ const {
   index,
   tags,
   requestLabel = null,
+  fontCaption = null,
   showRequest = true,
   showCategory = true,
   sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
@@ -47,9 +50,8 @@ const tilt = TILTS[index % TILTS.length];
 const categoryName: string | undefined = showCategory ? item?.relatedCategory?.name : undefined;
 const fontName: string | undefined = item?.relatedFont?.name;
 const categorySlug: string | undefined = item?.relatedCategory?.slug?.current;
-const caption = [item?.relatedCategory?.name, fontName ? `${fontName} font` : null]
-  .filter(Boolean)
-  .join(' · ');
+const fontLine = fontName ? (fontCaption || '{font} font').replaceAll('{font}', fontName) : null;
+const caption = [item?.relatedCategory?.name, fontLine].filter(Boolean).join(' · ');
 const hasBody = !!(categoryName || fontName);
 ---
 
@@ -75,7 +77,7 @@ const hasBody = !!(categoryName || fontName);
         {hasBody && (
           <div class="gallery-swatch__body">
             {categoryName && <p class="gallery-swatch__cat">{categoryName}</p>}
-            {fontName && <p class="gallery-swatch__font">{fontName} font</p>}
+            {fontLine && <p class="gallery-swatch__font">{fontLine}</p>}
             {showRequest && categorySlug && (
               <a
                 href={`/request-a-quote?item=${categorySlug}`}

@@ -17,7 +17,7 @@ import sharp from 'sharp';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { sealSvg, wordmarkSvg, LIGHT, DARK } from '../src/lib/brand/brandSvg.js';
+import { sealSvg, wordmarkSvg, wordmarkAspect, LIGHT, DARK } from '../src/lib/brand/brandSvg.js';
 import { BRAND } from '../src/lib/brand/brandPaths.js';
 
 const publicDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
@@ -119,6 +119,36 @@ await Promise.all([
   png(appSvg, 512, 'icon-512.png'),
 ]);
 
+// Email header (2026-10-05): the quote emails (src/lib/quote-email.ts) open with a Midnight band
+// carrying the gold Hoop Seal (72px) above the Signature Thread wordmark (220px wide). Gmail
+// renders no SVG and many clients block data: URIs, so both are hosted PNGs at 2x, referenced by
+// absolute URL on the production domain. Each is painted on a solid Midnight ground so it
+// survives clients that drop transparency. Filenames are versioned (-v1) because public/_headers
+// caches them as immutable: if the art changes, write -v2 and update the URLs in quote-email.ts.
+const emailPng = (svg, w, h, file) =>
+  sharp(Buffer.from(svg), { density: 300 })
+    .resize(w, h, { fit: 'contain', background: MIDNIGHT })
+    .flatten({ background: MIDNIGHT })
+    .png({ palette: true, quality: 92, compressionLevel: 9, effort: 10 })
+    .toFile(join(brandDir, file));
+const EMAIL_WORD_W = 440;
+const EMAIL_WORD_H = Math.round(EMAIL_WORD_W / wordmarkAspect('display'));
+await Promise.all([
+  emailPng(
+    sealSvg({ idp: 'e', cut: 'bold', palette: DARK, background: MIDNIGHT, inset: 0.92 }),
+    144,
+    144,
+    'email-seal-v1.png',
+  ),
+  emailPng(
+    wordmarkSvg({ idp: 'ew', cut: 'display', palette: DARK }),
+    EMAIL_WORD_W,
+    EMAIL_WORD_H,
+    'email-wordmark-v1.png',
+  ),
+]);
+console.log(`email wordmark: ${EMAIL_WORD_W}x${EMAIL_WORD_H} (display at half)`);
+
 // Legacy /favicon.ico: a single-image ICO wrapping a 32px PNG (valid since Vista;
 // universally supported by the browsers that still request .ico).
 const png32 = await sharp(Buffer.from(faviconSvg), { density: 72 * 0.32 * 100 })
@@ -140,5 +170,5 @@ icoHeader.writeUInt32LE(22, 18); // image offset
 writeFileSync(join(publicDir, 'favicon.ico'), Buffer.concat([icoHeader, png32]));
 
 console.log(
-  'wrote favicon.svg, favicon.ico, manifest.webmanifest, apple-touch-icon.png, icon-192.png, icon-512.png, brand/*.svg',
+  'wrote favicon.svg, favicon.ico, manifest.webmanifest, apple-touch-icon.png, icon-192.png, icon-512.png, brand/*.svg, brand/email-*-v1.png',
 );

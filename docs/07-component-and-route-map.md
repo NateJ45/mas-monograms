@@ -49,7 +49,7 @@ src/
     CategoryCard.astro          shop-category card (shop-by-item and category pages)
     CtaLink.astro               the single button recipe (onDark flips to paper-on-indigo)
     CtaBanner.astro             recurring bottom-of-page CTA band (data-thread-end)
-    ProcessStepIllustration.astro  pattern-sheet illustration for a process step (ProcessStep.astro is unused)
+    ProcessStepIllustration.astro  pattern-sheet illustration for a process step (home ProcessPath, /how-it-works); the old ProcessStep.astro was deleted 2026-10-05
     SanityImage.astro           responsive images through the Sanity CDN
     PortableText.tsx            rich-text renderer, rendered at BUILD time (no client: directive; it has no
                                 state, so an island only shipped ~110 KB of JS, 2026-10-04)

@@ -33,7 +33,7 @@
       const nameSpan = document.createElement('span');
       const sizeSpan = document.createElement('span');
       nameSpan.textContent = file.name;
-      sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ' — TOO LARGE' : ''}`;
+      sizeSpan.textContent = `${Math.round(file.size / 1024)} KB${oversized ? ', too large' : ''}`;
       li.className = `text-xs flex items-center gap-s ${oversized ? 'text-error-text' : 'text-[var(--color-text-secondary)]'}`;
       li.appendChild(nameSpan);
       li.appendChild(sizeSpan);
@@ -180,7 +180,7 @@
           submitLabel.textContent = submitBtn?.dataset.label ?? 'Send My Quote Request';
       }
     } catch {
-      if (errorMsgEl) errorMsgEl.textContent = 'Network error — please check your connection.';
+      if (errorMsgEl) errorMsgEl.textContent = 'Network error. Please check your connection.';
       errorEl?.classList.remove('hidden');
       if (submitBtn) submitBtn.disabled = false;
       if (submitLabel)

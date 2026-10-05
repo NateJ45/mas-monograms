@@ -7,54 +7,28 @@ Built by Nixon Creative Studio (nathanjnixon86@gmail.com · nixoncreativestudio.
 this matches the live footer credit in `siteSettings.footerCredit`.
 Migrated from Squarespace 7.1 → Astro 7 + Sanity 6 + Cloudflare Workers.
 
-## Status (current — 2026-10-04)
+## Status (current: 2026-10-05)
 
-Built and **deployed**; all content seeded into Sanity. On 2026-10-04 a full redesign, **Direction D,
-"The Atelier"**, landed on branch `redesign/atelier` (8 commits ahead of `main`, no PR yet as of this
-writing; production still shows the Direction C "Sampler" look until it merges). Nathan's brief: the site looked generic, so make it his best
-portfolio piece. Mary Ann's photos are weak, so the site makes its own product pictures: a live
-**Monogram Atelier** (canvas embroidery engine, `src/lib/atelier/`) where visitors type initials and watch
-them stitched in real thread colours on real fabrics, plus a golden thread sewn down the page on scroll,
-hoops, spools, swatch cards and hang tags. Heirloom Coast stays (logo, linen, indigo, claret) with a
-deeper Midnight and a thread-gold gradient added. Every page was rebuilt. Rules: `.claude/rules/atelier-engine.md`
-(engine), `design-system.md` (look), `site-routes.md` (routes and the quote query-string contract).
+**Live at https://mas-monograms.com** (also https://mas-monograms.nathanjnixon86.workers.dev). Every page
+wears **Direction D, "The Atelier"** (PR #75, 2026-10-04): a live **Monogram Atelier** (canvas embroidery
+engine, `src/lib/atelier/`) where visitors type initials and watch them stitched in real thread colours,
+a golden thread sewn down the page, hoops, spools, swatch cards and hang tags, on the Heirloom Coast
+palette plus Midnight and a thread-gold gradient. Logo: the Hoop Seal and the Signature Thread wordmark
+(`src/lib/brand/brandSvg.js`). Header: a centred row that becomes a frosted glass pill on scroll.
 Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 
-- **New content:** `atelierSettings` singleton and 14 optional `homePage` fields, seeded by
-  `scripts/seed-atelier.mjs` (dry run by default; backup `tmp/backups/production-2026-10-04.tar.gz`,
-  gitignored). Confirm in the dataset that the seed has been applied before judging the live copy.
-- **Removed:** Lenis smooth scroll (2026-10-04). Native scroll only; do not reintroduce it.
-- **Merge-ready pass (2026-10-04):** `check:full` green (324 unit tests), Playwright 191/191 (incl. the
-  new `tests/features.spec.ts`), parity baselines regenerated (23/23 on two clean rebuilds), Lighthouse
-  accessibility 100 on all 12 audited URLs. `PortableText` renders at build time (no island).
-- **Open:** Sanity fields the page work wanted, the LCP/font perf pass, hotspots on the
-  69 gallery photos, seam polish on heavy block letters. All in `docs/PENDING.md`.
-- Studio for Mary Ann: Heirloom Coast theme + "Start Here" handbook + plain-language labels + task-first
-  desk; new desk entry "Monogram Preview (live stitching)".
-- **Audit-fix pass (2026-10-04, branch `chore/audit-fixes`):** phone-menu scroll fix, compositor-only header
-  morph, Fraunces italic subsets (LCP 3.38 to 3.01s on `/`), text-step/radius/wood tokens (detector src
-  findings 257 to 0), Heirloom Coast quote emails. What remains is in `docs/PENDING.md`.
-- **Pill blur fix (2026-10-05, branch `fix/pill-blur`):** the scrolled pill is now frosted glass; the
-  header's view-transition name had made it a backdrop root (gotcha 16 in `.claude/rules/design-system.md`).
-- **Logo, header and footer rework (2026-10-04, branch `redesign/header-logo`).** New logo system in
-  blue and gold: the **Hoop Seal** (a script S sewn through a roman M and A, in embroidery hoops) is
-  the brand mark and the **Signature Thread** wordmark the horizontal lockup; both drawn by
-  `src/lib/brand/brandSvg.js` from outlined geometry, so `Logo.astro`, the favicons, `public/brand/*.svg`
-  and the OG cards share one drawing. The header lost its top rail and is now a centred editorial row
-  that becomes a glass pill on scroll; the footer is about half as tall. Detail and the regeneration
-  commands: `docs/logo-concepts/README.md`, `docs/02-design-system.md`, `.claude/rules/design-system.md`.
-
-- Live site: https://mas-monograms.nathanjnixon86.workers.dev (custom domain `mas-monograms.com` pending)
-- Studio (Mary Ann's editor): **`<site>/studio`** — embedded in the site build since
-  2026-08-28. The old hosted https://mas-monograms.sanity.studio still exists and is now
-  a stale duplicate; retiring it and moving Mary Ann's bookmark are in `docs/PENDING.md`.
-- Repo `NateJ45/mas-monograms` (private) → auto-deploys via **Cloudflare Workers Builds** on push to `main`
-- Real contact info + photography are in; the `popularCombination`/`testimonial` types and the stats
-  strip were removed. Remaining before launch: confirm socials, replace the starter thread inventory,
-  a few image gaps (About portrait, OG images), quote-form secrets + R2 bucket. Full checklist +
-  env-var matrix in `docs/08-deployment-and-status.md`.
-
-- **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build** variable in Cloudflare Workers Builds (`G-JTX5TMPVQ0`, property 557338771; never put it in `ci.yml`). It fires only on `mas-monograms.com`. The Privacy page names Google Analytics and its cookies; keep it true. `docs/08`.
+- Rules: `.claude/rules/atelier-engine.md` (engine), `design-system.md` (look), `site-routes.md` (routes
+  and the quote query-string contract), `sanity-studio.md` (fields and seed scripts).
+- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28, with the
+  Heirloom Coast theme, the "Start Here" handbook and a task-first desk. A stale hosted copy may still
+  exist; see `docs/PENDING.md`.
+- Repo `NateJ45/mas-monograms` (private); merging to `main` deploys via **Cloudflare Workers Builds**.
+- Quote form: Cloudflare Email Service + Turnstile + R2 backup (live 2026-10-04).
+- **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build**
+  variable in Workers Builds (`G-JTX5TMPVQ0`; never put it in `ci.yml`). It fires only on
+  `mas-monograms.com`. The Privacy page names Google Analytics; keep it true. `docs/08`.
+- Lenis smooth scroll was removed on 2026-10-04; do not reintroduce it.
+- What is open: `docs/PENDING.md`. History: git log and the vault note.
 
 ## Commands
 
@@ -72,11 +46,11 @@ Run from the repo root. Node scripts are in `package.json`.
 
 ## Stack
 
-- **Astro 7.2** — `output: 'static'` plus a handful of SSR routes, `@astrojs/cloudflare`
-  adapter pinned **exactly 14.2.4**, Sharp image service, `session: false`
+- **Astro 7.2**: `output: 'static'` plus a handful of SSR routes, `@astrojs/cloudflare`
+  adapter (`^14.3.0` in package.json since 2026-09-05; see gotcha 9/10), Sharp image service, `session: false`
 - **Cloudflare Workers** — unified Pages/Workers platform, Git auto-deploy (Workers Builds),
-  `wrangler.jsonc`; wrangler pinned **`~4.110.0`**
-- **Sanity 6.4** — headless CMS. The Studio lives IN THIS PACKAGE (schemas in
+  `wrangler.jsonc`; wrangler `^4.129.0`
+- **Sanity 6.9.1**: headless CMS. The Studio lives IN THIS PACKAGE (schemas in
   `src/sanity/schemaTypes/`, desk in `src/sanity/structure.ts`, config at the repo-root
   `sanity.config.ts`, CLI config in `sanity.cli.ts`) and is **embedded at `/studio`** via
   `@sanity/astro`, so it rebuilds with every deploy and can never drift stale. There is
@@ -126,7 +100,7 @@ The buy button is a plain `<a href={...}>` that links to Stripe.
 
 ### Worker secrets — never in the repo
 
-`TURNSTILE_SECRET_KEY`, `SANITY_API_READ_TOKEN`
+`TURNSTILE_SECRET_KEY` and `SANITY_TOKEN` (the preview read token; `SANITY_API_READ_TOKEN` is also accepted)
 are set via `wrangler secret put`. Never write them into `.env` or commit them.
 
 ## Branch, CI and deploy
