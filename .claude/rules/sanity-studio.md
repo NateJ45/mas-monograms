@@ -72,6 +72,16 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
     non-string preview titles, stored keys the schema does not declare, required fields blank in live data,
     and banned words (em-dash, `<em>`, slug, schema, field, document, URL, CTA...). Must print "Studio is
     clean." after any schema change.
+  - **`npm run audit:data`** (`scripts/audit-data-vs-schema.mjs`, read-only, runs under tsx): every stored
+    value against the REAL compiled schema (`@sanity/schema`, so it sees what the Studio sees). Catches an
+    array item with no `_type` or one the array does not allow (the Studio shows "Item of type object not
+    valid for this list", 2026-10-05, footer links), items with no `_key`, stored keys the schema does not
+    declare, wrong-kind values, dropdown values outside the choices, unknown document types and references
+    to documents that no longer exist. Must print "Data matches the schema." after any seed run or schema
+    change. `scripts/backfill-array-types.mjs` (dry run, `--apply`) adds the missing `_type`
+    (`scripts/lib/array-types.mjs` picks it: the only object member, else the most specific member whose
+    fields cover the item). **Every seed or import script must write `_type` on every object it puts in an
+    array**; the audit is what proves it.
   - **Phase B handbook (2026-10-05).** Guides are typed repo DATA in `src/sanity/guides/`: `types.ts` (shape:
     category, id, title, icon, badge "You can do this yourself" / "Mostly yourself" / "Check with Nathan
     first", summary, time, optional cost and "before you start", blocks h/p/steps (with "what you will see")/
