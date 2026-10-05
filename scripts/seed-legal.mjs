@@ -94,7 +94,7 @@ const privacy = {
     ),
     h2('Analytics'),
     p(
-      'We may use privacy-friendly, cookie-free website analytics to understand which pages are visited. This does not identify you personally.',
+      'We use Google Analytics to understand which pages are visited. It sets cookies and collects usage information such as pages viewed, device type and approximate location. It does not tell us who you are.',
     ),
     h2('Your choices'),
     emailLine(
