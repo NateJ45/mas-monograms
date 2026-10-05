@@ -10,6 +10,11 @@
 // LCP is the headline: the hero paints fully with no JS, no web font and no
 // photo (the stage shows a fabric block with the initials until the engine
 // draws). Every string comes from Sanity (homePage + atelierSettings).
+//
+// WCAG 2.2.2: the sample cycle moves for well over five seconds, so a
+// Pause/Play button (atelierSettings.pauseLabel / playLabel) sits beside the
+// hoop. It is rendered hidden and HomeHeroScript shows it only while the cycle
+// is running (never under reduced motion, never once the cycle has rested).
 import HeroAtelierStage from '@/components/atelier/HeroAtelierStage.astro';
 import HomeHeroScript from './HomeHeroScript.astro';
 import { motifId } from '@/components/motifs/uid';
@@ -55,6 +60,8 @@ const secondary = page?.heroSecondaryCtaLabel
   : null;
 const brass = motifId('hh');
 const tryId = 'hero-try-input';
+const pauseText = atelier?.pauseLabel || 'Pause';
+const playText = atelier?.playLabel || 'Play';
 const hintId = 'hero-try-hint';
 ---
 
@@ -185,6 +192,37 @@ const hintId = 'hero-try-hint';
             </div>
             <div class="home-hero__shadow" aria-hidden="true" />
           </div>
+
+          <button
+            type="button"
+            class="home-hero__pause"
+            data-hero-pause
+            data-label-pause={pauseText}
+            data-label-play={playText}
+            aria-label={pauseText}
+            hidden
+          >
+            <svg
+              class="home-hero__icon-pause"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <rect x="3.5" y="3" width="3" height="10" rx="1" fill="currentColor" />
+              <rect x="9.5" y="3" width="3" height="10" rx="1" fill="currentColor" />
+            </svg>
+            <svg
+              class="home-hero__icon-play"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M5 3.2v9.6a.6.6 0 0 0 .9.5l7.4-4.8a.6.6 0 0 0 0-1L5.9 2.7a.6.6 0 0 0-.9.5z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
 
           {(atelier?.heroTryLabel || atelier?.eyebrow) && (
             <div class="home-hero__try">
@@ -408,6 +446,40 @@ const hintId = 'hero-try-hint';
   }
 
   /* ---- try your own ---- */
+  .home-hero__pause {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    color: var(--foreground);
+    background: rgb(15 27 45 / 0.55);
+    box-shadow: inset 0 0 0 1px var(--color-border-on-dark);
+    cursor: pointer;
+  }
+  .home-hero__pause:hover {
+    color: var(--link);
+    box-shadow: inset 0 0 0 1px var(--link);
+  }
+  .home-hero__pause[hidden] {
+    display: none;
+  }
+  .home-hero__pause svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .home-hero__icon-play,
+  .home-hero__pause[data-paused] .home-hero__icon-pause {
+    display: none;
+  }
+  .home-hero__pause[data-paused] .home-hero__icon-play {
+    display: block;
+  }
   .home-hero__try {
     position: relative;
     margin-top: 3.25rem;

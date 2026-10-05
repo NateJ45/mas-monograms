@@ -20,8 +20,9 @@ Pipeline for one design (header of `engine.ts` is the source of truth):
 
 ```
 layout.ts     lettering -> label map (1..n = one element each); needs a DOM canvas, MAIN thread, sliced
-field.ts      coverage, structure-tensor stitch direction, padded relief, sewing order
-stitches.ts   evenly spaced satin rows (streamlines), tatami split for long rows, edge fuzz, running ring
+field.ts      coverage, distance transform, tensor stitch-direction field, padded relief, sewing order
+columns.ts    satin COLUMN direction from the medial axis (thin, prune spurs, cut bent tails, trust test)
+stitches.ts   satin rows (straight edge-to-edge rays on the top layer), tatami split, fuzz, running ring
 geometry.ts   field + stitches glued together; typed arrays only
 raster.ts     each stitch shaded as a lit cylinder of thread into L (light) / S (sheen) / A (coverage) buffers
 color.ts      thread palette applied to the buffers (colorize); LINEAR-light shading, sRGB hex in and out
@@ -37,7 +38,21 @@ compose       fabric x ambient shadow x contact shadow (cached "base"), then thr
 - **Main-thread budget.** Everything left on the main thread is cut into slices of about 8 to 10ms
   (layout between elements, rasterise 64 stitches per slice when finishing, colour in row bands). In the
   animation loop the rasteriser stops after a 6ms frame budget. No single task should block input.
-- **Pure vs DOM.** `color`, `noise`, `field`, `stitches`, `geometry`, `raster`, `fabric` are pure (typed
+- **Satin columns (2026-10-04).** The top satin layer is laid like a digitiser's columns. `columns.ts`
+  thins each element to its medial axis (Zhang and Suen), prunes serif and bracket spurs (all spurs of a
+  round together), cuts the bent tail thinning runs into a serif corner (`trimEnds`: last sharp corner
+  within 2.2 stroke radii of the end), blanks a zone of half a stroke radius round every junction, and
+  then TRUSTS an axis cell only when it is a true cross-section (coherent tangent, the square chord about
+  twice the edge distance, the chord along it longer). Tangents are measured twice, the second time
+  without untrusted cells in the window, so a stem is not tilted by the bend at its end. Straight runs are
+  snapped to one direction and collinear runs (a leg cut by a crossbar) merged (`settleRuns`); runs shorter
+  than 0.6 radii stop steering. Every cell then takes the normal of its nearest trusted axis cell (a flood
+  inside the element), so the field is constant across a stroke and changes only on the mitre between
+  columns. `fillRegions({ rays: true })` lays each row as one straight thread along it, stopping at the
+  edge, at a turn of more than 0.15 rad, or where it would cross a row more than 0.3 rad off; seeds on a
+  mitre line (field coherence under 0.5) are skipped. Debug: `columnField(..., { why })` fills a reason
+  code per axis cell. The underlay still uses the old streamlines (`rays` off).
+- **Pure vs DOM.** `color`, `noise`, `field`, `columns`, `stitches`, `geometry`, `raster`, `fabric` are pure (typed
   arrays) and unit-tested without a DOM (`src/lib/atelier/atelier.test.ts`, run by `npm run test:unit`).
   `layout.ts`, `fonts.ts`, `compute.ts` and `engine.ts` are browser-only.
 - **Determinism.** Randomness is seeded from the design key (`noise.ts`), so replay, recolour and
@@ -80,20 +95,29 @@ Design = { text (1-3 chars, uppercased and filtered inside), style, thread hex, 
   stage comes within 300px of the viewport, or on idle after load (4s timeout) if the stage is rendered;
   starts stitching within 120px; pauses off-screen. A stage that is `display:none` is never imported
   until it shows. **`lazy` (prop, `data-lazy="true"`) drops the idle path** so the engine only loads on
-  approach. Nothing passes `lazy` today; `QuotePreview` is the candidate (its stage is hidden until
-  initials arrive). Element contract: `el.__atelier`, `atelier:ready`, `atelier:progress`.
+  approach. `QuotePreview` passes `lazy` (its stage is hidden until initials arrive; a hidden stage was
+  already skipped on idle, and `lazy` also keeps a revealed but off-screen preview from loading on idle).
+  `tests/atelier-consumers.spec.ts` proves the engine and worker are never fetched on `/request-a-quote`
+  without initials. Element contract: `el.__atelier`, `atelier:ready`, `atelier:progress`.
 - `HeroAtelierStage.astro`: same markup, but NO `AtelierStageScript`. `HomeHeroScript` starts the engine
   after the first interaction or about 2.6s after load and fonts, so the stitching never competes with
   the headline (the LCP). It cycles the sample monograms ONCE, then rests; it holds while hovered,
   focused, off-screen or in a hidden tab; typing takes over; reduced motion shows one finished piece.
+  WCAG 2.2.2: a Pause/Play button (`[data-hero-pause]`, labels `atelierSettings.pauseLabel`/`playLabel`)
+  shows only while the cycle runs; Pause holds the cycle and calls `atelier.pause()`, Play resumes.
 - `AtelierStudio.astro` + `AtelierStudioScript.astro` + `atelierStudioData.ts`: the full section on `/`
   (all controls, spool rack, status line `aria-live`, "Request this monogram" link). Initials re-stitch
   after a 250ms debounce (Enter at once); thread and fabric recolour in place. Listens for
-  `atelier:use-initials` (the hero hands its typed initials over).
+  `atelier:use-initials` (the hero hands its typed initials over). Reads `?style=<key>` (or the
+  `#atelier?style=<key>` hash form) on load and preselects that style if it is one of the rendered radios;
+  the font guide's "try it" links use `/?style=<key>#atelier` (`font.atelierStyle`).
 - Consumers that drive a stage from outside: `QuotePrefillScript` (the quote preview),
   `ThreadChartScript` (the spool rack on `/thread-color-chart`). A script may also just write the stage's
   `data-*` attributes before the engine has drawn; they are read on first sight and checked again on the
-  first frame (`reconcile`). Once the engine is running, call `setDesign` instead.
+  first frame (`reconcile`). Once `el.__atelier` exists, write data-* AND call `setDesign` with the
+  WHOLE design (not just the change): the engine applies the latest call itself, so no `dataset.ready`
+  guard or `atelier:progress` reconcile is needed in the consumer (both removed 2026-10-04; proven by
+  `tests/atelier-consumers.spec.ts` and `tests/features.spec.ts`, 5 repeats, all green).
 - Hand-off URL: `/request-a-quote?initials=..&style=..&thread=..&fabric=..` (contract in
   `.claude/rules/site-routes.md`). The preview is labelled as a preview; Mary Ann confirms lettering in her proof.
 
@@ -111,7 +135,9 @@ Design = { text (1-3 chars, uppercased and filtered inside), style, thread hex, 
 
 `CAPS` (backing-store size, dpr), `stitchMs` and `glintMs` in `animate()`, the slicer budgets, the stitch
 rasteriser batch (24 per frame, 64 per finishing slice), fabric `pitch` (min 2.2px), stitch spacing bands
-in `stitches.ts` (guarded by the "stitch spacing stays inside each quality band" unit test), and the
+in `stitches.ts` (guarded by the "stitch spacing stays inside each quality band" unit test), the column
+options in `columnField` (prune 1.6, trim 2.2, zone 0.5, minRun 0.6, straightRun 0.985, minCoh 0.85,
+maxSection 1.3) and the ray angles in `fillRegions` (seam 0.15 rad, cross 0.3 rad), and the
 hero hold time between samples (`HOLD_MS` 2600 in `HomeHeroScript`).
 
 ## Gotchas
@@ -122,8 +148,13 @@ hero hold time between samples (`HOLD_MS` 2600 in `HomeHeroScript`).
   superseded work is cancelled (and may terminate the worker), by design.
 - **Colour is applied after rasterising.** If you change the shading, change `raster.ts` or `color.ts`
   (and the palette tests), not the compose step, or recolouring will drift from the stitched look.
-- **Known visual seam:** heavy block-letter shapes (the bowls of B, the arm of F, the leg of K) still show
-  seams where tatami rows meet. Open item in `docs/PENDING.md`.
+- **Mitres are visible on purpose.** Since the column rework, block and classic letters are stems,
+  bowls and legs of straight satin that butt at crisp mitre lines (a thin darker line on a dark thread,
+  as on real work). What is still not clean: the wide right leg of a block `A` and the diagonals of a
+  block `M` (a few short patches where the axis is broken by junctions), and the top terminal of an `S`.
+  Judge changes with zoomed crops of B F K R S M A MAS BFK in block and classic, on linen and navy.
+  The main-thread FALLBACK runs `columnField` as one step (about 35 to 40ms for a heavy letter in Node),
+  so a broken worker can show one task near 50ms; the worker path has none.
 - **Working tree churn:** `engine.ts`, `field.ts` and `stitches.ts` were still being tuned when this file
   was written; the contracts above are stable, the constants are not.
 - **Dev servers:** Astro 7 backgrounds `astro dev` when it detects an agent and allows one server per

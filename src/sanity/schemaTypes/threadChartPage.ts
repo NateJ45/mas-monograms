@@ -116,6 +116,15 @@ export const threadChartPage = defineType({
       description:
         'One-line note about requesting custom or unlisted colors. E.g. "Need a specific color? Just ask in your quote request."',
     }),
+    defineField({
+      name: 'filterLabel',
+      title: 'Label on the color search box (optional)',
+      type: 'string',
+      group: 'page',
+      description:
+        'The words above the box visitors type in to find a color, e.g. "Search colors".',
+      validation: (R) => R.max(40),
+    }),
 
     defineField({
       name: 'ctaEyebrow',

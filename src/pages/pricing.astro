@@ -110,7 +110,8 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
                 <HangTag
                   title={tier.label}
                   titleTag="h3"
-                  eyebrow="from"
+                  badge={tier.highlighted ? tier.highlightLabel : null}
+                  eyebrow={page?.tierPricePrefix}
                   value={money(tier.pricePerPiece)}
                   note={tier.note}
                   tone={tier.highlighted ? 'midnight' : TONES[i % TONES.length]}

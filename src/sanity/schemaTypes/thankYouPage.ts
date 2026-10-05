@@ -80,7 +80,23 @@ export const thankYouPage = defineType({
       description: 'E.g. "I respond to all requests within 1–2 business days."',
       validation: (R) => R.required(),
     }),
+    defineField({
+      name: 'responseTimeLabel',
+      title: 'Label before the response time (optional)',
+      type: 'string',
+      group: 'content',
+      description: 'A short label in front of the response time, e.g. "Expected response time".',
+      validation: (R) => R.max(40),
+    }),
 
+    defineField({
+      name: 'nextStepsLabel',
+      title: 'Heading above the next steps (optional)',
+      type: 'string',
+      group: 'content',
+      description: 'A short heading above the numbered steps, e.g. "What\'s next".',
+      validation: (R) => R.max(40),
+    }),
     defineField({
       name: 'nextSteps',
       title: 'Next steps',

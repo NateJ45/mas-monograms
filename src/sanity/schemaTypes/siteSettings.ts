@@ -270,6 +270,15 @@ export const siteSettings = defineType({
       validation: (Rule) => Rule.required().max(40),
     }),
     defineField({
+      name: 'menuContactLabel',
+      title: 'Label above your phone and email in the phone menu (optional)',
+      type: 'string',
+      group: 'navigation',
+      description:
+        'On a phone, the menu ends with your phone number and email. This small label sits above them, e.g. "At the bench".',
+      validation: (Rule) => Rule.max(40),
+    }),
+    defineField({
       name: 'footerColumns',
       title: 'Footer link columns',
       type: 'array',

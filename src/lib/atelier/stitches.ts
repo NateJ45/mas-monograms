@@ -5,8 +5,15 @@
 // streamline is one row of thread. Short rows become satin stitches (one thread
 // from edge to edge); rows longer than a real satin can span are split into a
 // staggered tatami fill, the way an embroidery digitiser would do it.
+//
+// With `rays` (the top satin layer since 2026-10-04) a row is not a curved
+// streamline cut short by its neighbours but one STRAIGHT thread from edge to
+// edge along the column direction (columns.ts), stopping only at the element
+// edge, where the field turns (a mitre) or where it would cross a row running
+// another way. Rows may lie over near-parallel neighbours on the inside of a
+// curve, as real satin does, so heavy letters no longer break into stubs.
 
-import { sampleDir, type TensorField } from './field.ts';
+import { sampleCoh, sampleDir, type TensorField } from './field.ts';
 import { rng } from './noise.ts';
 
 export const KIND_SATIN = 0;
@@ -106,6 +113,13 @@ export interface FillParams {
   kind?: number;
   /** optional cooperative yield, called every few ms of work; returning false aborts */
   tick?: () => boolean;
+  /**
+   * Straight edge-to-edge rows (satin columns) instead of spacing-limited
+   * streamlines: a row only stops at the element edge or at a junction seam.
+   */
+  rays?: boolean;
+  /** rays: the row stops where the stroke direction turns more than this, radians */
+  seamAngle?: number;
 }
 
 interface Pts {
@@ -179,6 +193,36 @@ export function fillRegions(
       return false;
     };
 
+    // rays: is (x,y) on a committed row that runs at a clearly different angle?
+    // A straight row may lie over its near-parallel neighbours (the inside of a
+    // curve), but never crosses a row going another way: that reads as hatching.
+    const lineDX: number[] = [];
+    const lineDY: number[] = [];
+    const nearCross = (x: number, y: number, lineId: number, r: number, dx: number, dy: number) => {
+      const cx = (x / cell) | 0;
+      const cy = (y / cell) | 0;
+      const r2 = r * r;
+      for (let oy = -1; oy <= 1; oy++) {
+        const yy = cy + oy;
+        if (yy < 0 || yy >= gh) continue;
+        for (let ox = -1; ox <= 1; ox++) {
+          const xx = cx + ox;
+          if (xx < 0 || xx >= gw) continue;
+          let k = head[yy * gw + xx];
+          while (k >= 0) {
+            const lk = pts.line[k];
+            if (lk !== lineId && Math.abs(lineDX[lk] * dx + lineDY[lk] * dy) < cosCross) {
+              const ddx = pts.x[k] - x;
+              const ddy = pts.y[k] - y;
+              if (ddx * ddx + ddy * ddy < r2) return true;
+            }
+            k = next[k];
+          }
+        }
+      }
+      return false;
+    };
+
     const tmpX = new Float32Array(Math.max(W, H) * 4);
     const tmpY = new Float32Array(Math.max(W, H) * 4);
     const bwdX = new Float32Array(Math.max(W, H) * 2);
@@ -188,6 +232,10 @@ export function fillRegions(
     // Trace from (sx,sy) along +/- dir; writes into ax/ay, returns count.
     const fillDirL = p.fillDir(label);
     let fixed: [number, number] | null = null;
+    const rays = !!p.rays;
+    const cosSeam = Math.cos(p.seamAngle ?? 0.15);
+    const cosCross = Math.cos(0.3);
+    const overrun = Math.round(dsep * 1.5);
     const traceHalf = (
       sx: number,
       sy: number,
@@ -202,6 +250,31 @@ export function fillRegions(
       let px = dx0;
       let py = dy0;
       let n = 0;
+      if (rays) {
+        // A satin stitch is one straight thread from edge to edge. Run the row
+        // straight on until it leaves the element or reaches a junction seam
+        // (where the stroke direction turns away); never stop it short because a
+        // neighbour is close. On the inside of a curve rows then overlap a little,
+        // as real satin does, instead of breaking into stubs and pockets.
+        let over = 0;
+        for (let s = 0; s < maxSteps; s++) {
+          const nx = x + dx0;
+          const ny = y + dy0;
+          if (!inside(nx, ny)) break;
+          const [vx, vy] = sampleDir(field, nx, ny);
+          if (Math.abs(vx * dx0 + vy * dy0) < cosSeam) break;
+          if (fixed) {
+            // gap row: may tuck a short way under its neighbours, then stops
+            if (nearOther(nx, ny, lineId, dtest) && ++over > overrun) break;
+          } else if (nearCross(nx, ny, lineId, dtest, dx0, dy0)) break;
+          x = nx;
+          y = ny;
+          ax[n] = x;
+          ay[n] = y;
+          n++;
+        }
+        return n;
+      }
       for (let s = 0; s < maxSteps; s++) {
         let [vx, vy] = fixed ?? sampleDir(field, x, y);
         if (vx * px + vy * py < 0) {
@@ -253,11 +326,22 @@ export function fillRegions(
     // Trace a whole line through a seed and commit it if long enough.
     const traceLine = (sx: number, sy: number, relaxed = false): number => {
       const lineId = lineStart.length;
+      // rays: never start a row on the mitre line between two columns, where
+      // the two directions cancel and the row would cut across both
+      if (rays && sampleCoh(field, sx, sy) < 0.5) return -1;
       // gap rows run straight, so leftover pockets fill as tidy parallel
       // patches instead of a tangle: along the wide-area stroke direction when
       // the field has one (the pocket continues its neighbours), else at the
       // element's calm fill angle
-      fixed = relaxed ? (field.smooth ? sampleDir(field.smooth, sx, sy) : fillDirL) : null;
+      // (rays: the column field is already one calm direction per column, so a
+      // gap row simply carries on its own column)
+      fixed = relaxed
+        ? rays
+          ? sampleDir(field, sx, sy)
+          : field.smooth
+            ? sampleDir(field.smooth, sx, sy)
+            : fillDirL
+        : null;
       const [dx, dy] = fixed ?? sampleDir(field, sx, sy);
       const nb = traceHalf(sx, sy, -dx, -dy, lineId, bwdX, bwdY);
       let n = 0;
@@ -302,6 +386,8 @@ export function fillRegions(
       }
       lineStart.push(start);
       lineLen.push(n);
+      lineDX.push(dx);
+      lineDY.push(dy);
       return lineId;
     };
 
@@ -366,7 +452,9 @@ export function fillRegions(
         const cx = Math.min(field.w - 1, (pts.x[m] / field.f) | 0);
         const cy = Math.min(field.h - 1, (pts.y[m] / field.f) | 0);
         const width = 2 * dtf[cy * field.w + cx] * field.f;
-        if (n - 1 < width * 0.42 && n - 1 < dsep * 6) {
+        // (rays: a row that ends against a neighbouring column is the tapered
+        // end of a mitre, not a stub; only crumbs go)
+        if (rays ? n - 1 < dsep * 1.5 : n - 1 < width * 0.42 && n - 1 < dsep * 6) {
           dead[id] = 1;
           any = true;
         }

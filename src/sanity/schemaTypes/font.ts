@@ -79,8 +79,25 @@ export const font = defineType({
       name: 'popular',
       title: 'Popular pick',
       type: 'boolean',
-      description: 'Mark as a frequently requested font. May show a "Popular" badge.',
+      description:
+        'Mark as a frequently requested font. Shows the badge set on the Font & Lettering Guide page.',
       initialValue: false,
+    }),
+    defineField({
+      name: 'atelierStyle',
+      title: 'Closest style in the Monogram Preview (optional)',
+      type: 'string',
+      description:
+        'Pick the live-preview style that looks most like this font. The font card then gets a "try it" link that opens the Monogram Preview on the home page with that style chosen. Leave blank if none is close.',
+      options: {
+        list: [
+          { title: 'Classic Trio', value: 'classic' },
+          { title: 'Script', value: 'script' },
+          { title: 'Block', value: 'block' },
+          { title: 'Circle', value: 'circle' },
+          { title: 'Single Letter', value: 'single' },
+        ],
+      },
     }),
     defineField({
       name: 'displayOrder',

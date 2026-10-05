@@ -126,6 +126,55 @@ export const itemCategory = defineType({
       validation: (Rule) => Rule.required().max(60),
     }),
     defineField({
+      name: 'galleryHeading',
+      title: "Heading above this item's photos (optional)",
+      type: 'string',
+      group: 'content',
+      description:
+        'Shown above the photos of this item from the Style Gallery, e.g. "Towels & Linens Gallery". Leave blank to use the category name.',
+      validation: (Rule) => Rule.max(80),
+    }),
+    defineField({
+      name: 'requestSimilarLabel',
+      title: 'Button under the photos (optional)',
+      type: 'string',
+      group: 'content',
+      description:
+        'The button under the photos that starts a quote for this item, e.g. "Request something like this". Leave blank to use the CTA button label.',
+      validation: (Rule) => Rule.max(60),
+    }),
+    defineField({
+      name: 'crossSellHeading',
+      title: 'Heading above the other items (optional)',
+      type: 'string',
+      group: 'content',
+      description: 'Shown above the circles linking to other items, e.g. "Explore Other Items".',
+      validation: (Rule) => Rule.max(60),
+    }),
+    defineField({
+      name: 'bannerEyebrow',
+      title: 'Bottom banner: small label (optional)',
+      type: 'string',
+      group: 'content',
+      description:
+        "The dark banner at the bottom of this item's page. Leave the three banner fields blank to use the bottom banner words from the Shop by Item page.",
+      validation: (Rule) => Rule.max(60),
+    }),
+    defineField({
+      name: 'bannerHeadline',
+      title: 'Bottom banner: headline (optional)',
+      type: 'string',
+      group: 'content',
+      validation: (Rule) => Rule.max(100),
+    }),
+    defineField({
+      name: 'bannerSubhead',
+      title: 'Bottom banner: text (optional)',
+      type: 'text',
+      rows: 2,
+      group: 'content',
+    }),
+    defineField({
       name: 'displayOrder',
       title: 'Display order',
       type: 'number',

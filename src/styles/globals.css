@@ -439,6 +439,12 @@
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    /* The sticky header covers the top --header-h of the viewport. Focus
+       scrolling (Shift+Tab back up a page), in-page anchors and scrollIntoView
+       stop below it, so a focused control is never hidden under the header
+       (WCAG 2.4.11). Measured 2026-10-04: gallery "open photo" buttons landed
+       under it at 390px. */
+    scroll-padding-top: calc(var(--header-h) + 0.5rem);
   }
   body {
     @apply bg-background text-foreground;
@@ -1227,8 +1233,15 @@ body::before {
    context tokens, so ONE class pair is claret-on-light and paper-on-dark
    automatically. Anatomy: an inner running stitch (::after) like the edge of
    an embroidered patch, and a fill (::before) that sews across from the
-   left on hover AND keyboard focus. 48px tall (44px floor). */
+   left on hover AND keyboard focus. 48px tall (44px floor).
+   The stitch follows the button's shape: it is drawn concentric with the
+   outer edge (inner radius = --btn-radius minus --btn-stitch-inset), so a
+   pill gets a pill stitch and a square button a square one. To round a
+   button, set --btn-radius (never border-radius on its own, or the stitch
+   cannot follow). */
   .btn {
+    --btn-radius: 2px;
+    --btn-stitch-inset: 4px;
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -1238,7 +1251,7 @@ body::before {
     gap: 0.75rem;
     min-height: 3rem;
     padding: 0.85rem 1.75rem;
-    border-radius: 2px;
+    border-radius: var(--btn-radius);
     font-family: var(--font-body);
     font-size: 0.75rem;
     line-height: 1.2;
@@ -1249,7 +1262,7 @@ body::before {
     white-space: nowrap;
     cursor: pointer;
     transition-property:
-      color, background-color, border-color, box-shadow, transform, outline-color;
+      color, background-color, border-color, border-radius, box-shadow, transform, outline-color;
     transition-duration: 520ms;
     transition-timing-function: var(--ease-thread);
   }
@@ -1266,22 +1279,26 @@ body::before {
   .btn::after {
     content: '';
     position: absolute;
-    inset: 4px;
+    inset: var(--btn-stitch-inset);
     border: 1px dashed var(--btn-stitch);
-    border-radius: 1px;
+    border-radius: max(0px, calc(var(--btn-radius) - var(--btn-stitch-inset)));
     pointer-events: none;
     transition:
       border-color 520ms var(--ease-thread),
+      border-radius 520ms var(--ease-thread),
       inset 520ms var(--ease-thread);
   }
   .btn:hover::before,
   .btn:focus-visible::before {
     transform: scaleX(1);
   }
+  .btn:hover,
+  .btn:focus-visible {
+    --btn-stitch-inset: 5px;
+  }
   .btn:hover::after,
   .btn:focus-visible::after {
     border-color: var(--btn-stitch-hover);
-    inset: 5px;
   }
   .btn:focus-visible {
     outline: 2px solid var(--ring);
@@ -1322,6 +1339,19 @@ body::before {
   .btn:hover .btn__arrow,
   .btn:focus-visible .btn__arrow {
     transform: translateX(0.3rem);
+  }
+
+  /* The Spool motif (motifs/Spool.astro). Kept here, not in a scoped <style>,
+     so its ~45 SVG elements carry no data-astro-cid attribute: the thread chart
+     renders 40-odd spools and the attribute alone cost about 1.2KB each. */
+  div.spool {
+    width: max(var(--spool-w), 4.5rem);
+  }
+  .spool__art {
+    display: block;
+    overflow: visible;
+    transform: rotate(var(--spool-tilt, 0deg));
+    transition: transform 520ms var(--ease-thread);
   }
 
   /* Text link with a stitched underline: dashed at rest, sewn solid across on
@@ -1745,7 +1775,7 @@ details:not([open]) > .site-nav__menu {
   opacity: 0.5;
 }
 .site-header[data-scrolled] .site-header__cta {
-  border-radius: 999px;
+  --btn-radius: 999px; /* a pill in the pill; the .btn stitch follows it */
 }
 
 @media (min-width: 75rem) {

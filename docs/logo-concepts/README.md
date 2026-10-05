@@ -17,8 +17,11 @@ Status: **chosen 2026-10-04 and in production code** (branch `redesign/header-lo
   ending in a French knot. Used in the scrolled header pill, the phone menu, the footer lockup, email
   and documents.
 - **Cuts.** Cypher weights: `regular` (the full seal, 160px and up), `bold` (the compact mark, 32 to
-  160px), `heavy` (the 16 to 32px tab icon: a Midnight disc, one heavy gold hoop, no clasp). Wordmark:
-  `display` (60px and up), `header` (heavier, below 40px).
+  160px), `heavy` (icons; `tabIconSvg` puts it in a Midnight disc with one heavy gold hoop). Wordmark:
+  `display` (60px and up), `header` (heavier, below 40px). The live browser-tab icon
+  (`public/favicon.svg` / `.ico`, 16 to 32px) is NOT the cypher since 2026-10-04: the three letters
+  turned to texture at 16px, so `scripts/generate-favicons.mjs` draws the disc, the hoop and the heavy
+  roman M alone in flat gold.
 
 ## Where it lives
 

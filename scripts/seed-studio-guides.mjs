@@ -10,38 +10,31 @@
 // Why a dedicated seed: scripts/seed-core.mjs is the leftover interior-design
 // "Studio Starter" seed and its guide content is all about photographing rooms
 // and furniture trade accounts. Do NOT run that one. This file touches ONLY the
-// three guide singletons via createOrReplace with deterministic _ids, so it is
-// idempotent and safe to re-run.
+// three guide singletons, with deterministic _ids.
 //
-// Run:
-//   node scripts/seed-studio-guides.mjs
+// TWO MODES (changed 2026-10-04). The guides are editable in the Studio, so a
+// full re-seed would wipe anything Mary Ann has changed in them:
+//
+//   node scripts/seed-studio-guides.mjs              # dry run: add new sections only
+//   node scripts/seed-studio-guides.mjs --apply      # write: add new sections only
+//
+//     The default. Inserts each section in NEW_SECTIONS (below) into the live
+//     studioGuide, and into drafts.studioGuide if one exists, ONLY when an item
+//     with that _key is not there yet. Nothing else is touched, so her edits
+//     survive and a second run changes nothing.
+//
+//   node scripts/seed-studio-guides.mjs --replace-all --apply
+//
+//     The old behaviour: createOrReplace all three guides from this file.
+//     OVERWRITES every edit made in the Studio. Only for a fresh dataset.
 //
 // Requires PUBLIC_SANITY_PROJECT_ID + SANITY_API_WRITE_TOKEN in .env
-// (PUBLIC_SANITY_DATASET defaults to "production").
+// (PUBLIC_SANITY_DATASET defaults to "production"). The client and the
+// dry-run gate come from scripts/lib/sanity-lib.mjs.
 
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { createClient } from '@sanity/client';
-import { loadEnv } from './lib/loadEnv.mjs';
+import { client, apply, done, APPLY, projectId, dataset } from './lib/sanity-lib.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const root = resolve(__dirname, '..');
-
-const env = loadEnv(root);
-const projectId = env.PUBLIC_SANITY_PROJECT_ID;
-const dataset = env.PUBLIC_SANITY_DATASET ?? 'production';
-const token = env.SANITY_API_WRITE_TOKEN;
-
-if (!projectId) {
-  console.log('PUBLIC_SANITY_PROJECT_ID is not set. Configure your .env and re-run.');
-  process.exit(0);
-}
-if (!token) {
-  console.log('SANITY_API_WRITE_TOKEN is not set. A write token is required to seed content.');
-  process.exit(0);
-}
-
-const client = createClient({ projectId, dataset, token, apiVersion: '2026-05-01', useCdn: false });
+const REPLACE_ALL = process.argv.includes('--replace-all');
 
 // Stable-per-run _key generator (fine for createOrReplace).
 let _k = 0;
@@ -69,6 +62,35 @@ const guide = (title, summary, sections) => ({
 
 const docs = [];
 
+// ── Sections added after the first seed (2026-10-04) ─────────────────────────
+// Fixed _keys: the add-only mode checks for these keys before inserting.
+const ATELIER_MAP_ROW = {
+  _type: 'mapRow',
+  _key: 'sg-atelier-map',
+  area: 'Monogram Preview (live stitching)',
+  description:
+    'The words around the live stitching on the home page: the heading and intro, the labels on the controls, the monogram styles and fabrics visitors can pick, the sample initials that stitch themselves at the top of the page, the pause and play buttons, and the note that it is only a preview. You will find it under Website pages. The stitching itself is built into the site: you change the words, not how it draws.',
+};
+const ATELIER_HOW_TO = {
+  _type: 'howTo',
+  _key: 'sg-atelier-howto',
+  title: 'Change the words in the Monogram Preview (live stitching)',
+  steps: [
+    'Open Website pages, then Monogram Preview (live stitching).',
+    'The tabs along the top split it up: Section words (the heading and intro), Control labels, Monogram styles, Fabrics, Sample initials, Buttons & notice, and Home page try-it box.',
+    'To rename a style or rewrite its short description, open Monogram styles and click the style. The same goes for Fabrics. Leave each one’s "key" exactly as it is: it tells the site which lettering or cloth to draw.',
+    'Sample initials are the letters that stitch themselves at the top of the home page. Use made-up initials, never a real customer’s.',
+    'Keep the preview notice saying that you confirm the lettering and colors in a proof before you stitch. The preview is a picture to help people choose, not the real thread.',
+    'The thread colors in the preview come from your Thread colors list (Photos & products), so a new thread color shows up there by itself.',
+    'On the Font & Lettering Guide, a font gets a link into the preview when you pick its "Closest style in the Monogram Preview" (Photos & products, then Embroidery fonts).',
+    'Click Publish.',
+  ],
+};
+const NEW_SECTIONS = [
+  { field: 'studioMap', item: ATELIER_MAP_ROW, after: 'sg-2' },
+  { field: 'howTos', item: ATELIER_HOW_TO },
+];
+
 // ══════════════════════════════════════════════════════════════════════════
 // 1. studioGuide — "How your website works"
 // ══════════════════════════════════════════════════════════════════════════
@@ -95,6 +117,7 @@ New here? Start with Business info & contact (your name, contact info, hours), t
       'Website pages',
       'One document per page of the site — Home, How It Works, Pricing, About, Request a Quote, Shop by Item, Style Gallery, Font & Lettering Guide, Thread Color Chart, Clearance, Thank You, and the 404 page. Open any page to edit its words and images. Most pages have a "Preview" tab so you can see your change.',
     ),
+    ATELIER_MAP_ROW,
     mapRow(
       'Photos & products',
       'The collections you add to most often — ordered with your two most common tasks up top: Style gallery photos and Clearance items, then Shop categories (Hats, Totes…), Prices, Embroidery fonts, Thread colors, and FAQ.',
@@ -173,6 +196,7 @@ New here? Start with Business info & contact (your name, contact info, hours), t
       'Find "Hero image" and upload a photo (add Alt text).',
       'Click Publish. When a photo is present, the top of the About page automatically becomes a two-column layout with your photo beside your intro.',
     ]),
+    ATELIER_HOW_TO,
   ],
   tips: [
     tip(
@@ -406,27 +430,48 @@ Something simple works: "I'm so glad you love it! If you have a minute, a quick 
 // Seed
 // ══════════════════════════════════════════════════════════════════════════
 
-async function seed() {
-  console.log(`Seeding ${docs.length} Start Here guide documents to ${projectId}/${dataset}...`);
-  let created = 0;
-  let replaced = 0;
+async function replaceAll() {
+  console.log(`REPLACE ALL: ${docs.length} Start Here guides in ${projectId}/${dataset}.`);
+  console.log('This OVERWRITES every edit made to these guides in the Studio.');
   for (const doc of docs) {
-    try {
-      const existing = await client.fetch('*[_id == $id][0]._id', { id: doc._id });
-      await client.createOrReplace(doc);
-      if (existing) {
-        replaced += 1;
-        console.log(`  replaced  ${doc._type}  ${doc._id}`);
-      } else {
-        created += 1;
-        console.log(`  created   ${doc._type}  ${doc._id}`);
-      }
-    } catch (err) {
-      console.error(`  ERROR on ${doc._id}: ${err.message}`);
-    }
+    const existing = await client.fetch('*[_id == $id][0]._id', { id: doc._id });
+    await apply(`${existing ? 'replace' : 'create'} ${doc._type} ${doc._id}`, () =>
+      client.createOrReplace(doc),
+    );
   }
-  console.log(`\nDone. ${created} created, ${replaced} replaced.`);
-  console.log('Open the Studio → Start Here to see them. Everything is editable there.');
+  done(docs.length);
 }
 
-seed();
+async function addNewSections() {
+  let changes = 0;
+  for (const id of ['studioGuide', 'drafts.studioGuide']) {
+    const doc = await client.getDocument(id);
+    if (!doc) {
+      console.log(`SKIP ${id}: does not exist.`);
+      continue;
+    }
+    for (const { field, item, after } of NEW_SECTIONS) {
+      const list = Array.isArray(doc[field]) ? doc[field] : [];
+      if (list.some((x) => x?._key === item._key)) {
+        console.log(`SKIP ${id}: ${field} already has "${item._key}".`);
+        continue;
+      }
+      changes++;
+      const anchor = after && list.some((x) => x?._key === after) ? after : null;
+      const path = anchor ? `${field}[_key=="${anchor}"]` : `${field}[-1]`;
+      console.log(`${id}: insert "${item._key}" after ${path}`);
+      console.log(JSON.stringify(item, null, 2));
+      await apply(`${id}: add ${item._key}`, () =>
+        client
+          .patch(id)
+          .setIfMissing({ [field]: [] })
+          .insert('after', path, [item])
+          .commit(),
+      );
+    }
+  }
+  console.log(APPLY ? '' : '(dry run: nothing was written)');
+  done(changes);
+}
+
+await (REPLACE_ALL ? replaceAll() : addNewSections());

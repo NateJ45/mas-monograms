@@ -4,9 +4,10 @@
 // Linen: one row per style (Sanity font.styleTag), each specimen a pinked
 // swatch card carrying the real stitched sample (font.previewImage). The
 // custom-font note hangs on a kraft tag; the CTA closes. Copy is Sanity
-// (fontGuidePage + font). Cards carry data-style-tag (the existing Sanity
-// styleTag) so a later Atelier integration can read it; there is no
-// font-to-Atelier-style mapping in Sanity yet, so no data-atelier-style.
+// (fontGuidePage + font). A font with an atelierStyle (the closest live-preview
+// style, picked in the Studio) gets a "try it" link to /?style=<key>#atelier,
+// which AtelierStudioScript reads to preselect that style. The link text is
+// fontGuidePage.tryItLabel; no label, no links.
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import SanityImage from '@/components/SanityImage.astro';
 import PortableText from '@/components/PortableText';
@@ -50,6 +51,10 @@ const hi = heroSwash ? heroHeadline.indexOf(heroSwash) : -1;
 const TILTS = [-1.5, 1.2, -0.8, 1.6, -1.2, 0.8];
 const TONES = ['paper', 'linen', 'paper', 'blush', 'paper', 'sage'] as const;
 let n = 0;
+const ATELIER_STYLES = new Set(['classic', 'script', 'block', 'circle', 'single']);
+const tryItLabel: string | undefined = page?.tryItLabel || undefined;
+const popularLabel: string | undefined = page?.popularLabel || undefined;
+const slugId = (font: any) => `font-${font.slug?.current ?? font._id}`;
 ---
 
 <BaseLayout {title} {description} seoImage={page?.seoImage} {siteSettings}>
@@ -135,9 +140,22 @@ let n = 0;
                             sizes="(max-width: 640px) 80vw, 15rem"
                             class="specimen__img"
                           />
-                          <p class="specimen__name">{font.name}</p>
-                          {font.popular && <p class="specimen__flag">Popular</p>}
+                          <p class="specimen__name" id={slugId(font)}>
+                            {font.name}
+                          </p>
+                          {font.popular && popularLabel && (
+                            <p class="specimen__flag">{popularLabel}</p>
+                          )}
                           {font.bestFor && <p class="specimen__best">{font.bestFor}</p>}
+                          {tryItLabel && ATELIER_STYLES.has(font.atelierStyle) && (
+                            <a
+                              href={`/?style=${font.atelierStyle}#atelier`}
+                              class="specimen__try link-stitch hit-44 relative"
+                              aria-describedby={slugId(font)}
+                            >
+                              {tryItLabel} <span aria-hidden="true">&rarr;</span>
+                            </a>
+                          )}
                         </SwatchCard>
                       </li>
                     );
@@ -277,6 +295,12 @@ let n = 0;
     color: var(--color-rust-cta);
     outline: 1px dashed currentColor;
     outline-offset: 1px;
+  }
+  .drawer__cards :global(.specimen__try) {
+    display: inline-block;
+    margin-top: 0.55rem;
+    font-size: 0.875rem;
+    font-weight: 600;
   }
   .drawer__cards :global(.specimen__best) {
     margin-top: 0.4rem;

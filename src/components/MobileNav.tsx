@@ -57,6 +57,8 @@ interface MobileNavSiteSettings {
   tagline?: string;
   email?: string;
   phone?: string;
+  /** Site Settings: the small label above the phone and email ("At the bench"). */
+  menuContactLabel?: string;
   socialLinks?: SocialLink[] | null;
 }
 
@@ -123,6 +125,7 @@ export default function MobileNav({
   const tagline = siteSettings?.tagline ?? '';
   const email = showEmail ? siteSettings?.email : undefined;
   const phone = siteSettings?.phone;
+  const contactLabel = siteSettings?.menuContactLabel;
   const socialLinks = showSocials ? (siteSettings?.socialLinks ?? []).filter((l) => l?.url) : [];
 
   // Active path + which groups are expanded. Both are computed when the panel
@@ -404,12 +407,12 @@ export default function MobileNav({
               </div>
             )}
 
-            {/* At the bench: the studio's phone and email from Site Settings (they left
+            {/* The contact block (label from siteSettings.menuContactLabel): the studio's phone and email from Site Settings (they left
                 the header with the old contact strip on 2026-10-04). Pinned to the bottom
                 via mt-auto when the menu is shorter than the viewport. No hours: none are
                 published. */}
             <div className="mnav-item mt-auto pt-l" style={delay(140 + links.length * 45 + 100)}>
-              <p className="eyebrow">At the bench</p>
+              {contactLabel && <p className="eyebrow">{contactLabel}</p>}
               <div className="mt-s flex flex-col gap-1">
                 {phone && (
                   <a

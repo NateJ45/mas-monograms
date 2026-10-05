@@ -9,7 +9,7 @@
 //                       and fades as the Signature Thread wordmark draws in, left to right.
 //                       Back at the top it returns to the full row.
 //   Phone and tablet    a compact row (seal + wordmark, menu button) that also becomes a pill.
-//                       Contact details live in the phone menu ("At the bench") and the
+//                       Contact details live in the phone menu (siteSettings.menuContactLabel) and the
 //                       footer; the old contact strip is gone.
 //
 // Tones (CSS in globals.css, "Site header"):
@@ -45,6 +45,8 @@ interface Props {
     phone?: string;
     socialLinks?: SocialLink[] | null;
     quoteCtaLabel?: string;
+    /** The small label above the phone and email in the phone menu. */
+    menuContactLabel?: string;
     /** A logo picture from Site Settings. When set it stands in for the drawn logo. */
     logo?: { asset?: { _ref?: string; _id?: string }; alt?: string } | null;
     navItems?: RawNavItem[] | null;
@@ -99,6 +101,7 @@ const mobileNavSettings = siteSettings
       tagline: siteSettings.tagline,
       email: siteSettings.email,
       phone: siteSettings.phone,
+      menuContactLabel: siteSettings.menuContactLabel,
       socialLinks: siteSettings.socialLinks,
     }
   : null;

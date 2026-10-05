@@ -58,6 +58,7 @@ export const SITE_SETTINGS_PROJECTION = `{
           links[] ${NAV_LINK_PROJECTION}
         },
         quoteCtaLabel,
+        menuContactLabel,
         headerCta { show, label, link ${NAV_LINK_PROJECTION} },
         footerColumns[] {
           _key,
@@ -180,6 +181,8 @@ export interface AtelierSettings {
   disclaimer?: string;
   heroTryLabel?: string;
   heroPlaceholder?: string;
+  pauseLabel?: string;
+  playLabel?: string;
 }
 
 export function getAtelierSettings(): Promise<AtelierSettings | null> {
@@ -200,7 +203,9 @@ export function getAtelierSettings(): Promise<AtelierSettings | null> {
       ctaLabel,
       disclaimer,
       heroTryLabel,
-      heroPlaceholder
+      heroPlaceholder,
+      pauseLabel,
+      playLabel
     }`,
     {},
     null,
@@ -251,6 +256,7 @@ export function getPricingPage(): Promise<any> {
       heroSubhead,
       tiersHeadline,
       tiersSubhead,
+      tierPricePrefix,
       addonsHeadline,
       addons[] { label, price, note },
       rushHeadline,
@@ -437,6 +443,12 @@ export function getItemCategoryBySlug(slug: string): Promise<any> {
       cardImage ${IMG},
       trustItems,
       ctaLabel,
+      galleryHeading,
+      requestSimilarLabel,
+      crossSellHeading,
+      bannerEyebrow,
+      bannerHeadline,
+      bannerSubhead,
       seoTitle,
       seoDescription,
       seoImage ${IMG}
@@ -461,6 +473,13 @@ export function getStyleGalleryPage(): Promise<any> {
       additionalFilterTags[] { label, tag },
       filterGroups[] { groupLabel, tags },
       emptyStateMessage,
+      filterToggleLabel,
+      resultsAnnouncement,
+      requestLabel,
+      lightboxLabel,
+      lightboxCloseLabel,
+      lightboxPrevLabel,
+      lightboxNextLabel,
       ctaEyebrow,
       ctaHeadline,
       ctaSubhead,
@@ -502,6 +521,8 @@ export function getFontGuidePage(): Promise<any> {
       intro ${PT_BODY},
       fontGridEyebrow,
       fontGridHeadline,
+      popularLabel,
+      tryItLabel,
       customFontNote,
       ctaEyebrow,
       ctaHeadline,
@@ -525,6 +546,7 @@ export function getAllFonts(): Promise<any[]> {
       description,
       bestFor,
       popular,
+      atelierStyle,
       displayOrder
     }`,
     {},
@@ -546,6 +568,7 @@ export function getThreadChartPage(): Promise<any> {
       intro ${PT_BODY},
       matchingNote,
       customColorNote,
+      filterLabel,
       ctaEyebrow,
       ctaHeadline,
       ctaSubhead,
@@ -589,6 +612,7 @@ export function getClearancePage(): Promise<any> {
       paymentNote,
       pickupNote,
       soldOutLabel,
+      quantityLeftLabel,
       buyButtonLabel,
       emptyStateMessage,
       emptyStateCtaLabel,
@@ -637,6 +661,8 @@ export function getThankYouPage(): Promise<any> {
       headline,
       body ${PT_BODY},
       expectedResponseTime,
+      responseTimeLabel,
+      nextStepsLabel,
       nextSteps,
       image ${IMG},
       ctaLabel,
@@ -654,6 +680,8 @@ export function getThankYouPage(): Promise<any> {
 export function getNotFoundPage(): Promise<any> {
   return sanityFetch(
     `*[_type == "notFoundPage"][0]{
+      seoTitle,
+      seoDescription,
       headline,
       "subhead": body,
       primaryCtaLabel,
@@ -678,6 +706,7 @@ export function getAllPricingTiers(): Promise<any[]> {
       pricePerPiece,
       note,
       highlighted,
+      highlightLabel,
       displayOrder
     }`,
     {},
@@ -732,6 +761,7 @@ export function getLegalPageBySlug(slug: string): Promise<any> {
       "slug": slug.current,
       seoDescription,
       lastUpdated,
+      lastUpdatedLabel,
       body
     }`,
     { slug },

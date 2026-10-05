@@ -121,6 +121,25 @@ export const fontGuidePage = defineType({
     }),
 
     defineField({
+      name: 'popularLabel',
+      title: 'Badge on popular fonts (optional)',
+      type: 'string',
+      group: 'page',
+      description:
+        'Shown on every font marked "Popular pick", e.g. "Popular". Leave blank for no badge.',
+      validation: (R) => R.max(30),
+    }),
+    defineField({
+      name: 'tryItLabel',
+      title: '"Try it" link text (optional)',
+      type: 'string',
+      group: 'page',
+      description:
+        'The link on a font card that opens the Monogram Preview with a matching style, e.g. "Try this style". Only fonts with a "Closest style" set get the link. Leave blank to hide the links.',
+      validation: (R) => R.max(40),
+    }),
+
+    defineField({
       name: 'customFontNote',
       title: 'Custom font note (optional)',
       type: 'text',

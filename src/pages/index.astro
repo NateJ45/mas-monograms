@@ -70,6 +70,8 @@ const marqueeItems: string[] = (categories ?? [])
           <Marquee
             items={marqueeItems}
             label={page?.marqueeEyebrow}
+            pauseLabel={atelier?.pauseLabel}
+            playLabel={atelier?.playLabel}
             speed={60}
             class="home-marquee__ribbon"
           />
