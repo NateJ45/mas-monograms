@@ -167,6 +167,11 @@ export interface TensorField {
   smooth?: TensorField;
   /** column source: the pruned medial axis (debugging) */
   skel?: Uint8Array;
+  /**
+   * column source: the field before blurring, one crisp direction per cell
+   * (each column's own), for where a row's direction must not be a blend of two
+   */
+  raw?: TensorField;
 }
 
 /**
@@ -267,6 +272,8 @@ export function tensorField(
       }
     }
   }
+  const raw: TensorField | undefined =
+    source === 'column' ? { w, h, f: c.f, jxx, jxy, jyy } : undefined;
   const bxx = boxBlur(jxx, w, h, radius, 3);
   const bxy = boxBlur(jxy, w, h, radius, 3);
   const byy = boxBlur(jyy, w, h, radius, 3);
@@ -321,7 +328,7 @@ export function tensorField(
     }
   }
   const smooth = sxx && sxy && syy ? { w, h, f: c.f, jxx: sxx, jxy: sxy, jyy: syy } : undefined;
-  return { w, h, f: c.f, jxx: bxx, jxy: bxy, jyy: byy, dt: dtOut, smooth, skel };
+  return { w, h, f: c.f, jxx: bxx, jxy: bxy, jyy: byy, dt: dtOut, smooth, skel, raw };
 }
 
 /** Major eigenvector of [[a,b],[b,c]] as a unit vector (sign arbitrary). */
@@ -359,6 +366,18 @@ export function sampleCoh(t: TensorField, x: number, y: number): number {
   const c = t.jyy[i];
   const tr = a + c;
   return tr > 1e-12 ? Math.sqrt((a - c) * (a - c) + 4 * b * b) / tr : 0;
+}
+
+/**
+ * The direction of the one cell under full-resolution (x, y), unblended; null
+ * where the cell holds no direction. Pure.
+ */
+export function sampleCell(t: TensorField, x: number, y: number): [number, number] | null {
+  const fx = Math.min(t.w - 1, Math.max(0, (x / t.f) | 0));
+  const fy = Math.min(t.h - 1, Math.max(0, (y / t.f) | 0));
+  const i = fy * t.w + fx;
+  if (t.jxx[i] + t.jyy[i] < 1e-9) return null;
+  return majorEigen(t.jxx[i], t.jxy[i], t.jyy[i]);
 }
 
 /** Sample the field's direction at full-resolution coordinates (bilinear tensor). */

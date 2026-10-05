@@ -63,6 +63,12 @@ generate`), not from a `studio/` workspace.
   `atelierSettings.pauseLabel`/`playLabel`. Seeded by **`scripts/seed-pending-fields.mjs`** (sanity-lib
   dry-run gate, setIfMissing on each published doc and its draft; a second `--apply` reports 0 changes).
   Add the next label pass to that script the same way. Backup: `tmp/backups/production-2026-10-04-pending.tar.gz`.
+- **Hoop fit and the no-JS quote note (2026-10-04).** `galleryItem.hoopFit` (`good` default / `poor`, radio,
+  "Show it in a round hoop?") keeps a photo out of every round hoop; `requestAQuotePage.noScriptMessage` is the
+  `<noscript>` note on the quote form. Category queries use the `IMG_HOOP` projection (hotspot, crop, and the
+  `hoopFit` of the gallery item sharing the asset, via a `^.asset._ref` subquery); `src/lib/hoop.ts` picks.
+  Seeded by **`scripts/seed-hoopfit.mjs`** (sanity-lib dry-run gate, setIfMissing on doc and draft, second
+  `--apply` = 0 changes). Backup: `tmp/backups/production-2026-10-04-hoopfit.tar.gz`. Details in `docs/06`.
 - **Atelier content (2026-10-04).** `atelierSettings` is a new singleton (schema
   `src/sanity/schemaTypes/atelierSettings.ts`, desk entry "Monogram Preview (live stitching)" under
   Website pages, listed in both `SINGLETON_TYPES` sets: `src/sanity/structure.ts` and the repo-root

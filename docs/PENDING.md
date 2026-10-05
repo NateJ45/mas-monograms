@@ -148,13 +148,14 @@ This file tracks the things that have no other home.
   oblique for a beat and swaps to the real italic, which reads as a glitch on the headline itself. Not
   shipped. Revisit with a swash-only subset font (only the glyphs the swash words use, preloaded),
   which would keep the real italic on first paint at a fraction of the bytes.
-- **The quote form needs JavaScript to send.** With JS off every field renders and reads fine, but
-  Turnstile cannot run, so the Worker rejects the post. The Atelier studio's hand-off (a GET form)
-  and every link work without JS. Acceptable for now; noted so nobody assumes otherwise.
-- **Atelier: a few heavy shapes still patch.** The satin-column rework (2026-10-04) fixed the B bowls, F
-  arm, K leg and every serif base, but the wide right leg of a block `A`, the diagonals of a block `M` and
-  the top terminal of an `S` still break into short patches where junctions cut their medial axis
-  (`src/lib/atelier/columns.ts`, see `.claude/rules/atelier-engine.md`).
+- **Atelier: small leftovers after the column sweep.** The column sweep (2026-10-04, second pass) made
+  the block `A` leg, the `M` and `N` diagonals, the `S` terminal and the `X` crossing clean columns (short
+  rows on the fixed test sheet down from 1072 to about 200, most of those now short bridging rows inside a
+  column). Still visible on zoomed crops: the bracketed serif feet (`A`, `M`, `F` bases) mitre with a
+  slightly ragged edge; a `B`, `S` or `K` curve fans a little on its outside; a faint row-family seam can
+  cross a wide column (the top of the block `A` right leg); in the block `N` the heavier stems keep the
+  corners, so the diagonal ends on a short level mitre. Mitres on dark thread are now a faint light line.
+  (`src/lib/atelier/columns.ts`, `stitches.ts`; see `.claude/rules/atelier-engine.md`.)
 - **Removed on 2026-10-04: Lenis smooth scroll** (script, dependency, hero cue hook). Not an open item;
   recorded so nobody reintroduces it.
 
@@ -195,6 +196,14 @@ This file tracks the things that have no other home.
   included. Write tokens bare. (Also carried from WCP.)
 
 ## Recently closed
+
+- 2026-10-04: **Hoop crops, the no-JS quote note, concentric stitches** (branch `chore/leftover-fixes`).
+  New `galleryItem.hoopFit` ("Show it in a round hoop?"); 9 photos that cannot make a round crop are flagged
+  `poor` (`scripts/seed-hoopfit.mjs`, backup `tmp/backups/production-2026-10-04-hoopfit.tar.gz`) and stay out
+  of every hoop (`src/lib/hoop.ts`; `/towels-linens` had one in its hero cluster). Hoops now honour the
+  hotspots (`IMG_HOOP`). The quote form still needs JavaScript to send (Turnstile is kept), but a `<noscript>`
+  note (`requestAQuotePage.noScriptMessage`) now gives Mary Ann's email and phone as links. The quote card,
+  thread-chart and quote-preview mounts, header dropdown and the pinked cloths now have concentric stitches.
 
 - **2026-10-04: everything from the redesign day is closed.** Redesign, quote email (Cloudflare Email Service, Email Sending onboarded for mas-monograms.com), Turnstile (widget, secret, build variable, action and hostname checks), phone made optional, hotspots on all 76 gallery and category images (`scripts/set-hotspots.mjs`, decisions in `scripts/data/hotspots-2026-10-04.json`), label fields seeded, handbook entry added. The first real quote request is the live test of the email path.
 

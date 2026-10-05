@@ -219,6 +219,7 @@ export type GalleryItem = {
   tags?: Array<string>;
   featured?: boolean;
   displayOrder?: number;
+  hoopFit?: 'good' | 'poor';
 };
 
 export type ThreadColor = {
@@ -985,6 +986,7 @@ export type RequestAQuotePage = {
   privacyNote?: string;
   errorMessage?: string;
   requiredFieldNote?: string;
+  noScriptMessage?: string;
 };
 
 export type AboutPage = {

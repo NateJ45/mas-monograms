@@ -195,8 +195,16 @@ All strings come from Sanity through props; short neutral fallbacks only where n
   `--btn-stitch-inset` (4px, 5px on hover and focus): to round a button set `--btn-radius` (the
   scrolled header pill's quote button sets `999px`), never `border-radius` alone, or the stitch
   stays square inside a pill. Other stitched frames: use `border-radius: inherit` when the host is a
-  pill (the header pill's inner edge does), `calc(<outer> - <inset>)` otherwise, or an
-  `outline` with a negative `outline-offset` (outlines follow the host radius on their own).
+  pill (the header pill's inner edge does), `max(0px, calc(<outer> - <inset>))` otherwise (clamped:
+  an inset larger than the corner gives a square stitch), or an `outline` with a negative
+  `outline-offset` (outlines follow the host radius on their own). Since 2026-10-04 the quote card
+  (`--card-radius`/`--card-stitch-inset`), the thread-chart and quote-preview mounts
+  (`--mount-radius`/`--mount-stitch-inset`) and the header dropdown (`--menu-radius`/`--menu-stitch-inset`)
+  follow the `.btn` pattern; the pinked swatch and studio cloths (square edges) have square stitches.
+- **Photos in round hoops.** Pass category and gallery photos through `src/lib/hoop.ts`
+  (`pickHoopImages`, `pickCardImage`, `isPoorHoopFit`) before handing them to `HoopFrame`, and query
+  them with `IMG_HOOP` so the hotspot and `hoopFit` arrive. A photo marked `galleryItem.hoopFit: 'poor'`
+  never goes in a hoop while a good one of the same category exists (`docs/06-sanity-content-model.md`).
 - **`FaqAccordion.tsx`**: same props; stitched dividers, italic index numerals, a cross-stitch toggle.
 
 ### Motifs (`src/components/motifs/`)

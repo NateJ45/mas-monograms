@@ -15,6 +15,7 @@ import HoopFrame from '@/components/motifs/HoopFrame.astro';
 import HangTag from '@/components/motifs/HangTag.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { getSiteSettings, getAboutPage, getFeaturedGalleryItems } from '@/lib/queries';
+import { isPoorHoopFit } from '@/lib/hoop';
 
 const [siteSettings, page, recentWork] = await Promise.all([
   getSiteSettings(),
@@ -22,7 +23,11 @@ const [siteSettings, page, recentWork] = await Promise.all([
   getFeaturedGalleryItems(3),
 ]);
 
-const recentWorkPhotos = (recentWork ?? []).filter((item: any) => item?.image?.asset).slice(0, 3);
+// Round hoops: the query already leaves out photos marked hoopFit "poor"; the
+// check here keeps that true if the query is ever shared with a square view.
+const recentWorkPhotos = (recentWork ?? [])
+  .filter((item: any) => item?.image?.asset && !isPoorHoopFit(item))
+  .slice(0, 3);
 const recentWorkHeadline = page?.recentWorkHeadline ?? 'Recent work from the studio';
 
 const title = page?.seoTitle ?? 'About — MAS Monograms';
@@ -313,7 +318,8 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     content: '';
     position: absolute;
     inset: 0.4rem;
-    border-radius: 999px 999px 4px 4px;
+    /* concentric with the frame: 6px corners minus the 0.4rem inset clamp to 0 */
+    border-radius: 999px 999px max(0px, calc(6px - 0.4rem)) max(0px, calc(6px - 0.4rem));
     border: 1.5px dashed var(--color-rust-cta);
     pointer-events: none;
     opacity: 0.75;

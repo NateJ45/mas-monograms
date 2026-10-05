@@ -69,6 +69,25 @@ export const galleryItem = defineType({
       initialValue: 99,
       validation: (Rule) => Rule.required().integer().min(0),
     }),
+    // hoopFit (2026-10-04): some photos cannot make a good round crop (two items
+    // side by side, a small design in a tall photo, a close-up that fills the
+    // circle). "poor" keeps the photo out of every round hoop on the site
+    // (src/lib/hoop.ts) while it still shows in the square gallery views.
+    defineField({
+      name: 'hoopFit',
+      title: 'Show it in a round hoop?',
+      type: 'string',
+      description:
+        'Some pages show photos inside a round embroidery hoop, which trims the corners. Pick "No" when the photo would lose too much in a circle, for example two items side by side or a small design in a tall photo. It will still show in the gallery, just never in a round hoop. A category photo that uses the same picture is skipped too.',
+      options: {
+        list: [
+          { title: 'Yes, it looks good in a circle', value: 'good' },
+          { title: 'No, keep it to the square gallery views', value: 'poor' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'good',
+    }),
   ],
   preview: {
     select: {

@@ -106,6 +106,12 @@ export function rasterize(
     const isUnder = kind === KIND_UNDER;
     const specMul = isFuzz ? 0.35 : isUnder ? 0.6 : isRun ? 1.1 : 1;
     const aa = Math.min(1, r * 0.9);
+    // an end that butts against another column (a mitre) is not a needle hole
+    // at the edge of the work: no end shading, so the mitre does not read as a
+    // dark line between two columns
+    const capBits = s.cap ? s.cap[i] : 0;
+    const openStart = (capBits & 1) !== 0;
+    const openEnd = (capBits & 2) !== 0;
 
     const bx0 = Math.max(0, Math.floor(Math.min(x0, x0 + dx) - r - 1));
     const by0 = Math.max(0, Math.floor(Math.min(y0, y0 + dy) - r - 1));
@@ -135,7 +141,9 @@ export function rasterize(
         const u = (across < 0 ? -d : d) / r;
         const cyl = Math.sqrt(1 - u * u);
         // distance from the nearer needle hole, in thread widths
-        let e = Math.min(along, len - along) / archLen;
+        const first = along < len * 0.5;
+        let e =
+          (first && openStart) || (!first && openEnd) ? 1 : Math.min(along, len - along) / archLen;
         e = e < 0 ? 0 : e > 1 ? 1 : e;
         const tilt = (1 - e) * (1 - e) * 0.85 * (along < len * 0.5 ? -1 : 1);
         let nx = ax * u * 0.75 + tx * tilt;

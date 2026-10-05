@@ -640,6 +640,20 @@ export const requestAQuotePage = defineType({
       description: 'Small note near the top of the form indicating required fields.',
       initialValue: 'Fields marked * are required.',
     }),
+    // No-JavaScript note (2026-10-04): the form needs JavaScript to send (the
+    // bot check runs in the browser), so visitors with it switched off see this
+    // at the top of the form, followed by the email and phone from Site Settings.
+    defineField({
+      name: 'noScriptMessage',
+      title: 'Note for visitors whose browser has JavaScript turned off',
+      type: 'text',
+      rows: 3,
+      group: 'submit',
+      description:
+        'Only shown to the few visitors whose browser cannot run the form. Your email and phone number from Site Settings appear right under it as links.',
+      initialValue:
+        'The quote form needs JavaScript to send. Turn it on, or email me your idea and photos and I will reply.',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Request a Quote Page' }) },
 });

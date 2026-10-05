@@ -14,10 +14,14 @@
 //      the axis cells within a few steps ALONG the axis, so a neighbouring
 //      stroke never bends it), and drop the cells near a junction, where no
 //      single direction exists,
-//   4. hand every cell of the element the direction of its nearest remaining
-//      axis cell (a multi-source flood inside the element), so the field is
-//      constant across a stroke and changes only on the line where two
-//      columns meet.
+//   4. lay the columns (sweepColumns): each straight run is fitted as one
+//      column (centre line, span, a half-width that may widen steadily) and
+//      sweeps square rays across the element over its span and on past its
+//      ends through the junction zones; pointed tips are dropped so strokes
+//      run on to the point; a cell goes to the column whose centre line it is
+//      nearest relative to that column's half-width, which puts the mitre where
+//      two columns meet; what no ray reaches is flooded from its neighbours.
+//      The field is constant across a stroke and changes only on the mitres.
 //
 // The result is a tensor field (n n^T, n = the satin direction, square to the
 // axis) that tensorField() blurs and samples like its other sources.
@@ -425,8 +429,9 @@ export function settleRuns(
   radius: (i: number) => number,
   minRun: number,
   straight: number,
-): void {
+): ColumnGroup[] {
   const n = w * h;
+  const groups: ColumnGroup[] = [];
   const run = new Int32Array(n).fill(-1);
   const runs: number[][] = [];
   for (let i = 0; i < n; i++) {
@@ -486,10 +491,17 @@ export function settleRuns(
       cc += dy * dy;
     }
     const tr = a + cc;
-    if (tr < 1e-9) continue;
+    if (tr < 1e-9) {
+      groups.push({ cells, straight: false, dx: 0, dy: 0 });
+      continue;
+    }
     const half = (a - cc) * 0.5;
     const root = Math.sqrt(half * half + b * b);
-    if ((2 * root) / tr < straight) continue;
+    if ((2 * root) / tr < straight) {
+      // a curved run (a bowl) keeps its own local tangents
+      groups.push({ cells, straight: false, dx: 0, dy: 0 });
+      continue;
+    }
     const lam = tr * 0.5 + root;
     let vx = b;
     let vy = lam - a;
@@ -531,14 +543,339 @@ export function settleRuns(
     acc[1] += sg * L.dy * L.cells.length;
     sum.set(r, acc);
   }
+  const merged = new Map<number, ColumnGroup>();
   for (let i = 0; i < lines.length; i++) {
-    const [sx, sy] = sum.get(find(i)) as [number, number];
+    const r = find(i);
+    const [sx, sy] = sum.get(r) as [number, number];
     const l = Math.hypot(sx, sy) || 1;
     for (const c of lines[i].cells) {
       t.tx[c] = sx / l;
       t.ty[c] = sy / l;
     }
+    let g = merged.get(r);
+    if (!g) {
+      g = { cells: [], straight: true, dx: sx / l, dy: sy / l };
+      merged.set(r, g);
+      groups.push(g);
+    }
+    for (const c of lines[i].cells) g.cells.push(c);
   }
+  return groups;
+}
+
+/**
+ * Flag the columns that are only the POINTED TIP where two strokes meet (the
+ * apex of an A, the top corners of an M, the foot of a V): one end of the axis
+ * is a free end where the stroke has narrowed to a point (edge distance under
+ * `sharp` times the column's widest), and the other end runs into a junction
+ * zone. Thinning grows such a stub of axis up the bisector of every pointed
+ * corner, and its rows would cut straight across both strokes; dropping it lets
+ * the two strokes run on to the point and mitre there instead. Pure.
+ */
+export function findTips(
+  s: Uint8Array,
+  w: number,
+  groups: ColumnGroup[],
+  zone: Uint8Array,
+  radius: (c: number) => number,
+  sharp = 0.35,
+): Uint8Array {
+  const n = s.length;
+  const tips = new Uint8Array(groups.length);
+  if (groups.length < 2) return tips;
+  const gOf = new Int32Array(n).fill(-1);
+  groups.forEach((g, gi) => {
+    for (const c of g.cells) gOf[c] = gi;
+  });
+  // the group each free end of the axis leads to, and how sharp that end is
+  const endR = new Float32Array(groups.length).fill(Infinity);
+  const seen = new Int32Array(n).fill(-1);
+  for (let e = w; e < n - w; e++) {
+    const ex = e % w;
+    if (!s[e] || ex === 0 || ex === w - 1 || zone[e] || degree(s, w, e) !== 1) continue;
+    // walk in from the free end (outside the junction zones) to the first column cell
+    const q = [e];
+    seen[e] = e;
+    let found = -1;
+    for (let head = 0; head < q.length && head < 400 && found < 0; head++) {
+      const c = q[head];
+      if (gOf[c] >= 0) {
+        found = gOf[c];
+        break;
+      }
+      for (let k = 0; k < 8; k++) {
+        const j = c + N8Y[k] * w + N8X[k];
+        if (j < 0 || j >= n || !s[j] || zone[j] || seen[j] === e) continue;
+        seen[j] = e;
+        q.push(j);
+      }
+    }
+    if (found >= 0) endR[found] = Math.min(endR[found], radius(e));
+  }
+  for (let gi = 0; gi < groups.length; gi++) {
+    const g = groups[gi];
+    if (!Number.isFinite(endR[gi])) continue;
+    let maxR = 0;
+    let touches = false;
+    for (const c of g.cells) {
+      maxR = Math.max(maxR, radius(c));
+      if (touches) continue;
+      for (let k = 0; k < 8; k++) {
+        const j = c + N8Y[k] * w + N8X[k];
+        if (j >= 0 && j < n && zone[j]) {
+          touches = true;
+          break;
+        }
+      }
+    }
+    // (the zone flood can stop a cell short of the column; look one step on)
+    if (!touches) {
+      for (const c of g.cells) {
+        for (let k = 0; k < 8 && !touches; k++) {
+          const j = c + N8Y[k] * w + N8X[k];
+          if (j < 0 || j >= n || !s[j] || gOf[j] === gi) continue;
+          for (let m = 0; m < 8; m++) {
+            const jj = j + N8Y[m] * w + N8X[m];
+            if (jj >= 0 && jj < n && zone[jj]) touches = true;
+          }
+        }
+        if (touches) break;
+      }
+    }
+    if (touches && endR[gi] < sharp * maxR) tips[gi] = 1;
+  }
+  return tips;
+}
+
+/** One satin column: the trusted axis cells that steer it. */
+export interface ColumnGroup {
+  cells: number[];
+  /** one straight column (a stem, a leg) with one direction (dx, dy) along its axis */
+  straight: boolean;
+  dx: number;
+  dy: number;
+}
+
+/**
+ * Least-squares fit of a straight column: its centre line (mean point, unit
+ * direction) and its half-width as a linear function of the position along it
+ * (a wedge-shaped leg widens steadily), plus the span its axis cells cover.
+ * `radius(c)` is the edge distance at axis cell c. Pure.
+ */
+export function fitColumn(
+  cells: number[],
+  w: number,
+  dx: number,
+  dy: number,
+  radius: (c: number) => number,
+): { mx: number; my: number; s0: number; s1: number; a: number; b: number; meanR: number } {
+  let mx = 0;
+  let my = 0;
+  let meanR = 0;
+  for (const c of cells) {
+    mx += c % w;
+    my += (c / w) | 0;
+    meanR += radius(c);
+  }
+  const m = cells.length || 1;
+  mx /= m;
+  my /= m;
+  meanR /= m;
+  let s0 = Infinity;
+  let s1 = -Infinity;
+  let ss = 0;
+  let sr = 0;
+  for (const c of cells) {
+    const s = ((c % w) - mx) * dx + (((c / w) | 0) - my) * dy;
+    if (s < s0) s0 = s;
+    if (s > s1) s1 = s;
+    ss += s * s;
+    sr += s * (radius(c) - meanR);
+  }
+  // the slope of the half-width; a column never narrows or widens faster than
+  // its edges could (a 45 degree flare each side)
+  let b = ss > 1e-9 ? sr / ss : 0;
+  if (b > 0.5) b = 0.5;
+  if (b < -0.5) b = -0.5;
+  return { mx, my, s0, s1, a: meanR, b, meanR };
+}
+
+/**
+ * Lay the columns over an element (w x h `mask`): every straight column sweeps
+ * square rays across the element from its fitted centre line, edge to edge but
+ * never more than a little past its own half-width, along its whole axis span
+ * (the CORE) and then on past each end (the EXTENSION, up to `ext` stroke radii)
+ * while the centre line stays inside the element. So a wedge leg keeps one clean
+ * parallelogram column right through the junction zones that broke its axis, and
+ * two legs that meet at an apex mitre there. Curved columns cast one ray from
+ * each axis cell along its own normal. A cell claimed by several columns goes to
+ * a core before an extension, then to the column whose centre line it is nearest
+ * relative to that column's half-width (the mitre between two strokes). A column
+ * whose own axis lies mostly inside other columns' extensions (the tip of an
+ * apex, the corner where an M's diagonal meets its stem) is dropped.
+ * Returns the satin direction per cell (nx, ny), -1 owner where nothing claimed,
+ * and the dropped flags per group.
+ */
+export function sweepColumns(
+  mask: Uint8Array,
+  w: number,
+  h: number,
+  groups: ColumnGroup[],
+  t: { tx: Float32Array; ty: Float32Array },
+  radius: (c: number) => number,
+  ext: number,
+  tips?: Uint8Array,
+): { owner: Int32Array; nx: Float32Array; ny: Float32Array; dropped: Uint8Array } {
+  const n = w * h;
+  const best = new Float32Array(n);
+  const owner = new Int32Array(n);
+  const nx = new Float32Array(n);
+  const ny = new Float32Array(n);
+  const fits = groups.map((g) => (g.straight ? fitColumn(g.cells, w, g.dx, g.dy, radius) : null));
+  const inMask = (x: number, y: number) => x >= 0 && y >= 0 && x < w && y < h && !!mask[y * w + x];
+  // cast one square ray from (px, py) (cell units, centre-based) along (rx, ry)
+  // `loose`: the ray runs on to the element edge (claiming as class 2), so a
+  // bracket or a flared corner beyond a column's half-width is still laid as a
+  // continuation of the nearest column instead of a flood of mixed directions
+  let loose = false;
+  const gR = groups.map((g) => {
+    let r = 0;
+    for (const c of g.cells) r += radius(c);
+    return r / (g.cells.length || 1);
+  });
+  const heavy = 1.3;
+  const ray = (
+    px: number,
+    py: number,
+    rx: number,
+    ry: number,
+    cap: number,
+    cls: number,
+    g: number,
+  ) => {
+    const put = (c: number, score: number) => {
+      let v = cls * 100 + score;
+      // a clearly heavier stroke runs on through the core of a lighter one and
+      // the two mitre on their centre lines (the thick diagonal of an N takes
+      // its corners; the thin stems butt into it), as a digitiser lays them
+      if (cls === 1 && best[c] < 100 && gR[g] > heavy * gR[owner[c]]) v = score;
+      if (v < best[c]) {
+        best[c] = v;
+        owner[c] = g;
+        nx[c] = rx;
+        ny[c] = ry;
+      }
+    };
+    // (a centre point just outside the element, past the tip of a pointed
+    // apex, still lays the part of its row that falls inside, within the cap)
+    const start = inMask(Math.floor(px), Math.floor(py));
+    let hit = false;
+    if (start) {
+      put(Math.floor(py) * w + Math.floor(px), 0);
+      hit = true;
+    }
+    const reach = loose ? w + h : cap;
+    for (let sg = -1; sg <= 1; sg += 2) {
+      let inside = start;
+      for (let d = 0.5; d <= reach; d += 0.5) {
+        const qx = Math.floor(px + rx * d * sg);
+        const qy = Math.floor(py + ry * d * sg);
+        if (!inMask(qx, qy)) {
+          if (inside || d > cap) break;
+          continue;
+        }
+        inside = true;
+        hit = true;
+        put(qy * w + qx, d / cap);
+      }
+    }
+    return hit;
+  };
+  const gapsOf = groups.map((g, gi) => {
+    const f = fits[gi];
+    const out: [number, number][] = [];
+    if (!f) return out;
+    const ss = g.cells
+      .map((c) => ((c % w) - f.mx) * g.dx + (((c / w) | 0) - f.my) * g.dy)
+      .sort((a, b) => a - b);
+    for (let k = 1; k < ss.length; k++) {
+      const a = ss[k - 1];
+      const b = ss[k];
+      if (b - a > 2.5 * Math.max(1, f.a + f.b * (a + b) * 0.5)) out.push([a, b]);
+    }
+    return out;
+  });
+  const sweep = (gi: number, core: boolean, extension: boolean) => {
+    const g = groups[gi];
+    const f = fits[gi];
+    const c0 = loose ? 2 : 0;
+    const c1 = loose ? 2 : 1;
+    if (!f) {
+      if (!core) return;
+      for (const c of g.cells) {
+        ray((c % w) + 0.5, ((c / w) | 0) + 0.5, -t.ty[c], t.tx[c], radius(c) * 1.25 + 1, c0, gi);
+      }
+      return;
+    }
+    const rx = -g.dy;
+    const ry = g.dx;
+    const hw = (s: number) => f.a + f.b * s;
+    const at = (s: number, cls: number) => {
+      const px = f.mx + 0.5 + g.dx * s;
+      const py = f.my + 0.5 + g.dy * s;
+      const r = hw(s);
+      if (r < 1) return false;
+      return ray(px, py, rx, ry, r * 1.25 + 1, cls, gi);
+    };
+    // A long gap in a merged column (a thin bar cut in two by the heavy stem it
+    // crosses) is not core: the bar only runs on into it as an extension, so
+    // the stem keeps its own rows. A short gap (a leg cut by a crossbar) is.
+    const gaps = gapsOf[gi];
+    const inGap = (s: number) => {
+      for (const [a, b] of gaps) if (s > a && s < b) return true;
+      return false;
+    };
+    if (core) {
+      for (let s = f.s0; s <= f.s1; s += 0.5) if (!inGap(s)) at(s, c0);
+    }
+    if (extension) {
+      for (const [a, b] of gaps) for (let s = a + 0.5; s < b; s += 0.5) at(s, c1);
+      const reach = ext * f.meanR;
+      for (let s = f.s1 + 0.5; s <= f.s1 + reach; s += 0.5) if (!at(s, c1)) break;
+      for (let s = f.s0 - 0.5; s >= f.s0 - reach; s -= 0.5) if (!at(s, c1)) break;
+    }
+  };
+  // 1. which columns lie mostly inside another column's extension?
+  const dropped = tips ? Uint8Array.from(tips) : new Uint8Array(groups.length);
+  best.fill(Infinity);
+  owner.fill(-1);
+  for (let gi = 0; gi < groups.length; gi++) if (!dropped[gi]) sweep(gi, false, true);
+  for (let gi = 0; gi < groups.length; gi++) {
+    const g = groups[gi];
+    if (dropped[gi]) continue;
+    let covered = 0;
+    let longer = false;
+    for (const c of g.cells) {
+      const o = owner[c];
+      if (o >= 0 && o !== gi && best[c] < 100 + 0.85) {
+        covered++;
+        if (groups[o].cells.length > g.cells.length) longer = true;
+      }
+    }
+    if (longer && covered >= g.cells.length * 0.6) dropped[gi] = 1;
+  }
+  // 2. the real sweep, cores and extensions of the columns that stay
+  best.fill(Infinity);
+  owner.fill(-1);
+  // (every core first, so an extension always meets the cores it competes with)
+  for (let gi = 0; gi < groups.length; gi++) if (!dropped[gi]) sweep(gi, true, false);
+  for (let gi = 0; gi < groups.length; gi++) if (!dropped[gi]) sweep(gi, false, true);
+  // 3. what is left (brackets, flared corners) goes to the nearest column, by
+  // the same relative distance, with rays that run on to the element edge
+  loose = true;
+  for (let gi = 0; gi < groups.length; gi++) if (!dropped[gi]) sweep(gi, true, true);
+  loose = false;
+  return { owner, nx, ny, dropped };
 }
 
 export interface ColumnField {
@@ -572,6 +909,8 @@ export function columnField(
     minCoh?: number;
     /** widest a cross-section may be, relative to twice the edge distance */
     maxSection?: number;
+    /** how far a straight column runs on past its axis ends, in stroke radii */
+    ext?: number;
     /**
      * debugging: filled per coarse cell with why an axis cell does not steer
      * (0 = it does, 1 = junction zone, 2 = bent, 3 = slanted cross-section,
@@ -585,6 +924,7 @@ export function columnField(
   const minRun = opts.minRun ?? 0.6;
   const straightRun = opts.straightRun ?? 0.985;
   const maxSection = opts.maxSection ?? 1.3;
+  const ext = opts.ext ?? 3;
   const n = w * h;
   const jxx = new Float32Array(n);
   const jxy = new Float32Array(n);
@@ -686,18 +1026,25 @@ export function columnField(
     for (let k = 0; k < bw * bh; k++) if (s[k] && !bad[k]) bad[k] = why(t, k);
     t = skeletonTangents(s, bw, bh, R, bad);
     for (let k = 0; k < bw * bh; k++) if (s[k] && !bad[k]) bad[k] = why(t, k);
-    settleRuns(s, bw, bh, bad, t, (k) => dt[local(k)], minRun, straightRun);
+    const groups = settleRuns(s, bw, bh, bad, t, (k) => dt[local(k)], minRun, straightRun);
+    // lay the columns (cores, then extensions through the junction zones)
+    const tips = findTips(s, bw, groups, zone, (k) => dt[local(k)]);
+    const cols = sweepColumns(mask, bw, bh, groups, t, (k) => dt[local(k)], ext, tips);
+    for (let g = 0; g < groups.length; g++) {
+      if (cols.dropped[g]) for (const c of groups[g].cells) bad[c] = 6;
+    }
     if (opts.why) for (let k = 0; k < bw * bh; k++) if (s[k]) opts.why[local(k)] = bad[k];
-    // multi-source flood from trusted axis cells, inside the element only
-    const src = new Int32Array(bw * bh).fill(-1);
+    // cells no column reached take the direction of the nearest one that did
+    // (a multi-source flood inside the element only)
+    const dirX = cols.nx;
+    const dirY = cols.ny;
+    const got = new Uint8Array(bw * bh);
     const queue = new Int32Array(bw * bh);
     let tail = 0;
     for (let k = 0; k < bw * bh; k++) {
-      if (!s[k]) continue;
-      skelAll[local(k)] = 1;
-      if (bad[k]) continue;
-      src[k] = k;
-      skelAll[local(k)] = 2;
+      if (s[k]) skelAll[local(k)] = bad[k] ? 1 : 2;
+      if (cols.owner[k] < 0 || !mask[k]) continue;
+      got[k] = 1;
       queue[tail++] = k;
     }
     if (!tail) {
@@ -716,17 +1063,18 @@ export function columnField(
         const ny = ky + N8Y[o];
         if (nx < 0 || ny < 0 || nx >= bw || ny >= bh) continue;
         const j = ny * bw + nx;
-        if (!mask[j] || src[j] >= 0) continue;
-        src[j] = src[k];
+        if (!mask[j] || got[j]) continue;
+        got[j] = 1;
+        dirX[j] = dirX[k];
+        dirY[j] = dirY[k];
         queue[tail++] = j;
       }
     }
     for (let k = 0; k < bw * bh; k++) {
-      const sk = src[k];
-      if (sk < 0 || !mask[k]) continue;
-      // satin direction: square to the axis tangent
-      const nx = -t.ty[sk];
-      const ny = t.tx[sk];
+      if (!got[k]) continue;
+      // satin direction: square to the column's axis
+      const nx = dirX[k];
+      const ny = dirY[k];
       const i = local(k);
       jxx[i] = nx * nx;
       jxy[i] = nx * ny;

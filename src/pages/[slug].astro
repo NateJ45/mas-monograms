@@ -22,6 +22,7 @@ import GallerySwatch from '@/components/gallery/GallerySwatch.astro';
 import Lightbox from '@/components/gallery/Lightbox.astro';
 import { splitSwash } from '@/components/gallery/swash';
 import { breadcrumbSchema } from '@/lib/schemas';
+import { pickHoopImages, pickCardImage } from '@/lib/hoop';
 import { site } from '@/data/site';
 import {
   getSiteSettings,
@@ -87,8 +88,14 @@ const relatedGallery = allGallery
   .filter((item: any) => item.relatedCategory?.slug?.current === slug && item.image?.asset)
   .slice(0, 8);
 
-const heroImages = (category?.heroImages ?? []).filter((img: any) => img?.asset);
-const [leadImage, ...restImages] = heroImages;
+// The hoop cluster: hero photos marked hoopFit "poor" (they cannot make a good
+// round crop) are swapped for a good photo from this category's gallery
+// (src/lib/hoop.ts). The square swatch gallery below still shows every photo.
+const categoryGalleryImages = allGallery
+  .filter((item: any) => item.relatedCategory?.slug?.current === slug && item.image?.asset)
+  .map((item: any) => ({ ...item.image, hoopFit: item.hoopFit ?? item.image.hoopFit }));
+const heroImages = pickHoopImages(category?.heroImages ?? [], categoryGalleryImages);
+const [leadImage, ...restImages] = heroImages as any[];
 const name = splitSwash(category.name);
 const quoteHref = `/request-a-quote?item=${encodeURIComponent(slug)}`;
 const ctaLabel = category?.ctaLabel ?? 'Request a Quote';
@@ -276,7 +283,7 @@ const pageSchemas = [
                 <CategoryCard
                   name={cat.name}
                   slug={cat.slug?.current ?? ''}
-                  cardImage={cat.cardImage}
+                  cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
                   size={240}
                   tilt={[-2, 1.5, -1][i % 3]}
                 />

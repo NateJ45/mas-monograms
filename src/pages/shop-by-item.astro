@@ -12,6 +12,7 @@ import CtaBanner from '@/components/CtaBanner.astro';
 import Spool from '@/components/motifs/Spool.astro';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { splitSwash } from '@/components/gallery/swash';
+import { pickCardImage } from '@/lib/hoop';
 import {
   getSiteSettings,
   getShopIndexPage,
@@ -139,7 +140,7 @@ function priceHint(cat: any): string | null {
                     <CategoryCard
                       name={cat.name}
                       slug={cat.slug?.current ?? ''}
-                      cardImage={cat.cardImage}
+                      cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
                       size={s.size}
                       tilt={s.tilt}
                       priceHint={priceHint(cat)}
