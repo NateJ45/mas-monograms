@@ -317,7 +317,7 @@ test.describe('Quote source tags', () => {
   test('tags from the landing page follow the visitor to the quote form', async ({ page }) => {
     await page.goto('/?utm_source=qr&utm_medium=tag&utm_campaign=test', { waitUntil: 'load' });
     // Click through, as a visitor would (the router swaps the page in place).
-    await page.locator('header a[href="/request-a-quote"]').first().click();
+    await page.locator('header a[href="/request-a-quote/"]').first().click();
     await page.waitForURL(/\/request-a-quote\/?$/);
     await expect(field(page, 'utm_source')).toHaveValue('qr');
     await expect(field(page, 'utm_medium')).toHaveValue('tag');

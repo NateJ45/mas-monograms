@@ -25,19 +25,21 @@
 // returns undefined and is DROPPED by whoever asked for it. A dead link in a
 // menu is worse than no link.
 
+import { internalHref } from './internal-href.ts';
+
 /** Web address per fixed page. Mirrors SINGLETON_PREVIEW_PATHS. */
 export const SINGLETON_LIVE_PATHS: Record<string, string> = {
   homePage: '/',
-  howItWorksPage: '/how-it-works',
-  pricingPage: '/pricing',
-  aboutPage: '/about',
-  requestAQuotePage: '/request-a-quote',
-  shopIndexPage: '/shop-by-item',
-  styleGalleryPage: '/style-gallery',
-  fontGuidePage: '/font-lettering-guide',
-  threadChartPage: '/thread-color-chart',
-  clearancePage: '/clearance',
-  thankYouPage: '/thank-you',
+  howItWorksPage: '/how-it-works/',
+  pricingPage: '/pricing/',
+  aboutPage: '/about/',
+  requestAQuotePage: '/request-a-quote/',
+  shopIndexPage: '/shop-by-item/',
+  styleGalleryPage: '/style-gallery/',
+  fontGuidePage: '/font-lettering-guide/',
+  threadChartPage: '/thread-color-chart/',
+  clearancePage: '/clearance/',
+  thankYouPage: '/thank-you/',
   notFoundPage: '/404',
 };
 
@@ -95,7 +97,7 @@ export function navHref(link?: RawNavLink | null): string | undefined {
   if (!link) return undefined;
 
   const typed = plain(link.href);
-  if (typed) return typed;
+  if (typed) return internalHref(typed);
 
   if (plain(link.linkType) === 'external') {
     return plain(link.externalUrl) || undefined;
@@ -106,9 +108,9 @@ export function navHref(link?: RawNavLink | null): string | undefined {
   const prefix = COLLECTION_ROUTE_PREFIXES[docType];
   if (prefix !== undefined) {
     const slug = plain(link.slug);
-    return slug ? `${prefix}/${slug}` : undefined;
+    return slug ? internalHref(`${prefix}/${slug}`) : undefined;
   }
-  return SINGLETON_LIVE_PATHS[docType];
+  return internalHref(SINGLETON_LIVE_PATHS[docType]);
 }
 
 /** True when an address leaves this site (so the link opens in a new tab). */

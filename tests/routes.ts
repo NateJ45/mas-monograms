@@ -21,16 +21,16 @@ import { join } from 'node:path';
 // a missing one is a real failure.
 const fixedRoutes = [
   '/',
-  '/about',
-  '/how-it-works',
-  '/pricing',
-  '/request-a-quote',
-  '/shop-by-item',
-  '/style-gallery',
-  '/font-lettering-guide',
-  '/thread-color-chart',
-  '/clearance',
-  '/thank-you',
+  '/about/',
+  '/how-it-works/',
+  '/pricing/',
+  '/request-a-quote/',
+  '/shop-by-item/',
+  '/style-gallery/',
+  '/font-lettering-guide/',
+  '/thread-color-chart/',
+  '/clearance/',
+  '/thank-you/',
 ];
 
 // The CMS-driven templates: `/[slug]` (itemCategory) and `/legal/[slug]`
@@ -54,11 +54,11 @@ function discoverBuiltRoutes(): string[] {
       const full = join(dir, name);
       if (!statSync(full).isDirectory()) continue;
       if (prefix === '' && EXCLUDED.has(name)) continue;
-      const route = `${prefix}/${name}`;
+      const route = `${prefix}/${name}/`;
       if (existsSync(join(full, 'index.html')) && !fixedRoutes.includes(route)) {
         found.push(route);
       }
-      walk(full, route);
+      walk(full, route.slice(0, -1));
     }
   };
   walk(dist, '');

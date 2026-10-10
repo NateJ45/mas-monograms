@@ -69,7 +69,7 @@
         p.set('style', stage!.dataset.style || 'classic');
         if (thread?.value) p.set('thread', thread.value);
         if (fabric?.value) p.set('fabric', fabric.value);
-        cta.href = `${cta.dataset.quoteHref ?? '/request-a-quote'}?${p.toString()}`;
+        cta.href = `${cta.dataset.quoteHref ?? '/request-a-quote/'}?${p.toString()}`;
       }
     }
 

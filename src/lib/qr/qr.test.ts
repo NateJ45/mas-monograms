@@ -89,11 +89,11 @@ function rasterise(
 
 test('own-site links get the qr tag; other query strings and #fragments survive', () => {
   assert.equal(
-    qrLink(`${SITE_ORIGIN}/request-a-quote`, { medium: 'card', now: NOW }),
-    `${SITE_ORIGIN}/request-a-quote?utm_source=qr&utm_medium=card&utm_campaign=2026-10`,
+    qrLink(`${SITE_ORIGIN}/request-a-quote/`, { medium: 'card', now: NOW }),
+    `${SITE_ORIGIN}/request-a-quote/?utm_source=qr&utm_medium=card&utm_campaign=2026-10`,
   );
   const kept = new URL(
-    qrLink(`${SITE_ORIGIN}/style-gallery?filter=towels#grid`, {
+    qrLink(`${SITE_ORIGIN}/style-gallery/?filter=towels#grid`, {
       medium: 'tag',
       campaign: 'Fall Fair 2026!',
     }),
@@ -194,7 +194,7 @@ test('the encoder refuses text it would garble', () => {
 test('a second, independent decoder reads back exactly what was encoded', () => {
   for (const text of [
     'https://mas-monograms.com/',
-    'https://mas-monograms.com/request-a-quote?utm_source=qr&utm_medium=card&utm_campaign=2026-10',
+    'https://mas-monograms.com/request-a-quote/?utm_source=qr&utm_medium=card&utm_campaign=2026-10',
     'https://g.page/r/CabcdEFGhij123/review',
   ]) {
     for (const ecl of ['M', 'H'] as const) {

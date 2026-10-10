@@ -155,9 +155,9 @@
     errorEl?.classList.add('hidden');
 
     try {
-      const res = await fetch('/api/quote', { method: 'POST', body: data });
+      const res = await fetch('/api/quote/', { method: 'POST', body: data });
       if (res.redirected || res.status === 303) {
-        const dest = res.redirected ? res.url : (res.headers.get('Location') ?? '/thank-you');
+        const dest = res.redirected ? res.url : (res.headers.get('Location') ?? '/thank-you/');
         successEl?.classList.remove('hidden');
         setTimeout(() => {
           window.location.href = dest;
@@ -167,7 +167,7 @@
       if (res.ok) {
         successEl?.classList.remove('hidden');
         setTimeout(() => {
-          window.location.href = '/thank-you';
+          window.location.href = '/thank-you/';
         }, 1200);
       } else {
         const body = await res.json().catch(() => ({}));

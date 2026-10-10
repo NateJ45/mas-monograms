@@ -102,7 +102,7 @@ const NAV_ITEMS: NavItem[] = chrome.navItems
         (item.href === '/' || plain(item.label).trim().toLowerCase() === 'home')
       ),
   )
-  .filter((it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance'));
+  .filter((it) => hasClearance || !(it.kind === 'flat' && it.href === '/clearance/'));
 
 // The menu is split either side of the centred seal: the first half on the left.
 const split = Math.ceil(NAV_ITEMS.length / 2);

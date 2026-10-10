@@ -87,7 +87,7 @@ const hasBody = !!(categoryName || fontName);
             {fontLine && <p class="gallery-swatch__font">{fontLine}</p>}
             {showRequest && categorySlug && (
               <a
-                href={`/request-a-quote?item=${categorySlug}`}
+                href={`/request-a-quote/?item=${categorySlug}`}
                 class="gallery-swatch__req link-stitch hit-44 relative"
               >
                 {requestLabel ?? 'Request this'} <span aria-hidden="true">→</span>

@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // The hoop wall (home): every item category hung salon-style on the Midnight
 // ground, each photo stretched in a wooden hoop with a kraft hang tag carrying
 // its name. Hoops lift on hover and focus; each links to its category page.
@@ -83,7 +84,7 @@ const FOCAL: Record<string, { x: number; y: number }> = {};
               data-reveal
               data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
             >
-              <a href={`/${slug}`} class="hoop-wall__link">
+              <a href={internalHref(`/${slug}`)} class="hoop-wall__link">
                 <span class="hoop-wall__hoop" style={`--hs:${h.size}px`}>
                   <HoopFrame
                     image={hasPhoto ? photo : null}

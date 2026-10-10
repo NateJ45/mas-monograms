@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // The "live stitch" panel beside the spool rack: one studio-quality
 // AtelierStage showing the chosen thread stitched on the chosen cloth, the
 // thread's name, fabric swatches (a radio group), an initials field, replay,
@@ -172,7 +173,7 @@ const href = `${quoteHref}?${params.toString()}`;
     {
       ctaLabel && (
         <a
-          href={href}
+          href={internalHref(href)}
           class="btn btn-primary panel__cta"
           data-thread-cta
           data-quote-href={quoteHref}

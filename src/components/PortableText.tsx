@@ -17,6 +17,7 @@ import { PortableText as PT, type PortableTextComponents } from '@portabletext/r
 import type { PortableTextBlock } from '@portabletext/types';
 import { urlFor, parseSanityAssetDimensions } from '@/lib/sanity';
 import { slugify } from '@/lib/slugify';
+import { internalHref } from '@/lib/internal-href';
 
 interface Props {
   value: PortableTextBlock[] | undefined | null;
@@ -94,7 +95,7 @@ function makeComponents(): PortableTextComponents {
       strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
       em: ({ children }) => <em className="italic">{children}</em>,
       link: ({ children, value }) => {
-        const href = value?.href ?? '#';
+        const href = internalHref(value?.href ?? '#');
         const isExternal = /^https?:\/\//.test(href);
         const newTab = value?.openInNewTab || isExternal;
         return (

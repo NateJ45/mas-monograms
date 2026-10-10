@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // Clearance (Direction D, "The Atelier", 2026-10-04): a Midnight opening band
 // with the payment and pickup notes hung beside the headline as hang tags,
 // then the clearance pieces on linen as swatch cards, each with a kraft price
@@ -126,12 +127,15 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
                   'No clearance items available at this time. Check back soon!'}
               </p>
               <div class="mt-l flex flex-col items-start gap-m sm:flex-row sm:items-center">
-                <a href={page?.emptyStateCtaHref ?? '/request-a-quote'} class="btn btn-primary">
+                <a
+                  href={internalHref(page?.emptyStateCtaHref ?? '/request-a-quote/')}
+                  class="btn btn-primary"
+                >
                   {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
                 </a>
                 {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
                   <a
-                    href={page?.emptyStateSecondaryHref ?? '/shop-by-item'}
+                    href={internalHref(page?.emptyStateSecondaryHref ?? '/shop-by-item/')}
                     class="link-stitch hit-44 relative text-sm font-semibold"
                   >
                     {page?.emptyStateSecondaryLabel ?? 'Browse what I make'}{' '}

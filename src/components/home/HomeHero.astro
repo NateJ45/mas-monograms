@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // Home hero (Direction D, "The Atelier"): a huge Fraunces headline on the
 // Midnight drench, and on the right the LIVE stitching: the Atelier engine
 // (quality "hero") on a HeroAtelierStage stretched in a turned-wood hoop,
@@ -60,10 +61,10 @@ const trust = ((page?.trustItems ?? []) as string[])
   .map((text, index) => ({ text, index }))
   .filter((t) => Boolean(t.text));
 const primary = page?.heroPrimaryCtaLabel
-  ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote' }
+  ? { label: page.heroPrimaryCtaLabel, href: page.heroPrimaryCtaHref ?? '/request-a-quote/' }
   : null;
 const secondary = page?.heroSecondaryCtaLabel
-  ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/shop-by-item' }
+  ? { label: page.heroSecondaryCtaLabel, href: page.heroSecondaryCtaHref ?? '/shop-by-item/' }
   : null;
 const brass = motifId('hh');
 const tryId = 'hero-try-input';
@@ -99,7 +100,7 @@ const hintId = 'hero-try-hint';
         (primary || secondary) && (
           <div class="mt-l flex flex-wrap items-center gap-m">
             {primary && (
-              <a href={primary.href} class="btn btn-primary">
+              <a href={internalHref(primary.href)} class="btn btn-primary">
                 <span>{primary.label}</span>
                 <span class="btn__arrow" aria-hidden="true">
                   &rarr;
@@ -107,7 +108,7 @@ const hintId = 'hero-try-hint';
               </a>
             )}
             {secondary && (
-              <a href={secondary.href} class="btn btn-secondary">
+              <a href={internalHref(secondary.href)} class="btn btn-secondary">
                 {secondary.label}
               </a>
             )}

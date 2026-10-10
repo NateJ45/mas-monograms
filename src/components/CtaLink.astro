@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // Safe to edit by hand
 // Resolves a CtaBlock to the right <a href>. A CtaBlock can specify its
 // destination one of five ways (checked in this order):
@@ -57,7 +58,7 @@ const {
   variant = 'primary',
   onDark = false,
   arrow = false,
-  fallbackHref = '/request-a-quote',
+  fallbackHref = '/request-a-quote/',
   fallbackLabel = 'Get in touch',
   class: extraClass = '',
 } = Astro.props as Props;
@@ -66,16 +67,16 @@ const {
 // Singletons go to a fixed path; itemCategory uses its own slug field.
 const TYPE_TO_PATH: Record<string, string> = {
   homePage: '/',
-  howItWorksPage: '/how-it-works',
-  pricingPage: '/pricing',
-  aboutPage: '/about',
-  requestAQuotePage: '/request-a-quote',
-  shopIndexPage: '/shop-by-item',
-  styleGalleryPage: '/style-gallery',
-  fontGuidePage: '/font-lettering-guide',
-  threadChartPage: '/thread-color-chart',
-  clearancePage: '/clearance',
-  thankYouPage: '/thank-you',
+  howItWorksPage: '/how-it-works/',
+  pricingPage: '/pricing/',
+  aboutPage: '/about/',
+  requestAQuotePage: '/request-a-quote/',
+  shopIndexPage: '/shop-by-item/',
+  styleGalleryPage: '/style-gallery/',
+  fontGuidePage: '/font-lettering-guide/',
+  threadChartPage: '/thread-color-chart/',
+  clearancePage: '/clearance/',
+  thankYouPage: '/thank-you/',
 };
 
 function resolveHref(c?: CtaBlock | null): string {
@@ -87,7 +88,7 @@ function resolveHref(c?: CtaBlock | null): string {
       const t = c.internalLink?._type;
       if (!t) return fallbackHref;
       if (t === 'itemCategory' && c.internalLink?.slug) {
-        return `/${c.internalLink.slug}`;
+        return `/${c.internalLink.slug}/`;
       }
       return TYPE_TO_PATH[t] ?? fallbackHref;
     }
@@ -102,7 +103,7 @@ function resolveHref(c?: CtaBlock | null): string {
   }
 }
 
-const href = resolveHref(cta);
+const href = internalHref(resolveHref(cta));
 const label = cta?.label ?? fallbackLabel;
 // A raw href or an internal/email/phone link never auto-opens in a new tab —
 // only an actual linkType: 'external' CTA does, unless openInNewTab overrides it.
