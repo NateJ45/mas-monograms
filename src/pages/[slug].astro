@@ -97,7 +97,7 @@ const categoryGalleryImages = allGallery
 const heroImages = pickHoopImages(category?.heroImages ?? [], categoryGalleryImages);
 const [leadImage, ...restImages] = heroImages as any[];
 const name = splitSwash(category.name);
-const quoteHref = `/request-a-quote?item=${encodeURIComponent(slug)}`;
+const quoteHref = `/request-a-quote/?item=${encodeURIComponent(slug)}`;
 const ctaLabel = category?.ctaLabel ?? 'Request a Quote';
 // Per-category words (itemCategory), with neutral fallbacks for an unfilled field.
 const galleryHeading: string = category?.galleryHeading ?? category.name;
@@ -128,9 +128,9 @@ const focalFor = (img: any) => (img?.hotspot ? null : { x: 0.5, y: 0.42 });
 // a breadcrumb trail in the search result for each category page.
 const pageSchemas = [
   breadcrumbSchema([
-    { name: 'Home', url: site.url },
-    { name: 'Shop by Item', url: `${site.url}/shop-by-item` },
-    { name: category.name, url: `${site.url}/${slug}` },
+    { name: 'Home', url: `${site.url}/` },
+    { name: 'Shop by Item', url: `${site.url}/shop-by-item/` },
+    { name: category.name, url: `${site.url}/${slug}/` },
   ]),
 ];
 ---

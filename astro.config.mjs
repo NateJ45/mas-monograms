@@ -19,6 +19,9 @@ const SANITY_DATASET = process.env.PUBLIC_SANITY_DATASET || 'production';
 export default defineConfig({
   site: 'https://mas-monograms.com',
   output: 'static',
+  // Canonical tags and the sitemap use /about/, so every internal link ends in a slash
+  // too (src/lib/internal-href.ts). Without this Cloudflare 307s every slashless link.
+  trailingSlash: 'always',
   // 2026-08-28 (Astro 7 / adapter 14 upgrade): there is no login and no gated
   // area on this site, so opt out of sessions. Left on, @astrojs/cloudflare v14
   // auto-declares a "SESSION" KV binding in the generated

@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // The process (home): the four homePage.processSteps joined by a claret
 // running stitch that sews itself along as the section scrolls through the
 // viewport. Each step sits in a small paper hoop with its pattern-sheet
@@ -117,7 +118,10 @@ const V_PATH = 'M30 0 C 54 80, 6 170, 30 250 S 54 420, 30 500 S 6 670, 30 750 S 
 
         {page?.processCtaLabel && (
           <p class="mt-section-md text-center" data-reveal>
-            <a href={page.processCtaHref ?? '/how-it-works'} class="btn btn-secondary">
+            <a
+              href={internalHref(page.processCtaHref ?? '/how-it-works/')}
+              class="btn btn-secondary"
+            >
               <span>{page.processCtaLabel}</span>
               <span class="btn__arrow" aria-hidden="true">
                 &rarr;

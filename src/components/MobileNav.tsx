@@ -84,14 +84,14 @@ interface Props {
 // missing key simply renders the label alone, so adding a nav item never breaks
 // this menu.
 const DESCRIPTIONS: Record<string, string> = {
-  '/how-it-works': 'The process, start to finish',
-  '/pricing': 'Simple, honest pricing',
-  '/shop-by-item': 'Browse by item type',
-  '/style-gallery': 'Real work for inspiration',
-  '/about': 'Meet the maker',
-  '/font-lettering-guide': 'Every stitchable font',
-  '/thread-color-chart': 'All my thread colors',
-  '/clearance': 'Ready-to-ship pieces',
+  '/how-it-works/': 'The process, start to finish',
+  '/pricing/': 'Simple, honest pricing',
+  '/shop-by-item/': 'Browse by item type',
+  '/style-gallery/': 'Real work for inspiration',
+  '/about/': 'Meet the maker',
+  '/font-lettering-guide/': 'Every stitchable font',
+  '/thread-color-chart/': 'All my thread colors',
+  '/clearance/': 'Ready-to-ship pieces',
 };
 
 function socialIcon(platform: string | undefined) {
@@ -123,7 +123,7 @@ export default function MobileNav({
   links,
   siteSettings,
   ctaLabel = 'Request a Quote',
-  ctaHref = '/request-a-quote',
+  ctaHref = '/request-a-quote/',
   showCta = true,
   showEmail = true,
   showSocials = true,

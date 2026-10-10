@@ -285,7 +285,7 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
     return jsonError('We could not send your request. Please email us directly.', 502);
   }
 
-  return new Response(null, { status: 303, headers: { Location: '/thank-you' } });
+  return new Response(null, { status: 303, headers: { Location: '/thank-you/' } });
 }
 
 function jsonError(error: string, status: number) {

@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // The maker (home): Mary Ann in an arched portrait on the Indigo band, her
 // pull quote at display size in the italic, her signature in Petemoss, a few
 // stitched-bullet facts and her own words (aboutBody). Copy from homePage
@@ -101,7 +102,7 @@ const hasPhoto = !!page?.aboutPhoto?.asset;
       {
         page?.aboutCtaLabel && (
           <p class="mt-l" data-reveal>
-            <a href={page.aboutCtaHref ?? '/about'} class="btn btn-secondary">
+            <a href={internalHref(page.aboutCtaHref ?? '/about/')} class="btn btn-secondary">
               <span>{page.aboutCtaLabel}</span>
               <span class="btn__arrow" aria-hidden="true">
                 &rarr;

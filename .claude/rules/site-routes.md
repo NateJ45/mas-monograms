@@ -13,6 +13,8 @@ Loads when you touch pages, redirects, the base layout or the Worker config.
 
 ## Routes
 
+**Trailing slash (2026-10-09).** `trailingSlash: 'always'` in `astro.config.mjs`: canonicals and the sitemap use `/about/`, so every internal link must too, or Cloudflare 307s it. Any internal href built at render time (CMS strings, Sanity slugs, data files) goes through `internalHref()` in `src/lib/internal-href.ts`; literals are written with the slash. SSR URLs need it too (`/api/quote/`, `/preview/live/`, `/api/draft-mode/*/`): without it they 301/308. Check after a build: no `href="/..."` without a trailing slash in `dist/client` (files with an extension excepted).
+
 Direction D ("The Atelier", 2026-10-04) rebuilt every page; the route set did not change. What each
 page now does (brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`):
 

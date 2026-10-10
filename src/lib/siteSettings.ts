@@ -79,18 +79,18 @@ export interface ResolvedChrome {
 
 /** The built-in quote button, when Site Settings says nothing about it. */
 export const DEFAULT_CTA_LABEL = 'Request a Quote';
-export const DEFAULT_CTA_HREF = '/request-a-quote';
+export const DEFAULT_CTA_HREF = '/request-a-quote/';
 
 /**
  * The built-in top menu. This is what the header shows when Site Settings ->
  * Top menu links is empty, so a fresh copy of the site still has a real menu.
  */
 export const FALLBACK_NAV_ITEMS: NavItem[] = [
-  { kind: 'flat', label: 'How It Works', href: '/how-it-works' },
-  { kind: 'flat', label: 'Pricing', href: '/pricing' },
-  { kind: 'flat', label: 'Shop by Item', href: '/shop-by-item' },
-  { kind: 'flat', label: 'Style Gallery', href: '/style-gallery' },
-  { kind: 'flat', label: 'About', href: '/about' },
+  { kind: 'flat', label: 'How It Works', href: '/how-it-works/' },
+  { kind: 'flat', label: 'Pricing', href: '/pricing/' },
+  { kind: 'flat', label: 'Shop by Item', href: '/shop-by-item/' },
+  { kind: 'flat', label: 'Style Gallery', href: '/style-gallery/' },
+  { kind: 'flat', label: 'About', href: '/about/' },
 ];
 
 /**
@@ -102,26 +102,26 @@ export function fallbackFooterColumns(hasClearance = true): FooterColumn[] {
     {
       title: 'Explore',
       links: [
-        { label: 'How It Works', href: '/how-it-works' },
-        { label: 'Pricing', href: '/pricing' },
-        { label: 'Shop by Item', href: '/shop-by-item' },
-        { label: 'Style Gallery', href: '/style-gallery' },
-        { label: 'About', href: '/about' },
+        { label: 'How It Works', href: '/how-it-works/' },
+        { label: 'Pricing', href: '/pricing/' },
+        { label: 'Shop by Item', href: '/shop-by-item/' },
+        { label: 'Style Gallery', href: '/style-gallery/' },
+        { label: 'About', href: '/about/' },
       ],
     },
     {
       title: 'Resources',
       links: [
-        { label: 'Font & Lettering Guide', href: '/font-lettering-guide' },
-        { label: 'Thread Color Chart', href: '/thread-color-chart' },
-        ...(hasClearance ? [{ label: 'Clearance', href: '/clearance' }] : []),
+        { label: 'Font & Lettering Guide', href: '/font-lettering-guide/' },
+        { label: 'Thread Color Chart', href: '/thread-color-chart/' },
+        ...(hasClearance ? [{ label: 'Clearance', href: '/clearance/' }] : []),
       ],
     },
     {
       title: 'Get Started',
       links: [
-        { label: 'Request a Quote', href: '/request-a-quote' },
-        { label: 'How the process works', href: '/how-it-works' },
+        { label: 'Request a Quote', href: '/request-a-quote/' },
+        { label: 'How the process works', href: '/how-it-works/' },
       ],
     },
   ];

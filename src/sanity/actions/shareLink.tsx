@@ -74,7 +74,7 @@ export const ShareLinkAction: DocumentActionComponent = (props) => {
         'share-link',
         `${window.location.origin}/studio`,
       );
-      const url = new URL('/api/draft-mode/enable', window.location.origin);
+      const url = new URL('/api/draft-mode/enable/', window.location.origin);
       url.searchParams.set(urlSearchParamPreviewSecret, secret);
       url.searchParams.set(urlSearchParamPreviewPathname, pathname);
       const link = url.toString();

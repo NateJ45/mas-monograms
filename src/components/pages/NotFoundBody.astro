@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // NotFound page BODY (shared, 2026-10-05). Rendered by src/pages/404.astro from
 // published data at build time AND by src/pages/preview/[...slug].astro from
 // draft data in the Studio's "Edit on the page" canvas, so the canvas IS the
@@ -97,11 +98,14 @@ const after = i >= 0 ? headline.slice(i + (swash?.length ?? 0)) : '';
         {page?.subhead ?? "The page you're looking for doesn't exist or may have moved."}
       </p>
       <div class="mt-l flex flex-wrap gap-m">
-        <a href={page?.primaryCtaHref ?? '/request-a-quote'} class="btn btn-primary">
+        <a href={internalHref(page?.primaryCtaHref ?? '/request-a-quote/')} class="btn btn-primary">
           <span>{page?.primaryCtaLabel ?? 'Request a Quote'}</span>
           <span class="btn__arrow" aria-hidden="true">&rarr;</span>
         </a>
-        <a href={page?.secondaryCtaHref ?? '/shop-by-item'} class="btn btn-secondary">
+        <a
+          href={internalHref(page?.secondaryCtaHref ?? '/shop-by-item/')}
+          class="btn btn-secondary"
+        >
           {page?.secondaryCtaLabel ?? 'Shop by Item'}
         </a>
       </div>

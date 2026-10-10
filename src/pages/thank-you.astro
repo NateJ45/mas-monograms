@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // /thank-you (Direction D, "The Atelier", 2026-10-04): the delight moment.
 // An empty linen hoop (or the Sanity image, if one is set) where a running
 // stitch sews a check mark, ties itself off in a French knot and leaves a
@@ -185,7 +186,7 @@ const review = reviewLink(siteSettings);
             (page?.secondaryCtaLabel && page?.secondaryCtaHref)) && (
             <div class="mt-l flex flex-wrap items-center gap-x-l gap-y-m">
               {page?.ctaLabel && page?.ctaHref && (
-                <a href={page.ctaHref} class="btn btn-primary">
+                <a href={internalHref(page.ctaHref)} class="btn btn-primary">
                   <span>{page.ctaLabel}</span>
                   <span class="btn__arrow" aria-hidden="true">
                     &rarr;
@@ -193,7 +194,10 @@ const review = reviewLink(siteSettings);
                 </a>
               )}
               {page?.secondaryCtaLabel && page?.secondaryCtaHref && (
-                <a href={page.secondaryCtaHref} class="link-stitch hit-44 relative font-semibold">
+                <a
+                  href={internalHref(page.secondaryCtaHref)}
+                  class="link-stitch hit-44 relative font-semibold"
+                >
                   {page.secondaryCtaLabel}
                 </a>
               )}

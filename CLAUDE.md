@@ -35,6 +35,7 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 - **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build**
   variable in Workers Builds (`G-JTX5TMPVQ0`; never put it in `ci.yml`). It fires only on
   `mas-monograms.com`. The Privacy page names Google Analytics; keep it true. `docs/08`.
+- **Internal links end in `/`** (`trailingSlash: 'always'`, 2026-10-09); use `internalHref()` for any href built at render time. See `.claude/rules/site-routes.md`.
 - Lenis smooth scroll was removed on 2026-10-04; do not reintroduce it.
 - What is open: `docs/PENDING.md`. History: git log and the vault note.
 

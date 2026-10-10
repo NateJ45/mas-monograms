@@ -25,10 +25,10 @@ export type DestinationId = (typeof DESTINATION_IDS)[number];
 /** Pages on her own site, by path. */
 export const SITE_PATHS: Partial<Record<DestinationId, string>> = {
   home: '/',
-  quote: '/request-a-quote',
-  gallery: '/style-gallery',
-  threads: '/thread-color-chart',
-  clearance: '/clearance',
+  quote: '/request-a-quote/',
+  gallery: '/style-gallery/',
+  threads: '/thread-color-chart/',
+  clearance: '/clearance/',
 };
 
 /** What the Studio knows about her outside pages. */

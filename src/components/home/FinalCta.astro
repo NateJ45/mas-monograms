@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // The closing band (home): the golden thread is tied off here. A spool on the
 // Indigo ground trails its thread to the button, the headline sets its last
 // word in the gold swash, and the button row carries data-thread-end so the
@@ -17,7 +18,7 @@ const head = swashSplit(page?.finalHeadline ?? page?.ctaHeadline);
 const eyebrow = page?.finalEyebrow ?? page?.ctaEyebrow;
 const subhead = page?.finalSubhead ?? page?.ctaSubhead;
 const label = page?.finalCtaLabel ?? page?.ctaLabel;
-const href = page?.finalCtaHref ?? page?.ctaHref ?? '/request-a-quote';
+const href = page?.finalCtaHref ?? page?.ctaHref ?? '/request-a-quote/';
 ---
 
 <section class="final-cta surface-indigo py-section-lg" aria-labelledby={headingId}>
@@ -57,7 +58,7 @@ const href = page?.finalCtaHref ?? page?.ctaHref ?? '/request-a-quote';
           data-reveal
           style="--reveal-delay: 200ms"
         >
-          <a href={href} class="btn btn-primary final-cta__btn">
+          <a href={internalHref(href)} class="btn btn-primary final-cta__btn">
             <span>{label}</span>
             <span class="btn__arrow" aria-hidden="true">
               &rarr;

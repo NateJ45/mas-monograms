@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // Reusable bottom-of-page CTA section. Every MAS page ends with this.
 // Pull eyebrow/headline/subhead/ctaLabel/ctaHref from the page's Sanity data.
 //
@@ -31,7 +32,7 @@ const {
   swash,
   subhead = 'Tell us about your project and request a custom quote.',
   ctaLabel = 'Request a Quote',
-  ctaHref = '/request-a-quote',
+  ctaHref = '/request-a-quote/',
   secondaryLabel,
   secondaryHref,
 } = Astro.props;
@@ -75,13 +76,13 @@ if (swash && headline?.includes(swash)) {
         data-reveal
         style="--reveal-delay: 220ms"
       >
-        <a href={ctaHref} class="btn btn-primary">
+        <a href={internalHref(ctaHref)} class="btn btn-primary">
           <span>{ctaLabel}</span>
           <span class="btn__arrow" aria-hidden="true">&rarr;</span>
         </a>
         {
           secondaryLabel && secondaryHref && (
-            <a href={secondaryHref} class="btn btn-secondary">
+            <a href={internalHref(secondaryHref)} class="btn btn-secondary">
               {secondaryLabel}
             </a>
           )

@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // Foundation, edit with care
 // Site-wide layout. Provides:
 //   - <html lang>, document head, OG/Twitter meta
@@ -276,7 +277,10 @@ const announcementStyle =
         >
           <span>{announcement!.message}</span>
           {announcement?.link?.url && announcement?.link?.label && (
-            <a href={announcement.link.url} class:list={['ml-2', announcementStyle.link]}>
+            <a
+              href={internalHref(announcement.link.url)}
+              class:list={['ml-2', announcementStyle.link]}
+            >
               {announcement.link.label}
             </a>
           )}

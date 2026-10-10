@@ -1,4 +1,5 @@
 ---
+import { internalHref } from '@/lib/internal-href';
 // Safe to edit by hand
 // One item category as a hoop on the wall (Direction D, "The Atelier"): the
 // card photo stretched in an embroidery hoop (HoopFrame, warm grade on),
@@ -69,7 +70,7 @@ const px = typeof size === 'number' ? size : SIZES[size];
 ---
 
 <a
-  href={`/${slug}`}
+  href={internalHref(`/${slug}`)}
   class:list={['cat-hoop', hung && 'cat-hoop--hung', className]}
   style={`--cat-tilt:${tilt}deg`}
 >
