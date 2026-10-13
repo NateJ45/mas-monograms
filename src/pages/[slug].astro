@@ -123,6 +123,18 @@ const banner = ownBanner
     };
 // Embroidery in these phone photos sits near the centre, a little high.
 const focalFor = (img: any) => (img?.hotspot ? null : { x: 0.5, y: 0.42 });
+// `sizes` for the hoop cluster's photos (HoopFrame sizes describe the PHOTO, 0.867 of the
+// hoop). Under 1024px the cluster is one column, vw - 2rem wide: the lead hoop is 82% of
+// it (max 460), the two tucked hoops 38% and 32% (max 230 and 190). From 1024px the
+// cluster is the right-hand column, about half the viewport. Keep in step with the
+// .cat-intro__* CSS below; measured with offsetWidth from 320 to 1600px. The two tucked
+// hoops are decoration, so they ask for low fetch priority and the lead photo (the LCP)
+// wins the queue.
+const HOOP_SIZES = {
+  lead: '(min-width: 1024px) min(35vw, 399px), min(399px, calc((100vw - 2rem) * 0.711))',
+  a: '(min-width: 1024px) min(16vw, 200px), min(200px, calc((100vw - 2rem) * 0.329))',
+  b: '(min-width: 1024px) min(13.6vw, 165px), min(165px, calc((100vw - 2rem) * 0.277))',
+};
 
 // BreadcrumbList schema: Home > Shop by Item > <Category>. Helps Google render
 // a breadcrumb trail in the search result for each category page.
@@ -195,6 +207,8 @@ const pageSchemas = [
               image={restImages[0]}
               alt=""
               size={230}
+              sizes={HOOP_SIZES.a}
+              fetchpriority="low"
               tilt={-6}
               focal={focalFor(restImages[0])}
               class="cat-intro__hoop cat-intro__hoop--a"
@@ -207,6 +221,8 @@ const pageSchemas = [
               image={restImages[1]}
               alt=""
               size={190}
+              sizes={HOOP_SIZES.b}
+              fetchpriority="low"
               tilt={8}
               focal={focalFor(restImages[1])}
               class="cat-intro__hoop cat-intro__hoop--b"
@@ -217,6 +233,7 @@ const pageSchemas = [
           <HoopFrame
             image={leadImage ?? null}
             size={460}
+            sizes={HOOP_SIZES.lead}
             tilt={-2}
             focal={focalFor(leadImage)}
             loading="eager"

@@ -56,3 +56,43 @@ test.describe('Reflow: no horizontal overflow at tablet/laptop widths', () => {
     });
   }
 });
+
+// The quote form's Turnstile widget is drawn by Cloudflare's script, at a fixed 300px
+// ("normal") or 130px ("compact", chosen by data-size). At 320px it once pushed the page to
+// 336px. The widget only exists in a build that has PUBLIC_TURNSTILE_SITE_KEY (CI builds do
+// not), so this skips there; with a key it stubs api.js with an iframe of Cloudflare's
+// documented widths, so it needs no network and no real challenge.
+test.describe('Reflow: the Turnstile widget cannot widen the quote form', () => {
+  for (const width of [320, 360, 375, 390, 414]) {
+    test(`/request-a-quote/ at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 720 });
+      await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js', (route) =>
+        route.fulfill({
+          contentType: 'text/javascript',
+          body: `document.querySelectorAll('.cf-turnstile').forEach(function (el) {
+            var f = document.createElement('iframe');
+            f.title = 'stub';
+            f.style.cssText = 'border:0;height:65px;width:' + (el.dataset.size === 'compact' ? 130 : 300) + 'px';
+            el.appendChild(f);
+          });`,
+        }),
+      );
+      await page.goto('/request-a-quote/', { waitUntil: 'load' });
+      await settle(page);
+      test.skip(
+        (await page.locator('.cf-turnstile').count()) === 0,
+        'this build has no PUBLIC_TURNSTILE_SITE_KEY, so there is no widget',
+      );
+      await expect(page.locator('.cf-turnstile iframe')).toHaveCount(1);
+      const { docWidth, viewportWidth } = await overflowOf(page);
+      expect(
+        docWidth,
+        `content is ${docWidth}px wide in a ${viewportWidth}px viewport`,
+      ).toBeLessThanOrEqual(viewportWidth);
+      const right = await page
+        .locator('.cf-turnstile iframe')
+        .evaluate((el) => el.getBoundingClientRect().right);
+      expect(right, 'the widget ends inside the viewport').toBeLessThanOrEqual(viewportWidth);
+    });
+  }
+});

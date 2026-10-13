@@ -33,6 +33,12 @@ interface Props {
   editAttr?: string;
 }
 
+// The swatch is one column of the masonry (`columns-2 sm:columns-3 lg:columns-4`, gap-m =
+// clamp(1rem, 2vw, 1.5rem), page gutters the same, wrapper max 82.5rem). Both gallery
+// pages use that grid; if it changes, change this.
+const GAP = 'clamp(1rem, 2vw, 1.5rem)';
+const SWATCH_SIZES = `(max-width: 639px) calc((100vw - 3 * ${GAP}) / 2), (max-width: 1023px) calc((100vw - 4 * ${GAP}) / 3), calc((min(100vw, 82.5rem) - 5 * ${GAP}) / 4)`;
+
 const {
   item,
   index,
@@ -41,7 +47,7 @@ const {
   fontCaption = null,
   showRequest = true,
   showCategory = true,
-  sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
+  sizes = SWATCH_SIZES,
   editAttr,
 } = Astro.props as Props;
 

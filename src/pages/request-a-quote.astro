@@ -193,6 +193,11 @@ const contactPhone: string = siteSettings?.phone ?? '';
 const contactPhoneHref = telHref(contactPhone);
 
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+// Runs inline, during parsing, so before Cloudflare's api.js renders the widget (see the
+// comment at the widget). The form column is 248px at 320px wide and 301px at 375px, against
+// the widget's fixed 300px, so 389px and under goes compact with a little margin.
+const turnstileSizeScript =
+  "if(matchMedia('(max-width:389px)').matches){document.querySelector('.cf-turnstile').setAttribute('data-size','compact')}";
 
 // ── Atelier hand-off whitelist (validated client-side against the URL) ──────
 const prefillData = {
@@ -863,16 +868,27 @@ const hLead = hWords.join(' ');
           </fieldset>
 
           <div class="quote-submit">
-            {/* Turnstile */}
+            {
+              /* Turnstile. The "normal" widget is a fixed 300px, wider than the form column on
+                a phone under about 390px (248px at 320px), which pushed the page sideways.
+                The widget renders implicitly (class cf-turnstile, api.js below) and reads
+                data-size when it renders, so a classic inline script, which runs during
+                parsing and so before api.js can render, switches to "compact" on narrow
+                screens. CSS cannot do this: the size is chosen by Cloudflare's script. */
+            }
             {
               turnstileSiteKey && (
-                <div
-                  class="cf-turnstile"
-                  data-sitekey={turnstileSiteKey}
-                  data-action="quote"
-                  data-callback="onTurnstileSuccess"
-                  data-theme="light"
-                />
+                <>
+                  <div
+                    class="cf-turnstile"
+                    data-sitekey={turnstileSiteKey}
+                    data-action="quote"
+                    data-callback="onTurnstileSuccess"
+                    data-theme="light"
+                    data-size="normal"
+                  />
+                  <script is:inline set:html={turnstileSizeScript} />
+                </>
               )
             }
 
@@ -990,6 +1006,8 @@ const hLead = hWords.join(' ');
   /* The stitch is concentric with the card edge, the same rule as .btn:
      inner radius = card radius minus the stitch inset, never below 0. */
   .quote-card {
+    /* Guard: a third-party widget (Turnstile) must never widen the page. */
+    overflow-x: clip;
     --card-radius: var(--radius-mount);
     --card-stitch-inset: 0.6rem;
     position: relative;

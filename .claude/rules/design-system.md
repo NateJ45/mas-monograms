@@ -131,6 +131,22 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
   do not put `accent-primary` back). Re-run `scripts/measure-tap-targets.mjs`
   after touching the footer, the gallery filter or the quote form.
 
+- **Photo `sizes` describe the photo, not the box around it** (2026-10-13 audit, image delivery).
+  A hoop's photo is 0.867 of the hoop (`HOOP_PHOTO` in `HoopFrame.astro`), and a hoop shrinks to
+  its grid cell, so the default `sizes` lies wherever a hoop sits in a grid. Pass `sizes` to
+  `HoopFrame` there (`HoopWall.astro` for the home wall, `HOOP_SIZES` in `[slug].astro` for the
+  category cluster), and keep it in step with the layout CSS next to it. `GallerySwatch` derives its
+  default from the masonry columns (2, 3, 4) and gap. Check a change by loading the page at 320,
+  412 (DPR 1.75), 768 and 1280 and comparing each `img.currentSrc` `w=` to rendered width x DPR; a
+  ratio near 1 to 1.3 is right (the shared srcset ladder in `SanityImage.astro` starts at 400w, so
+  small photos cannot go lower from a call site).
+- **A third-party widget must never set the page width.** Turnstile draws a fixed 300px box
+  ("normal") that is wider than the form column under about 375px. The quote form switches it to
+  `data-size="compact"` below 390px with an inline script that runs before Cloudflare's `api.js`
+  renders it, and `.quote-card` has `overflow-x: clip` as a guard. `tests/reflow.spec.ts` covers it
+  (skips in a build with no `PUBLIC_TURNSTILE_SITE_KEY`; build with Cloudflare's test key
+  `1x00000000000000000000AA` to run it).
+
 ## Gotcha (design tokens)
 
 <!-- prettier-ignore-start -->
