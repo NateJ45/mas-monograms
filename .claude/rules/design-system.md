@@ -138,8 +138,8 @@ per-component work. `.on-light` (and `.surface-linen/-paper/-sage`) restore the 
   category cluster), and keep it in step with the layout CSS next to it. `GallerySwatch` derives its
   default from the masonry columns (2, 3, 4) and gap. Check a change by loading the page at 320,
   412 (DPR 1.75), 768 and 1280 and comparing each `img.currentSrc` `w=` to rendered width x DPR; a
-  ratio near 1 to 1.3 is right (the shared srcset ladder in `SanityImage.astro` starts at 400w, so
-  small photos cannot go lower from a call site).
+  ratio near 1 to 1.3 is right (the srcset ladder in `SanityImage.astro` starts at 160w since 2026-10-13, via
+  `src/lib/imageLadder.ts`, so a small slot with an honest `sizes` can now get a small file).
 - **A third-party widget must never set the page width.** Turnstile draws a fixed 300px box
   ("normal") that is wider than the form column under about 375px. The quote form switches it to
   `data-size="compact"` below 390px with an inline script that runs before Cloudflare's `api.js`
