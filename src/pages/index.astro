@@ -59,41 +59,37 @@ const marqueeItems: string[] = (categories ?? [])
 >
   <HomeHero page={page} atelier={atelier} threads={threads ?? []} {edit} />
 
-  {
-    marqueeItems.length > 0 && (
-      <section class="home-marquee surface-indigo">
-        <div class="home-marquee__row">
-          {page?.marqueeEyebrow && (
-            <p class="eyebrow home-marquee__label" aria-hidden="true">
-              {page.marqueeEyebrow}
-            </p>
-          )}
-          <Marquee
-            items={marqueeItems}
-            label={page?.marqueeEyebrow}
-            pauseLabel={atelier?.pauseLabel}
-            playLabel={atelier?.playLabel}
-            speed={60}
-            class="home-marquee__ribbon"
-          />
-        </div>
-      </section>
-    )
-  }
+  {marqueeItems.length > 0 && (
+    <section class="home-marquee surface-indigo">
+      <div class="home-marquee__row">
+        {page?.marqueeEyebrow && (
+          <p class="eyebrow home-marquee__label" aria-hidden="true">
+            {page.marqueeEyebrow}
+          </p>
+        )}
+        <Marquee
+          items={marqueeItems}
+          label={page?.marqueeEyebrow}
+          pauseLabel={atelier?.pauseLabel}
+          playLabel={atelier?.playLabel}
+          speed={60}
+          class="home-marquee__ribbon"
+        />
+      </div>
+    </section>
+  )}
 
-  {
-    atelier && (
-      <section
-        id="atelier"
-        class="home-atelier surface-linen py-section-lg"
-        aria-labelledby="atelier-heading"
-      >
-        <div class="mx-auto max-w-content px-m">
-          <AtelierStudio settings={atelier} threads={threads ?? []} headingId="atelier-heading" />
-        </div>
-      </section>
-    )
-  }
+  {atelier && (
+    <section
+      id="atelier"
+      class="home-atelier surface-linen py-section-lg"
+      aria-labelledby="atelier-heading"
+    >
+      <div class="mx-auto max-w-content px-m">
+        <AtelierStudio settings={atelier} threads={threads ?? []} headingId="atelier-heading" />
+      </div>
+    </section>
+  )}
 
   {categories.length > 0 && <HoopWall page={page} categories={categories} {edit} />}
 

@@ -72,42 +72,36 @@ const slugId = (font: any) => `font-${font.slug?.current ?? font._id}`;
   {/* Intro */}
   <section class="surface-midnight py-section-lg" aria-labelledby="fonts-heading">
     <div class="mx-auto max-w-content px-m text-center">
-      {
-        page?.heroEyebrow && (
-          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-            {page.heroEyebrow}
-          </p>
-        )
-      }
+      {page?.heroEyebrow && (
+        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+          {page.heroEyebrow}
+        </p>
+      )}
       <h1 id="fonts-heading" class="display mx-auto max-w-5xl" data-reveal>
         {hi >= 0 ? heroHeadline.slice(0, hi) : heroHeadline}
         {heroSwash && <em class="swash">{heroSwash}</em>}
         {hi >= 0 ? heroHeadline.slice(hi + (heroSwash?.length ?? 0)) : ''}
       </h1>
-      {
-        page?.heroSubhead && (
-          <p
-            class="lede mx-auto mt-l max-w-[48ch] text-center"
-            data-reveal
-            style="--reveal-delay: 120ms"
-          >
-            {page.heroSubhead}
-          </p>
-        )
-      }
+      {page?.heroSubhead && (
+        <p
+          class="lede mx-auto mt-l max-w-[48ch] text-center"
+          data-reveal
+          style="--reveal-delay: 120ms"
+        >
+          {page.heroSubhead}
+        </p>
+      )}
     </div>
   </section>
 
   {/* Mary Ann's note */}
-  {
-    page?.intro && (
-      <section class="surface-paper py-section-md">
-        <div class="fonts-intro mx-auto max-w-[44rem] px-m" data-reveal>
-          <PortableText value={page.intro} />
-        </div>
-      </section>
-    )
-  }
+  {page?.intro && (
+    <section class="surface-paper py-section-md">
+      <div class="fonts-intro mx-auto max-w-[44rem] px-m" data-reveal>
+        <PortableText value={page.intro} />
+      </div>
+    </section>
+  )}
 
   {/* The specimen drawers */}
   <section class="surface-linen py-section-lg" aria-labelledby="font-grid-heading">
@@ -121,77 +115,73 @@ const slugId = (font: any) => `font-${font.slug?.current ?? font._id}`;
         align="center"
       />
 
-      {
-        fonts.length > 0 ? (
-          <div class="drawers mt-section-md">
-            {Object.entries(styleGroups).map(([style, styleFonts]) => (
-              <div class="drawer">
-                <h3 class="drawer__label">
-                  <span>{style}</span>
-                  <span class="drawer__count" aria-hidden="true">
-                    {String((styleFonts as any[]).length).padStart(2, '0')}
-                  </span>
-                </h3>
-                <ul class="drawer__cards" role="list" data-reveal-stagger="80">
-                  {(styleFonts as any[]).map((font: any) => {
-                    const i = n++;
-                    return (
-                      <li
-                        data-style-tag={font.styleTag ?? undefined}
-                        data-sanity={editOther(edit, font._id, 'font', 'previewImage')}
+      {fonts.length > 0 ? (
+        <div class="drawers mt-section-md">
+          {Object.entries(styleGroups).map(([style, styleFonts]) => (
+            <div class="drawer">
+              <h3 class="drawer__label">
+                <span>{style}</span>
+                <span class="drawer__count" aria-hidden="true">
+                  {String((styleFonts as any[]).length).padStart(2, '0')}
+                </span>
+              </h3>
+              <ul class="drawer__cards" role="list" data-reveal-stagger="80">
+                {(styleFonts as any[]).map((font: any) => {
+                  const i = n++;
+                  return (
+                    <li
+                      data-style-tag={font.styleTag ?? undefined}
+                      data-sanity={editOther(edit, font._id, 'font', 'previewImage')}
+                    >
+                      <SwatchCard
+                        tone={TONES[i % TONES.length]}
+                        tilt={TILTS[i % TILTS.length]}
+                        interactive
+                        class="specimen"
+                        bodyClass="specimen__body"
                       >
-                        <SwatchCard
-                          tone={TONES[i % TONES.length]}
-                          tilt={TILTS[i % TILTS.length]}
-                          interactive
-                          class="specimen"
-                          bodyClass="specimen__body"
-                        >
-                          <SanityImage
-                            slot="media"
-                            source={font.previewImage}
-                            width={480}
-                            sizes="(max-width: 640px) 80vw, 15rem"
-                            class="specimen__img"
-                          />
-                          <p class="specimen__name" id={slugId(font)}>
-                            {font.name}
-                          </p>
-                          {font.popular && popularLabel && (
-                            <p class="specimen__flag">{popularLabel}</p>
-                          )}
-                          {font.bestFor && <p class="specimen__best">{font.bestFor}</p>}
-                          {tryItLabel && ATELIER_STYLES.has(font.atelierStyle) && (
-                            <a
-                              href={`/?style=${font.atelierStyle}#atelier`}
-                              class="specimen__try link-stitch hit-44 relative"
-                              aria-describedby={slugId(font)}
-                            >
-                              {tryItLabel} <span aria-hidden="true">&rarr;</span>
-                            </a>
-                          )}
-                        </SwatchCard>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p class="py-l text-center text-[var(--color-text-secondary)]">Font guide coming soon.</p>
-        )
-      }
+                        <SanityImage
+                          slot="media"
+                          source={font.previewImage}
+                          width={480}
+                          sizes="(max-width: 640px) 80vw, 15rem"
+                          class="specimen__img"
+                        />
+                        <p class="specimen__name" id={slugId(font)}>
+                          {font.name}
+                        </p>
+                        {font.popular && popularLabel && (
+                          <p class="specimen__flag">{popularLabel}</p>
+                        )}
+                        {font.bestFor && <p class="specimen__best">{font.bestFor}</p>}
+                        {tryItLabel && ATELIER_STYLES.has(font.atelierStyle) && (
+                          <a
+                            href={`/?style=${font.atelierStyle}#atelier`}
+                            class="specimen__try link-stitch hit-44 relative"
+                            aria-describedby={slugId(font)}
+                          >
+                            {tryItLabel} <span aria-hidden="true">&rarr;</span>
+                          </a>
+                        )}
+                      </SwatchCard>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="py-l text-center text-[var(--color-text-secondary)]">Font guide coming soon.</p>
+      )}
 
-      {
-        page?.customFontNote && (
-          <div class="mt-section-md flex justify-center" data-reveal>
-            <HangTag tone="kraft" tilt={-2} class="custom-note">
-              <p>{page.customFontNote}</p>
-            </HangTag>
-          </div>
-        )
-      }
+      {page?.customFontNote && (
+        <div class="mt-section-md flex justify-center" data-reveal>
+          <HangTag tone="kraft" tilt={-2} class="custom-note">
+            <p>{page.customFontNote}</p>
+          </HangTag>
+        </div>
+      )}
     </div>
   </section>
 

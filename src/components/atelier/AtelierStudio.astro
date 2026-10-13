@@ -92,28 +92,26 @@ const ids = {
 ---
 
 <div class:list={['atelier-studio', className]} data-atelier-studio>
-  {
-    (settings?.eyebrow || headline || settings?.subhead) && (
-      <header class="atelier-studio__head mx-auto mb-section-md max-w-3xl text-center">
-        {settings?.eyebrow && (
-          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-            {settings.eyebrow}
-          </p>
-        )}
-        {headline && (
-          <h2 id={headingId} class="display-sm" data-reveal>
-            {headBefore}
-            <em class="swash">{headSwash}</em>
-          </h2>
-        )}
-        {settings?.subhead && (
-          <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
-            {settings.subhead}
-          </p>
-        )}
-      </header>
-    )
-  }
+  {(settings?.eyebrow || headline || settings?.subhead) && (
+    <header class="atelier-studio__head mx-auto mb-section-md max-w-3xl text-center">
+      {settings?.eyebrow && (
+        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+          {settings.eyebrow}
+        </p>
+      )}
+      {headline && (
+        <h2 id={headingId} class="display-sm" data-reveal>
+          {headBefore}
+          <em class="swash">{headSwash}</em>
+        </h2>
+      )}
+      {settings?.subhead && (
+        <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+          {settings.subhead}
+        </p>
+      )}
+    </header>
+  )}
 
   <form
     class="atelier-studio__form"
@@ -151,35 +149,31 @@ const ids = {
           >
             {label}
           </p>
-          {
-            settings?.replayLabel && (
-              <button
-                type="button"
-                class="btn btn-secondary atelier-studio__replay"
-                data-atelier-replay
-              >
-                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                  <path
-                    d="M4 10a6 6 0 1 0 1.8-4.3M4 3.5v3.2h3.2"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                <span>{settings.replayLabel}</span>
-              </button>
-            )
-          }
+          {settings?.replayLabel && (
+            <button
+              type="button"
+              class="btn btn-secondary atelier-studio__replay"
+              data-atelier-replay
+            >
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path
+                  d="M4 10a6 6 0 1 0 1.8-4.3M4 3.5v3.2h3.2"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>{settings.replayLabel}</span>
+            </button>
+          )}
         </div>
-        {
-          settings?.disclaimer && (
-            <p id={ids.disclaimer} class="atelier-studio__disclaimer">
-              {settings.disclaimer}
-            </p>
-          )
-        }
+        {settings?.disclaimer && (
+          <p id={ids.disclaimer} class="atelier-studio__disclaimer">
+            {settings.disclaimer}
+          </p>
+        )}
       </div>
 
       {/* ---- the controls ---- */}
@@ -202,296 +196,283 @@ const ids = {
             aria-describedby={settings?.initialsHint ? ids.hint : undefined}
             data-atelier-initials
           />
-          {
-            settings?.initialsHint && (
-              <p id={ids.hint} class="atelier-studio__hint">
-                {settings.initialsHint}
-              </p>
-            )
-          }
+          {settings?.initialsHint && (
+            <p id={ids.hint} class="atelier-studio__hint">
+              {settings.initialsHint}
+            </p>
+          )}
         </div>
 
-        {
-          styles.length > 0 && (
-            <fieldset class="atelier-studio__field">
-              <legend class="atelier-studio__label">{settings?.styleLabel}</legend>
-              <div class="atelier-studio__styles">
-                {styles.map((s) => (
-                  <label class="atelier-studio__style">
-                    <input
-                      type="radio"
-                      name="style"
-                      value={s.key}
-                      checked={s.key === style}
-                      aria-describedby={`${headingId}-style-${s.key}`}
-                      data-label={s.label}
-                    />
-                    <span>{s.label}</span>
-                  </label>
-                ))}
-              </div>
+        {styles.length > 0 && (
+          <fieldset class="atelier-studio__field">
+            <legend class="atelier-studio__label">{settings?.styleLabel}</legend>
+            <div class="atelier-studio__styles">
               {styles.map((s) => (
-                <p
-                  id={`${headingId}-style-${s.key}`}
-                  class="atelier-studio__hint atelier-studio__blurb"
-                  hidden={s.key !== style}
-                  data-style-blurb={s.key}
-                >
-                  {s.blurb}
-                </p>
-              ))}
-            </fieldset>
-          )
-        }
-
-        {
-          fabrics.length > 0 && (
-            <fieldset class="atelier-studio__field">
-              <legend class="atelier-studio__label">{settings?.fabricLabel}</legend>
-              <div class="atelier-studio__fabrics">
-                {fabrics.map((f) => (
-                  <label class="atelier-studio__fabric" style={`--chip:${f.color}`}>
-                    <input
-                      type="radio"
-                      name="fabric"
-                      value={f.key}
-                      checked={f.key === fabric?.key}
-                      aria-describedby={f.note ? `${headingId}-fabric-${f.key}` : undefined}
-                      data-hex={f.color}
-                      data-texture={textureFor(f)}
-                      data-label={f.label}
-                    />
-                    <span
-                      class:list={[
-                        'atelier-studio__chip',
-                        `atelier-studio__chip--${textureFor(f)}`,
-                      ]}
-                      aria-hidden="true"
-                    />
-                    <span class="atelier-studio__fabric-name">{f.label}</span>
-                  </label>
-                ))}
-              </div>
-              {fabrics.map(
-                (f) =>
-                  f.note && (
-                    <p
-                      id={`${headingId}-fabric-${f.key}`}
-                      class="atelier-studio__hint"
-                      hidden={f.key !== fabric?.key}
-                      data-fabric-note={f.key}
-                    >
-                      {f.note}
-                    </p>
-                  ),
-              )}
-            </fieldset>
-          )
-        }
-      </div>
-    </div>
-
-    {
-      threads.length > 0 && (
-        <fieldset class="atelier-studio__rack-field">
-          <legend class="atelier-studio__label atelier-studio__rack-legend">
-            {settings?.threadLabel}
-          </legend>
-          <p class="atelier-studio__thread-name" id={ids.threadName}>
-            <span class="atelier-studio__thread-dot" style={`--dot:${threadHex}`} data-thread-dot />
-            <span data-thread-name>{thread?.name}</span>
-          </p>
-          <svg class="atelier-studio__defs" aria-hidden="true" focusable="false">
-            <defs>
-              <linearGradient id={`${sp}-rim`} x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0" stop-color="#7a4d26" />
-                <stop offset="0.22" stop-color="#c99b62" />
-                <stop offset="0.36" stop-color="#e6c48f" />
-                <stop offset="0.7" stop-color="#b07b47" />
-                <stop offset="1" stop-color="#5e3a1c" />
-              </linearGradient>
-              <linearGradient id={`${sp}-face`} x1="0.1" x2="0.8" y1="0" y2="1">
-                <stop offset="0" stop-color="#f3dfba" />
-                <stop offset="0.5" stop-color="#ddb886" />
-                <stop offset="1" stop-color="#b98955" />
-              </linearGradient>
-              <linearGradient
-                id={`${sp}-shade`}
-                x1="20"
-                x2="80"
-                y1="0"
-                y2="0"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop offset="0" stop-color="#000" stop-opacity="0.55" />
-                <stop offset="0.12" stop-color="#000" stop-opacity="0.24" />
-                <stop offset="0.28" stop-color="#fff" stop-opacity="0.2" />
-                <stop offset="0.35" stop-color="#fff" stop-opacity="0.45" />
-                <stop offset="0.43" stop-color="#fff" stop-opacity="0.2" />
-                <stop offset="0.62" stop-color="#fff" stop-opacity="0" />
-                <stop offset="0.86" stop-color="#000" stop-opacity="0.24" />
-                <stop offset="1" stop-color="#000" stop-opacity="0.55" />
-              </linearGradient>
-              <linearGradient
-                id={`${sp}-ao`}
-                x1="0"
-                x2="0"
-                y1="18"
-                y2="121"
-                gradientUnits="userSpaceOnUse"
-              >
-                <stop offset="0.05" stop-color="#000" stop-opacity="0.5" />
-                <stop offset="0.2" stop-color="#000" stop-opacity="0" />
-                <stop offset="0.86" stop-color="#000" stop-opacity="0" />
-                <stop offset="1" stop-color="#000" stop-opacity="0.38" />
-              </linearGradient>
-              <pattern
-                id={`${sp}-wraps`}
-                x="20"
-                width="60"
-                height="1.8"
-                patternUnits="userSpaceOnUse"
-              >
-                <path
-                  id={`${sp}-turns`}
-                  d="M0 -9A30 6.3 0 0 0 60 -9M0 -7.2A30 6.3 0 0 0 60 -7.2M0 -5.4A30 6.3 0 0 0 60 -5.4M0 -3.6A30 6.3 0 0 0 60 -3.6M0 -1.8A30 6.3 0 0 0 60 -1.8M0 0A30 6.3 0 0 0 60 0M0 1.8A30 6.3 0 0 0 60 1.8"
-                  fill="none"
-                />
-                <use href={`#${sp}-turns`} stroke="rgba(0,0,0,0.22)" stroke-width="0.45" />
-                <use
-                  href={`#${sp}-turns`}
-                  stroke="rgba(255,255,255,0.14)"
-                  stroke-width="0.4"
-                  transform="translate(0 0.75)"
-                />
-              </pattern>
-              <radialGradient id={`${sp}-shadow`}>
-                <stop offset="0" stop-color="#0f1b2d" stop-opacity="0.38" />
-                <stop offset="1" stop-color="#0f1b2d" stop-opacity="0" />
-              </radialGradient>
-              <clipPath id={`${sp}-body`}>
-                <path d="M20 18V114A30 6.3 0 0 0 80 114V18Z" />
-              </clipPath>
-              {/* Same drawing as motifs/Spool.astro (keep the geometry in step); the thread is
-                  currentColor and every shade is a colour-independent overlay. */}
-              <symbol id={sp} viewBox="0 0 100 140">
-                <ellipse cx="50" cy="129" rx="47" ry="7" fill={`url(#${sp}-shadow)`} />
-                <path d="M9 114V120A41 8.6 0 0 0 91 120V114Z" fill={`url(#${sp}-rim)`} />
-                <path
-                  d="M9 117A41 8.6 0 0 0 91 117"
-                  fill="none"
-                  stroke="rgba(60,34,14,0.32)"
-                  stroke-width="0.7"
-                />
-                <ellipse cx="50" cy="114" rx="41" ry="8.6" fill={`url(#${sp}-face)`} />
-                <ellipse cx="50" cy="114.8" rx="34.5" ry="7.4" fill="rgba(40,22,8,0.22)" />
-                <g clip-path={`url(#${sp}-body)`}>
-                  <rect x="20" y="18" width="60" height="104" fill="currentColor" />
-                  <rect x="20" y="18" width="60" height="104" fill={`url(#${sp}-shade)`} />
-                  <rect x="20" y="18" width="60" height="104" fill={`url(#${sp}-wraps)`} />
-                  <rect x="20" y="18" width="60" height="104" fill={`url(#${sp}-ao)`} />
-                  <path
-                    d="M20 27.9A41 8.6 0 0 0 80 27.9"
-                    fill="none"
-                    stroke="rgba(0,0,0,0.3)"
-                    stroke-width="5"
-                  />
-                  <path
-                    d="M20 114A30 6.3 0 0 0 80 114"
-                    fill="none"
-                    stroke="rgba(0,0,0,0.28)"
-                    stroke-width="3"
-                  />
-                </g>
-                <path d="M9 16V22A41 8.6 0 0 0 91 22V16Z" fill={`url(#${sp}-rim)`} />
-                <path
-                  d="M9 19A41 8.6 0 0 0 91 19"
-                  fill="none"
-                  stroke="rgba(60,34,14,0.32)"
-                  stroke-width="0.7"
-                />
-                <ellipse cx="50" cy="16" rx="41" ry="8.6" fill={`url(#${sp}-face)`} />
-                <path
-                  d="M10.6 16A39.4 8 0 0 1 89.4 16"
-                  fill="none"
-                  stroke="rgba(255,248,230,0.7)"
-                  stroke-width="0.9"
-                />
-                <ellipse
-                  cx="50"
-                  cy="16"
-                  rx="27"
-                  ry="5.7"
-                  fill="none"
-                  stroke="rgba(90,54,24,0.3)"
-                  stroke-width="0.7"
-                />
-                <ellipse cx="50" cy="16" rx="5" ry="1.6" fill="#3a2412" />
-                <ellipse cx="50" cy="16.55" rx="4.3" ry="1.05" fill="#140b04" />
-                <path
-                  d="M79.6 92C86 93.5 88.4 101 87 109.5C85.6 118 87.6 126.4 94 128.6C96.4 129.4 98.6 129.2 100 128.6"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.7"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M79.6 92C86 93.5 88.4 101 87 109.5C85.6 118 87.6 126.4 94 128.6C96.4 129.4 98.6 129.2 100 128.6"
-                  fill="none"
-                  stroke="rgba(0,0,0,0.25)"
-                  stroke-width="1.7"
-                  stroke-linecap="round"
-                />
-              </symbol>
-            </defs>
-          </svg>
-          <div class="atelier-studio__rack">
-            <div
-              class="atelier-studio__spools"
-              style={`--cols2:${Math.ceil(threads.length / 2)};--cols3:${Math.ceil(threads.length / 3)}`}
-            >
-              {threads.map((t) => (
-                <label class="atelier-studio__spool" title={t.name}>
+                <label class="atelier-studio__style">
                   <input
                     type="radio"
-                    name="thread"
-                    value={threadId(t)}
-                    checked={thread ? threadId(t) === threadId(thread) : false}
-                    data-hex={t.hexColor}
-                    data-label={t.name}
+                    name="style"
+                    value={s.key}
+                    checked={s.key === style}
+                    aria-describedby={`${headingId}-style-${s.key}`}
+                    data-label={s.label}
                   />
-                  <svg
-                    class="spool atelier-studio__spool-art"
-                    viewBox="0 0 100 140"
-                    width="46"
-                    height="64"
-                    aria-hidden="true"
-                    focusable="false"
-                    style={`color:${t.hexColor}`}
-                  >
-                    <use href={`#${sp}`} />
-                  </svg>
-                  <span class="sr-only">{t.name}</span>
+                  <span>{s.label}</span>
                 </label>
               ))}
             </div>
-          </div>
-        </fieldset>
-      )
-    }
+            {styles.map((s) => (
+              <p
+                id={`${headingId}-style-${s.key}`}
+                class="atelier-studio__hint atelier-studio__blurb"
+                hidden={s.key !== style}
+                data-style-blurb={s.key}
+              >
+                {s.blurb}
+              </p>
+            ))}
+          </fieldset>
+        )}
 
-    {
-      settings?.ctaLabel && (
-        <div class="atelier-studio__cta">
-          <button type="submit" class="btn btn-primary">
-            <span>{settings.ctaLabel}</span>
-            <span class="btn__arrow" aria-hidden="true">
-              &rarr;
-            </span>
-          </button>
+        {fabrics.length > 0 && (
+          <fieldset class="atelier-studio__field">
+            <legend class="atelier-studio__label">{settings?.fabricLabel}</legend>
+            <div class="atelier-studio__fabrics">
+              {fabrics.map((f) => (
+                <label class="atelier-studio__fabric" style={`--chip:${f.color}`}>
+                  <input
+                    type="radio"
+                    name="fabric"
+                    value={f.key}
+                    checked={f.key === fabric?.key}
+                    aria-describedby={f.note ? `${headingId}-fabric-${f.key}` : undefined}
+                    data-hex={f.color}
+                    data-texture={textureFor(f)}
+                    data-label={f.label}
+                  />
+                  <span
+                    class:list={['atelier-studio__chip', `atelier-studio__chip--${textureFor(f)}`]}
+                    aria-hidden="true"
+                  />
+                  <span class="atelier-studio__fabric-name">{f.label}</span>
+                </label>
+              ))}
+            </div>
+            {fabrics.map(
+              (f) =>
+                f.note && (
+                  <p
+                    id={`${headingId}-fabric-${f.key}`}
+                    class="atelier-studio__hint"
+                    hidden={f.key !== fabric?.key}
+                    data-fabric-note={f.key}
+                  >
+                    {f.note}
+                  </p>
+                ),
+            )}
+          </fieldset>
+        )}
+      </div>
+    </div>
+
+    {threads.length > 0 && (
+      <fieldset class="atelier-studio__rack-field">
+        <legend class="atelier-studio__label atelier-studio__rack-legend">
+          {settings?.threadLabel}
+        </legend>
+        <p class="atelier-studio__thread-name" id={ids.threadName}>
+          <span class="atelier-studio__thread-dot" style={`--dot:${threadHex}`} data-thread-dot />
+          <span data-thread-name>{thread?.name}</span>
+        </p>
+        <svg class="atelier-studio__defs" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id={`${sp}-rim`} x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stop-color="#7a4d26" />
+              <stop offset="0.22" stop-color="#c99b62" />
+              <stop offset="0.36" stop-color="#e6c48f" />
+              <stop offset="0.7" stop-color="#b07b47" />
+              <stop offset="1" stop-color="#5e3a1c" />
+            </linearGradient>
+            <linearGradient id={`${sp}-face`} x1="0.1" x2="0.8" y1="0" y2="1">
+              <stop offset="0" stop-color="#f3dfba" />
+              <stop offset="0.5" stop-color="#ddb886" />
+              <stop offset="1" stop-color="#b98955" />
+            </linearGradient>
+            <linearGradient
+              id={`${sp}-shade`}
+              x1="20"
+              x2="80"
+              y1="0"
+              y2="0"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0" stop-color="#000" stop-opacity="0.55" />
+              <stop offset="0.12" stop-color="#000" stop-opacity="0.24" />
+              <stop offset="0.28" stop-color="#fff" stop-opacity="0.2" />
+              <stop offset="0.35" stop-color="#fff" stop-opacity="0.45" />
+              <stop offset="0.43" stop-color="#fff" stop-opacity="0.2" />
+              <stop offset="0.62" stop-color="#fff" stop-opacity="0" />
+              <stop offset="0.86" stop-color="#000" stop-opacity="0.24" />
+              <stop offset="1" stop-color="#000" stop-opacity="0.55" />
+            </linearGradient>
+            <linearGradient
+              id={`${sp}-ao`}
+              x1="0"
+              x2="0"
+              y1="18"
+              y2="121"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop offset="0.05" stop-color="#000" stop-opacity="0.5" />
+              <stop offset="0.2" stop-color="#000" stop-opacity="0" />
+              <stop offset="0.86" stop-color="#000" stop-opacity="0" />
+              <stop offset="1" stop-color="#000" stop-opacity="0.38" />
+            </linearGradient>
+            <pattern
+              id={`${sp}-wraps`}
+              x="20"
+              width="60"
+              height="1.8"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                id={`${sp}-turns`}
+                d="M0 -9A30 6.3 0 0 0 60 -9M0 -7.2A30 6.3 0 0 0 60 -7.2M0 -5.4A30 6.3 0 0 0 60 -5.4M0 -3.6A30 6.3 0 0 0 60 -3.6M0 -1.8A30 6.3 0 0 0 60 -1.8M0 0A30 6.3 0 0 0 60 0M0 1.8A30 6.3 0 0 0 60 1.8"
+                fill="none"
+              />
+              <use href={`#${sp}-turns`} stroke="rgba(0,0,0,0.22)" stroke-width="0.45" />
+              <use
+                href={`#${sp}-turns`}
+                stroke="rgba(255,255,255,0.14)"
+                stroke-width="0.4"
+                transform="translate(0 0.75)"
+              />
+            </pattern>
+            <radialGradient id={`${sp}-shadow`}>
+              <stop offset="0" stop-color="#0f1b2d" stop-opacity="0.38" />
+              <stop offset="1" stop-color="#0f1b2d" stop-opacity="0" />
+            </radialGradient>
+            <clipPath id={`${sp}-body`}>
+              <path d="M20 18V114A30 6.3 0 0 0 80 114V18Z" />
+            </clipPath>
+            {/* Same drawing as motifs/Spool.astro (keep the geometry in step); the thread is
+                  currentColor and every shade is a colour-independent overlay. */}
+            <symbol id={sp} viewBox="0 0 100 140">
+              <ellipse cx="50" cy="129" rx="47" ry="7" fill={`url(#${sp}-shadow)`} />
+              <path d="M9 114V120A41 8.6 0 0 0 91 120V114Z" fill={`url(#${sp}-rim)`} />
+              <path
+                d="M9 117A41 8.6 0 0 0 91 117"
+                fill="none"
+                stroke="rgba(60,34,14,0.32)"
+                stroke-width="0.7"
+              />
+              <ellipse cx="50" cy="114" rx="41" ry="8.6" fill={`url(#${sp}-face)`} />
+              <ellipse cx="50" cy="114.8" rx="34.5" ry="7.4" fill="rgba(40,22,8,0.22)" />
+              <g clip-path={`url(#${sp}-body)`}>
+                <rect x="20" y="18" width="60" height="104" fill="currentColor" />
+                <rect x="20" y="18" width="60" height="104" fill={`url(#${sp}-shade)`} />
+                <rect x="20" y="18" width="60" height="104" fill={`url(#${sp}-wraps)`} />
+                <rect x="20" y="18" width="60" height="104" fill={`url(#${sp}-ao)`} />
+                <path
+                  d="M20 27.9A41 8.6 0 0 0 80 27.9"
+                  fill="none"
+                  stroke="rgba(0,0,0,0.3)"
+                  stroke-width="5"
+                />
+                <path
+                  d="M20 114A30 6.3 0 0 0 80 114"
+                  fill="none"
+                  stroke="rgba(0,0,0,0.28)"
+                  stroke-width="3"
+                />
+              </g>
+              <path d="M9 16V22A41 8.6 0 0 0 91 22V16Z" fill={`url(#${sp}-rim)`} />
+              <path
+                d="M9 19A41 8.6 0 0 0 91 19"
+                fill="none"
+                stroke="rgba(60,34,14,0.32)"
+                stroke-width="0.7"
+              />
+              <ellipse cx="50" cy="16" rx="41" ry="8.6" fill={`url(#${sp}-face)`} />
+              <path
+                d="M10.6 16A39.4 8 0 0 1 89.4 16"
+                fill="none"
+                stroke="rgba(255,248,230,0.7)"
+                stroke-width="0.9"
+              />
+              <ellipse
+                cx="50"
+                cy="16"
+                rx="27"
+                ry="5.7"
+                fill="none"
+                stroke="rgba(90,54,24,0.3)"
+                stroke-width="0.7"
+              />
+              <ellipse cx="50" cy="16" rx="5" ry="1.6" fill="#3a2412" />
+              <ellipse cx="50" cy="16.55" rx="4.3" ry="1.05" fill="#140b04" />
+              <path
+                d="M79.6 92C86 93.5 88.4 101 87 109.5C85.6 118 87.6 126.4 94 128.6C96.4 129.4 98.6 129.2 100 128.6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+              <path
+                d="M79.6 92C86 93.5 88.4 101 87 109.5C85.6 118 87.6 126.4 94 128.6C96.4 129.4 98.6 129.2 100 128.6"
+                fill="none"
+                stroke="rgba(0,0,0,0.25)"
+                stroke-width="1.7"
+                stroke-linecap="round"
+              />
+            </symbol>
+          </defs>
+        </svg>
+        <div class="atelier-studio__rack">
+          <div
+            class="atelier-studio__spools"
+            style={`--cols2:${Math.ceil(threads.length / 2)};--cols3:${Math.ceil(threads.length / 3)}`}
+          >
+            {threads.map((t) => (
+              <label class="atelier-studio__spool" title={t.name}>
+                <input
+                  type="radio"
+                  name="thread"
+                  value={threadId(t)}
+                  checked={thread ? threadId(t) === threadId(thread) : false}
+                  data-hex={t.hexColor}
+                  data-label={t.name}
+                />
+                <svg
+                  class="spool atelier-studio__spool-art"
+                  viewBox="0 0 100 140"
+                  width="46"
+                  height="64"
+                  aria-hidden="true"
+                  focusable="false"
+                  style={`color:${t.hexColor}`}
+                >
+                  <use href={`#${sp}`} />
+                </svg>
+                <span class="sr-only">{t.name}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      )
-    }
+      </fieldset>
+    )}
+
+    {settings?.ctaLabel && (
+      <div class="atelier-studio__cta">
+        <button type="submit" class="btn btn-primary">
+          <span>{settings.ctaLabel}</span>
+          <span class="btn__arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </button>
+      </div>
+    )}
   </form>
 </div>
 <AtelierStudioScript />

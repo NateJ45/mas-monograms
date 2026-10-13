@@ -156,41 +156,35 @@ const pageSchemas = [
   {...preview?.layoutProps}
 >
   <section class="cat-intro surface-midnight py-section-lg" aria-labelledby="category-heading">
-    <div
-      class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]"
-    >
+    <div class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       <div class="order-2 lg:order-1">
-        {
-          category?.eyebrow && (
-            <p class="eyebrow mb-m" data-reveal="fade">
-              {category.eyebrow}
-            </p>
-          )
-        }
+        {category?.eyebrow && (
+          <p class="eyebrow mb-m" data-reveal="fade">
+            {category.eyebrow}
+          </p>
+        )}
         <h1 id="category-heading" class="display-sm max-w-[12ch]" data-reveal>
-          {name.before}<em class="swash">{name.word}</em>{name.after}
+          {name.before}
+          <em class="swash">{name.word}</em>
+          {name.after}
         </h1>
-        {
-          category?.description && (
-            <p class="cat-intro__lede mt-m" data-reveal style="--reveal-delay: 120ms">
-              {category.description}
-            </p>
-          )
-        }
-        {
-          (category?.trustItems ?? []).length > 0 && (
-            <ul class="cat-intro__trust mt-l" role="list" data-reveal style="--reveal-delay: 180ms">
-              {(category.trustItems as string[]).map((item: string, i: number) => (
-                <li data-sanity={editItem(edit, 'trustItems', null, i)}>
-                  <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-                    <path d="M2 2l8 8M10 2l-8 8" />
-                  </svg>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          )
-        }
+        {category?.description && (
+          <p class="cat-intro__lede mt-m" data-reveal style="--reveal-delay: 120ms">
+            {category.description}
+          </p>
+        )}
+        {(category?.trustItems ?? []).length > 0 && (
+          <ul class="cat-intro__trust mt-l" role="list" data-reveal style="--reveal-delay: 180ms">
+            {(category.trustItems as string[]).map((item: string, i: number) => (
+              <li data-sanity={editItem(edit, 'trustItems', null, i)}>
+                <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                  <path d="M2 2l8 8M10 2l-8 8" />
+                </svg>
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
         <div class="mt-l" data-reveal style="--reveal-delay: 240ms">
           <CtaLink cta={{ label: ctaLabel, href: quoteHref }} variant="primary" />
         </div>
@@ -201,34 +195,30 @@ const pageSchemas = [
         data-reveal="fade"
         data-sanity={editField(edit, 'heroImages')}
       >
-        {
-          restImages[0] && (
-            <HoopFrame
-              image={restImages[0]}
-              alt=""
-              size={230}
-              sizes={HOOP_SIZES.a}
-              fetchpriority="low"
-              tilt={-6}
-              focal={focalFor(restImages[0])}
-              class="cat-intro__hoop cat-intro__hoop--a"
-            />
-          )
-        }
-        {
-          restImages[1] && (
-            <HoopFrame
-              image={restImages[1]}
-              alt=""
-              size={190}
-              sizes={HOOP_SIZES.b}
-              fetchpriority="low"
-              tilt={8}
-              focal={focalFor(restImages[1])}
-              class="cat-intro__hoop cat-intro__hoop--b"
-            />
-          )
-        }
+        {restImages[0] && (
+          <HoopFrame
+            image={restImages[0]}
+            alt=""
+            size={230}
+            sizes={HOOP_SIZES.a}
+            fetchpriority="low"
+            tilt={-6}
+            focal={focalFor(restImages[0])}
+            class="cat-intro__hoop cat-intro__hoop--a"
+          />
+        )}
+        {restImages[1] && (
+          <HoopFrame
+            image={restImages[1]}
+            alt=""
+            size={190}
+            sizes={HOOP_SIZES.b}
+            fetchpriority="low"
+            tilt={8}
+            focal={focalFor(restImages[1])}
+            class="cat-intro__hoop cat-intro__hoop--b"
+          />
+        )}
         <div class="cat-intro__lead">
           <HoopFrame
             image={leadImage ?? null}
@@ -246,83 +236,72 @@ const pageSchemas = [
   </section>
 
   {/* Gallery — items in this category, as swatches */}
-  {
-    relatedGallery.length > 0 && (
-      <section class="surface-linen py-section-lg" aria-labelledby="category-gallery-heading">
-        <div class="mx-auto max-w-content px-m">
-          <div class="mb-l flex flex-col items-center text-center">
-            <h2
-              id="category-gallery-heading"
-              class="font-display text-h2 text-foreground"
-              data-reveal
-            >
-              {galleryHeading}
-            </h2>
-            <div class="mt-m w-full max-w-[14rem]" data-reveal="stitch" aria-hidden="true">
-              <RunningStitch tone="brass" ornament="cross" />
-            </div>
-          </div>
-          <div class="columns-2 gap-m sm:columns-3 lg:columns-4">
-            {relatedGallery.map((item: any, i: number) => (
-              <GallerySwatch
-                item={item}
-                index={i + 1}
-                fontCaption={galleryPage?.fontCaption}
-                showRequest={false}
-                showCategory={false}
-                editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
-              />
-            ))}
-          </div>
-          {/* Photo → quote bridge: turn "I like this" into an action, with the
-            item type already pre-filled on the quote form. */}
-          <div class="mt-l flex justify-center">
-            <CtaLink
-              cta={{ label: requestSimilarLabel, href: quoteHref }}
-              variant="primary"
-              arrow
-            />
-          </div>
-        </div>
-      </section>
-    )
-  }
-
-  {/* Explore Other Items — cross-sell, as hoops */}
-  {
-    otherCategories.length > 0 && (
-      <section
-        class:list={[
-          'py-section-lg',
-          relatedGallery.length > 0 ? 'surface-indigo' : 'surface-linen',
-        ]}
-        aria-labelledby="other-items-heading"
-      >
-        <div class="mx-auto max-w-content px-m">
+  {relatedGallery.length > 0 && (
+    <section class="surface-linen py-section-lg" aria-labelledby="category-gallery-heading">
+      <div class="mx-auto max-w-content px-m">
+        <div class="mb-l flex flex-col items-center text-center">
           <h2
-            id="other-items-heading"
-            class="mb-l text-center font-display text-h2 text-foreground"
+            id="category-gallery-heading"
+            class="font-display text-h2 text-foreground"
             data-reveal
           >
-            {crossSellHeading}
+            {galleryHeading}
           </h2>
-          <ul class="cat-others" role="list" data-reveal-stagger="90">
-            {otherCategories.map((cat: any, i: number) => (
-              <li data-reveal>
-                <CategoryCard
-                  name={cat.name}
-                  slug={cat.slug?.current ?? ''}
-                  cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
-                  size={240}
-                  tilt={[-2, 1.5, -1][i % 3]}
-                />
-              </li>
-            ))}
-          </ul>
+          <div class="mt-m w-full max-w-[14rem]" data-reveal="stitch" aria-hidden="true">
+            <RunningStitch tone="brass" ornament="cross" />
+          </div>
         </div>
-      </section>
-    )
-  }
+        <div class="columns-2 gap-m sm:columns-3 lg:columns-4">
+          {relatedGallery.map((item: any, i: number) => (
+            <GallerySwatch
+              item={item}
+              index={i + 1}
+              fontCaption={galleryPage?.fontCaption}
+              showRequest={false}
+              showCategory={false}
+              editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
+            />
+          ))}
+        </div>
+        {/* Photo → quote bridge: turn "I like this" into an action, with the
+            item type already pre-filled on the quote form. */}
+        <div class="mt-l flex justify-center">
+          <CtaLink cta={{ label: requestSimilarLabel, href: quoteHref }} variant="primary" arrow />
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Explore Other Items — cross-sell, as hoops */}
+  {otherCategories.length > 0 && (
+    <section
+      class:list={['py-section-lg', relatedGallery.length > 0 ? 'surface-indigo' : 'surface-linen']}
+      aria-labelledby="other-items-heading"
+    >
+      <div class="mx-auto max-w-content px-m">
+        <h2
+          id="other-items-heading"
+          class="mb-l text-center font-display text-h2 text-foreground"
+          data-reveal
+        >
+          {crossSellHeading}
+        </h2>
+        <ul class="cat-others" role="list" data-reveal-stagger="90">
+          {otherCategories.map((cat: any, i: number) => (
+            <li data-reveal>
+              <CategoryCard
+                name={cat.name}
+                slug={cat.slug?.current ?? ''}
+                cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
+                size={240}
+                tilt={[-2, 1.5, -1][i % 3]}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
 
   <CtaBanner
     eyebrow={banner.eyebrow}
@@ -331,16 +310,14 @@ const pageSchemas = [
     ctaLabel={ctaLabel}
     ctaHref={quoteHref}
   />
-  {
-    relatedGallery.length > 0 && (
-      <Lightbox
-        label={galleryPage?.lightboxLabel}
-        closeLabel={galleryPage?.lightboxCloseLabel}
-        prevLabel={galleryPage?.lightboxPrevLabel}
-        nextLabel={galleryPage?.lightboxNextLabel}
-      />
-    )
-  }
+  {relatedGallery.length > 0 && (
+    <Lightbox
+      label={galleryPage?.lightboxLabel}
+      closeLabel={galleryPage?.lightboxCloseLabel}
+      prevLabel={galleryPage?.lightboxPrevLabel}
+      nextLabel={galleryPage?.lightboxNextLabel}
+    />
+  )}
 </Layout>
 
 <style>

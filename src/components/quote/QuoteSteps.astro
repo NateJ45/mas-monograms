@@ -12,18 +12,16 @@ const { steps, label } = Astro.props as Props;
 
 <nav class="qs" aria-label={label ?? undefined} data-quote-steps>
   <ol class="qs__list">
-    {
-      steps.map((s, i) => (
-        <li>
-          <a href={`#${s.id}`} class="qs__link" data-step-link={s.id}>
-            <span class="qs__num" aria-hidden="true">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <span class="qs__label">{s.label}</span>
-          </a>
-        </li>
-      ))
-    }
+    {steps.map((s, i) => (
+      <li>
+        <a href={`#${s.id}`} class="qs__link" data-step-link={s.id}>
+          <span class="qs__num" aria-hidden="true">
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          <span class="qs__label">{s.label}</span>
+        </a>
+      </li>
+    ))}
   </ol>
 </nav>
 

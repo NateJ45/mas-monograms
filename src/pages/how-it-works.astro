@@ -69,10 +69,8 @@ if (heroSwash) {
 }
 ---
 
-{
-  /* thread={false}: the stitched step path IS this page's thread; the global
-    gold ThreadLine crossed it and read as two threads fighting. */
-}
+{/* thread={false}: the stitched step path IS this page's thread; the global
+    gold ThreadLine crossed it and read as two threads fighting. */}
 <Layout
   {title}
   {description}
@@ -86,54 +84,48 @@ if (heroSwash) {
   <section class="hiw-hero surface-midnight py-section-lg" aria-labelledby="hiw-heading">
     <div class="mx-auto max-w-content px-m">
       <div class="mx-auto max-w-5xl text-center">
-        {
-          page?.heroEyebrow && (
-            <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-              {page.heroEyebrow}
-            </p>
-          )
-        }
+        {page?.heroEyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {page.heroEyebrow}
+          </p>
+        )}
         <h1 id="hiw-heading" class="display-sm mx-auto" data-reveal>
           {heroBefore}
           {heroSwash && <em class="swash">{heroSwash}</em>}
           {heroAfter}
         </h1>
-        {
-          page?.heroSubhead && (
-            <p
-              class="lede mx-auto mt-l max-w-[44ch] text-center"
-              data-reveal
-              style="--reveal-delay: 120ms"
-            >
-              {page.heroSubhead}
-            </p>
-          )
-        }
+        {page?.heroSubhead && (
+          <p
+            class="lede mx-auto mt-l max-w-[44ch] text-center"
+            data-reveal
+            style="--reveal-delay: 120ms"
+          >
+            {page.heroSubhead}
+          </p>
+        )}
       </div>
 
-      {
-        steps.length > 0 && (
-          <nav
-            class="hiw-index mx-auto mt-section-md max-w-5xl"
-            aria-labelledby={page?.stepsHeadline ? 'hiw-steps-heading' : 'hiw-heading'}
-            data-reveal
-            style="--reveal-delay: 220ms"
-          >
-            <ol class="hiw-index__list">
-              {steps.map((s, i) => (
-                <li>
-                  <a href={`#step-${i + 1}`} class="hiw-index__link">
-                    <span class="hiw-index__num" aria-hidden="true">
-                      {stepNum(s, i)}
-                    </span>
-                    <span class="hiw-index__label">{s.label}</span>
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )
-      }
+      {steps.length > 0 && (
+        <nav
+          class="hiw-index mx-auto mt-section-md max-w-5xl"
+          aria-labelledby={page?.stepsHeadline ? 'hiw-steps-heading' : 'hiw-heading'}
+          data-reveal
+          style="--reveal-delay: 220ms"
+        >
+          <ol class="hiw-index__list">
+            {steps.map((s, i) => (
+              <li>
+                <a href={`#step-${i + 1}`} class="hiw-index__link">
+                  <span class="hiw-index__num" aria-hidden="true">
+                    {stepNum(s, i)}
+                  </span>
+                  <span class="hiw-index__label">{s.label}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
     </div>
   </section>
 
@@ -149,109 +141,105 @@ if (heroSwash) {
         class="mb-section-md"
       />
 
-      {
-        steps.length > 0 && (
-          <div class="process-path" data-process-path>
-            <svg
-              class="process-path__svg process-path__svg--guide"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path data-pp-guide fill="none" />
-            </svg>
-            <svg
-              class="process-path__svg process-path__svg--sewn"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path data-pp-sewn fill="none" />
-            </svg>
-            <svg
-              class="process-path__needle"
-              viewBox="0 0 12 56"
-              width="12"
-              height="56"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <defs>
-                <linearGradient id="pp-steel" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0" stop-color="#6d747c" />
-                  <stop offset="0.4" stop-color="#f4f6f8" />
-                  <stop offset="0.6" stop-color="#b9c0c7" />
-                  <stop offset="1" stop-color="#565c63" />
-                </linearGradient>
-              </defs>
-              <path d="M5 3 Q6 0 7 3 L7.4 40 Q6.6 50 6 56 Q5.4 50 4.6 40 Z" fill="url(#pp-steel)" />
-              <rect x="5.5" y="4" width="1" height="8" rx="0.5" fill="#f4eee3" />
-            </svg>
+      {steps.length > 0 && (
+        <div class="process-path" data-process-path>
+          <svg
+            class="process-path__svg process-path__svg--guide"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path data-pp-guide fill="none" />
+          </svg>
+          <svg
+            class="process-path__svg process-path__svg--sewn"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path data-pp-sewn fill="none" />
+          </svg>
+          <svg
+            class="process-path__needle"
+            viewBox="0 0 12 56"
+            width="12"
+            height="56"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <defs>
+              <linearGradient id="pp-steel" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#6d747c" />
+                <stop offset="0.4" stop-color="#f4f6f8" />
+                <stop offset="0.6" stop-color="#b9c0c7" />
+                <stop offset="1" stop-color="#565c63" />
+              </linearGradient>
+            </defs>
+            <path d="M5 3 Q6 0 7 3 L7.4 40 Q6.6 50 6 56 Q5.4 50 4.6 40 Z" fill="url(#pp-steel)" />
+            <rect x="5.5" y="4" width="1" height="8" rx="0.5" fill="#f4eee3" />
+          </svg>
 
-            <ol class="process-path__list">
-              {steps.map((step: any, i: number) => (
-                <li
-                  id={`step-${i + 1}`}
-                  class:list={['process-step', i % 2 === 1 && 'process-step--flip']}
-                  data-pp-step
-                  data-sanity={editItem(edit, 'steps', step, i)}
-                >
-                  <div class="process-step__node" data-pp-node>
-                    <span class="process-step__num">{stepNum(step, i)}</span>
-                  </div>
-                  <div class="process-step__art" data-reveal="fade">
-                    {step.image?.asset ? (
-                      <div class="process-step__photo">
-                        <SanityImage
-                          source={step.image}
-                          width={720}
-                          sizes="(max-width: 768px) 100vw, 420px"
-                          class="h-auto w-full object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div class="process-step__plate">
-                        <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={176} />
-                      </div>
-                    )}
-                  </div>
-                  <div class="process-step__text" data-reveal>
-                    <h3 class="process-step__title">{step.label}</h3>
-                    {step.body && (
-                      <div class="process-step__body">
-                        <PortableText value={step.body} />
-                      </div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        )
-      }
+          <ol class="process-path__list">
+            {steps.map((step: any, i: number) => (
+              <li
+                id={`step-${i + 1}`}
+                class:list={['process-step', i % 2 === 1 && 'process-step--flip']}
+                data-pp-step
+                data-sanity={editItem(edit, 'steps', step, i)}
+              >
+                <div class="process-step__node" data-pp-node>
+                  <span class="process-step__num">{stepNum(step, i)}</span>
+                </div>
+                <div class="process-step__art" data-reveal="fade">
+                  {step.image?.asset ? (
+                    <div class="process-step__photo">
+                      <SanityImage
+                        source={step.image}
+                        width={720}
+                        sizes="(max-width: 768px) 100vw, 420px"
+                        class="h-auto w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div class="process-step__plate">
+                      <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={176} />
+                    </div>
+                  )}
+                </div>
+                <div class="process-step__text" data-reveal>
+                  <h3 class="process-step__title">{step.label}</h3>
+                  {step.body && (
+                    <div class="process-step__body">
+                      <PortableText value={step.body} />
+                    </div>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
     </div>
   </section>
 
   {/* FAQ on Indigo, the new accordion. */}
-  {
-    faqs.length > 0 && (
-      <section class="surface-indigo py-section-lg" aria-labelledby="hiw-faq-heading">
-        <div class="mx-auto grid max-w-content gap-l px-m lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-section-md">
-          <div class="lg:sticky lg:top-32 lg:self-start" data-reveal>
-            <SectionHeading
-              headingId="hiw-faq-heading"
-              headline={page?.faqHeadline ?? undefined}
-              swash={faqSwash}
-              subhead={page?.faqSubhead ?? undefined}
-              size="lg"
-            />
-            <RunningStitch ornament="needle" class="mt-l hidden lg:flex" length="12rem" />
-          </div>
-          <div>
-            <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
-          </div>
+  {faqs.length > 0 && (
+    <section class="surface-indigo py-section-lg" aria-labelledby="hiw-faq-heading">
+      <div class="mx-auto grid max-w-content gap-l px-m lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-section-md">
+        <div class="lg:sticky lg:top-32 lg:self-start" data-reveal>
+          <SectionHeading
+            headingId="hiw-faq-heading"
+            headline={page?.faqHeadline ?? undefined}
+            swash={faqSwash}
+            subhead={page?.faqSubhead ?? undefined}
+            size="lg"
+          />
+          <RunningStitch ornament="needle" class="mt-l hidden lg:flex" length="12rem" />
         </div>
-      </section>
-    )
-  }
+        <div>
+          <FaqAccordion client:visible faqs={faqs} idPrefix="hiw-faq" />
+        </div>
+      </div>
+    </section>
+  )}
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

@@ -22,16 +22,14 @@ interface Props {
 const { text, onDark = false, class: extraClass = '' } = Astro.props as Props;
 ---
 
-{
-  text && (
-    <p
-      class:list={[
-        'inline-block -rotate-2 font-monogram text-[clamp(2.75rem,2vw+2rem,3.25rem)] leading-[1.1] text-balance',
-        onDark ? 'text-[var(--color-gold-script)]' : 'text-[var(--color-rust-decorative,#8C3A2E)]',
-        extraClass,
-      ]}
-    >
-      {text}
-    </p>
-  )
-}
+{text && (
+  <p
+    class:list={[
+      'inline-block -rotate-2 font-monogram text-[clamp(2.75rem,2vw+2rem,3.25rem)] leading-[1.1] text-balance',
+      onDark ? 'text-[var(--color-gold-script)]' : 'text-[var(--color-rust-decorative,#8C3A2E)]',
+      extraClass,
+    ]}
+  >
+    {text}
+  </p>
+)}

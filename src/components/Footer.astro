@@ -133,7 +133,8 @@ function socialIcon(platform: string | undefined) {
         d="M0 14C18 14 26 14 38 12S58 3 70 8 84 22 96 17 106 9 112 11"
         fill="none"
         stroke-width="1.6"
-        stroke-linecap="round"></path>
+        stroke-linecap="round"
+      ></path>
       <path class="site-footer__steel" d="M104 12.6 131 9.6 131.6 10.6 105 14.2Z"></path>
       <ellipse
         class="site-footer__eye"
@@ -141,7 +142,8 @@ function socialIcon(platform: string | undefined) {
         cy="12.4"
         rx="2.3"
         ry="0.75"
-        transform="rotate(-6 110 12.4)"></ellipse>
+        transform="rotate(-6 110 12.4)"
+      ></ellipse>
     </svg>
   </div>
 
@@ -150,133 +152,117 @@ function socialIcon(platform: string | undefined) {
       {/* ── Brand block ─────────────────────────────────────────────────── */}
       <div class="site-footer__brandcol">
         <a href="/" aria-label={`${brandName} home`} class="site-footer__brand">
-          {
-            customLogo ? (
-              <SanityImage source={customLogo} width={360} alt="" class="h-16 w-auto" />
-            ) : (
-              /* The cached standalone files from scripts/generate-favicons.mjs (the footer is
+          {customLogo ? (
+            <SanityImage source={customLogo} width={360} alt="" class="h-16 w-auto" />
+          ) : (
+            /* The cached standalone files from scripts/generate-favicons.mjs (the footer is
                  always Midnight). Decorative: the link carries the name. */
-              <>
-                <img
-                  src="/brand/mark-dark.svg"
-                  width="200"
-                  height="200"
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  class="site-footer__seal"
-                />
-                <img
-                  src="/brand/wordmark-dark.svg"
-                  width="724"
-                  height="102"
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  class="site-footer__word"
-                />
-              </>
-            )
-          }
+            <>
+              <img
+                src="/brand/mark-dark.svg"
+                width="200"
+                height="200"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                class="site-footer__seal"
+              />
+              <img
+                src="/brand/wordmark-dark.svg"
+                width="724"
+                height="102"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                class="site-footer__word"
+              />
+            </>
+          )}
         </a>
-        {
-          siteSettings?.tagline && (
-            <p class="site-footer__tagline font-display italic">{siteSettings.tagline}</p>
-          )
-        }
+        {siteSettings?.tagline && (
+          <p class="site-footer__tagline font-display italic">{siteSettings.tagline}</p>
+        )}
         <ul class="site-footer__contact" role="list">
-          {
-            location && (
-              <li>
-                <span class="site-footer__contact-item text-[var(--color-text-secondary)]">
-                  <MapPin size={14} aria-hidden="true" />
-                  {location}
-                </span>
-              </li>
-            )
-          }
-          {
-            email && (
-              <li>
-                <a href={`mailto:${email}`} class="site-footer__contact-item">
-                  <Mail size={14} aria-hidden="true" />
-                  {email}
-                </a>
-              </li>
-            )
-          }
-          {
-            phone && (
-              <li>
-                <a href={telHref(phone)} class="site-footer__contact-item">
-                  <Phone size={14} aria-hidden="true" />
-                  {phone}
-                </a>
-              </li>
-            )
-          }
-          {
-            review && (
-              <li>
-                <a
-                  href={review.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="site-footer__contact-item"
-                >
-                  <Star size={14} aria-hidden="true" />
-                  {review.label}
-                </a>
-              </li>
-            )
-          }
+          {location && (
+            <li>
+              <span class="site-footer__contact-item text-[var(--color-text-secondary)]">
+                <MapPin size={14} aria-hidden="true" />
+                {location}
+              </span>
+            </li>
+          )}
+          {email && (
+            <li>
+              <a href={`mailto:${email}`} class="site-footer__contact-item">
+                <Mail size={14} aria-hidden="true" />
+                {email}
+              </a>
+            </li>
+          )}
+          {phone && (
+            <li>
+              <a href={telHref(phone)} class="site-footer__contact-item">
+                <Phone size={14} aria-hidden="true" />
+                {phone}
+              </a>
+            </li>
+          )}
+          {review && (
+            <li>
+              <a
+                href={review.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="site-footer__contact-item"
+              >
+                <Star size={14} aria-hidden="true" />
+                {review.label}
+              </a>
+            </li>
+          )}
         </ul>
-        {
-          socialLinks.length > 0 && (
-            <ul class="mt-s flex list-none flex-wrap gap-s p-0" role="list">
-              {socialLinks.map((link) => {
-                const Icon = socialIcon(link.platform);
-                return (
-                  <li>
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={link.label ?? link.platform ?? 'Social link'}
-                      class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[var(--color-gold)]/60 text-foreground transition-colors hover:border-solid hover:border-[var(--color-gold-light)] hover:bg-[var(--color-gold-light)] hover:text-[var(--color-midnight)]"
-                    >
-                      <Icon size={18} stroke={1.5} />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          )
-        }
+        {socialLinks.length > 0 && (
+          <ul class="mt-s flex list-none flex-wrap gap-s p-0" role="list">
+            {socialLinks.map((link) => {
+              const Icon = socialIcon(link.platform);
+              return (
+                <li>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label ?? link.platform ?? 'Social link'}
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-dashed border-[var(--color-gold)]/60 text-foreground transition-colors hover:border-solid hover:border-[var(--color-gold-light)] hover:bg-[var(--color-gold-light)] hover:text-[var(--color-midnight)]"
+                  >
+                    <Icon size={18} stroke={1.5} />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
 
       {/* ── Link columns ─────────────────────────────────────────────────── */}
       <nav aria-label="Footer" class="site-footer__cols">
-        {
-          columns.map((col) => (
-            <div class:list={['site-footer__col', col.long && 'site-footer__col--long']}>
-              <p class="site-footer__coltitle">{col.title}</p>
-              <ul class="site-footer__links" role="list">
-                {col.links.map((link) => (
-                  <li>
-                    <a
-                      href={internalHref(link.href)}
-                      target={isExternalHref(link.href) ? '_blank' : undefined}
-                      rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))
-        }
+        {columns.map((col) => (
+          <div class:list={['site-footer__col', col.long && 'site-footer__col--long']}>
+            <p class="site-footer__coltitle">{col.title}</p>
+            <ul class="site-footer__links" role="list">
+              {col.links.map((link) => (
+                <li>
+                  <a
+                    href={internalHref(link.href)}
+                    target={isExternalHref(link.href) ? '_blank' : undefined}
+                    rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </nav>
     </div>
   </div>
@@ -284,43 +270,37 @@ function socialIcon(platform: string | undefined) {
   {/* ── Bottom row ─────────────────────────────────────────────────────── */}
   <div class="site-footer__bottom">
     <div class="site-footer__bottom-inner mx-auto max-w-content px-m">
-      {
-        /* One expression on purpose: split across lines, Astro drops the space between two
-         adjacent {expressions} and the footer reads "2026MAS". */
-      }
+      {/* One expression on purpose: split across lines, Astro drops the space between two
+         adjacent {expressions} and the footer reads "2026MAS". */}
       <p class="site-footer__copy">
         {`© ${currentYear} ${brandName} · ${location || 'St. Matthews, SC'}`}
       </p>
-      {
-        smallPrint.length > 0 && (
-          <nav aria-label="Legal" class="site-footer__legal">
-            {smallPrint.map((link) => (
-              <a
-                href={internalHref(link.href)}
-                target={isExternalHref(link.href) ? '_blank' : undefined}
-                rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
-              >
-                {link.label}
-              </a>
-            ))}
-          </nav>
-        )
-      }
-      {
-        siteCredit &&
-          (siteCreditUrl ? (
+      {smallPrint.length > 0 && (
+        <nav aria-label="Legal" class="site-footer__legal">
+          {smallPrint.map((link) => (
             <a
-              href={siteCreditUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="site-footer__credit underline decoration-dashed underline-offset-4"
+              href={internalHref(link.href)}
+              target={isExternalHref(link.href) ? '_blank' : undefined}
+              rel={isExternalHref(link.href) ? 'noopener noreferrer' : undefined}
             >
-              {siteCredit}
+              {link.label}
             </a>
-          ) : (
-            <span class="site-footer__credit">{siteCredit}</span>
-          ))
-      }
+          ))}
+        </nav>
+      )}
+      {siteCredit &&
+        (siteCreditUrl ? (
+          <a
+            href={siteCreditUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="site-footer__credit underline decoration-dashed underline-offset-4"
+          >
+            {siteCredit}
+          </a>
+        ) : (
+          <span class="site-footer__credit">{siteCredit}</span>
+        ))}
     </div>
   </div>
 </footer>

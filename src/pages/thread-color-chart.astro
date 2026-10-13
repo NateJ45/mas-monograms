@@ -100,92 +100,83 @@ const heroSpools = rack.length
     class="surface-midnight pt-header overflow-hidden pb-section-lg"
     aria-labelledby="chart-title"
   >
-    <div
-      class="mx-auto grid max-w-content grid-cols-[minmax(0,1fr)] items-end gap-l px-m lg:grid-cols-[1.25fr_1fr]"
-    >
+    <div class="mx-auto grid max-w-content grid-cols-[minmax(0,1fr)] items-end gap-l px-m lg:grid-cols-[1.25fr_1fr]">
       <div data-reveal>
         {page?.heroEyebrow && <p class="eyebrow mb-m">{page.heroEyebrow}</p>}
         <h1 id="chart-title" class="display-sm mb-l">
-          {hLead && <>{hLead} </>}<em class="swash">{hLast}</em>
+          {hLead && <>{hLead} </>}
+          <em class="swash">{hLast}</em>
         </h1>
         {page?.heroSubhead && <p class="lede">{page.heroSubhead}</p>}
       </div>
-      {
-        heroSpools.length > 0 && (
-          <div class="chart-hero__spools" aria-hidden="true" data-reveal="fade">
-            {heroSpools.map((c, i) => (
-              <Spool
-                color={c.hex}
-                size={i === 2 ? 128 : i % 2 ? 92 : 104}
-                tilt={[-8, 5, -2, 7, -5][i]}
-              />
-            ))}
-            <span class="chart-hero__shelf" />
-          </div>
-        )
-      }
+      {heroSpools.length > 0 && (
+        <div class="chart-hero__spools" aria-hidden="true" data-reveal="fade">
+          {heroSpools.map((c, i) => (
+            <Spool
+              color={c.hex}
+              size={i === 2 ? 128 : i % 2 ? 92 : 104}
+              tilt={[-8, 5, -2, 7, -5][i]}
+            />
+          ))}
+          <span class="chart-hero__shelf" />
+        </div>
+      )}
     </div>
   </section>
 
   {/* The rack and the live stitch */}
   <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {
-        page?.intro && (
-          <div class="chart-intro mb-section-md" data-reveal>
-            <h2 id="rack-title" class="sr-only">
-              {atelier?.threadLabel ?? page?.heroEyebrow ?? headline}
-            </h2>
-            <PortableText value={page.intro} />
-          </div>
-        )
-      }
-      {
-        !page?.intro && (
+      {page?.intro && (
+        <div class="chart-intro mb-section-md" data-reveal>
           <h2 id="rack-title" class="sr-only">
             {atelier?.threadLabel ?? page?.heroEyebrow ?? headline}
           </h2>
-        )
-      }
+          <PortableText value={page.intro} />
+        </div>
+      )}
+      {!page?.intro && (
+        <h2 id="rack-title" class="sr-only">
+          {atelier?.threadLabel ?? page?.heroEyebrow ?? headline}
+        </h2>
+      )}
 
-      {
-        rack.length > 0 && first ? (
-          <div class="chart-grid">
-            <StitchPanel
-              initials={initials}
-              thread={{ slug: first.slug, name: first.name, hex: first.hex }}
-              fabrics={fabrics}
-              threadLabel={atelier?.threadLabel ?? 'Thread'}
-              fabricLabel={atelier?.fabricLabel}
-              initialsLabel={atelier?.initialsLabel}
-              initialsHint={atelier?.initialsHint}
-              replayLabel={atelier?.replayLabel}
-              ctaLabel={atelier?.ctaLabel ?? page?.ctaLabel}
-              disclaimer={atelier?.disclaimer}
-              quoteHref="/request-a-quote"
+      {rack.length > 0 && first ? (
+        <div class="chart-grid">
+          <StitchPanel
+            initials={initials}
+            thread={{ slug: first.slug, name: first.name, hex: first.hex }}
+            fabrics={fabrics}
+            threadLabel={atelier?.threadLabel ?? 'Thread'}
+            fabricLabel={atelier?.fabricLabel}
+            initialsLabel={atelier?.initialsLabel}
+            initialsHint={atelier?.initialsHint}
+            replayLabel={atelier?.replayLabel}
+            ctaLabel={atelier?.ctaLabel ?? page?.ctaLabel}
+            disclaimer={atelier?.disclaimer}
+            quoteHref="/request-a-quote"
+          />
+          <div class="chart-grid__rack">
+            <SpoolRack
+              colors={rack}
+              selected={first.slug}
+              legend={atelier?.threadLabel ?? 'Thread'}
+              filterLabel={page?.filterLabel ?? 'Search colors'}
+              emptyNote={page?.customColorNote ?? page?.matchingNote}
             />
-            <div class="chart-grid__rack">
-              <SpoolRack
-                colors={rack}
-                selected={first.slug}
-                legend={atelier?.threadLabel ?? 'Thread'}
-                filterLabel={page?.filterLabel ?? 'Search colors'}
-                emptyNote={page?.customColorNote ?? page?.matchingNote}
-              />
-              {page?.matchingNote && (
-                <p class="chart-note">
-                  <span class="chart-note__mark" aria-hidden="true">
-                    +
-                  </span>
-                  {page.matchingNote}
-                </p>
-              )}
-            </div>
+            {page?.matchingNote && (
+              <p class="chart-note">
+                <span class="chart-note__mark" aria-hidden="true">
+                  +
+                </span>
+                {page.matchingNote}
+              </p>
+            )}
           </div>
-        ) : (
-          page?.matchingNote && <p class="chart-note">{page.matchingNote}</p>
-        )
-      }
+        </div>
+      ) : (
+        page?.matchingNote && <p class="chart-note">{page.matchingNote}</p>
+      )}
     </div>
   </section>
 

@@ -51,25 +51,21 @@ if (swash && headline?.includes(swash)) {
 <section class="cta-banner surface-midnight py-section-lg" aria-labelledby="cta-banner-heading">
   <div class="cta-banner__frame mx-auto max-w-content px-m">
     <div class="cta-banner__inner relative px-m py-section-md text-center">
-      {
-        eyebrow && (
-          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-            {eyebrow}
-          </p>
-        )
-      }
+      {eyebrow && (
+        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+          {eyebrow}
+        </p>
+      )}
       <h2 id="cta-banner-heading" class="display-sm mx-auto max-w-4xl" data-reveal>
         {before}
         {word && <em class="swash">{word}</em>}
         {after}
       </h2>
-      {
-        subhead && (
-          <p class="lede mx-auto mt-m text-center" data-reveal style="--reveal-delay: 120ms">
-            {subhead}
-          </p>
-        )
-      }
+      {subhead && (
+        <p class="lede mx-auto mt-m text-center" data-reveal style="--reveal-delay: 120ms">
+          {subhead}
+        </p>
+      )}
       <div
         class="mt-l flex flex-wrap items-center justify-center gap-m"
         data-thread-end
@@ -78,15 +74,15 @@ if (swash && headline?.includes(swash)) {
       >
         <a href={internalHref(ctaHref)} class="btn btn-primary">
           <span>{ctaLabel}</span>
-          <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+          <span class="btn__arrow" aria-hidden="true">
+            &rarr;
+          </span>
         </a>
-        {
-          secondaryLabel && secondaryHref && (
-            <a href={internalHref(secondaryHref)} class="btn btn-secondary">
-              {secondaryLabel}
-            </a>
-          )
-        }
+        {secondaryLabel && secondaryHref && (
+          <a href={internalHref(secondaryHref)} class="btn btn-secondary">
+            {secondaryLabel}
+          </a>
+        )}
       </div>
       <RunningStitch ornament="cross" class="mx-auto mt-l" length="min(18rem, 70%)" />
     </div>

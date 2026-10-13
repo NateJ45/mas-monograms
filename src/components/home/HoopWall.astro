@@ -52,75 +52,65 @@ const FOCAL: Record<string, { x: number; y: number }> = {};
 <section class="hoop-wall surface-midnight py-section-lg" aria-labelledby={headingId}>
   <div class="mx-auto max-w-content px-m">
     <header class="mx-auto mb-section-md max-w-3xl text-center">
-      {
-        page?.categoriesEyebrow && (
-          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-            {page.categoriesEyebrow}
-          </p>
-        )
-      }
-      {
-        (head.before || head.swash) && (
-          <h2 id={headingId} class="display-sm" data-reveal>
-            {head.before}
-            <em class="swash">{head.swash}</em>
-          </h2>
-        )
-      }
-      {
-        page?.categoriesSubhead && (
-          <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
-            {page.categoriesSubhead}
-          </p>
-        )
-      }
+      {page?.categoriesEyebrow && (
+        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+          {page.categoriesEyebrow}
+        </p>
+      )}
+      {(head.before || head.swash) && (
+        <h2 id={headingId} class="display-sm" data-reveal>
+          {head.before}
+          <em class="swash">{head.swash}</em>
+        </h2>
+      )}
+      {page?.categoriesSubhead && (
+        <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+          {page.categoriesSubhead}
+        </p>
+      )}
     </header>
 
     <ul class="hoop-wall__list" role="list" data-reveal-stagger="90">
-      {
-        items.map((cat: any, i: number) => {
-          const h = HANG[i % HANG.length];
-          const slug = cat.slug.current;
-          // A card photo marked hoopFit "poor" gives way to a good hero photo (src/lib/hoop.ts).
-          const photo = pickCardImage(cat.cardImage, cat.heroImages);
-          const hasPhoto = !!photo?.asset;
-          return (
-            <li
-              class="hoop-wall__item"
-              style={`--drop:${h.drop}px`}
-              data-reveal
-              data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
-            >
-              <a href={internalHref(`/${slug}`)} class="hoop-wall__link">
-                <span class="hoop-wall__hoop" style={`--hs:${h.size}px`}>
-                  <HoopFrame
-                    image={hasPhoto ? photo : null}
-                    alt=""
-                    size={h.size}
-                    sizes={photoSizes(h.size)}
-                    tilt={h.tilt}
-                    focal={photo?.hotspot ? null : (FOCAL[slug] ?? { x: 0.5, y: 0.5 })}
-                  />
-                  {!hasPhoto && <EmptyHoopOrnament class="hoop-wall__ornament" />}
-                </span>
-                <HangTag title={cat.name} size="sm" tilt={h.tag} class="hoop-wall__tag" />
-              </a>
-            </li>
-          );
-        })
-      }
+      {items.map((cat: any, i: number) => {
+        const h = HANG[i % HANG.length];
+        const slug = cat.slug.current;
+        // A card photo marked hoopFit "poor" gives way to a good hero photo (src/lib/hoop.ts).
+        const photo = pickCardImage(cat.cardImage, cat.heroImages);
+        const hasPhoto = !!photo?.asset;
+        return (
+          <li
+            class="hoop-wall__item"
+            style={`--drop:${h.drop}px`}
+            data-reveal
+            data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
+          >
+            <a href={internalHref(`/${slug}`)} class="hoop-wall__link">
+              <span class="hoop-wall__hoop" style={`--hs:${h.size}px`}>
+                <HoopFrame
+                  image={hasPhoto ? photo : null}
+                  alt=""
+                  size={h.size}
+                  sizes={photoSizes(h.size)}
+                  tilt={h.tilt}
+                  focal={photo?.hotspot ? null : (FOCAL[slug] ?? { x: 0.5, y: 0.5 })}
+                />
+                {!hasPhoto && <EmptyHoopOrnament class="hoop-wall__ornament" />}
+              </span>
+              <HangTag title={cat.name} size="sm" tilt={h.tag} class="hoop-wall__tag" />
+            </a>
+          </li>
+        );
+      })}
     </ul>
 
-    {
-      page?.categoriesNote && (
-        <div class="hoop-wall__note mx-auto mt-section-md max-w-2xl text-center" data-reveal>
-          <RunningStitch ornament="cross" length="min(16rem, 70%)" class="mx-auto mb-m" />
-          <p class="font-display text-xl text-[var(--color-text-secondary)] italic">
-            {page.categoriesNote}
-          </p>
-        </div>
-      )
-    }
+    {page?.categoriesNote && (
+      <div class="hoop-wall__note mx-auto mt-section-md max-w-2xl text-center" data-reveal>
+        <RunningStitch ornament="cross" length="min(16rem, 70%)" class="mx-auto mb-m" />
+        <p class="font-display text-xl text-[var(--color-text-secondary)] italic">
+          {page.categoriesNote}
+        </p>
+      </div>
+    )}
   </div>
 </section>
 

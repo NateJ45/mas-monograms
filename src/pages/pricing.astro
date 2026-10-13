@@ -75,140 +75,130 @@ const addons: any[] = (page?.addons ?? []).filter((a: any) => a?.label);
   {/* Intro */}
   <section class="surface-midnight py-section-lg" aria-labelledby="pricing-heading">
     <div class="mx-auto max-w-content px-m text-center">
-      {
-        page?.heroEyebrow && (
-          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-            {page.heroEyebrow}
-          </p>
-        )
-      }
+      {page?.heroEyebrow && (
+        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+          {page.heroEyebrow}
+        </p>
+      )}
       <h1 id="pricing-heading" class="display mx-auto max-w-5xl" data-reveal>
         {heroBefore}
         {heroSwash && <em class="swash">{heroSwash}</em>}
         {heroAfter}
       </h1>
-      {
-        page?.heroSubhead && (
-          <p
-            class="lede mx-auto mt-l max-w-[46ch] text-center"
-            data-reveal
-            style="--reveal-delay: 120ms"
-          >
-            {page.heroSubhead}
-          </p>
-        )
-      }
+      {page?.heroSubhead && (
+        <p
+          class="lede mx-auto mt-l max-w-[46ch] text-center"
+          data-reveal
+          style="--reveal-delay: 120ms"
+        >
+          {page.heroSubhead}
+        </p>
+      )}
       <RunningStitch ornament="cross" class="mx-auto mt-section-md" length="min(16rem, 60%)" />
     </div>
   </section>
 
   {/* Starting prices: hang tags on a garland. */}
-  {
-    tiers.length > 0 && (
-      <section class="surface-linen py-section-lg" aria-labelledby="tiers-heading">
-        <div class="mx-auto max-w-content px-m">
-          <SectionHeading
-            headingId="tiers-heading"
-            headline={page?.tiersHeadline ?? undefined}
-            swash={pickSwash(page?.tiersHeadline, ['prices'])}
-            subhead={page?.tiersSubhead ?? undefined}
-            size="lg"
-            align="center"
-          />
-          <ul class="tag-line mt-section-md" role="list" data-reveal-stagger="110">
-            {tiers.map((tier: any, i: number) => (
-              <li
-                class="tag-line__item"
-                data-sanity={editOther(edit, tier._id, 'pricingTier', 'label')}
-              >
-                <span class="tag-line__twine" aria-hidden="true" />
-                <HangTag
-                  title={tier.label}
-                  titleTag="h3"
-                  badge={tier.highlighted ? tier.highlightLabel : null}
-                  eyebrow={page?.tierPricePrefix}
-                  value={money(tier.pricePerPiece)}
-                  note={tier.note}
-                  tone={tier.highlighted ? 'midnight' : TONES[i % TONES.length]}
-                  tilt={TILTS[i % TILTS.length]}
-                  class="tag-line__tag"
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    )
-  }
+  {tiers.length > 0 && (
+    <section class="surface-linen py-section-lg" aria-labelledby="tiers-heading">
+      <div class="mx-auto max-w-content px-m">
+        <SectionHeading
+          headingId="tiers-heading"
+          headline={page?.tiersHeadline ?? undefined}
+          swash={pickSwash(page?.tiersHeadline, ['prices'])}
+          subhead={page?.tiersSubhead ?? undefined}
+          size="lg"
+          align="center"
+        />
+        <ul class="tag-line mt-section-md" role="list" data-reveal-stagger="110">
+          {tiers.map((tier: any, i: number) => (
+            <li
+              class="tag-line__item"
+              data-sanity={editOther(edit, tier._id, 'pricingTier', 'label')}
+            >
+              <span class="tag-line__twine" aria-hidden="true" />
+              <HangTag
+                title={tier.label}
+                titleTag="h3"
+                badge={tier.highlighted ? tier.highlightLabel : null}
+                eyebrow={page?.tierPricePrefix}
+                value={money(tier.pricePerPiece)}
+                note={tier.note}
+                tone={tier.highlighted ? 'midnight' : TONES[i % TONES.length]}
+                tilt={TILTS[i % TILTS.length]}
+                class="tag-line__tag"
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
 
   {/* Add-ons: a tailor's price list. */}
-  {
-    addons.length > 0 && (
-      <section class="surface-midnight py-section-lg" aria-labelledby="addons-heading">
-        <div class="mx-auto max-w-content px-m">
-          <SectionHeading
-            headingId="addons-heading"
-            headline={page?.addonsHeadline ?? undefined}
-            swash={pickSwash(page?.addonsHeadline, ['modifiers', 'Add-ons'])}
-            size="lg"
-            align="center"
-          />
-          <dl class="price-list mx-auto mt-section-md" data-reveal-stagger="70">
-            {addons.map((addon: any, i: number) => (
-              <div class="price-list__row" data-sanity={editItem(edit, 'addons', addon, i)}>
-                <dt class="price-list__label">{addon.label}</dt>
-                <dd class="price-list__price">{addon.price}</dd>
-                {addon.note && <dd class="price-list__note">{addon.note}</dd>}
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
-    )
-  }
+  {addons.length > 0 && (
+    <section class="surface-midnight py-section-lg" aria-labelledby="addons-heading">
+      <div class="mx-auto max-w-content px-m">
+        <SectionHeading
+          headingId="addons-heading"
+          headline={page?.addonsHeadline ?? undefined}
+          swash={pickSwash(page?.addonsHeadline, ['modifiers', 'Add-ons'])}
+          size="lg"
+          align="center"
+        />
+        <dl class="price-list mx-auto mt-section-md" data-reveal-stagger="70">
+          {addons.map((addon: any, i: number) => (
+            <div class="price-list__row" data-sanity={editItem(edit, 'addons', addon, i)}>
+              <dt class="price-list__label">{addon.label}</dt>
+              <dd class="price-list__price">{addon.price}</dd>
+              {addon.note && <dd class="price-list__note">{addon.note}</dd>}
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  )}
 
   {/* Rush and the FAQ, on Linen. */}
-  {
-    (page?.rushHeadline || page?.rushBody || faqs.length > 0) && (
-      <section class="surface-linen py-section-lg" aria-labelledby="pricing-faq-heading">
-        <div class="mx-auto max-w-content px-m">
-          {(page?.rushHeadline || page?.rushBody) && (
-            <div class="rush mx-auto" data-reveal>
-              <div class="rush__needle" aria-hidden="true">
-                <Needle length={150} angle={28} thread="#8c3a2e" />
-              </div>
-              <div class="rush__text">
-                {page?.rushHeadline && (
-                  <h2 class="font-display text-h2 leading-tight text-foreground">
-                    {page.rushHeadline}
-                  </h2>
-                )}
-                {page?.rushBody && (
-                  <div class="rush__body">
-                    <PortableText value={page.rushBody} />
-                  </div>
-                )}
-              </div>
+  {(page?.rushHeadline || page?.rushBody || faqs.length > 0) && (
+    <section class="surface-linen py-section-lg" aria-labelledby="pricing-faq-heading">
+      <div class="mx-auto max-w-content px-m">
+        {(page?.rushHeadline || page?.rushBody) && (
+          <div class="rush mx-auto" data-reveal>
+            <div class="rush__needle" aria-hidden="true">
+              <Needle length={150} angle={28} thread="#8c3a2e" />
             </div>
-          )}
+            <div class="rush__text">
+              {page?.rushHeadline && (
+                <h2 class="font-display text-h2 leading-tight text-foreground">
+                  {page.rushHeadline}
+                </h2>
+              )}
+              {page?.rushBody && (
+                <div class="rush__body">
+                  <PortableText value={page.rushBody} />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
-          {faqs.length > 0 && (
-            <div class="mx-auto mt-section-lg max-w-3xl">
-              <SectionHeading
-                headingId="pricing-faq-heading"
-                headline={page?.faqHeadline ?? undefined}
-                swash={pickSwash(page?.faqHeadline, ['questions'])}
-                size="md"
-                align="center"
-                class="mb-l"
-              />
-              <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
-            </div>
-          )}
-        </div>
-      </section>
-    )
-  }
+        {faqs.length > 0 && (
+          <div class="mx-auto mt-section-lg max-w-3xl">
+            <SectionHeading
+              headingId="pricing-faq-heading"
+              headline={page?.faqHeadline ?? undefined}
+              swash={pickSwash(page?.faqHeadline, ['questions'])}
+              size="md"
+              align="center"
+              class="mb-l"
+            />
+            <FaqAccordion client:visible faqs={faqs} idPrefix="pricing-faq" />
+          </div>
+        )}
+      </div>
+    </section>
+  )}
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

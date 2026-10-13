@@ -98,174 +98,160 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
       ]}
     >
       <div class:list={[!hasPortrait && 'mx-auto max-w-4xl text-center']}>
-        {
-          facts.length > 0 && (
-            <ul class="about-facts" data-reveal="fade" role="list">
-              {facts.map((f) => (
-                <li>{f}</li>
-              ))}
-            </ul>
-          )
-        }
+        {facts.length > 0 && (
+          <ul class="about-facts" data-reveal="fade" role="list">
+            {facts.map((f) => (
+              <li>{f}</li>
+            ))}
+          </ul>
+        )}
         <h1 id="about-heading" class="display mt-l" data-reveal>
           {hero.before}
           {hero.word && <em class="swash">{hero.word}</em>}
           {hero.after}
         </h1>
-        {
-          page?.heroSubhead && (
-            <p
-              class:list={['lede mt-l', !hasPortrait && 'mx-auto']}
-              data-reveal
-              style="--reveal-delay: 120ms"
-            >
-              {page.heroSubhead}
-            </p>
-          )
-        }
+        {page?.heroSubhead && (
+          <p
+            class:list={['lede mt-l', !hasPortrait && 'mx-auto']}
+            data-reveal
+            style="--reveal-delay: 120ms"
+          >
+            {page.heroSubhead}
+          </p>
+        )}
       </div>
 
-      {
-        hasPortrait && (
-          <figure
-            class="arch"
-            data-reveal="fade"
-            style="--reveal-delay: 160ms"
-            data-sanity={editField(edit, page?.makerPhoto?.asset ? 'makerPhoto' : 'heroImage')}
-          >
-            <div class="arch__frame">
-              <div class="arch__photo">
-                <SanityImage
-                  source={portrait}
-                  width={760}
-                  height={950}
-                  sizes="(max-width: 1024px) 80vw, 420px"
-                  class="arch__img"
-                  loading="eager"
-                  fetchpriority="high"
-                />
-              </div>
+      {hasPortrait && (
+        <figure
+          class="arch"
+          data-reveal="fade"
+          style="--reveal-delay: 160ms"
+          data-sanity={editField(edit, page?.makerPhoto?.asset ? 'makerPhoto' : 'heroImage')}
+        >
+          <div class="arch__frame">
+            <div class="arch__photo">
+              <SanityImage
+                source={portrait}
+                width={760}
+                height={950}
+                sizes="(max-width: 1024px) 80vw, 420px"
+                class="arch__img"
+                loading="eager"
+                fetchpriority="high"
+              />
             </div>
-            {page?.makerAttribution && (
-              <figcaption class="arch__caption">{page.makerAttribution}</figcaption>
-            )}
-          </figure>
-        )
-      }
+          </div>
+          {page?.makerAttribution && (
+            <figcaption class="arch__caption">{page.makerAttribution}</figcaption>
+          )}
+        </figure>
+      )}
     </div>
   </section>
 
   {/* Her words, large. */}
-  {
-    pullQuote && (
-      <section class="surface-midnight py-section-lg">
-        <figure class="mx-auto max-w-5xl px-m text-center" data-reveal>
-          <span class="pull-mark" aria-hidden="true">
-            &ldquo;
-          </span>
-          <blockquote class="pull-quote">
-            <p>{pullQuote}</p>
-          </blockquote>
-          {page?.makerAttribution && (
-            <figcaption class="eyebrow eyebrow--center mt-l justify-center">
-              {page.makerAttribution}
-            </figcaption>
-          )}
-        </figure>
-      </section>
-    )
-  }
+  {pullQuote && (
+    <section class="surface-midnight py-section-lg">
+      <figure class="mx-auto max-w-5xl px-m text-center" data-reveal>
+        <span class="pull-mark" aria-hidden="true">
+          &ldquo;
+        </span>
+        <blockquote class="pull-quote">
+          <p>{pullQuote}</p>
+        </blockquote>
+        {page?.makerAttribution && (
+          <figcaption class="eyebrow eyebrow--center mt-l justify-center">
+            {page.makerAttribution}
+          </figcaption>
+        )}
+      </figure>
+    </section>
+  )}
 
   {/* The story, set editorially. */}
-  {
-    (storyBody.length > 0 || page?.storyHeadline) && (
-      <section class="surface-paper py-section-lg" aria-labelledby="story-heading">
-        <div class="mx-auto grid max-w-content gap-section-md px-m lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
-          <div class="story mx-auto w-full max-w-[40rem] lg:mx-0 lg:justify-self-end">
-            {page?.storyHeadline && (
-              <h2 id="story-heading" class="story__kicker" data-reveal>
-                {page.storyHeadline}
-              </h2>
-            )}
-            {storyBody.length > 0 && (
-              <div class="story__body" data-reveal>
-                <PortableText value={storyBody} />
-              </div>
-            )}
-          </div>
-          {(page?.studioNote || facts.length > 0) && (
-            <aside class="studio-card lg:self-center" data-reveal style="--reveal-delay: 140ms">
-              {page?.studioNote && <p class="studio-card__note">{page.studioNote}</p>}
-              {facts.length > 0 && (
-                <ul class="studio-card__facts" role="list">
-                  {facts.map((f) => (
-                    <li>{f}</li>
-                  ))}
-                </ul>
-              )}
-            </aside>
+  {(storyBody.length > 0 || page?.storyHeadline) && (
+    <section class="surface-paper py-section-lg" aria-labelledby="story-heading">
+      <div class="mx-auto grid max-w-content gap-section-md px-m lg:grid-cols-[minmax(0,8fr)_minmax(0,4fr)]">
+        <div class="story mx-auto w-full max-w-[40rem] lg:mx-0 lg:justify-self-end">
+          {page?.storyHeadline && (
+            <h2 id="story-heading" class="story__kicker" data-reveal>
+              {page.storyHeadline}
+            </h2>
+          )}
+          {storyBody.length > 0 && (
+            <div class="story__body" data-reveal>
+              <PortableText value={storyBody} />
+            </div>
           )}
         </div>
-      </section>
-    )
-  }
+        {(page?.studioNote || facts.length > 0) && (
+          <aside class="studio-card lg:self-center" data-reveal style="--reveal-delay: 140ms">
+            {page?.studioNote && <p class="studio-card__note">{page.studioNote}</p>}
+            {facts.length > 0 && (
+              <ul class="studio-card__facts" role="list">
+                {facts.map((f) => (
+                  <li>{f}</li>
+                ))}
+              </ul>
+            )}
+          </aside>
+        )}
+      </div>
+    </section>
+  )}
 
   {/* Recent work, stretched in hoops. */}
-  {
-    recentWorkPhotos.length > 0 && (
-      <section class="surface-midnight py-section-lg" aria-labelledby="recent-heading">
-        <div class="mx-auto max-w-content px-m">
-          <SectionHeading
-            headingId="recent-heading"
-            headline={recentWorkHeadline}
-            swash={pickSwash(recentWorkHeadline, ['work', 'studio'])}
-            size="lg"
-            align="center"
-          />
-          <ul class="hoop-row mt-section-md" role="list" data-reveal-stagger="120">
-            {recentWorkPhotos.map((item: any, i: number) => (
-              <li data-sanity={editOther(edit, item._id, 'galleryItem', 'image')}>
-                <HoopFrame image={item.image} size={300} tilt={[-3, 2, -1.5][i % 3]} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-    )
-  }
+  {recentWorkPhotos.length > 0 && (
+    <section class="surface-midnight py-section-lg" aria-labelledby="recent-heading">
+      <div class="mx-auto max-w-content px-m">
+        <SectionHeading
+          headingId="recent-heading"
+          headline={recentWorkHeadline}
+          swash={pickSwash(recentWorkHeadline, ['work', 'studio'])}
+          size="lg"
+          align="center"
+        />
+        <ul class="hoop-row mt-section-md" role="list" data-reveal-stagger="120">
+          {recentWorkPhotos.map((item: any, i: number) => (
+            <li data-sanity={editOther(edit, item._id, 'galleryItem', 'image')}>
+              <HoopFrame image={item.image} size={300} tilt={[-3, 2, -1.5][i % 3]} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
 
   {/* Values as hang tags. */}
-  {
-    values.length > 0 && (
-      <section class="surface-linen py-section-lg" aria-labelledby="values-heading">
-        <div class="mx-auto max-w-content px-m">
-          <SectionHeading
-            headingId="values-heading"
-            headline={page?.valuesHeadline ?? undefined}
-            swash={pickSwash(page?.valuesHeadline, ['different'])}
-            size="lg"
-            align="center"
-          />
-          <ul class="value-tags mt-section-md" role="list" data-reveal-stagger="90">
-            {values.map((v: any, i: number) => (
-              <li data-sanity={editItem(edit, 'values', v, i)}>
-                <HangTag
-                  title={v.label}
-                  titleTag="h3"
-                  tone={TONES[i % TONES.length]}
-                  tilt={TILTS[i % TILTS.length]}
-                  class="value-tag"
-                >
-                  <p>{v.body}</p>
-                </HangTag>
-              </li>
-            ))}
-          </ul>
-          <RunningStitch ornament="knot" class="mx-auto mt-section-md" length="min(14rem, 60%)" />
-        </div>
-      </section>
-    )
-  }
+  {values.length > 0 && (
+    <section class="surface-linen py-section-lg" aria-labelledby="values-heading">
+      <div class="mx-auto max-w-content px-m">
+        <SectionHeading
+          headingId="values-heading"
+          headline={page?.valuesHeadline ?? undefined}
+          swash={pickSwash(page?.valuesHeadline, ['different'])}
+          size="lg"
+          align="center"
+        />
+        <ul class="value-tags mt-section-md" role="list" data-reveal-stagger="90">
+          {values.map((v: any, i: number) => (
+            <li data-sanity={editItem(edit, 'values', v, i)}>
+              <HangTag
+                title={v.label}
+                titleTag="h3"
+                tone={TONES[i % TONES.length]}
+                tilt={TILTS[i % TILTS.length]}
+                class="value-tag"
+              >
+                <p>{v.body}</p>
+              </HangTag>
+            </li>
+          ))}
+        </ul>
+        <RunningStitch ornament="knot" class="mx-auto mt-section-md" length="min(14rem, 60%)" />
+      </div>
+    </section>
+  )}
 
   <CtaBanner
     eyebrow={page?.ctaEyebrow}

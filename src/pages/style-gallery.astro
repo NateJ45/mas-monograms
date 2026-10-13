@@ -131,201 +131,182 @@ const fan = [
 ---
 
 <Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
-  {
-    /* Direction D: a Midnight opening band, display headline with the swash,
+  {/* Direction D: a Midnight opening band, display headline with the swash,
       and three swatches fanned out beside it like samples on the cutting
       table. Then the swatch WALL on linen: every photo a pinked fabric swatch
-      that opens the lightbox. */
-  }
+      that opens the lightbox. */}
   <section class="gallery-intro surface-midnight py-section-lg" aria-labelledby="gallery-heading">
-    <div
-      class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
-    >
+    <div class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
       <div>
-        {
-          page?.heroEyebrow && (
-            <div data-reveal="fade">
-              <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
-            </div>
-          )
-        }
+        {page?.heroEyebrow && (
+          <div data-reveal="fade">
+            <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
+          </div>
+        )}
         <h1 id="gallery-heading" class="display-sm max-w-[14ch]" data-reveal>
-          {headline.before}<em class="swash">{headline.word}</em>{headline.after}
+          {headline.before}
+          <em class="swash">{headline.word}</em>
+          {headline.after}
         </h1>
-        {
-          page?.heroSubhead && (
-            <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
-              {page.heroSubhead}
-            </p>
-          )
-        }
-        {
-          /* Photo → quote bridge: a visible path from browsing inspiration to
-            starting a real request, right under the intro. */
-        }
+        {page?.heroSubhead && (
+          <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
+            {page.heroSubhead}
+          </p>
+        )}
+        {/* Photo → quote bridge: a visible path from browsing inspiration to
+            starting a real request, right under the intro. */}
         <div class="mt-l" data-reveal style="--reveal-delay: 200ms">
           <CtaLink cta={{ label: introCtaLabel, href: '/request-a-quote/' }} variant="primary" />
         </div>
       </div>
-      {
-        fan.length === 3 && (
-          <div class="gallery-fan" aria-hidden="true" data-reveal="fade">
-            {fan.map((item: any, i: number) => (
-              <SwatchCard
-                tone={(['paper', 'blush', 'sage'] as const)[i]}
-                tilt={[-7, 3, 9][i]}
-                class={`gallery-fan__card gallery-fan__card--${i}`}
-              >
-                <SanityImage
-                  slot="media"
-                  source={item.image}
-                  width={360}
-                  height={440}
-                  alt=""
-                  loading={i === 1 ? 'eager' : 'lazy'}
-                  sizes="(max-width: 1024px) 40vw, 18rem"
-                />
-              </SwatchCard>
-            ))}
-          </div>
-        )
-      }
+      {fan.length === 3 && (
+        <div class="gallery-fan" aria-hidden="true" data-reveal="fade">
+          {fan.map((item: any, i: number) => (
+            <SwatchCard
+              tone={(['paper', 'blush', 'sage'] as const)[i]}
+              tilt={[-7, 3, 9][i]}
+              class={`gallery-fan__card gallery-fan__card--${i}`}
+            >
+              <SanityImage
+                slot="media"
+                source={item.image}
+                width={360}
+                height={440}
+                alt=""
+                loading={i === 1 ? 'eager' : 'lazy'}
+                sizes="(max-width: 1024px) 40vw, 18rem"
+              />
+            </SwatchCard>
+          ))}
+        </div>
+      )}
     </div>
   </section>
 
   {/* The swatch wall, with the client-side filter */}
   <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {
-        /* Grouped filters. On mobile the whole block collapses behind one
+      {/* Grouped filters. On mobile the whole block collapses behind one
           "Filter" disclosure so photos lead on first paint; on sm+ it's
           always open. The panel is rendered `open` so it reserves layout
           height — a closed disclosure collapses to zero height even when its
           content is force-shown via CSS, which would overlap the grid. The
-          init script closes it on mobile so it collapses behind the summary. */
-      }
-      {
-        hasFilters && (
-          <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
-            <summary class="chip hit-44 relative mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs px-m py-xs select-none sm:hidden">
-              <span>{page?.filterToggleLabel ?? 'Filter'}</span>
-              <svg
-                class="h-3 w-3 transition-transform group-open:rotate-180"
-                viewBox="0 0 12 12"
-                fill="none"
-                aria-hidden="true"
+          init script closes it on mobile so it collapses behind the summary. */}
+      {hasFilters && (
+        <details class="gallery-filter-panel group mb-l" id="gallery-filters-panel" open>
+          <summary class="chip hit-44 relative mx-auto mb-m flex w-max cursor-pointer list-none items-center justify-center gap-xs px-m py-xs select-none sm:hidden">
+            <span>{page?.filterToggleLabel ?? 'Filter'}</span>
+            <svg
+              class="h-3 w-3 transition-transform group-open:rotate-180"
+              viewBox="0 0 12 12"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M2 4l4 4 4-4"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </summary>
+
+          <div id="gallery-filters" role="group" aria-label={filterGroupName}>
+            {/* "All" reset button, with the running count beside it */}
+            <div class="mb-m flex items-center justify-center gap-m">
+              <button
+                type="button"
+                data-filter="all"
+                class="gallery-filter chip active-filter hit-44 relative px-m py-xs"
+                aria-pressed="true"
               >
-                <path
-                  d="M2 4l4 4 4-4"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </summary>
-
-            <div id="gallery-filters" role="group" aria-label={filterGroupName}>
-              {/* "All" reset button, with the running count beside it */}
-              <div class="mb-m flex items-center justify-center gap-m">
-                <button
-                  type="button"
-                  data-filter="all"
-                  class="gallery-filter chip active-filter hit-44 relative px-m py-xs"
-                  aria-pressed="true"
-                >
-                  {filterAllLabel}
-                </button>
-                <p class="gallery-count" aria-hidden="true">
-                  <span class="gallery-count__n" data-gallery-count>
-                    {total}
-                  </span>
-                  <span class="gallery-count__of">/ {total}</span>
-                </p>
-              </div>
-
-              {/* One labelled block per group */}
-              <div class="space-y-m">
-                {renderGroups.map((grp) => {
-                  const visible = grp.tags.slice(0, MAX_VISIBLE);
-                  const overflow = grp.tags.slice(MAX_VISIBLE);
-                  const moreLabel = moreTagsLabel(overflow.length);
-                  return (
-                    <div class="text-center">
-                      <p class="eyebrow eyebrow--center mb-s justify-center">{grp.label}</p>
-                      <div class="flex flex-wrap justify-center gap-x-s gap-y-5">
-                        {visible.map((tag) => (
-                          <button
-                            type="button"
-                            data-filter={tag}
-                            class="gallery-filter chip hit-44 relative px-m py-xs"
-                            aria-pressed="false"
-                          >
-                            {titleCase(tag)}
-                          </button>
-                        ))}
-                        {overflow.length > 0 && (
-                          <details class="more-tags group/more inline">
-                            <summary class="gallery-more-toggle chip chip--quiet hit-44 relative inline-flex cursor-pointer list-none items-center px-m py-xs select-none">
-                              <span class="group-open/more:hidden">{moreLabel}</span>
-                              <span class="hidden group-open/more:inline">{lessTagsLabel}</span>
-                            </summary>
-                            <span class="contents">
-                              {overflow.map((tag) => (
-                                <button
-                                  type="button"
-                                  data-filter={tag}
-                                  class="gallery-filter chip hit-44 relative my-[9px] ml-s px-m py-xs"
-                                  aria-pressed="false"
-                                >
-                                  {titleCase(tag)}
-                                </button>
-                              ))}
-                            </span>
-                          </details>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                {filterAllLabel}
+              </button>
+              <p class="gallery-count" aria-hidden="true">
+                <span class="gallery-count__n" data-gallery-count>
+                  {total}
+                </span>
+                <span class="gallery-count__of">/ {total}</span>
+              </p>
             </div>
-          </details>
-        )
-      }
+
+            {/* One labelled block per group */}
+            <div class="space-y-m">
+              {renderGroups.map((grp) => {
+                const visible = grp.tags.slice(0, MAX_VISIBLE);
+                const overflow = grp.tags.slice(MAX_VISIBLE);
+                const moreLabel = moreTagsLabel(overflow.length);
+                return (
+                  <div class="text-center">
+                    <p class="eyebrow eyebrow--center mb-s justify-center">{grp.label}</p>
+                    <div class="flex flex-wrap justify-center gap-x-s gap-y-5">
+                      {visible.map((tag) => (
+                        <button
+                          type="button"
+                          data-filter={tag}
+                          class="gallery-filter chip hit-44 relative px-m py-xs"
+                          aria-pressed="false"
+                        >
+                          {titleCase(tag)}
+                        </button>
+                      ))}
+                      {overflow.length > 0 && (
+                        <details class="more-tags group/more inline">
+                          <summary class="gallery-more-toggle chip chip--quiet hit-44 relative inline-flex cursor-pointer list-none items-center px-m py-xs select-none">
+                            <span class="group-open/more:hidden">{moreLabel}</span>
+                            <span class="hidden group-open/more:inline">{lessTagsLabel}</span>
+                          </summary>
+                          <span class="contents">
+                            {overflow.map((tag) => (
+                              <button
+                                type="button"
+                                data-filter={tag}
+                                class="gallery-filter chip hit-44 relative my-[9px] ml-s px-m py-xs"
+                                aria-pressed="false"
+                              >
+                                {titleCase(tag)}
+                              </button>
+                            ))}
+                          </span>
+                        </details>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </details>
+      )}
       <p
         class="sr-only"
         role="status"
         id="gallery-status"
         data-total={total}
         data-template={page?.resultsAnnouncement ?? undefined}
-      >
-      </p>
+      ></p>
 
-      {
-        items.length > 0 ? (
-          <div class="gallery-wall columns-2 gap-m sm:columns-3 lg:columns-4" id="gallery-grid">
-            {(items as any[]).map((item, i) => (
-              <GallerySwatch
-                item={item}
-                index={i}
-                tags={cleanTags(item.tags)}
-                requestLabel={page?.requestLabel}
-                fontCaption={page?.fontCaption}
-                editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
-              />
-            ))}
-          </div>
-        ) : (
-          <p class="py-l text-center text-[var(--color-text-secondary)]">
-            {page?.emptyStateMessage ?? 'Gallery photos coming soon.'}
-          </p>
-        )
-      }
-      <div id="gallery-empty" class="hidden py-l text-center">
-        <p class="lede mx-auto">
-          {page?.emptyStateMessage ?? 'No items match that filter.'}
+      {items.length > 0 ? (
+        <div class="gallery-wall columns-2 gap-m sm:columns-3 lg:columns-4" id="gallery-grid">
+          {(items as any[]).map((item, i) => (
+            <GallerySwatch
+              item={item}
+              index={i}
+              tags={cleanTags(item.tags)}
+              requestLabel={page?.requestLabel}
+              fontCaption={page?.fontCaption}
+              editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
+            />
+          ))}
+        </div>
+      ) : (
+        <p class="py-l text-center text-[var(--color-text-secondary)]">
+          {page?.emptyStateMessage ?? 'Gallery photos coming soon.'}
         </p>
+      )}
+      <div id="gallery-empty" class="hidden py-l text-center">
+        <p class="lede mx-auto">{page?.emptyStateMessage ?? 'No items match that filter.'}</p>
       </div>
     </div>
   </section>

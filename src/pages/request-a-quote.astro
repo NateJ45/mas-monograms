@@ -254,71 +254,59 @@ const hLead = hWords.join(' ');
 >
   {/* Intro */}
   <section class="surface-midnight pt-header pb-section-lg" aria-labelledby="quote-title">
-    <div
-      class="mx-auto grid max-w-content grid-cols-1 items-center gap-section-md px-m lg:grid-cols-[1.35fr_1fr]"
-    >
+    <div class="mx-auto grid max-w-content grid-cols-1 items-center gap-section-md px-m lg:grid-cols-[1.35fr_1fr]">
       <div data-reveal>
         {page?.heroEyebrow && <p class="eyebrow mb-m">{page.heroEyebrow}</p>}
         <h1 id="quote-title" class="display-sm mb-l">
-          {hLead && <>{hLead} </>}<em class="swash">{hLast}</em>
+          {hLead && <>{hLead} </>}
+          <em class="swash">{hLast}</em>
         </h1>
         {page?.heroSubhead && <p class="lede">{page.heroSubhead}</p>}
-        {
-          page?.heroBody && (
-            <div class="mt-m max-w-[42rem] text-[var(--color-text-secondary)]">
-              <PortableText value={page.heroBody} />
-            </div>
-          )
-        }
-        {
-          (page?.heroTrustItems ?? []).length > 0 && (
-            <ul class="mt-l list-none space-y-s">
-              {(page.heroTrustItems as string[]).map((item: string, i: number) => (
-                <li
-                  class="flex items-start gap-s text-sm text-[var(--color-text-secondary)]"
-                  data-sanity={editItem(edit, 'heroTrustItems', null, i)}
-                >
-                  <span class="quote-trust-mark" aria-hidden="true" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          )
-        }
+        {page?.heroBody && (
+          <div class="mt-m max-w-[42rem] text-[var(--color-text-secondary)]">
+            <PortableText value={page.heroBody} />
+          </div>
+        )}
+        {(page?.heroTrustItems ?? []).length > 0 && (
+          <ul class="mt-l list-none space-y-s">
+            {(page.heroTrustItems as string[]).map((item: string, i: number) => (
+              <li
+                class="flex items-start gap-s text-sm text-[var(--color-text-secondary)]"
+                data-sanity={editItem(edit, 'heroTrustItems', null, i)}
+              >
+                <span class="quote-trust-mark" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      {
-        page?.heroImage?.asset ? (
-          <div
-            class="overflow-hidden rounded-2xl shadow-xl"
-            data-sanity={editField(edit, 'heroImage')}
-          >
-            <SanityImage
-              source={page.heroImage}
-              width={700}
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              class="h-auto w-full object-cover"
-              loading="eager"
-              fetchpriority="high"
-            />
+      {page?.heroImage?.asset ? (
+        <div
+          class="overflow-hidden rounded-2xl shadow-xl"
+          data-sanity={editField(edit, 'heroImage')}
+        >
+          <SanityImage
+            source={page.heroImage}
+            width={700}
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            class="h-auto w-full object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      ) : (
+        <div class="quote-hero-art" data-reveal="fade">
+          <div class="quote-hero-art__props" aria-hidden="true">
+            <Spool color="#8c3a2e" size={96} tilt={-6} />
+            <Spool color="#d9b15f" size={78} tilt={5} />
+            <Needle length={150} angle={-38} thread="#d9b15f" class="quote-hero-art__needle" />
           </div>
-        ) : (
-          <div class="quote-hero-art" data-reveal="fade">
-            <div class="quote-hero-art__props" aria-hidden="true">
-              <Spool color="#8c3a2e" size={96} tilt={-6} />
-              <Spool color="#d9b15f" size={78} tilt={5} />
-              <Needle length={150} angle={-38} thread="#d9b15f" class="quote-hero-art__needle" />
-            </div>
-            {L.turnaroundCallout && (
-              <HangTag
-                title={L.turnaroundCallout}
-                tilt={-3}
-                size="md"
-                class="quote-hero-art__tag"
-              />
-            )}
-          </div>
-        )
-      }
+          {L.turnaroundCallout && (
+            <HangTag title={L.turnaroundCallout} tilt={-3} size="md" class="quote-hero-art__tag" />
+          )}
+        </div>
+      )}
     </div>
   </section>
 
@@ -340,26 +328,24 @@ const hLead = hWords.join(' ');
         <noscript>
           <div class="quote-noscript" data-testid="quote-noscript">
             <p class="quote-noscript__msg">{L.noScriptMessage}</p>
-            {
-              (contactEmail || contactPhoneHref) && (
-                <ul class="quote-noscript__links" role="list">
-                  {contactEmail && (
-                    <li>
-                      <a href={`mailto:${contactEmail}`} class="link-stitch hit-44 relative">
-                        {contactEmail}
-                      </a>
-                    </li>
-                  )}
-                  {contactPhoneHref && (
-                    <li>
-                      <a href={contactPhoneHref} class="link-stitch hit-44 relative">
-                        {contactPhone}
-                      </a>
-                    </li>
-                  )}
-                </ul>
-              )
-            }
+            {(contactEmail || contactPhoneHref) && (
+              <ul class="quote-noscript__links" role="list">
+                {contactEmail && (
+                  <li>
+                    <a href={`mailto:${contactEmail}`} class="link-stitch hit-44 relative">
+                      {contactEmail}
+                    </a>
+                  </li>
+                )}
+                {contactPhoneHref && (
+                  <li>
+                    <a href={contactPhoneHref} class="link-stitch hit-44 relative">
+                      {contactPhone}
+                    </a>
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
         </noscript>
         <div
@@ -391,10 +377,8 @@ const hLead = hWords.join(' ');
           novalidate
           class="quote-form"
         >
-          {
-            /* Where the visitor came from (QR codes): filled by QuotePrefillScript from
-              the session's first tagged landing, re-checked by /api/quote. src/lib/utm.ts */
-          }
+          {/* Where the visitor came from (QR codes): filled by QuotePrefillScript from
+              the session's first tagged landing, re-checked by /api/quote. src/lib/utm.ts */}
           <input type="hidden" name="utm_source" value="" />
           <input type="hidden" name="utm_medium" value="" />
           <input type="hidden" name="utm_campaign" value="" />
@@ -403,16 +387,19 @@ const hLead = hWords.join(' ');
           {/* ── Order Information ── */}
           <fieldset id="q-order" class="quote-set">
             <legend class="quote-legend">
-              <span class="quote-legend__num" aria-hidden="true">01</span>
+              <span class="quote-legend__num" aria-hidden="true">
+                01
+              </span>
               <span>{L.orderInfoHeading}</span>
             </legend>
 
             {/* Item type — real categories + a "not sure" escape */}
             <div class="form-field">
               <label for="itemType" class="form-label">
-                {L.itemTypeLabel}
-                {' '}
-                <span class="form-req" aria-hidden="true">*</span>
+                {L.itemTypeLabel}{' '}
+                <span class="form-req" aria-hidden="true">
+                  *
+                </span>
               </label>
               <select
                 id="itemType"
@@ -423,13 +410,11 @@ const hLead = hWords.join(' ');
                 class="form-input"
               >
                 <option value="">Select one</option>
-                {
-                  itemTypeOptions.map((opt: { name: string; slug: string }) => (
-                    <option value={opt.name} data-slug={opt.slug}>
-                      {opt.name}
-                    </option>
-                  ))
-                }
+                {itemTypeOptions.map((opt: { name: string; slug: string }) => (
+                  <option value={opt.name} data-slug={opt.slug}>
+                    {opt.name}
+                  </option>
+                ))}
               </select>
               {L.itemTypeHelp && <p class="form-help">{L.itemTypeHelp}</p>}
               <p id="itemType-error" class="form-error hidden" data-error-for="itemType">
@@ -440,9 +425,10 @@ const hLead = hWords.join(' ');
             {/* Do you own the item? */}
             <div class="form-field">
               <p id="ownership-label" class="form-label">
-                {L.ownershipLabel}
-                {' '}
-                <span class="form-req" aria-hidden="true">*</span>
+                {L.ownershipLabel}{' '}
+                <span class="form-req" aria-hidden="true">
+                  *
+                </span>
               </p>
               <div
                 id="ownership"
@@ -452,20 +438,18 @@ const hLead = hWords.join(' ');
                 aria-required="true"
                 aria-describedby="ownership-error"
               >
-                {
-                  ownershipOptions.map((opt: string) => (
-                    <label class="choice">
-                      <input
-                        type="radio"
-                        name="ownership"
-                        value={opt}
-                        class="choice-input hit-44"
-                        data-required-radio
-                      />
-                      <span>{opt}</span>
-                    </label>
-                  ))
-                }
+                {ownershipOptions.map((opt: string) => (
+                  <label class="choice">
+                    <input
+                      type="radio"
+                      name="ownership"
+                      value={opt}
+                      class="choice-input hit-44"
+                      data-required-radio
+                    />
+                    <span>{opt}</span>
+                  </label>
+                ))}
               </div>
               {L.ownershipHelp && <p class="form-help">{L.ownershipHelp}</p>}
               <p id="ownership-error" class="form-error hidden" data-error-for="ownership">
@@ -476,7 +460,9 @@ const hLead = hWords.join(' ');
             <div class="form-grid">
               {/* Item description (optional free text) */}
               <div class="form-field form-field--wide">
-                <label for="itemDescription" class="form-label">{L.itemDescriptionLabel}</label>
+                <label for="itemDescription" class="form-label">
+                  {L.itemDescriptionLabel}
+                </label>
                 <input
                   id="itemDescription"
                   name="itemDescription"
@@ -488,7 +474,9 @@ const hLead = hWords.join(' ');
               </div>
 
               <div class="form-field">
-                <label for="quantity" class="form-label">{L.quantityLabel}</label>
+                <label for="quantity" class="form-label">
+                  {L.quantityLabel}
+                </label>
                 <input
                   id="quantity"
                   name="quantity"
@@ -504,9 +492,10 @@ const hLead = hWords.join(' ');
 
             <div class="form-field">
               <label for="personalization" class="form-label">
-                {L.personalizationLabel}
-                {' '}
-                <span class="form-req" aria-hidden="true">*</span>
+                {L.personalizationLabel}{' '}
+                <span class="form-req" aria-hidden="true">
+                  *
+                </span>
               </label>
               <textarea
                 id="personalization"
@@ -516,7 +505,8 @@ const hLead = hWords.join(' ');
                 required
                 aria-required="true"
                 aria-describedby="personalization-error"
-                class="form-input"></textarea>
+                class="form-input"
+              ></textarea>
               {L.personalizationHelp && <p class="form-help">{L.personalizationHelp}</p>}
               <p
                 id="personalization-error"
@@ -531,9 +521,10 @@ const hLead = hWords.join(' ');
               {/* Monogram style */}
               <div class="form-field">
                 <label for="monogramStyle" class="form-label">
-                  {L.monogramStyleLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
+                  {L.monogramStyleLabel}{' '}
+                  <span class="form-req" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <select
                   id="monogramStyle"
@@ -544,7 +535,9 @@ const hLead = hWords.join(' ');
                   class="form-input"
                 >
                   <option value="">Select one</option>
-                  {monogramStyleOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                  {monogramStyleOptions.map((opt: string) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
                 </select>
                 {L.monogramStyleHelp && <p class="form-help">{L.monogramStyleHelp}</p>}
                 <p
@@ -559,9 +552,10 @@ const hLead = hWords.join(' ');
               {/* Placement on item */}
               <div class="form-field">
                 <label for="placement" class="form-label">
-                  {L.placementSelectLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
+                  {L.placementSelectLabel}{' '}
+                  <span class="form-req" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <select
                   id="placement"
@@ -572,7 +566,9 @@ const hLead = hWords.join(' ');
                   class="form-input"
                 >
                   <option value="">Select one</option>
-                  {placementOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                  {placementOptions.map((opt: string) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
                 </select>
                 {L.placementSelectHelp && <p class="form-help">{L.placementSelectHelp}</p>}
                 <p id="placement-error" class="form-error hidden" data-error-for="placement">
@@ -583,9 +579,10 @@ const hLead = hWords.join(' ');
               {/* Approximate size */}
               <div class="form-field">
                 <label for="size" class="form-label">
-                  {L.sizeLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
+                  {L.sizeLabel}{' '}
+                  <span class="form-req" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <select
                   id="size"
@@ -596,7 +593,9 @@ const hLead = hWords.join(' ');
                   class="form-input"
                 >
                   <option value="">Select one</option>
-                  {sizeOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                  {sizeOptions.map((opt: string) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
                 </select>
                 {L.sizeHelp && <p class="form-help">{L.sizeHelp}</p>}
                 <p id="size-error" class="form-error hidden" data-error-for="size">
@@ -607,9 +606,10 @@ const hLead = hWords.join(' ');
               {/* Number of thread colors */}
               <div class="form-field">
                 <label for="threadCount" class="form-label">
-                  {L.threadCountLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
+                  {L.threadCountLabel}{' '}
+                  <span class="form-req" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <select
                   id="threadCount"
@@ -620,7 +620,9 @@ const hLead = hWords.join(' ');
                   class="form-input"
                 >
                   <option value="">Select one</option>
-                  {threadCountOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                  {threadCountOptions.map((opt: string) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
                 </select>
                 {L.threadCountHelp && <p class="form-help">{L.threadCountHelp}</p>}
                 <p id="threadCount-error" class="form-error hidden" data-error-for="threadCount">
@@ -630,25 +632,29 @@ const hLead = hWords.join(' ');
 
               {/* Font preference — real fonts + Other + Recommend */}
               <div class="form-field">
-                <label for="fontPreference" class="form-label">{L.fontLabel}</label>
+                <label for="fontPreference" class="form-label">
+                  {L.fontLabel}
+                </label>
                 <select id="fontPreference" name="fontPreference" class="form-input">
                   <option value="">Select one</option>
-                  {fontOptions.map((opt: string) => <option value={opt}>{opt}</option>)}
+                  {fontOptions.map((opt: string) => (
+                    <option value={opt}>{opt}</option>
+                  ))}
                 </select>
-                {
-                  L.fontHelp && (
-                    <p class="form-help">
-                      {L.fontHelp}
-                      <a href="/font-lettering-guide/" class="form-help__link">
-                        Font Guide →
-                      </a>
-                    </p>
-                  )
-                }
+                {L.fontHelp && (
+                  <p class="form-help">
+                    {L.fontHelp}
+                    <a href="/font-lettering-guide/" class="form-help__link">
+                      Font Guide →
+                    </a>
+                  </p>
+                )}
               </div>
 
               <div class="form-field">
-                <label for="threadColor" class="form-label">{L.threadLabel}</label>
+                <label for="threadColor" class="form-label">
+                  {L.threadLabel}
+                </label>
                 <input
                   id="threadColor"
                   name="threadColor"
@@ -656,20 +662,20 @@ const hLead = hWords.join(' ');
                   placeholder={L.threadPlaceholder}
                   class="form-input"
                 />
-                {
-                  L.threadHelp && (
-                    <p class="form-help">
-                      {L.threadHelp}
-                      <a href="/thread-color-chart/" class="form-help__link">
-                        Color Chart →
-                      </a>
-                    </p>
-                  )
-                }
+                {L.threadHelp && (
+                  <p class="form-help">
+                    {L.threadHelp}
+                    <a href="/thread-color-chart/" class="form-help__link">
+                      Color Chart →
+                    </a>
+                  </p>
+                )}
               </div>
 
               <div class="form-field">
-                <label for="neededBy" class="form-label">{L.neededByLabel}</label>
+                <label for="neededBy" class="form-label">
+                  {L.neededByLabel}
+                </label>
                 <input id="neededBy" name="neededBy" type="date" class="form-input" />
                 {L.neededByHelp && <p class="form-help">{L.neededByHelp}</p>}
               </div>
@@ -708,16 +714,19 @@ const hLead = hWords.join(' ');
           {/* ── Personal Info ── */}
           <fieldset id="q-you" class="quote-set">
             <legend class="quote-legend">
-              <span class="quote-legend__num" aria-hidden="true">02</span>
+              <span class="quote-legend__num" aria-hidden="true">
+                02
+              </span>
               <span>{L.personalInfoHeading}</span>
             </legend>
 
             <div class="form-grid">
               <div class="form-field form-field--wide">
                 <label for="name" class="form-label">
-                  {L.nameLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
+                  {L.nameLabel}{' '}
+                  <span class="form-req" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <input
                   id="name"
@@ -737,9 +746,10 @@ const hLead = hWords.join(' ');
 
               <div class="form-field">
                 <label for="email" class="form-label">
-                  {L.emailLabel}
-                  {' '}
-                  <span class="form-req" aria-hidden="true">*</span>
+                  {L.emailLabel}{' '}
+                  <span class="form-req" aria-hidden="true">
+                    *
+                  </span>
                 </label>
                 <input
                   id="email"
@@ -775,28 +785,28 @@ const hLead = hWords.join(' ');
                 </p>
               </div>
 
-              {
-                L.referralOptions.length > 0 && (
-                  <div class="form-field">
-                    <label for="referral" class="form-label">
-                      {L.referralLabel}
-                    </label>
-                    <select id="referral" name="referral" class="form-input">
-                      <option value="">Select one</option>
-                      {L.referralOptions.map((opt: string) => (
-                        <option value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  </div>
-                )
-              }
+              {L.referralOptions.length > 0 && (
+                <div class="form-field">
+                  <label for="referral" class="form-label">
+                    {L.referralLabel}
+                  </label>
+                  <select id="referral" name="referral" class="form-input">
+                    <option value="">Select one</option>
+                    {L.referralOptions.map((opt: string) => (
+                      <option value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           </fieldset>
 
           {/* ── Photos ── */}
           <fieldset id="q-photos" class="quote-set">
             <legend class="quote-legend">
-              <span class="quote-legend__num" aria-hidden="true">03</span>
+              <span class="quote-legend__num" aria-hidden="true">
+                03
+              </span>
               <span>{L.attachmentsHeading}</span>
             </legend>
             <div class="form-field">
@@ -825,19 +835,20 @@ const hLead = hWords.join(' ');
                     stroke="currentColor"
                     stroke-width="2"
                     stroke-dasharray="4 4"
-                    stroke-linecap="round"></circle>
+                    stroke-linecap="round"
+                  ></circle>
                   <path
                     d="M24 31V17m-6 6 6-6 6 6"
                     fill="none"
                     stroke="currentColor"
                     stroke-width="2.2"
                     stroke-linecap="round"
-                    stroke-linejoin="round"></path>
+                    stroke-linejoin="round"
+                  ></path>
                 </svg>
                 <p class="text-sm text-[var(--color-text-secondary)]">
-                  Drag & drop photos here, or <span class="text-link underline"
-                    >click to browse</span
-                  >
+                  Drag & drop photos here, or{' '}
+                  <span class="text-link underline">click to browse</span>
                 </p>
                 <p id="attachments-help" class="mt-xs text-xs text-[var(--color-text-secondary)]">
                   {L.attachmentsHelp}
@@ -853,54 +864,53 @@ const hLead = hWords.join(' ');
           {/* ── Notes ── */}
           <fieldset id="q-notes" class="quote-set">
             <legend class="quote-legend">
-              <span class="quote-legend__num" aria-hidden="true">04</span>
+              <span class="quote-legend__num" aria-hidden="true">
+                04
+              </span>
               <span>{L.additionalHeading}</span>
             </legend>
             <div class="form-field">
-              <label for="notes" class="form-label">{L.notesLabel}</label>
+              <label for="notes" class="form-label">
+                {L.notesLabel}
+              </label>
               <textarea
                 id="notes"
                 name="notes"
                 rows="4"
                 placeholder={L.notesPlaceholder}
-                class="form-input"></textarea>
+                class="form-input"
+              ></textarea>
             </div>
           </fieldset>
 
           <div class="quote-submit">
-            {
-              /* Turnstile. The "normal" widget is a fixed 300px, wider than the form column on
+            {/* Turnstile. The "normal" widget is a fixed 300px, wider than the form column on
                 a phone under about 390px (248px at 320px), which pushed the page sideways.
                 The widget renders implicitly (class cf-turnstile, api.js below) and reads
                 data-size when it renders, so a classic inline script, which runs during
                 parsing and so before api.js can render, switches to "compact" on narrow
-                screens. CSS cannot do this: the size is chosen by Cloudflare's script. */
-            }
-            {
-              turnstileSiteKey && (
-                <>
-                  <div
-                    class="cf-turnstile"
-                    data-sitekey={turnstileSiteKey}
-                    data-action="quote"
-                    data-callback="onTurnstileSuccess"
-                    data-theme="light"
-                    data-size="normal"
-                  />
-                  <script is:inline set:html={turnstileSizeScript} />
-                </>
-              )
-            }
+                screens. CSS cannot do this: the size is chosen by Cloudflare's script. */}
+            {turnstileSiteKey && (
+              <>
+                <div
+                  class="cf-turnstile"
+                  data-sitekey={turnstileSiteKey}
+                  data-action="quote"
+                  data-callback="onTurnstileSuccess"
+                  data-theme="light"
+                  data-size="normal"
+                />
+                <script is:inline set:html={turnstileSizeScript} />
+              </>
+            )}
 
             {/* Turnaround reassurance */}
-            {
-              L.turnaroundCallout && (
-                <p class="quote-turnaround">
-                  <span class="quote-turnaround__mark" aria-hidden="true" />
-                  <span>{L.turnaroundCallout}</span>
-                </p>
-              )
-            }
+            {L.turnaroundCallout && (
+              <p class="quote-turnaround">
+                <span class="quote-turnaround__mark" aria-hidden="true" />
+                <span>{L.turnaroundCallout}</span>
+              </p>
+            )}
 
             {/* Submit */}
             <div>
@@ -922,11 +932,9 @@ const hLead = hWords.join(' ');
   </section>
 </Layout>
 
-{
-  turnstileSiteKey && (
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline />
-  )
-}
+{turnstileSiteKey && (
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline />
+)}
 <QuotePrefillScript />
 <QuoteFormScript />
 

@@ -34,7 +34,9 @@ const { data, heading, disclaimer } = Astro.props as Props;
   hidden
   aria-labelledby="qp-heading"
 >
-  <p id="qp-heading" class="qp__heading">{heading}</p>
+  <p id="qp-heading" class="qp__heading">
+    {heading}
+  </p>
   <div class="qp__frame">
     <AtelierStage
       id="quote-stage"

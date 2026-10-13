@@ -150,110 +150,100 @@ const mobileNavProps = {
   <span class="site-header__ground" aria-hidden="true"></span>
   <div class="site-header__bar">
     <nav class="site-header__nav site-header__nav--left site-nav" aria-label="Primary">
-      {
-        NAV_LEFT.map((item) =>
-          item.kind === 'flat' ? (
-            <a
-              href={item.href}
+      {NAV_LEFT.map((item) =>
+        item.kind === 'flat' ? (
+          <a
+            href={item.href}
+            class="site-header__link nav-underline"
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ) : (
+          <details class="site-nav__group relative">
+            <summary
               class="site-header__link nav-underline"
-              aria-current={isActive(item.href) ? 'page' : undefined}
+              aria-current={isGroupActive(item.items) ? 'page' : undefined}
             >
               {item.label}
-            </a>
-          ) : (
-            <details class="site-nav__group relative">
-              <summary
-                class="site-header__link nav-underline"
-                aria-current={isGroupActive(item.items) ? 'page' : undefined}
-              >
-                {item.label}
-                <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
-              </summary>
-              <div class="site-nav__menu on-light texture-paper">
-                {item.items.map((sub) => (
-                  <a href={sub.href} aria-current={isActive(sub.href) ? 'page' : undefined}>
-                    {sub.label}
-                  </a>
-                ))}
-              </div>
-            </details>
-          ),
-        )
-      }
+              <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+            </summary>
+            <div class="site-nav__menu on-light texture-paper">
+              {item.items.map((sub) => (
+                <a href={sub.href} aria-current={isActive(sub.href) ? 'page' : undefined}>
+                  {sub.label}
+                </a>
+              ))}
+            </div>
+          </details>
+        ),
+      )}
     </nav>
 
     <a href="/" class="site-header__brand" aria-label={`${brandName} home`}>
-      {
-        customLogo ? (
-          <SanityImage
-            source={customLogo}
-            width={320}
-            alt=""
-            loading="eager"
-            class="site-header__custom-logo"
-          />
-        ) : (
-          <>
-            <span class="site-header__seal">
-              <Logo mark />
-            </span>
-            <span class="site-header__word">
-              <Logo cut="header" />
-            </span>
-          </>
-        )
-      }
+      {customLogo ? (
+        <SanityImage
+          source={customLogo}
+          width={320}
+          alt=""
+          loading="eager"
+          class="site-header__custom-logo"
+        />
+      ) : (
+        <>
+          <span class="site-header__seal">
+            <Logo mark />
+          </span>
+          <span class="site-header__word">
+            <Logo cut="header" />
+          </span>
+        </>
+      )}
     </a>
 
     <div class="site-header__end">
-      {
-        NAV_RIGHT.length > 0 && (
-          <nav class="site-header__nav site-nav" aria-label="Primary, continued">
-            {NAV_RIGHT.map((item) =>
-              item.kind === 'flat' ? (
-                <a
-                  href={item.href}
+      {NAV_RIGHT.length > 0 && (
+        <nav class="site-header__nav site-nav" aria-label="Primary, continued">
+          {NAV_RIGHT.map((item) =>
+            item.kind === 'flat' ? (
+              <a
+                href={item.href}
+                class="site-header__link nav-underline"
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <details class="site-nav__group relative">
+                <summary
                   class="site-header__link nav-underline"
-                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  aria-current={isGroupActive(item.items) ? 'page' : undefined}
                 >
                   {item.label}
-                </a>
-              ) : (
-                <details class="site-nav__group relative">
-                  <summary
-                    class="site-header__link nav-underline"
-                    aria-current={isGroupActive(item.items) ? 'page' : undefined}
-                  >
-                    {item.label}
-                    <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
-                  </summary>
-                  <div class="site-nav__menu site-nav__menu--end on-light texture-paper">
-                    {item.items.map((sub) => (
-                      <a href={sub.href} aria-current={isActive(sub.href) ? 'page' : undefined}>
-                        {sub.label}
-                      </a>
-                    ))}
-                  </div>
-                </details>
-              ),
-            )}
-          </nav>
-        )
-      }
-      {
-        chrome.headerCta.show && (
-          <a href={ctaHref} class="btn btn-primary site-header__cta">
-            {ctaLabel}
-          </a>
-        )
-      }
+                  <ChevronDown size={14} className="site-nav__chevron" aria-hidden="true" />
+                </summary>
+                <div class="site-nav__menu site-nav__menu--end on-light texture-paper">
+                  {item.items.map((sub) => (
+                    <a href={sub.href} aria-current={isActive(sub.href) ? 'page' : undefined}>
+                      {sub.label}
+                    </a>
+                  ))}
+                </div>
+              </details>
+            ),
+          )}
+        </nav>
+      )}
+      {chrome.headerCta.show && (
+        <a href={ctaHref} class="btn btn-primary site-header__cta">
+          {ctaLabel}
+        </a>
+      )}
 
-      {
-        /* The phone menu. Not an Astro island: the slot carries MobileNav's props, the
+      {/* The phone menu. Not an Astro island: the slot carries MobileNav's props, the
           placeholder below is a server-rendered copy of its menu button, and the script at
           the bottom mounts the React menu after the load event (or on the first tap). See
-          mobileNavMount.tsx. */
-      }
+          mobileNavMount.tsx. */}
       <div class="site-header__menu" data-mobile-nav data-props={JSON.stringify(mobileNavProps)}>
         <div data-mobile-nav-placeholder>
           <button
