@@ -37,6 +37,13 @@ const HANG = [
   { size: 232, drop: 70, tilt: 1.5, tag: -2 },
   { size: 268, drop: 12, tilt: -3, tag: 3 },
 ];
+// `sizes` for a hoop's photo. The photo is 0.867 of the hoop (HoopFrame), and the hoop is
+// min(its size, its grid cell): 2 columns under 768px (gutters 1rem, gap 1rem), 4 columns
+// from 768px (gap 1.5rem). The cell maths is the layout CSS below; change them together.
+const photoSizes = (size: number) => {
+  const photo = Math.round(size * 0.867);
+  return `(max-width: 767px) min(${photo}px, calc((100vw - 3rem) * 0.4335)), min(${photo}px, calc((100vw - 6.5rem) * 0.21675))`;
+};
 // Focal points for a card photo with no Sanity hotspot (all of them have one
 // since 2026-10-04, so this is only the fallback; the centre otherwise).
 const FOCAL: Record<string, { x: number; y: number }> = {};
@@ -90,6 +97,7 @@ const FOCAL: Record<string, { x: number; y: number }> = {};
                     image={hasPhoto ? photo : null}
                     alt=""
                     size={h.size}
+                    sizes={photoSizes(h.size)}
                     tilt={h.tilt}
                     focal={photo?.hotspot ? null : (FOCAL[slug] ?? { x: 0.5, y: 0.5 })}
                   />

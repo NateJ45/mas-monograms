@@ -49,6 +49,12 @@ interface Props {
   caption?: string | null;
   loading?: 'lazy' | 'eager';
   fetchpriority?: 'high' | 'low' | 'auto';
+  /**
+   * The <img> `sizes` value. Pass it where the hoop shrinks to a grid cell or column
+   * (the default assumes the hoop fills its container up to `size`). It describes the
+   * PHOTO's width, which is HOOP_PHOTO (about 87%) of the hoop, not the hoop's.
+   */
+  sizes?: string;
   class?: string;
   /** Extra inline style, appended after the size and tilt variables. */
   style?: string;
@@ -66,6 +72,7 @@ const {
   caption,
   loading = 'lazy',
   fetchpriority,
+  sizes,
   class: className = '',
   style: extraStyle,
   ...rest
@@ -75,7 +82,15 @@ const SIZES = { sm: 200, md: 300, lg: 420, xl: 560 } as const;
 const px = typeof size === 'number' ? size : SIZES[size];
 const hasPhoto = !!image?.asset;
 const sanityCrops = !!(image?.hotspot || image?.crop);
-const reqWidth = Math.min(1200, Math.round(px * 2));
+// The photo fills about 87% of the hoop (the wooden rings take the rest), measured with
+// offsetWidth at 230, 300 and 460 px. `sizes` and the srcset ceiling are about the photo,
+// not the hoop: sizing them to the hoop made a 300 px hoop fetch a 600 px image for a
+// 260 px photo (and a 166 px photo on a phone).
+const HOOP_PHOTO = 0.867;
+const photoPx = Math.round(px * HOOP_PHOTO);
+const reqWidth = Math.min(1200, photoPx * 2);
+const photoSizes =
+  sizes ?? `(max-width: ${px + 32}px) calc((100vw - 4rem) * ${HOOP_PHOTO}), ${photoPx}px`;
 const objectPosition = focal
   ? `object-position:${Math.round(focal.x * 100)}% ${Math.round(focal.y * 100)}%`
   : undefined;
@@ -100,7 +115,7 @@ const brassId = motifId('hb');
             alt={alt}
             loading={loading}
             fetchpriority={fetchpriority}
-            sizes={`(max-width: ${px + 32}px) calc(100vw - 4rem), ${px}px`}
+            sizes={photoSizes}
             class="hoop__img"
             style={objectPosition}
           />

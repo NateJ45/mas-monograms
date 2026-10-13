@@ -279,19 +279,21 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
 
 <style>
   /* ---------- Facts ---------- */
-  /* Every fact carries its cross-stitch separator in front; the list is pulled
-     left by one separator (mark + gap) and that strip is clipped, so the mark
-     that would LEAD a wrapped line is hidden instead of hanging in the gutter
-     (390px QA, 2026-10-04). */
+  /* Every fact carries its cross-stitch separator in front. Each item is pulled left by one
+     separator (mark + gap) and the column gap is widened by the same amount, so the spacing
+     between facts is unchanged and the mark that would LEAD a wrapped line sits outside the
+     list's own box, where overflow-x: clip hides it instead of leaving it hanging in the
+     gutter (390px QA, 2026-10-04). The list box itself stays on the page gutter (it used to
+     start 5px left of it at 320px). */
   .about-facts {
     --sep: calc(9px + 0.75rem);
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 0.75rem;
+    gap: 0.5rem calc(0.75rem + var(--sep));
     list-style: none;
     padding: 0;
-    margin-left: calc(-1 * var(--sep));
-    clip-path: inset(-0.5rem -0.5rem -0.5rem var(--sep));
+    margin-left: 0;
+    overflow-x: clip;
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -302,6 +304,7 @@ const portrait = page?.makerPhoto?.asset ? page.makerPhoto : page?.heroImage;
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
+    margin-left: calc(-1 * var(--sep));
   }
   .about-facts li::before {
     content: '';
