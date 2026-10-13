@@ -58,8 +58,8 @@ Run from the repo root. Node scripts are in `package.json`.
 
 ## Stack
 
-- **Astro 7.2**: `output: 'static'` plus a handful of SSR routes, `@astrojs/cloudflare`
-  adapter (`^14.3.0` in package.json since 2026-09-05; see gotcha 9/10), Sharp image service, `session: false`
+- **Astro 7.3**: `output: 'static'` plus a handful of SSR routes, `@astrojs/cloudflare`
+  adapter (exact `14.3.4` since 2026-10-13, starter card 94; see gotcha 9/10), Sharp image service, `session: false`
 - **Cloudflare Workers** — unified Pages/Workers platform, Git auto-deploy (Workers Builds),
   `wrangler.jsonc`; wrangler `^4.129.0`
 - **Sanity 6.9.1**: headless CMS. The Studio lives IN THIS PACKAGE (schemas in

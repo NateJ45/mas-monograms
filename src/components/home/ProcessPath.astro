@@ -27,112 +27,107 @@ const H_PATH =
 const V_PATH = 'M30 0 C 54 80, 6 170, 30 250 S 54 420, 30 500 S 6 670, 30 750 S 54 920, 30 1000';
 ---
 
-{
-  steps.length > 0 && (
-    <section class="process surface-paper py-section-lg" aria-labelledby={headingId} data-process>
-      <div class="mx-auto max-w-content px-m">
-        <header class="mx-auto mb-section-md max-w-3xl text-center">
-          {page?.processEyebrow && (
-            <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-              {page.processEyebrow}
-            </p>
-          )}
-          <h2 id={headingId} class="display-sm" data-reveal>
-            {head.before}
-            <em class="swash">{head.swash}</em>
-          </h2>
-          {page?.processSubhead && (
-            <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
-              {page.processSubhead}
-            </p>
-          )}
-        </header>
-
-        <div class="process__track">
-          <svg
-            class="process__path process__path--h"
-            viewBox="0 0 1000 120"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <defs>
-              <mask id={maskH} maskUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="160">
-                <path
-                  d={H_PATH}
-                  pathLength="1"
-                  class="process__draw"
-                  stroke="#fff"
-                  stroke-width="14"
-                  fill="none"
-                />
-              </mask>
-            </defs>
-            <path d={H_PATH} class="process__ghost" />
-            <path d={H_PATH} class="process__stitch" mask={`url(#${maskH})`} />
-          </svg>
-          <svg
-            class="process__path process__path--v"
-            viewBox="0 0 60 1000"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <defs>
-              <mask id={maskV} maskUnits="userSpaceOnUse" x="-20" y="-20" width="100" height="1040">
-                <path
-                  d={V_PATH}
-                  pathLength="1"
-                  class="process__draw"
-                  stroke="#fff"
-                  stroke-width="14"
-                  fill="none"
-                />
-              </mask>
-            </defs>
-            <path d={V_PATH} class="process__ghost" />
-            <path d={V_PATH} class="process__stitch" mask={`url(#${maskV})`} />
-          </svg>
-
-          <ol class="process__steps" role="list" data-reveal-stagger="120">
-            {steps.map((step: any, i: number) => (
-              <li
-                class="process__step"
-                data-reveal
-                data-sanity={editItem(edit, 'processSteps', step, i)}
-              >
-                <div class="process__hoop">
-                  <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={92} />
-                </div>
-                <div class="process__text">
-                  <p class="process__num" aria-hidden="true">
-                    {step.number ?? String(i + 1).padStart(2, '0')}
-                  </p>
-                  <h3 class="process__title">{step.label}</h3>
-                  {step.body && <p class="process__body">{step.body}</p>}
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        {page?.processCtaLabel && (
-          <p class="mt-section-md text-center" data-reveal>
-            <a
-              href={internalHref(page.processCtaHref ?? '/how-it-works/')}
-              class="btn btn-secondary"
-            >
-              <span>{page.processCtaLabel}</span>
-              <span class="btn__arrow" aria-hidden="true">
-                &rarr;
-              </span>
-            </a>
+{steps.length > 0 && (
+  <section class="process surface-paper py-section-lg" aria-labelledby={headingId} data-process>
+    <div class="mx-auto max-w-content px-m">
+      <header class="mx-auto mb-section-md max-w-3xl text-center">
+        {page?.processEyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {page.processEyebrow}
           </p>
         )}
+        <h2 id={headingId} class="display-sm" data-reveal>
+          {head.before}
+          <em class="swash">{head.swash}</em>
+        </h2>
+        {page?.processSubhead && (
+          <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+            {page.processSubhead}
+          </p>
+        )}
+      </header>
+
+      <div class="process__track">
+        <svg
+          class="process__path process__path--h"
+          viewBox="0 0 1000 120"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <mask id={maskH} maskUnits="userSpaceOnUse" x="-20" y="-20" width="1040" height="160">
+              <path
+                d={H_PATH}
+                pathLength="1"
+                class="process__draw"
+                stroke="#fff"
+                stroke-width="14"
+                fill="none"
+              />
+            </mask>
+          </defs>
+          <path d={H_PATH} class="process__ghost" />
+          <path d={H_PATH} class="process__stitch" mask={`url(#${maskH})`} />
+        </svg>
+        <svg
+          class="process__path process__path--v"
+          viewBox="0 0 60 1000"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <defs>
+            <mask id={maskV} maskUnits="userSpaceOnUse" x="-20" y="-20" width="100" height="1040">
+              <path
+                d={V_PATH}
+                pathLength="1"
+                class="process__draw"
+                stroke="#fff"
+                stroke-width="14"
+                fill="none"
+              />
+            </mask>
+          </defs>
+          <path d={V_PATH} class="process__ghost" />
+          <path d={V_PATH} class="process__stitch" mask={`url(#${maskV})`} />
+        </svg>
+
+        <ol class="process__steps" role="list" data-reveal-stagger="120">
+          {steps.map((step: any, i: number) => (
+            <li
+              class="process__step"
+              data-reveal
+              data-sanity={editItem(edit, 'processSteps', step, i)}
+            >
+              <div class="process__hoop">
+                <ProcessStepIllustration stepNumber={step.number ?? i + 1} size={92} />
+              </div>
+              <div class="process__text">
+                <p class="process__num" aria-hidden="true">
+                  {step.number ?? String(i + 1).padStart(2, '0')}
+                </p>
+                <h3 class="process__title">{step.label}</h3>
+                {step.body && <p class="process__body">{step.body}</p>}
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
-    </section>
-  )
-}
+
+      {page?.processCtaLabel && (
+        <p class="mt-section-md text-center" data-reveal>
+          <a href={internalHref(page.processCtaHref ?? '/how-it-works/')} class="btn btn-secondary">
+            <span>{page.processCtaLabel}</span>
+            <span class="btn__arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+        </p>
+      )}
+    </div>
+  </section>
+)}
 <ProcessPathScript />
 
 <style>

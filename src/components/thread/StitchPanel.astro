@@ -85,106 +85,104 @@ const href = `${quoteHref}?${params.toString()}`;
         label={label}
         class="panel__stage"
       />
-      {
-        replayLabel && (
-          <button type="button" class="panel__replay" data-replay>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path
-                d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <span class="panel__replay-text">{replayLabel}</span>
-          </button>
-        )
-      }
+      {replayLabel && (
+        <button type="button" class="panel__replay" data-replay>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span class="panel__replay-text">{replayLabel}</span>
+        </button>
+      )}
     </div>
     <div class="panel__now">
-      <span class="panel__now-dot" data-now-dot style={`--dot:${thread.hex}`} aria-hidden="true"
+      <span
+        class="panel__now-dot"
+        data-now-dot
+        style={`--dot:${thread.hex}`}
+        aria-hidden="true"
       ></span>
       <p class="panel__now-text">
         <span class="panel__now-label">{threadLabel}</span>
-        <span class="panel__now-name" data-now-name aria-live="polite">{thread.name}</span>
+        <span class="panel__now-name" data-now-name aria-live="polite">
+          {thread.name}
+        </span>
       </p>
     </div>
   </div>
 
   <div class="panel__controls">
-    {
-      fabrics.length > 0 && (
-        <fieldset class="panel__fabrics">
-          {fabricLabel && <legend class="panel__legend">{fabricLabel}</legend>}
-          <div class="panel__fabric-list">
-            {fabrics.map((f, i) => (
-              <label class="fabric" title={f.note ?? undefined}>
-                <input
-                  type="radio"
-                  name="fabric"
-                  value={f.key}
-                  class="fabric__radio"
-                  data-color={f.color}
-                  data-texture={f.texture}
-                  data-label={f.label}
-                  checked={i === 0}
-                />
-                <span class="fabric__swatch" style={`--fab:${f.color}`} aria-hidden="true" />
-                <span class="fabric__name">{f.label}</span>
-              </label>
-            ))}
-          </div>
-          <p class="panel__fabric-note" data-fabric-note aria-live="polite">
-            {fabric.note}
-          </p>
-        </fieldset>
-      )
-    }
-
-    {
-      initialsLabel && (
-        <div class="panel__initials">
-          <label for="thread-initials" class="panel__legend">
-            {initialsLabel}
-          </label>
-          <input
-            id="thread-initials"
-            type="text"
-            class="panel__initials-input"
-            value={initials}
-            maxlength="3"
-            autocomplete="off"
-            autocapitalize="characters"
-            spellcheck="false"
-            aria-describedby={initialsHint ? 'thread-initials-hint' : undefined}
-            data-initials
-          />
-          {initialsHint && (
-            <p id="thread-initials-hint" class="panel__hint">
-              {initialsHint}
-            </p>
-          )}
+    {fabrics.length > 0 && (
+      <fieldset class="panel__fabrics">
+        {fabricLabel && <legend class="panel__legend">{fabricLabel}</legend>}
+        <div class="panel__fabric-list">
+          {fabrics.map((f, i) => (
+            <label class="fabric" title={f.note ?? undefined}>
+              <input
+                type="radio"
+                name="fabric"
+                value={f.key}
+                class="fabric__radio"
+                data-color={f.color}
+                data-texture={f.texture}
+                data-label={f.label}
+                checked={i === 0}
+              />
+              <span class="fabric__swatch" style={`--fab:${f.color}`} aria-hidden="true" />
+              <span class="fabric__name">{f.label}</span>
+            </label>
+          ))}
         </div>
-      )
-    }
+        <p class="panel__fabric-note" data-fabric-note aria-live="polite">
+          {fabric.note}
+        </p>
+      </fieldset>
+    )}
 
-    {
-      ctaLabel && (
-        <a
-          href={internalHref(href)}
-          class="btn btn-primary panel__cta"
-          data-thread-cta
-          data-quote-href={quoteHref}
-        >
-          <span>{ctaLabel}</span>
-          <span class="btn__arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </a>
-      )
-    }
+    {initialsLabel && (
+      <div class="panel__initials">
+        <label for="thread-initials" class="panel__legend">
+          {initialsLabel}
+        </label>
+        <input
+          id="thread-initials"
+          type="text"
+          class="panel__initials-input"
+          value={initials}
+          maxlength="3"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          aria-describedby={initialsHint ? 'thread-initials-hint' : undefined}
+          data-initials
+        />
+        {initialsHint && (
+          <p id="thread-initials-hint" class="panel__hint">
+            {initialsHint}
+          </p>
+        )}
+      </div>
+    )}
+
+    {ctaLabel && (
+      <a
+        href={internalHref(href)}
+        class="btn btn-primary panel__cta"
+        data-thread-cta
+        data-quote-href={quoteHref}
+      >
+        <span>{ctaLabel}</span>
+        <span class="btn__arrow" aria-hidden="true">
+          &rarr;
+        </span>
+      </a>
+    )}
     {disclaimer && <p class="panel__disclaimer">{disclaimer}</p>}
   </div>
 </div>

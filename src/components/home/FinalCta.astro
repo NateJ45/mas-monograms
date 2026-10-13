@@ -28,45 +28,37 @@ const href = page?.finalCtaHref ?? page?.ctaHref ?? '/request-a-quote/';
       <Spool color="#d9b15f" size={76} tail={false} />
       <Spool color="#f4eee3" size={58} tilt={7} tail={false} />
     </div>
-    {
-      eyebrow && (
-        <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-          {eyebrow}
-        </p>
-      )
-    }
-    {
-      (head.before || head.swash) && (
-        <h2 id={headingId} class="display final-cta__title mx-auto" data-reveal>
-          {head.before}
-          <em class="swash">{head.swash}</em>
-        </h2>
-      )
-    }
-    {
-      subhead && (
-        <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
-          {subhead}
-        </p>
-      )
-    }
-    {
-      label && (
-        <div
-          class="mt-l flex justify-center"
-          data-thread-end
-          data-reveal
-          style="--reveal-delay: 200ms"
-        >
-          <a href={internalHref(href)} class="btn btn-primary final-cta__btn">
-            <span>{label}</span>
-            <span class="btn__arrow" aria-hidden="true">
-              &rarr;
-            </span>
-          </a>
-        </div>
-      )
-    }
+    {eyebrow && (
+      <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+        {eyebrow}
+      </p>
+    )}
+    {(head.before || head.swash) && (
+      <h2 id={headingId} class="display final-cta__title mx-auto" data-reveal>
+        {head.before}
+        <em class="swash">{head.swash}</em>
+      </h2>
+    )}
+    {subhead && (
+      <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+        {subhead}
+      </p>
+    )}
+    {label && (
+      <div
+        class="mt-l flex justify-center"
+        data-thread-end
+        data-reveal
+        style="--reveal-delay: 200ms"
+      >
+        <a href={internalHref(href)} class="btn btn-primary final-cta__btn">
+          <span>{label}</span>
+          <span class="btn__arrow" aria-hidden="true">
+            &rarr;
+          </span>
+        </a>
+      </div>
+    )}
     <RunningStitch ornament="knot" class="mx-auto mt-section-md" length="min(20rem, 70%)" />
   </div>
 </section>

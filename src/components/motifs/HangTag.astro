@@ -61,35 +61,33 @@ const {
   class:list={['hangtag', `hangtag--${size}`, string && 'hangtag--strung', className]}
   style={`--tag-tilt-base:${tilt}deg${extraStyle ? `;${extraStyle}` : ''}`}
 >
-  {
-    string && (
-      <svg
-        class="hangtag__string"
-        viewBox="0 0 60 64"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path
-          d="M30 62 C 22 46, 18 30, 26 14 C 30 6, 38 2, 46 0"
-          fill="none"
-          stroke="var(--tag-twine)"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          vector-effect="non-scaling-stroke"
-        />
-        <path
-          d="M30 62 C 36 48, 38 32, 32 18 C 28 9, 34 3, 46 0"
-          fill="none"
-          stroke="var(--tag-twine)"
-          stroke-width="1.8"
-          stroke-linecap="round"
-          opacity="0.8"
-          vector-effect="non-scaling-stroke"
-        />
-      </svg>
-    )
-  }
+  {string && (
+    <svg
+      class="hangtag__string"
+      viewBox="0 0 60 64"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        d="M30 62 C 22 46, 18 30, 26 14 C 30 6, 38 2, 46 0"
+        fill="none"
+        stroke="var(--tag-twine)"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        vector-effect="non-scaling-stroke"
+      />
+      <path
+        d="M30 62 C 36 48, 38 32, 32 18 C 28 9, 34 3, 46 0"
+        fill="none"
+        stroke="var(--tag-twine)"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        opacity="0.8"
+        vector-effect="non-scaling-stroke"
+      />
+    </svg>
+  )}
   <div
     class:list={[
       'hangtag__card',
@@ -103,13 +101,11 @@ const {
     {title && <TitleTag class="hangtag__title">{title}</TitleTag>}
     {value && <p class="hangtag__value">{value}</p>}
     {note && <p class="hangtag__note">{note}</p>}
-    {
-      Astro.slots.has('default') && (
-        <div class="hangtag__extra">
-          <slot />
-        </div>
-      )
-    }
+    {Astro.slots.has('default') && (
+      <div class="hangtag__extra">
+        <slot />
+      </div>
+    )}
   </div>
 </div>
 

@@ -227,12 +227,10 @@ const preview = {
 };
 ---
 
-{
-  Page ? (
-    <Page {preview} />
-  ) : (
-    <PreviewLayout title="Page Not Found" thread={false} {...preview.layoutProps}>
-      <NotFoundBody {...(data as any)} edit={edit} />
-    </PreviewLayout>
-  )
-}
+{Page ? (
+  <Page {preview} />
+) : (
+  <PreviewLayout title="Page Not Found" thread={false} {...preview.layoutProps}>
+    <NotFoundBody {...(data as any)} edit={edit} />
+  </PreviewLayout>
+)}

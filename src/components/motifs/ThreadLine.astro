@@ -59,10 +59,8 @@ for (let i = 1; i < XS.length; i++) {
     focusable="false"
   >
     <defs>
-      {
-        /* Legibility mask: ThreadLineScript fills it with dim zones over every line of
-          text the thread passes behind. Until then (and without JS) it is plain white. */
-      }
+      {/* Legibility mask: ThreadLineScript fills it with dim zones over every line of
+          text the thread passes behind. Until then (and without JS) it is plain white. */}
       <mask id="thread-line-mask" maskUnits="userSpaceOnUse" x="0" y="0" width={VB_W} height={VB_H}>
         <rect x="0" y="0" width={VB_W} height={VB_H} fill="#fff"></rect>
         <g data-thread-mask-outer fill="#a8a8a8"></g>
@@ -76,19 +74,22 @@ for (let i = 1; i < XS.length; i++) {
         stroke="rgba(15,27,45,0.2)"
         stroke-width="3.4"
         vector-effect="non-scaling-stroke"
-        transform="translate(1.5 3)"></path>
+        transform="translate(1.5 3)"
+      ></path>
       <path
         data-thread-path
         d={d}
         stroke="#a9772a"
         stroke-width="2.8"
-        vector-effect="non-scaling-stroke"></path>
+        vector-effect="non-scaling-stroke"
+      ></path>
       <path
         data-thread-path
         d={d}
         stroke="#d9b15f"
         stroke-width="1.9"
-        vector-effect="non-scaling-stroke"></path>
+        vector-effect="non-scaling-stroke"
+      ></path>
       <path
         data-thread-path
         d={d}
@@ -96,7 +97,8 @@ for (let i = 1; i < XS.length; i++) {
         stroke-width="1.9"
         stroke-dasharray="1.4 3.4"
         opacity="0.55"
-        vector-effect="non-scaling-stroke"></path>
+        vector-effect="non-scaling-stroke"
+      ></path>
       <path
         data-thread-path
         d={d}
@@ -104,7 +106,8 @@ for (let i = 1; i < XS.length; i++) {
         stroke-width="0.7"
         opacity="0.9"
         vector-effect="non-scaling-stroke"
-        transform="translate(-0.4 -0.6)"></path>
+        transform="translate(-0.4 -0.6)"
+      ></path>
     </g>
   </svg>
   <span class="thread-line__stitch"></span>
@@ -121,7 +124,8 @@ for (let i = 1; i < XS.length; i++) {
       d="M5 3 Q6 0.4 7 3 L7.2 36 Q6.6 46 6 51.5 Q5.4 46 4.8 36 Z"
       fill="url(#thread-line-steel)"
       stroke="rgba(30,36,42,0.4)"
-      stroke-width="0.35"></path>
+      stroke-width="0.35"
+    ></path>
     <rect x="5.55" y="3.2" width="0.9" height="6.4" rx="0.45" fill="rgba(15,27,45,0.75)"></rect>
     <path d="M5.75 12 L5.9 38" stroke="rgba(255,255,255,0.85)" stroke-width="0.4"></path>
   </svg>

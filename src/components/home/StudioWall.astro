@@ -28,97 +28,95 @@ function focus(img: any): string {
 }
 ---
 
-{
-  pieces.length > 0 && (
-    <section class="studio-wall surface-midnight py-section-lg" aria-labelledby={headingId}>
-      <div class="mx-auto max-w-content px-m">
-        <header class="mx-auto mb-section-md max-w-3xl text-center">
-          {page?.wallEyebrow && (
-            <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
-              {page.wallEyebrow}
-            </p>
-          )}
-          {(head.before || head.swash) && (
-            <h2 id={headingId} class="display-sm" data-reveal>
-              {head.before}
-              <em class="swash">{head.swash}</em>
-            </h2>
-          )}
-          {page?.wallSubhead && (
-            <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
-              {page.wallSubhead}
-            </p>
-          )}
-        </header>
-
-        <div class="studio-wall__frame">
-          <div class="studio-wall__board texture-linen on-light">
-            <ul class="studio-wall__grid" role="list" data-reveal-stagger="70">
-              {pieces.map((it: any, i: number) => (
-                <li
-                  class="studio-wall__piece"
-                  data-reveal
-                  style={`--pin:${PINS[i % PINS.length]}`}
-                  data-sanity={editOther(edit, it._id, 'galleryItem', 'image')}
-                >
-                  <span class="studio-wall__pin" aria-hidden="true" />
-                  {it.image?.caption || it.relatedCategory?.name ? (
-                    <SwatchCard
-                      tone={i % 3 === 1 ? 'linen' : 'paper'}
-                      tilt={TILTS[i % TILTS.length]}
-                      interactive
-                      as="figure"
-                      bodyClass="px-m pb-m pt-s"
-                    >
-                      <SanityImage
-                        slot="media"
-                        source={it.image}
-                        width={520}
-                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
-                        class="studio-wall__img"
-                        style={focus(it.image)}
-                      />
-                      <figcaption class="studio-wall__caption">
-                        {it.image?.caption || it.relatedCategory?.name}
-                      </figcaption>
-                    </SwatchCard>
-                  ) : (
-                    <SwatchCard
-                      tone={i % 3 === 1 ? 'linen' : 'paper'}
-                      tilt={TILTS[i % TILTS.length]}
-                      interactive
-                      as="figure"
-                    >
-                      <SanityImage
-                        slot="media"
-                        source={it.image}
-                        width={520}
-                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
-                        class="studio-wall__img"
-                        style={focus(it.image)}
-                      />
-                    </SwatchCard>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {page?.wallCtaLabel && (
-          <p class="mt-section-md text-center" data-reveal>
-            <a href="/style-gallery/" class="btn btn-primary">
-              <span>{page.wallCtaLabel}</span>
-              <span class="btn__arrow" aria-hidden="true">
-                &rarr;
-              </span>
-            </a>
+{pieces.length > 0 && (
+  <section class="studio-wall surface-midnight py-section-lg" aria-labelledby={headingId}>
+    <div class="mx-auto max-w-content px-m">
+      <header class="mx-auto mb-section-md max-w-3xl text-center">
+        {page?.wallEyebrow && (
+          <p class="eyebrow eyebrow--center mb-m justify-center" data-reveal="fade">
+            {page.wallEyebrow}
           </p>
         )}
+        {(head.before || head.swash) && (
+          <h2 id={headingId} class="display-sm" data-reveal>
+            {head.before}
+            <em class="swash">{head.swash}</em>
+          </h2>
+        )}
+        {page?.wallSubhead && (
+          <p class="lede mx-auto mt-m" data-reveal style="--reveal-delay: 120ms">
+            {page.wallSubhead}
+          </p>
+        )}
+      </header>
+
+      <div class="studio-wall__frame">
+        <div class="studio-wall__board texture-linen on-light">
+          <ul class="studio-wall__grid" role="list" data-reveal-stagger="70">
+            {pieces.map((it: any, i: number) => (
+              <li
+                class="studio-wall__piece"
+                data-reveal
+                style={`--pin:${PINS[i % PINS.length]}`}
+                data-sanity={editOther(edit, it._id, 'galleryItem', 'image')}
+              >
+                <span class="studio-wall__pin" aria-hidden="true" />
+                {it.image?.caption || it.relatedCategory?.name ? (
+                  <SwatchCard
+                    tone={i % 3 === 1 ? 'linen' : 'paper'}
+                    tilt={TILTS[i % TILTS.length]}
+                    interactive
+                    as="figure"
+                    bodyClass="px-m pb-m pt-s"
+                  >
+                    <SanityImage
+                      slot="media"
+                      source={it.image}
+                      width={520}
+                      sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
+                      class="studio-wall__img"
+                      style={focus(it.image)}
+                    />
+                    <figcaption class="studio-wall__caption">
+                      {it.image?.caption || it.relatedCategory?.name}
+                    </figcaption>
+                  </SwatchCard>
+                ) : (
+                  <SwatchCard
+                    tone={i % 3 === 1 ? 'linen' : 'paper'}
+                    tilt={TILTS[i % TILTS.length]}
+                    interactive
+                    as="figure"
+                  >
+                    <SanityImage
+                      slot="media"
+                      source={it.image}
+                      width={520}
+                      sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
+                      class="studio-wall__img"
+                      style={focus(it.image)}
+                    />
+                  </SwatchCard>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-    </section>
-  )
-}
+
+      {page?.wallCtaLabel && (
+        <p class="mt-section-md text-center" data-reveal>
+          <a href="/style-gallery/" class="btn btn-primary">
+            <span>{page.wallCtaLabel}</span>
+            <span class="btn__arrow" aria-hidden="true">
+              &rarr;
+            </span>
+          </a>
+        </p>
+      )}
+    </div>
+  </section>
+)}
 
 <style>
   /* the board: linen stretched in a turned-wood frame */

@@ -56,100 +56,98 @@ const dash = `${stitch} ${gap}`;
 const mid = thickness / 2;
 ---
 
-{
-  horizontal ? (
-    <div
-      class:list={['running-stitch flex items-center', className]}
-      style={`width:${length};color:${color};--rs-h:${thickness}px`}
-      aria-hidden="true"
-    >
-      <svg class="running-stitch__line" height={thickness} width="100%" focusable="false">
-        <line
-          x1={weight}
-          x2="100%"
-          y1={mid}
-          y2={mid}
-          stroke="currentColor"
-          stroke-width={weight}
-          stroke-linecap="round"
-          stroke-dasharray={dash}
-        />
-      </svg>
-      {ornament !== 'none' && (
-        <>
-          <svg
-            class="running-stitch__ornament"
-            viewBox="0 0 24 24"
-            width={ornament === 'needle' ? 34 : 22}
-            height={ornament === 'needle' ? 34 : 22}
-            focusable="false"
-          >
-            {ornament === 'cross' && (
-              <path
-                d="M6 6l12 12M18 6L6 18"
-                stroke="currentColor"
-                stroke-width="2.4"
-                stroke-linecap="round"
-                fill="none"
-              />
-            )}
-            {ornament === 'knot' && (
-              <>
-                <circle cx="12" cy="12" r="4.2" fill="currentColor" />
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="7.5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.2"
-                  stroke-dasharray="2 2.4"
-                />
-              </>
-            )}
-            {ornament === 'needle' && (
-              <g transform="rotate(-62 12 12)">
-                <path d="M12 1.5 L13.1 18 Q12 22.5 10.9 18 Z" fill="currentColor" />
-                <ellipse cx="12" cy="5.2" rx="0.55" ry="1.9" fill="var(--background, #f4eee3)" />
-              </g>
-            )}
-          </svg>
-          <svg class="running-stitch__line" height={thickness} width="100%" focusable="false">
-            <line
-              x1="0"
-              x2="100%"
-              y1={mid}
-              y2={mid}
+{horizontal ? (
+  <div
+    class:list={['running-stitch flex items-center', className]}
+    style={`width:${length};color:${color};--rs-h:${thickness}px`}
+    aria-hidden="true"
+  >
+    <svg class="running-stitch__line" height={thickness} width="100%" focusable="false">
+      <line
+        x1={weight}
+        x2="100%"
+        y1={mid}
+        y2={mid}
+        stroke="currentColor"
+        stroke-width={weight}
+        stroke-linecap="round"
+        stroke-dasharray={dash}
+      />
+    </svg>
+    {ornament !== 'none' && (
+      <>
+        <svg
+          class="running-stitch__ornament"
+          viewBox="0 0 24 24"
+          width={ornament === 'needle' ? 34 : 22}
+          height={ornament === 'needle' ? 34 : 22}
+          focusable="false"
+        >
+          {ornament === 'cross' && (
+            <path
+              d="M6 6l12 12M18 6L6 18"
               stroke="currentColor"
-              stroke-width={weight}
+              stroke-width="2.4"
               stroke-linecap="round"
-              stroke-dasharray={dash}
+              fill="none"
             />
-          </svg>
-        </>
-      )}
-    </div>
-  ) : (
-    <div
-      class:list={['running-stitch running-stitch--v', className]}
-      style={`height:${length};width:${thickness}px;color:${color}`}
-      aria-hidden="true"
-    >
-      <svg width={thickness} height="100%" focusable="false">
-        <line
-          x1={mid}
-          x2={mid}
-          y1={weight}
-          y2="100%"
-          stroke="currentColor"
-          stroke-width={weight}
-          stroke-linecap="round"
-          stroke-dasharray={dash}
-        />
-      </svg>
-    </div>
-  )
-}
+          )}
+          {ornament === 'knot' && (
+            <>
+              <circle cx="12" cy="12" r="4.2" fill="currentColor" />
+              <circle
+                cx="12"
+                cy="12"
+                r="7.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.2"
+                stroke-dasharray="2 2.4"
+              />
+            </>
+          )}
+          {ornament === 'needle' && (
+            <g transform="rotate(-62 12 12)">
+              <path d="M12 1.5 L13.1 18 Q12 22.5 10.9 18 Z" fill="currentColor" />
+              <ellipse cx="12" cy="5.2" rx="0.55" ry="1.9" fill="var(--background, #f4eee3)" />
+            </g>
+          )}
+        </svg>
+        <svg class="running-stitch__line" height={thickness} width="100%" focusable="false">
+          <line
+            x1="0"
+            x2="100%"
+            y1={mid}
+            y2={mid}
+            stroke="currentColor"
+            stroke-width={weight}
+            stroke-linecap="round"
+            stroke-dasharray={dash}
+          />
+        </svg>
+      </>
+    )}
+  </div>
+) : (
+  <div
+    class:list={['running-stitch running-stitch--v', className]}
+    style={`height:${length};width:${thickness}px;color:${color}`}
+    aria-hidden="true"
+  >
+    <svg width={thickness} height="100%" focusable="false">
+      <line
+        x1={mid}
+        x2={mid}
+        y1={weight}
+        y2="100%"
+        stroke="currentColor"
+        stroke-width={weight}
+        stroke-linecap="round"
+        stroke-dasharray={dash}
+      />
+    </svg>
+  </div>
+)}
 
 <style>
   .running-stitch {

@@ -68,167 +68,159 @@ const TILTS = [-1.2, 1, -0.6, 1.4];
       ]}
     >
       <div>
-        {
-          page?.heroEyebrow && (
-            <div data-reveal="fade">
-              <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
-            </div>
-          )
-        }
-        <h1 id="clearance-heading" class="display-sm max-w-[14ch]" data-reveal>
-          {headline.before}<em class="swash">{headline.word}</em>{headline.after}
-        </h1>
-        {
-          page?.heroSubhead && (
-            <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
-              {page.heroSubhead}
-            </p>
-          )
-        }
-      </div>
-      {
-        hasNotes && (
-          <div class="clr-notes" data-reveal="fade" style="--reveal-delay: 160ms">
-            {page?.paymentNote && (
-              <HangTag tone="kraft" tilt={-4} size="sm" class="clr-notes__tag">
-                <p>{page.paymentNote}</p>
-              </HangTag>
-            )}
-            {page?.pickupNote && (
-              <HangTag tone="paper" tilt={5} size="sm" class="clr-notes__tag clr-notes__tag--b">
-                <p>{page.pickupNote}</p>
-              </HangTag>
-            )}
+        {page?.heroEyebrow && (
+          <div data-reveal="fade">
+            <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
           </div>
-        )
-      }
+        )}
+        <h1 id="clearance-heading" class="display-sm max-w-[14ch]" data-reveal>
+          {headline.before}
+          <em class="swash">{headline.word}</em>
+          {headline.after}
+        </h1>
+        {page?.heroSubhead && (
+          <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
+            {page.heroSubhead}
+          </p>
+        )}
+      </div>
+      {hasNotes && (
+        <div class="clr-notes" data-reveal="fade" style="--reveal-delay: 160ms">
+          {page?.paymentNote && (
+            <HangTag tone="kraft" tilt={-4} size="sm" class="clr-notes__tag">
+              <p>{page.paymentNote}</p>
+            </HangTag>
+          )}
+          {page?.pickupNote && (
+            <HangTag tone="paper" tilt={5} size="sm" class="clr-notes__tag clr-notes__tag--b">
+              <p>{page.pickupNote}</p>
+            </HangTag>
+          )}
+        </div>
+      )}
     </div>
   </section>
 
   <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {
-        page?.intro && (
-          <div class="mx-auto mb-l max-w-[52ch]">
-            <PortableText value={page.intro} />
+      {page?.intro && (
+        <div class="mx-auto mb-l max-w-[52ch]">
+          <PortableText value={page.intro} />
+        </div>
+      )}
+      {items.length === 0 ? (
+        <div class="clr-empty">
+          <div class="clr-empty__hoop" aria-hidden="true">
+            <HoopFrame image={null} size={300} tilt={-3} />
+            <EmptyHoopOrnament class="clr-empty__ornament" />
           </div>
-        )
-      }
-      {
-        items.length === 0 ? (
-          <div class="clr-empty">
-            <div class="clr-empty__hoop" aria-hidden="true">
-              <HoopFrame image={null} size={300} tilt={-3} />
-              <EmptyHoopOrnament class="clr-empty__ornament" />
-            </div>
-            <div class="clr-empty__text">
-              <p class="clr-empty__msg">
-                {page?.emptyStateMessage ??
-                  'No clearance items available at this time. Check back soon!'}
-              </p>
-              <div class="mt-l flex flex-col items-start gap-m sm:flex-row sm:items-center">
+          <div class="clr-empty__text">
+            <p class="clr-empty__msg">
+              {page?.emptyStateMessage ??
+                'No clearance items available at this time. Check back soon!'}
+            </p>
+            <div class="mt-l flex flex-col items-start gap-m sm:flex-row sm:items-center">
+              <a
+                href={internalHref(page?.emptyStateCtaHref ?? '/request-a-quote/')}
+                class="btn btn-primary"
+              >
+                {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
+              </a>
+              {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
                 <a
-                  href={internalHref(page?.emptyStateCtaHref ?? '/request-a-quote/')}
-                  class="btn btn-primary"
+                  href={internalHref(page?.emptyStateSecondaryHref ?? '/shop-by-item/')}
+                  class="link-stitch hit-44 relative text-sm font-semibold"
                 >
-                  {page?.emptyStateCtaLabel ?? 'Request a custom quote'}
+                  {page?.emptyStateSecondaryLabel ?? 'Browse what I make'}{' '}
+                  <span aria-hidden="true">→</span>
                 </a>
-                {(page?.emptyStateSecondaryLabel ?? 'Browse what I make') && (
-                  <a
-                    href={internalHref(page?.emptyStateSecondaryHref ?? '/shop-by-item/')}
-                    class="link-stitch hit-44 relative text-sm font-semibold"
-                  >
-                    {page?.emptyStateSecondaryLabel ?? 'Browse what I make'}{' '}
-                    <span aria-hidden="true">→</span>
-                  </a>
-                )}
-              </div>
+              )}
             </div>
           </div>
-        ) : (
-          <ul class="clr-grid" role="list" data-reveal-stagger="90">
-            {[...inStockItems, ...soldOutItems].map((item: any, i: number) => {
-              const isSold = item.sold;
-              const primaryImage = item.images?.[0];
-              const sale = money(item.salePrice);
-              const original = money(item.originalPrice);
-              return (
-                <li
-                  class:list={['clr-item', isSold && 'clr-item--sold']}
-                  data-reveal
-                  data-sanity={editOther(edit, item._id, 'clearanceItem', 'images')}
+        </div>
+      ) : (
+        <ul class="clr-grid" role="list" data-reveal-stagger="90">
+          {[...inStockItems, ...soldOutItems].map((item: any, i: number) => {
+            const isSold = item.sold;
+            const primaryImage = item.images?.[0];
+            const sale = money(item.salePrice);
+            const original = money(item.originalPrice);
+            return (
+              <li
+                class:list={['clr-item', isSold && 'clr-item--sold']}
+                data-reveal
+                data-sanity={editOther(edit, item._id, 'clearanceItem', 'images')}
+              >
+                <SwatchCard
+                  as="article"
+                  tone={TONES[i % TONES.length]}
+                  tilt={TILTS[i % TILTS.length]}
+                  interactive={!isSold}
+                  bodyClass="clr-item__body"
                 >
-                  <SwatchCard
-                    as="article"
-                    tone={TONES[i % TONES.length]}
-                    tilt={TILTS[i % TILTS.length]}
-                    interactive={!isSold}
-                    bodyClass="clr-item__body"
-                  >
-                    <div slot="media" class="clr-item__media">
-                      {primaryImage?.asset ? (
-                        <SanityImage
-                          source={primaryImage}
-                          width={600}
-                          height={450}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          class="clr-item__img"
-                        />
-                      ) : (
-                        <div class="clr-item__nophoto texture-linen" aria-hidden="true">
-                          <EmptyHoopOrnament class="clr-item__nophoto-orn" />
-                        </div>
-                      )}
-                      {isSold && (
-                        <span class="clr-item__stamp">
-                          <span>{soldLabel}</span>
-                        </span>
-                      )}
-                    </div>
-                    <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
-                    {item.description && (
-                      <p class="mt-xs line-clamp-3 text-sm text-[var(--color-text-secondary)]">
-                        {item.description}
-                      </p>
+                  <div slot="media" class="clr-item__media">
+                    {primaryImage?.asset ? (
+                      <SanityImage
+                        source={primaryImage}
+                        width={600}
+                        height={450}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        class="clr-item__img"
+                      />
+                    ) : (
+                      <div class="clr-item__nophoto texture-linen" aria-hidden="true">
+                        <EmptyHoopOrnament class="clr-item__nophoto-orn" />
+                      </div>
                     )}
-                    {leftLabel && item.quantityAvailable && !isSold && (
-                      <p class="mt-xs text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
-                        {leftLabel.replaceAll('{count}', String(item.quantityAvailable))}
-                      </p>
+                    {isSold && (
+                      <span class="clr-item__stamp">
+                        <span>{soldLabel}</span>
+                      </span>
                     )}
-                    {/* Buy button — Stripe Payment Link, no cart needed */}
-                    {!isSold && item.stripePaymentLink && (
-                      <a
-                        href={item.stripePaymentLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="btn btn-primary mt-m w-full"
-                      >
-                        {buyLabel}
-                      </a>
-                    )}
-                  </SwatchCard>
-                  {sale && (
-                    <HangTag
-                      size="sm"
-                      tone="kraft"
-                      tilt={i % 2 ? 7 : -6}
-                      value={sale}
-                      class="clr-item__price"
-                    >
-                      {original && (
-                        <p class="clr-item__was">
-                          <s>{original}</s>
-                        </p>
-                      )}
-                    </HangTag>
+                  </div>
+                  <h2 class="font-display text-h4 text-foreground">{item.name}</h2>
+                  {item.description && (
+                    <p class="mt-xs line-clamp-3 text-sm text-[var(--color-text-secondary)]">
+                      {item.description}
+                    </p>
                   )}
-                </li>
-              );
-            })}
-          </ul>
-        )
-      }
+                  {leftLabel && item.quantityAvailable && !isSold && (
+                    <p class="mt-xs text-xs font-semibold tracking-eyebrow text-[var(--color-text-secondary)] uppercase">
+                      {leftLabel.replaceAll('{count}', String(item.quantityAvailable))}
+                    </p>
+                  )}
+                  {/* Buy button — Stripe Payment Link, no cart needed */}
+                  {!isSold && item.stripePaymentLink && (
+                    <a
+                      href={item.stripePaymentLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-primary mt-m w-full"
+                    >
+                      {buyLabel}
+                    </a>
+                  )}
+                </SwatchCard>
+                {sale && (
+                  <HangTag
+                    size="sm"
+                    tone="kraft"
+                    tilt={i % 2 ? 7 : -6}
+                    value={sale}
+                    class="clr-item__price"
+                  >
+                    {original && (
+                      <p class="clr-item__was">
+                        <s>{original}</s>
+                      </p>
+                    )}
+                  </HangTag>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   </section>
 

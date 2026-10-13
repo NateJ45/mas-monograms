@@ -88,50 +88,44 @@ const Tag = level;
     extraClass,
   ]}
 >
-  {
-    eyebrow && (
-      <p class:list={['eyebrow mb-m', centered && 'eyebrow--center justify-center']}>{eyebrow}</p>
-    )
-  }
-  {
-    headline && (
-      <Tag id={headingId} class:list={[headingClass, toneHeadline]}>
-        {swashSplit.found ? (
-          <>
-            {swashSplit.before}
-            <em class="swash">{swashSplit.word}</em>
-            {swashSplit.after}
-          </>
-        ) : scriptSplit.found ? (
-          <>
-            {scriptSplit.before}
-            <span class="font-script">{scriptSplit.word}</span>
-            {scriptSplit.after}
-          </>
-        ) : (
-          headline
-        )}
-        {headlineItalicSuffix && (
-          <>
-            {' '}
-            <em class="swash">{headlineItalicSuffix}</em>
-          </>
-        )}
-      </Tag>
-    )
-  }
-  {
-    subhead && (
-      <p
-        class:list={[
-          'mt-m text-lg leading-relaxed text-pretty',
-          size !== 'md' && 'lede',
-          centered && 'mx-auto',
-          toneSub,
-        ]}
-      >
-        {subhead}
-      </p>
-    )
-  }
+  {eyebrow && (
+    <p class:list={['eyebrow mb-m', centered && 'eyebrow--center justify-center']}>{eyebrow}</p>
+  )}
+  {headline && (
+    <Tag id={headingId} class:list={[headingClass, toneHeadline]}>
+      {swashSplit.found ? (
+        <>
+          {swashSplit.before}
+          <em class="swash">{swashSplit.word}</em>
+          {swashSplit.after}
+        </>
+      ) : scriptSplit.found ? (
+        <>
+          {scriptSplit.before}
+          <span class="font-script">{scriptSplit.word}</span>
+          {scriptSplit.after}
+        </>
+      ) : (
+        headline
+      )}
+      {headlineItalicSuffix && (
+        <>
+          {' '}
+          <em class="swash">{headlineItalicSuffix}</em>
+        </>
+      )}
+    </Tag>
+  )}
+  {subhead && (
+    <p
+      class:list={[
+        'mt-m text-lg leading-relaxed text-pretty',
+        size !== 'md' && 'lede',
+        centered && 'mx-auto',
+        toneSub,
+      ]}
+    >
+      {subhead}
+    </p>
+  )}
 </div>

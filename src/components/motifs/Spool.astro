@@ -174,7 +174,11 @@ const TAIL =
         {/* the turns path carries no stroke itself, so each <use> can set its own */}
         <path id={`${uid}-turns`} d={wraps} fill="none"></path>
         <use href={`#${uid}-turns`} stroke={groove} stroke-width="0.4"></use>
-        <use href={`#${uid}-turns`} stroke={crest} stroke-width="0.35" transform="translate(0 0.6)"
+        <use
+          href={`#${uid}-turns`}
+          stroke={crest}
+          stroke-width="0.35"
+          transform="translate(0 0.6)"
         ></use>
       </pattern>
       <clipPath id={`${uid}-body`}>
@@ -201,15 +205,21 @@ const TAIL =
       <rect x="20" y="18" width="60" height="104" fill={`url(#${uid}-thread)`}></rect>
       <rect x="20" y="18" width="60" height="104" fill={`url(#${uid}-wraps)`}></rect>
       <rect x="20" y="18" width="60" height="104" fill={`url(#${uid}-ao)`}></rect>
-      <path d="M20 27.9A41 8.6 0 0 0 80 27.9" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="5"
+      <path
+        d="M20 27.9A41 8.6 0 0 0 80 27.9"
+        fill="none"
+        stroke="rgba(0,0,0,0.3)"
+        stroke-width="5"
       ></path>
-      <path d="M20 114A30 6.3 0 0 0 80 114" fill="none" stroke="rgba(0,0,0,0.28)" stroke-width="3"
+      <path
+        d="M20 114A30 6.3 0 0 0 80 114"
+        fill="none"
+        stroke="rgba(0,0,0,0.28)"
+        stroke-width="3"
       ></path>
     </g>
 
-    {
-      /* Top flange: rim and groove, the lit face, a chamfered edge, a carved ring, grain, the hole */
-    }
+    {/* Top flange: rim and groove, the lit face, a chamfered edge, a carved ring, grain, the hole */}
     <path d={RIM(16)} fill={`url(#${uid}-rim)`}></path>
     <path d={RIM_LINE(19)} fill="none" stroke="rgba(60,34,14,0.32)" stroke-width="0.7"></path>
     <path d={RIM_LINE(19.9)} fill="none" stroke="rgba(255,236,200,0.28)" stroke-width="0.5"></path>
@@ -219,12 +229,14 @@ const TAIL =
       d="M10.6 16A39.4 8 0 0 1 89.4 16"
       fill="none"
       stroke="rgba(255,248,230,0.7)"
-      stroke-width="0.9"></path>
+      stroke-width="0.9"
+    ></path>
     <path
       d="M10.6 16A39.4 8 0 0 0 89.4 16"
       fill="none"
       stroke="rgba(110,68,34,0.3)"
-      stroke-width="0.8"></path>
+      stroke-width="0.8"
+    ></path>
     <g fill="none" stroke-width="0.45" stroke="rgba(120,78,40,0.2)">
       <path d="M17 13.4Q38 9.6 70 10.4"></path>
       <path d="M26 11.2Q50 8.4 79 12.6"></path>
@@ -238,7 +250,8 @@ const TAIL =
       ry="5.7"
       fill="none"
       stroke="rgba(90,54,24,0.28)"
-      stroke-width="0.6"></ellipse>
+      stroke-width="0.6"
+    ></ellipse>
     <ellipse
       cx="50"
       cy="16.45"
@@ -246,33 +259,28 @@ const TAIL =
       ry="5.5"
       fill="none"
       stroke="rgba(255,244,220,0.45)"
-      stroke-width="0.45"></ellipse>
+      stroke-width="0.45"
+    ></ellipse>
     <ellipse cx="50" cy="16" rx="10" ry="2.3" fill="rgba(120,78,40,0.12)"></ellipse>
     <ellipse cx="50" cy="16" rx="5" ry="1.6" fill="#3a2412"></ellipse>
     <ellipse cx="50" cy="16.55" rx="4.3" ry="1.05" fill="#140b04"></ellipse>
 
-    {
-      tail && (
-        <g class="spool__tail" fill="none" stroke-linecap="round">
-          <path id={`${uid}-tail`} d={TAIL} />
-          <use href={`#${uid}-tail`} stroke={edge} stroke-width="1.7" />
-          <use href={`#${uid}-tail`} stroke={sheen} stroke-width="0.6" opacity="0.8" />
-        </g>
-      )
-    }
+    {tail && (
+      <g class="spool__tail" fill="none" stroke-linecap="round">
+        <path id={`${uid}-tail`} d={TAIL} />
+        <use href={`#${uid}-tail`} stroke={edge} stroke-width="1.7" />
+        <use href={`#${uid}-tail`} stroke={sheen} stroke-width="0.6" opacity="0.8" />
+      </g>
+    )}
   </svg>
-  {
-    label && (
-      <span class="spool__label mt-xs font-display text-sm leading-tight text-foreground">
-        {label}
-      </span>
-    )
-  }
-  {
-    sublabel && (
-      <span class="spool__sublabel mt-0.5 text-label font-semibold tracking-[0.16em] text-[var(--color-text-secondary)] uppercase">
-        {sublabel}
-      </span>
-    )
-  }
+  {label && (
+    <span class="spool__label mt-xs font-display text-sm leading-tight text-foreground">
+      {label}
+    </span>
+  )}
+  {sublabel && (
+    <span class="spool__sublabel mt-0.5 text-label font-semibold tracking-[0.16em] text-[var(--color-text-secondary)] uppercase">
+      {sublabel}
+    </span>
+  )}
 </div>

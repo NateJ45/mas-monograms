@@ -77,95 +77,85 @@ function priceHint(cat: any): string | null {
 
 <Layout {title} {description} seoImage={page?.seoImage} {siteSettings} {...preview?.layoutProps}>
   <section class="shop-intro surface-midnight py-section-lg" aria-labelledby="shop-heading">
-    <div
-      class="mx-auto grid max-w-content grid-cols-1 items-center gap-l px-m lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
-    >
+    <div class="mx-auto grid max-w-content grid-cols-1 items-center gap-l px-m lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
       <div>
-        {
-          page?.heroEyebrow && (
-            <div data-reveal="fade">
-              <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
-            </div>
-          )
-        }
+        {page?.heroEyebrow && (
+          <div data-reveal="fade">
+            <ScriptKicker text={page.heroEyebrow} onDark class="mb-s" />
+          </div>
+        )}
         <h1 id="shop-heading" class="display-sm max-w-[16ch]" data-reveal>
-          {headline.before}<em class="swash">{headline.word}</em>{headline.after}
+          {headline.before}
+          <em class="swash">{headline.word}</em>
+          {headline.after}
         </h1>
-        {
-          page?.heroSubhead && (
-            <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
-              {page.heroSubhead}
-            </p>
-          )
-        }
+        {page?.heroSubhead && (
+          <p class="lede mt-m" data-reveal style="--reveal-delay: 120ms">
+            {page.heroSubhead}
+          </p>
+        )}
         <div class="mt-l max-w-[16rem]" data-reveal="stitch" style="--reveal-delay: 220ms">
           <RunningStitch ornament="needle" />
         </div>
       </div>
       <div class="shop-intro__rack" aria-hidden="true" data-reveal="fade">
-        {
-          rack.map((hex, i) => (
-            <Spool
-              color={hex.startsWith('#') ? hex : `#${hex}`}
-              size={i % 2 ? 78 : 96}
-              tilt={[-6, 4, -2, 7, -4][i % 5]}
-              tail={i === rack.length - 1}
-              class="shop-intro__spool"
-            />
-          ))
-        }
+        {rack.map((hex, i) => (
+          <Spool
+            color={hex.startsWith('#') ? hex : `#${hex}`}
+            size={i % 2 ? 78 : 96}
+            tilt={[-6, 4, -2, 7, -4][i % 5]}
+            tail={i === rack.length - 1}
+            class="shop-intro__spool"
+          />
+        ))}
       </div>
     </div>
   </section>
 
   <section class="surface-linen py-section-lg">
     <div class="mx-auto max-w-content px-m">
-      {
-        page?.gridIntro && (
-          <p class="lede mx-auto mb-l text-center" data-reveal>
-            {page.gridIntro}
-          </p>
-        )
-      }
-      {
-        categories.length > 0 ? (
-          <>
-            <div class="hoop-wall__rail" aria-hidden="true">
-              <RunningStitch tone="brass" ornament="cross" />
-            </div>
-            <ul class="hoop-wall" role="list" data-reveal-stagger="90">
-              {categories.map((cat: any, i: number) => {
-                const s = SALON[i % SALON.length];
-                return (
-                  <li
-                    class="hoop-wall__item"
-                    style={`--w:${s.size}px;--drop:${s.drop}`}
-                    data-reveal
-                    data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
-                  >
-                    <CategoryCard
-                      name={cat.name}
-                      slug={cat.slug?.current ?? ''}
-                      cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
-                      size={s.size}
-                      tilt={s.tilt}
-                      priceHint={priceHint(cat)}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          </>
-        ) : (
-          <p class="py-l text-center text-[var(--color-text-secondary)]">
-            Item categories coming soon. Check back or{' '}
-            <a href="/request-a-quote/" class="text-link underline">
-              request a quote
-            </a>{' '}
-            for any item.
-          </p>
-        )
-      }
+      {page?.gridIntro && (
+        <p class="lede mx-auto mb-l text-center" data-reveal>
+          {page.gridIntro}
+        </p>
+      )}
+      {categories.length > 0 ? (
+        <>
+          <div class="hoop-wall__rail" aria-hidden="true">
+            <RunningStitch tone="brass" ornament="cross" />
+          </div>
+          <ul class="hoop-wall" role="list" data-reveal-stagger="90">
+            {categories.map((cat: any, i: number) => {
+              const s = SALON[i % SALON.length];
+              return (
+                <li
+                  class="hoop-wall__item"
+                  style={`--w:${s.size}px;--drop:${s.drop}`}
+                  data-reveal
+                  data-sanity={editOther(edit, cat._id, 'itemCategory', 'cardImage')}
+                >
+                  <CategoryCard
+                    name={cat.name}
+                    slug={cat.slug?.current ?? ''}
+                    cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
+                    size={s.size}
+                    tilt={s.tilt}
+                    priceHint={priceHint(cat)}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : (
+        <p class="py-l text-center text-[var(--color-text-secondary)]">
+          Item categories coming soon. Check back or{' '}
+          <a href="/request-a-quote/" class="text-link underline">
+            request a quote
+          </a>{' '}
+          for any item.
+        </p>
+      )}
     </div>
   </section>
 

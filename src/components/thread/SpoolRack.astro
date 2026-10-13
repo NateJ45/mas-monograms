@@ -33,9 +33,19 @@ const total = colors.length;
       <span class="rack__search-label">{filterLabel}</span>
       <span class="rack__search-box">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" class="rack__search-icon">
-          <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"
+          <circle
+            cx="10.5"
+            cy="10.5"
+            r="6.5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
           ></circle>
-          <path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          <path
+            d="M15.5 15.5 21 21"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
           ></path>
         </svg>
         <input
@@ -50,9 +60,9 @@ const total = colors.length;
       </span>
     </label>
     <output class="rack__count" data-rack-count aria-live="polite">
-      <span data-rack-shown>{total}</span><span aria-hidden="true"> / </span><span class="sr-only"
-        >of</span
-      >
+      <span data-rack-shown>{total}</span>
+      <span aria-hidden="true"> / </span>
+      <span class="sr-only">of</span>
       {total}
     </output>
   </div>
@@ -60,47 +70,43 @@ const total = colors.length;
   <fieldset class="rack__shelves-wrap">
     <legend class="sr-only">{legend}</legend>
     <ul class="rack__shelves" role="list" data-rack-list>
-      {
-        colors.map((c, i) => (
-          <li
-            class="rack__cell"
-            data-rack-cell
-            data-search={[c.name, c.slug, c.colorFamily, c.dmcNumber]
-              .filter(Boolean)
-              .join(' ')
-              .toLowerCase()}
-          >
-            <label class="rack__spool">
-              <input
-                type="radio"
-                name="thread"
-                value={c.slug ?? ''}
-                class="rack__radio"
-                data-hex={c.hex}
-                data-name={c.name ?? ''}
-                checked={selected ? c.slug === selected : i === 0}
-              />
-              <Spool
-                color={c.hex}
-                label={c.name}
-                sublabel={c.dmcNumber ? `DMC ${c.dmcNumber}` : null}
-                size={58}
-                tilt={((i * 37) % 7) - 3}
-                class="rack__art"
-              />
-            </label>
-          </li>
-        ))
-      }
+      {colors.map((c, i) => (
+        <li
+          class="rack__cell"
+          data-rack-cell
+          data-search={[c.name, c.slug, c.colorFamily, c.dmcNumber]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase()}
+        >
+          <label class="rack__spool">
+            <input
+              type="radio"
+              name="thread"
+              value={c.slug ?? ''}
+              class="rack__radio"
+              data-hex={c.hex}
+              data-name={c.name ?? ''}
+              checked={selected ? c.slug === selected : i === 0}
+            />
+            <Spool
+              color={c.hex}
+              label={c.name}
+              sublabel={c.dmcNumber ? `DMC ${c.dmcNumber}` : null}
+              size={58}
+              tilt={((i * 37) % 7) - 3}
+              class="rack__art"
+            />
+          </label>
+        </li>
+      ))}
     </ul>
   </fieldset>
-  {
-    emptyNote && (
-      <p class="rack__empty" data-rack-empty hidden>
-        {emptyNote}
-      </p>
-    )
-  }
+  {emptyNote && (
+    <p class="rack__empty" data-rack-empty hidden>
+      {emptyNote}
+    </p>
+  )}
 </div>
 
 <style>

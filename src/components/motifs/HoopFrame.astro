@@ -106,28 +106,24 @@ const brassId = motifId('hb');
   <div class="hoop__body">
     <div class="hoop__ring" aria-hidden="true"></div>
     <div class:list={['hoop__fabric', !hasPhoto && 'texture-linen']}>
-      {
-        hasPhoto && (
-          <SanityImage
-            source={image}
-            width={reqWidth}
-            height={sanityCrops ? reqWidth : undefined}
-            alt={alt}
-            loading={loading}
-            fetchpriority={fetchpriority}
-            sizes={photoSizes}
-            class="hoop__img"
-            style={objectPosition}
-          />
-        )
-      }
-      {
-        !hasPhoto && Astro.slots.has('default') && (
-          <div class="hoop__slot">
-            <slot />
-          </div>
-        )
-      }
+      {hasPhoto && (
+        <SanityImage
+          source={image}
+          width={reqWidth}
+          height={sanityCrops ? reqWidth : undefined}
+          alt={alt}
+          loading={loading}
+          fetchpriority={fetchpriority}
+          sizes={photoSizes}
+          class="hoop__img"
+          style={objectPosition}
+        />
+      )}
+      {!hasPhoto && Astro.slots.has('default') && (
+        <div class="hoop__slot">
+          <slot />
+        </div>
+      )}
       <span class="hoop__grade" aria-hidden="true"></span>
     </div>
     <svg class="hoop__clasp" viewBox="0 0 48 34" aria-hidden="true" focusable="false">
@@ -142,7 +138,13 @@ const brassId = motifId('hb');
       <rect x="9" y="12" width="12" height="20" rx="2" fill={`url(#${brassId})`}></rect>
       <rect x="27" y="12" width="12" height="20" rx="2" fill={`url(#${brassId})`}></rect>
       <rect x="4" y="17" width="40" height="5" rx="2.5" fill={`url(#${brassId})`}></rect>
-      <circle cx="24" cy="8" r="7" fill={`url(#${brassId})`} stroke="#5c4117" stroke-width="0.8"
+      <circle
+        cx="24"
+        cy="8"
+        r="7"
+        fill={`url(#${brassId})`}
+        stroke="#5c4117"
+        stroke-width="0.8"
       ></circle>
       <path d="M19.5 8h9" stroke="#4a3412" stroke-width="1.6" stroke-linecap="round"></path>
     </svg>

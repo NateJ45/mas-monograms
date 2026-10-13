@@ -74,20 +74,16 @@ const hasBody = Astro.slots.has('default');
       stitched && 'swatch__cloth--stitched',
     ]}
   >
-    {
-      hasMedia && (
-        <div class="swatch__media">
-          <slot name="media" />
-        </div>
-      )
-    }
-    {
-      hasBody && (
-        <div class:list={['swatch__body', bodyClass]}>
-          <slot />
-        </div>
-      )
-    }
+    {hasMedia && (
+      <div class="swatch__media">
+        <slot name="media" />
+      </div>
+    )}
+    {hasBody && (
+      <div class:list={['swatch__body', bodyClass]}>
+        <slot />
+      </div>
+    )}
   </div>
 </Tag>
 

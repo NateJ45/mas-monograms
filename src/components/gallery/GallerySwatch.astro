@@ -69,41 +69,39 @@ const hasBody = !!(categoryName || fontName);
   data-tags={tags ? JSON.stringify(tags) : undefined}
   data-sanity={editAttr}
 >
-  {
-    item?.image?.asset && (
-      <SwatchCard tone={tone} tilt={tilt} interactive bodyClass="px-m pt-xs pb-m">
-        <button
-          slot="media"
-          type="button"
-          class="gallery-swatch__open"
-          aria-haspopup="dialog"
-          {...lightboxAttrs(item.image, caption)}
-        >
-          <SanityImage source={item.image} width={500} sizes={sizes} class="gallery-swatch__img" />
-          <span class="gallery-swatch__zoom" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <circle cx="10.5" cy="10.5" r="6" />
-              <path d="M15 15l5 5M8 10.5h5M10.5 8v5" />
-            </svg>
-          </span>
-        </button>
-        {hasBody && (
-          <div class="gallery-swatch__body">
-            {categoryName && <p class="gallery-swatch__cat">{categoryName}</p>}
-            {fontLine && <p class="gallery-swatch__font">{fontLine}</p>}
-            {showRequest && categorySlug && (
-              <a
-                href={`/request-a-quote/?item=${categorySlug}`}
-                class="gallery-swatch__req link-stitch hit-44 relative"
-              >
-                {requestLabel ?? 'Request this'} <span aria-hidden="true">→</span>
-              </a>
-            )}
-          </div>
-        )}
-      </SwatchCard>
-    )
-  }
+  {item?.image?.asset && (
+    <SwatchCard tone={tone} tilt={tilt} interactive bodyClass="px-m pt-xs pb-m">
+      <button
+        slot="media"
+        type="button"
+        class="gallery-swatch__open"
+        aria-haspopup="dialog"
+        {...lightboxAttrs(item.image, caption)}
+      >
+        <SanityImage source={item.image} width={500} sizes={sizes} class="gallery-swatch__img" />
+        <span class="gallery-swatch__zoom" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <circle cx="10.5" cy="10.5" r="6" />
+            <path d="M15 15l5 5M8 10.5h5M10.5 8v5" />
+          </svg>
+        </span>
+      </button>
+      {hasBody && (
+        <div class="gallery-swatch__body">
+          {categoryName && <p class="gallery-swatch__cat">{categoryName}</p>}
+          {fontLine && <p class="gallery-swatch__font">{fontLine}</p>}
+          {showRequest && categorySlug && (
+            <a
+              href={`/request-a-quote/?item=${categorySlug}`}
+              class="gallery-swatch__req link-stitch hit-44 relative"
+            >
+              {requestLabel ?? 'Request this'} <span aria-hidden="true">→</span>
+            </a>
+          )}
+        </div>
+      )}
+    </SwatchCard>
+  )}
 </div>
 
 <style>
