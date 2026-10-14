@@ -13,13 +13,17 @@
 //      order and content. Walks every field so it also catches nested arrays.
 //
 // Dataset-only: no schema or site changes, nothing to redeploy.
-// Run: node scripts/fix-orphan-data.mjs
+// Unsetting deletes data: back up first. Dry run by default
+// (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
+//   node scripts/fix-orphan-data.mjs                                   # prints the plan
+//   NCS_PRODUCTION_WRITE=yes node scripts/fix-orphan-data.mjs --apply  # writes (Nathan only)
 
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { createClient } from '@sanity/client';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -27,12 +31,20 @@ const env = loadEnv(root);
 const projectId = env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = env.PUBLIC_SANITY_DATASET ?? 'production';
 const token = env.SANITY_API_WRITE_TOKEN;
+const APPLY = writeGate({ dataset });
 
 if (!projectId || !token) {
   console.log('Missing PUBLIC_SANITY_PROJECT_ID or SANITY_API_WRITE_TOKEN in .env.');
   process.exit(0);
 }
-const client = createClient({ projectId, dataset, token, apiVersion: '2026-05-01', useCdn: false });
+const client = createClient({
+  projectId,
+  dataset,
+  token,
+  apiVersion: '2026-05-01',
+  useCdn: false,
+  ...apiHostOption(env),
+});
 
 // Fields removed from the schema in the orphan-content cleanup, per document.
 // Unsetting is harmless if the value is already gone (idempotent).
@@ -99,8 +111,8 @@ async function run() {
       if (!doc) continue;
       const present = fields.filter((f) => doc[f] !== undefined);
       if (!present.length) continue;
-      await client.patch(id).unset(present).commit();
-      console.log(`   ${id}: unset ${present.join(', ')}`);
+      if (APPLY) await client.patch(id).unset(present).commit();
+      console.log(`   ${id}: ${APPLY ? 'unset' : 'would unset'} ${present.join(', ')}`);
     }
   }
 
@@ -110,12 +122,16 @@ async function run() {
   let keyed = 0;
   for (const doc of all) {
     if (addMissingKeys(doc)) {
-      await client.createOrReplace(doc);
+      if (APPLY) await client.createOrReplace(doc);
       keyed += 1;
-      console.log(`   ${doc._id}: keys added`);
+      console.log(`   ${doc._id}: ${APPLY ? 'keys added' : 'would add keys'}`);
     }
   }
-  console.log(`\nDone. Orphan fields unset + ${keyed} documents re-keyed.`);
+  console.log(
+    APPLY
+      ? `\nDone. Orphan fields unset + ${keyed} documents re-keyed.`
+      : `\nDRY RUN: ${keyed} document(s) would be re-keyed. Re-run with --apply to write.`,
+  );
 }
 
 run().catch((e) => {

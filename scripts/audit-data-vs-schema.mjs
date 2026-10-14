@@ -1,34 +1,41 @@
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // scripts/audit-data-vs-schema.mjs
 //
 // Read-only audit: every stored value in the dataset against the REAL compiled
-// schema. Run it as `npm run audit:data` (it needs tsx because the schema is
-// TypeScript with extensionless imports, and a .env with the Sanity token).
+// schema. Run it as `npm run audit:data` (needs a .env with the Sanity project
+// id and a token that can read the dataset, drafts included).
 //
-// WHY. On 2026-10-05 Mary Ann's footer links showed "Item of type object not
-// valid for this list": the seed scripts stored array items with no `_type`, and
-// where an array allows more than one kind of item (a page link AND a typed-
-// address link) the Studio cannot tell which one it is. Nothing in a build or
-// test catches that, and `npm run audit:studio` reads the schema as text, so it
-// cannot see it either. This walks the live data with the schema Sanity itself
-// builds (@sanity/schema), so it can answer, for every value:
+// WHY (PORTS.md card 95). On 2026-10-05 a mas-monograms editor's footer links
+// showed "Item of type object not valid for this list": the seed scripts stored
+// array items with no `_type`, and where an array allows more than one kind of
+// item (a page link AND a typed-address link) the Studio cannot tell which one
+// it is. Nothing in a build or test catches that, and `npm run audit:studio`
+// reads the schema as text, so it cannot see it either. This walks the live data
+// with the schema Sanity itself builds (@sanity/schema, which arrives with
+// `sanity`), so it can answer, for every value:
 //
 //   1. an array item that is an object with no `_type`
 //   2. an array item whose `_type` the array does not allow
 //   3. an array item with no `_key`
-//   4. a stored key the object's type does not declare
+//   4. a stored key the object's type does not declare (an orphan left behind
+//      when a schema field was removed: the Studio's "Unknown fields" banner)
 //   5. a value of the wrong kind (a number where a string is declared...)
 //   6. a dropdown value that is not one of the choices
 //   7. a document whose `_type` the schema does not have
-//   8. a reference to a document that does not exist
 //
+// The schema is TypeScript; scripts/lib/load-schema.mjs loads it in plain Node
+// (type stripping plus two small resolve hooks), so there is no tsx dependency.
 // Published documents and their `drafts.` twins are both checked. Exit code 1 if
-// anything is found. It never writes.
+// anything is found. It never writes. To fix (1), run
+// scripts/backfill-array-types.mjs; to fix (4), unset the values in an
+// idempotent script after a backup.
 
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Schema } from '@sanity/schema';
+import { loadSchemaTypes } from './lib/load-schema.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const SYSTEM_KEYS = new Set([
   '_id',
@@ -89,13 +96,13 @@ export function checkValue(value, type, path, out = []) {
     value.forEach((item, i) => {
       const at = `${path}[${i}]`;
       if (item && typeof item === 'object' && !Array.isArray(item)) {
+        if (!item._key) out.push(`${at}  item has no _key`);
         if (!item._type) {
           if (objectMembers.length) {
             out.push(`${at}  item has no _type (a list of ${[...allowed.keys()].join(' / ')})`);
           }
           return;
         }
-        if (!item._key) out.push(`${at}  item has no _key`);
         const member = allowed.get(item._type);
         if (!member) {
           out.push(
@@ -158,12 +165,11 @@ export function checkValue(value, type, path, out = []) {
 }
 
 async function main() {
-  const { schemaTypes } = await import(
-    new URL('../src/sanity/schemaTypes/index.ts', import.meta.url).href
-  );
-  const { client } = await import('./lib/sanity-lib.mjs');
+  const schemaTypes = await loadSchemaTypes(ROOT);
+  const { client, projectId, dataset } = await import('./lib/sanity-lib.mjs');
   const schema = Schema.compile({ name: 'default', types: schemaTypes });
 
+  console.log(`Auditing ${projectId}/${dataset} against the compiled schema (read only).\n`);
   const docs = await client.fetch(
     `*[!(_type match "sanity.*") && !(_type match "system.*") && !(_type match "media.*")]`,
   );
@@ -194,4 +200,3 @@ async function main() {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   await main();
 }
-void here;

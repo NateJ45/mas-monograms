@@ -12,11 +12,16 @@
 //
 // Prereqs in .env: PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET (optional,
 // defaults to "production"), SANITY_API_WRITE_TOKEN (Editor+).
+//
+// Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
+//   node scripts/cleanup-testimonials-stats.mjs                                   # prints the plan
+//   NCS_PRODUCTION_WRITE=yes node scripts/cleanup-testimonials-stats.mjs --apply  # writes (Nathan only)
 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@sanity/client';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -25,6 +30,7 @@ const env = loadEnv(root);
 const projectId = (env.PUBLIC_SANITY_PROJECT_ID || '').trim();
 const dataset = (env.PUBLIC_SANITY_DATASET || 'production').trim().toLowerCase();
 const token = (env.SANITY_API_WRITE_TOKEN || '').trim();
+const APPLY = writeGate({ dataset });
 
 if (!projectId || !token) {
   console.error('✖ Missing PUBLIC_SANITY_PROJECT_ID or SANITY_API_WRITE_TOKEN in .env');
@@ -37,6 +43,7 @@ const client = createClient({
   apiVersion: (env.PUBLIC_SANITY_API_VERSION || '2024-01-01').trim(),
   token,
   useCdn: false,
+  ...apiHostOption(env),
 });
 
 const STATS_TESTIMONIAL_FIELDS = [
@@ -83,6 +90,11 @@ const run = async () => {
 
   if (ops === 0) {
     console.log('\n✔ Nothing to do — dataset already clean.');
+    return;
+  }
+
+  if (!APPLY) {
+    console.log(`\nDRY RUN: ${ops} operation(s) planned above. Re-run with --apply to write.`);
     return;
   }
 

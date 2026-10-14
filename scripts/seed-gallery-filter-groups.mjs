@@ -23,11 +23,16 @@
 // Prerequisites:
 //   - PUBLIC_SANITY_PROJECT_ID in .env
 //   - SANITY_API_WRITE_TOKEN in .env (Editor permission or higher)
+//
+// Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
+//   node scripts/seed-gallery-filter-groups.mjs                                   # prints the plan
+//   NCS_PRODUCTION_WRITE=yes node scripts/seed-gallery-filter-groups.mjs --apply  # writes (Nathan only)
 
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@sanity/client';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -36,6 +41,7 @@ const env = loadEnv(root);
 const projectId = env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = env.PUBLIC_SANITY_DATASET ?? 'production';
 const token = env.SANITY_API_WRITE_TOKEN;
+const APPLY = writeGate({ dataset });
 
 if (!projectId) {
   console.error('PUBLIC_SANITY_PROJECT_ID is not set. Configure your .env and re-run.');
@@ -52,6 +58,7 @@ const client = createClient({
   token,
   apiVersion: '2026-05-01',
   useCdn: false,
+  ...apiHostOption(env),
 });
 
 // The duplicate tag to merge: accented → canonical.
@@ -153,6 +160,10 @@ const filterGroups = [
 ];
 
 async function setFilterGroups() {
+  if (!APPLY) {
+    console.log(`Would set styleGalleryPage.filterGroups (${filterGroups.length} groups).`);
+    return;
+  }
   await client.patch('styleGalleryPage').set({ filterGroups }).commit();
   console.log(`Set styleGalleryPage.filterGroups (${filterGroups.length} groups).`);
 }
@@ -165,6 +176,11 @@ async function mergeDuplicateTag() {
 
   if (affected.length === 0) {
     console.log(`No galleryItem carries "${DUP_FROM}" — nothing to merge.`);
+    return;
+  }
+
+  if (!APPLY) {
+    for (const item of affected) console.log(`Would rewrite "${DUP_FROM}" on ${item._id}`);
     return;
   }
 
@@ -184,7 +200,7 @@ async function mergeDuplicateTag() {
 async function main() {
   await setFilterGroups();
   await mergeDuplicateTag();
-  console.log('Done.');
+  console.log(APPLY ? 'Done.' : 'DRY RUN: nothing written. Re-run with --apply to write.');
 }
 
 main().catch((err) => {

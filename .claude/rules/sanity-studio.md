@@ -72,7 +72,7 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
     non-string preview titles, stored keys the schema does not declare, required fields blank in live data,
     and banned words (em-dash, `<em>`, slug, schema, field, document, URL, CTA...). Must print "Studio is
     clean." after any schema change.
-  - **`npm run audit:data`** (`scripts/audit-data-vs-schema.mjs`, read-only, runs under tsx): every stored
+  - **`npm run audit:data`** (`scripts/audit-data-vs-schema.mjs`, read-only, plain Node via `scripts/lib/load-schema.mjs`; the starter's `PORTABLE` copy since 2026-10-13, card 95, so `tsx` is gone): every stored
     value against the REAL compiled schema (`@sanity/schema`, so it sees what the Studio sees). Catches an
     array item with no `_type` or one the array does not allow (the Studio shows "Item of type object not
     valid for this list", 2026-10-05, footer links), items with no `_key`, stored keys the schema does not
@@ -216,7 +216,10 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
   and add the new field to the GROQ projection in `src/lib/queries.ts` or the page will not see it.
 - Any new seed or patch script should import `scripts/lib/sanity-lib.mjs` rather
   than build its own client: it brings a **dry-run-by-default** gate (`--apply`
-  to actually write), Portable Text builders, and an idempotent asset uploader.
+  to actually write) with the production second factor (`NCS_PRODUCTION_WRITE=yes`),
+  Portable Text builders, and an idempotent asset uploader. The older scripts with
+  their own client use `scripts/lib/write-gate.mjs` for the same gate. The rules for
+  every write are in `.claude/rules/data-scripts.md`.
 
 ## Gotchas (Sanity)
 
