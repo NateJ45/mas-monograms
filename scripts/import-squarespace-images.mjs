@@ -27,7 +27,7 @@
 // Usage (dry run by default since 2026-10-13, scripts/lib/write-gate.mjs,
 // starter PORTS.md card 86; --dry-run is still accepted and changes nothing):
 //   node scripts/import-squarespace-images.mjs                                   # validate only, no writes
-//   NCS_PRODUCTION_WRITE=yes node scripts/import-squarespace-images.mjs --apply  # actually import (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/import-squarespace-images.mjs --apply  # actually import (backup + dry run first)
 
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';

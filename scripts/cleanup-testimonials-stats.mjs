@@ -15,7 +15,7 @@
 //
 // Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
 //   node scripts/cleanup-testimonials-stats.mjs                                   # prints the plan
-//   NCS_PRODUCTION_WRITE=yes node scripts/cleanup-testimonials-stats.mjs --apply  # writes (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/cleanup-testimonials-stats.mjs --apply  # writes (backup + dry run first)
 
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

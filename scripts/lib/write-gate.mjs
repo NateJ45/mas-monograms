@@ -15,8 +15,9 @@
 // NCS_PRODUCTION_WRITE is read from the REAL process environment, captured the
 // moment this module is imported. Imports run before the importing script's own
 // body, so a script that copies .env into process.env (a few of the old ones did)
-// cannot open the guard by having the variable in .env. Only Nathan sets it, in
-// person; a delegated agent never does. Test the guard against
+// cannot open the guard by having the variable in .env. Nathan or a delegated
+// agent sets it, only under the write protocol (backup, dry run, apply, verify).
+// Test the guard against
 // SANITY_API_HOST=https://example.invalid (write-gate.test.mjs), never production.
 
 const STARTUP_PRODUCTION_WRITE = process.env.NCS_PRODUCTION_WRITE;
@@ -37,8 +38,8 @@ export function productionWriteRefusal({ apply, dataset, processEnv }) {
   if (processEnv?.NCS_PRODUCTION_WRITE === 'yes') return null;
   return [
     'Refusing to write: --apply targets the production dataset, and --apply alone is not enough.',
-    'Set NCS_PRODUCTION_WRITE=yes in the same command, and only with Nathan present',
-    '(bash: NCS_PRODUCTION_WRITE=yes node <script> --apply). A delegated agent never sets it.',
+    'Set NCS_PRODUCTION_WRITE=yes in the same command, after a backup and a dry run',
+    '(bash: NCS_PRODUCTION_WRITE=yes node <script> --apply). A delegated agent may set it only under the write protocol (backup, dry run, apply, verify).',
     'Run without --apply to see the plan. PORTS.md card 86.',
   ].join('\n');
 }

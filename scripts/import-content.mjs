@@ -8,7 +8,7 @@
 // since 2026-10-13 (scripts/lib/write-gate.mjs, starter PORTS.md card 86): a bare
 // run only writes the local NDJSON and prints the import it would run.
 //   node scripts/import-content.mjs                                   # NDJSON + plan
-//   NCS_PRODUCTION_WRITE=yes node scripts/import-content.mjs --apply  # imports (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/import-content.mjs --apply  # imports (backup + dry run first)
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';

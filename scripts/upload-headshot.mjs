@@ -2,7 +2,7 @@
 // the About page (makerPhoto) + homepage meet-the-maker slot (aboutPhoto).
 // Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
 //   node scripts/upload-headshot.mjs                                   # prints the plan
-//   NCS_PRODUCTION_WRITE=yes node scripts/upload-headshot.mjs --apply  # uploads + writes (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/upload-headshot.mjs --apply  # uploads + writes (backup + dry run first)
 import { createClient } from '@sanity/client';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';

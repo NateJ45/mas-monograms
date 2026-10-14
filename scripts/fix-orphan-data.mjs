@@ -16,7 +16,7 @@
 // Unsetting deletes data: back up first. Dry run by default
 // (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
 //   node scripts/fix-orphan-data.mjs                                   # prints the plan
-//   NCS_PRODUCTION_WRITE=yes node scripts/fix-orphan-data.mjs --apply  # writes (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/fix-orphan-data.mjs --apply  # writes (backup + dry run first)
 
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
