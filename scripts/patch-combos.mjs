@@ -2,7 +2,7 @@
 // combinations so each recipe card shows a distinct specimen + colour.
 // Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
 //   node scripts/patch-combos.mjs                                   # prints the plan
-//   NCS_PRODUCTION_WRITE=yes node scripts/patch-combos.mjs --apply  # writes (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/patch-combos.mjs --apply  # writes (backup + dry run first)
 import { createClient } from '@sanity/client';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';

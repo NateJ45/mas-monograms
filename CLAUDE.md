@@ -159,7 +159,7 @@ The numbered gotchas keep their original numbers because code comments cite them
 - `.claude/rules/sanity-studio.md`: query pattern, Studio notes, atelierSettings and seed scripts, gotchas 1, 7, 8
 - `.claude/rules/dependencies-and-deploy.md`: matched version set and pins, gotchas 9, 10, 11 (read before ANY dependency or deploy change)
 - `.claude/rules/ci-and-scripts.md`: workflows, scripts, parity, gotchas 2, 3, 5, 6
-- `.claude/rules/data-scripts.md`: every Sanity write is dry by default and needs `--apply` plus `NCS_PRODUCTION_WRITE=yes` (Nathan only); the backtick rule; test guards against `https://example.invalid`
+- `.claude/rules/data-scripts.md`: every Sanity write is dry by default and needs `--apply` plus `NCS_PRODUCTION_WRITE=yes` (backup + dry run first); the backtick rule; test guards against `https://example.invalid`
 
 - **`PRODUCT.md`** (audience, purpose, tone, anti-references; the customer and reference-site answers are proposed by Claude from repo evidence, unconfirmed by Nathan) and **`DESIGN.md`** (the visual system as built, Direction D) sit at the repo root. Read them before any design work and update them in the same change when the system moves.
 - **`docs/PENDING.md`** — the authoritative registry of open patches and

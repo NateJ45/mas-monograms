@@ -5,7 +5,7 @@
 // createOrReplace OVERWRITES Mary Ann's edits to these pages: fresh datasets only.
 // Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
 //   node scripts/seed-legal.mjs                                   # prints the plan
-//   NCS_PRODUCTION_WRITE=yes node scripts/seed-legal.mjs --apply  # writes (Nathan only)
+//   NCS_PRODUCTION_WRITE=yes node scripts/seed-legal.mjs --apply  # writes (backup + dry run first)
 import { createClient } from '@sanity/client';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
