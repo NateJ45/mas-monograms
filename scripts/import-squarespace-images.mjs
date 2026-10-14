@@ -24,15 +24,17 @@
 // this one-time migration script; not worth an existence-check for a script
 // run 0-2 times.
 //
-// Usage:
-//   node scripts/import-squarespace-images.mjs --dry-run   # validate only, no writes
-//   node scripts/import-squarespace-images.mjs             # actually import
+// Usage (dry run by default since 2026-10-13, scripts/lib/write-gate.mjs,
+// starter PORTS.md card 86; --dry-run is still accepted and changes nothing):
+//   node scripts/import-squarespace-images.mjs                                   # validate only, no writes
+//   NCS_PRODUCTION_WRITE=yes node scripts/import-squarespace-images.mjs --apply  # actually import (Nathan only)
 
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@sanity/client';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 import {
   galleryItemId,
   fontId,
@@ -47,12 +49,11 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const manifestPath = resolve(root, 'tmp/image-manifest.json');
-const dryRun = process.argv.includes('--dry-run');
-
 const env = loadEnv(root);
 const projectId = env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = env.PUBLIC_SANITY_DATASET ?? 'production';
 const token = env.SANITY_API_WRITE_TOKEN;
+const dryRun = !writeGate({ dataset }) || process.argv.includes('--dry-run');
 
 if (!projectId) {
   console.error('PUBLIC_SANITY_PROJECT_ID is not set. Configure your .env and re-run.');
@@ -181,6 +182,7 @@ const client = createClient({
   token,
   apiVersion: '2026-05-01',
   useCdn: false,
+  ...apiHostOption(env),
 });
 
 async function main() {
@@ -203,7 +205,9 @@ async function main() {
   }
 
   if (dryRun) {
-    console.log('\n--dry-run: validation passed, no writes performed.');
+    console.log(
+      '\nDRY RUN: validation passed, no writes performed. Re-run with --apply to import.',
+    );
     return;
   }
 

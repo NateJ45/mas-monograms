@@ -1,28 +1,38 @@
 // One-off: pull Mary Ann's headshot from the old Squarespace site and set it on
 // the About page (makerPhoto) + homepage meet-the-maker slot (aboutPhoto).
-// Run: node scripts/upload-headshot.mjs
+// Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
+//   node scripts/upload-headshot.mjs                                   # prints the plan
+//   NCS_PRODUCTION_WRITE=yes node scripts/upload-headshot.mjs --apply  # uploads + writes (Nathan only)
 import { createClient } from '@sanity/client';
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
-const envPath = join(dirname(fileURLToPath(import.meta.url)), '..', '.env');
-for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-  if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
-}
-
-const client = createClient({
-  projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.PUBLIC_SANITY_DATASET,
-  apiVersion: process.env.PUBLIC_SANITY_API_VERSION || '2024-01-01',
-  token: process.env.SANITY_API_WRITE_TOKEN,
-  useCdn: false,
-});
+const env = loadEnv(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
+const dataset = env.PUBLIC_SANITY_DATASET || 'production';
+const APPLY = writeGate({ dataset });
 
 const SRC =
   'https://images.squarespace-cdn.com/content/v1/69933a78a7a73e7be295c7e1/f21fb1fe-48a2-447d-9f73-637137ec5814/Mary+Ann+Stone_JPG.jpg';
 const ALT = 'Mary Ann Stone, founder of MAS Monograms';
+
+if (!APPLY) {
+  console.log(`Would download ${SRC}`);
+  console.log(
+    'Would upload it as mary-ann-stone.jpg and set aboutPage.makerPhoto + homePage.aboutPhoto.',
+  );
+  process.exit(0);
+}
+
+const client = createClient({
+  projectId: env.PUBLIC_SANITY_PROJECT_ID,
+  dataset,
+  apiVersion: env.PUBLIC_SANITY_API_VERSION || '2024-01-01',
+  token: env.SANITY_API_WRITE_TOKEN,
+  useCdn: false,
+  ...apiHostOption(env),
+});
 
 const resp = await fetch(SRC, { headers: { 'User-Agent': 'Mozilla/5.0' } });
 if (!resp.ok) throw new Error(`Download failed: ${resp.status}`);

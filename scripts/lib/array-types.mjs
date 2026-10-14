@@ -1,6 +1,9 @@
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
 // scripts/lib/array-types.mjs
 //
 // Shared by scripts/audit-data-vs-schema.mjs and scripts/backfill-array-types.mjs.
+// Ported from mas-monograms (2026-10-05) into the starter on 2026-10-13, PORTS.md
+// card 95.
 //
 // An array item stored without `_type` is something the Studio cannot open when
 // the array allows more than one kind of item ("Item of type object not valid

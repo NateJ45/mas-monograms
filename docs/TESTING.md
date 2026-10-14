@@ -23,9 +23,19 @@ of this file is that nobody writes a fourth check that duplicates the second.
 ## The data audit (`npm run audit:data`, not a CI gate)
 
 `scripts/audit-data-vs-schema.mjs` checks every stored value against the compiled schema (needs the `.env`
-token; run through tsx). It exists because array items stored without `_type` made the footer link lists
-unopenable in the Studio on 2026-10-05, and nothing else could see that. Must end "Data matches the schema."
-after any seed script, import or schema change. The pure helpers have unit tests (`scripts/lib/array-types.test.mjs`).
+token; plain Node, no tsx: `scripts/lib/load-schema.mjs` loads the TypeScript schema). It exists because array
+items stored without `_type` made the footer link lists unopenable in the Studio on 2026-10-05, and nothing else
+could see that. Must end "Data matches the schema." after any seed script, import or schema change. Since
+2026-10-13 the audit, `backfill-array-types.mjs` and their libs are the starter's `PORTABLE` copies (PORTS.md
+card 95). The helpers have unit tests (`scripts/lib/array-types.test.mjs`, `scripts/lib/load-schema.test.mjs`).
+Last run 2026-10-13: 168 documents, "Data matches the schema."
+
+## The write gate (`scripts/lib/write-gate.test.mjs`, in `npm run test:unit`)
+
+Every script that builds its own Sanity client is dry by default and needs `--apply` plus
+`NCS_PRODUCTION_WRITE=yes` to write (`.claude/rules/data-scripts.md`). The test runs each one with `--apply`
+and no variable against a fake project and `SANITY_API_HOST=https://example.invalid`, and expects exit 2
+before any request; it never touches production. A new own-client write script goes in its `GATED` list.
 
 ## The Studio audit (`npm run audit:studio`, not a CI gate)
 

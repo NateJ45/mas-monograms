@@ -13,11 +13,18 @@
 //
 // Module types (service modules, etc.) have their own per-module seed.mjs.
 // Run ONLY this file for the core pages.
+//
+// MAS: never run this against the live dataset. It is the leftover starter seed
+// and would inject placeholder service/journalEntry documents
+// (.claude/rules/sanity-studio.md). Dry run by default since 2026-10-13
+// (scripts/lib/write-gate.mjs, starter PORTS.md card 86); a write needs
+// --apply AND NCS_PRODUCTION_WRITE=yes.
 
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@sanity/client';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -26,6 +33,7 @@ const env = loadEnv(root);
 const projectId = env.PUBLIC_SANITY_PROJECT_ID;
 const dataset = env.PUBLIC_SANITY_DATASET ?? 'production';
 const token = env.SANITY_API_WRITE_TOKEN;
+const APPLY = writeGate({ dataset });
 
 if (!projectId) {
   console.log('PUBLIC_SANITY_PROJECT_ID is not set. Configure your .env and re-run.');
@@ -42,6 +50,7 @@ const client = createClient({
   token,
   apiVersion: '2026-05-01',
   useCdn: false,
+  ...apiHostOption(env),
 });
 
 // ── Helper: portable-text paragraph block ────────────────────────────────
@@ -1537,6 +1546,11 @@ docs.push({
 // ── Seed all documents ────────────────────────────────────────────────────
 
 async function seed() {
+  if (!APPLY) {
+    for (const doc of docs) console.log(`  would createOrReplace  ${doc._type}  ${doc._id}`);
+    console.log(`\nDRY RUN: ${docs.length} document(s). Re-run with --apply to write.`);
+    return;
+  }
   console.log(`Seeding ${docs.length} documents to ${projectId}/${dataset}...`);
 
   let created = 0;

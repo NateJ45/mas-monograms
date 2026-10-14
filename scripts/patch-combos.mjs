@@ -1,23 +1,17 @@
 // One-off: attach real font + thread-color references to the seeded popular
 // combinations so each recipe card shows a distinct specimen + colour.
-// Run: node scripts/patch-combos.mjs
+// Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
+//   node scripts/patch-combos.mjs                                   # prints the plan
+//   NCS_PRODUCTION_WRITE=yes node scripts/patch-combos.mjs --apply  # writes (Nathan only)
 import { createClient } from '@sanity/client';
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
-const envPath = join(dirname(fileURLToPath(import.meta.url)), '..', '.env');
-for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-  if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
-}
-const client = createClient({
-  projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.PUBLIC_SANITY_DATASET,
-  apiVersion: '2024-01-01',
-  token: process.env.SANITY_API_WRITE_TOKEN,
-  useCdn: false,
-});
+const env = loadEnv(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
+const dataset = env.PUBLIC_SANITY_DATASET || 'production';
+const APPLY = writeGate({ dataset });
 
 const ref = (id) => ({ _type: 'reference', _ref: id });
 const combos = [
@@ -41,6 +35,20 @@ const combos = [
     description: 'Vine Heirloom font · three-letter monogram · great for sweatshirts.',
   },
 ];
+
+if (!APPLY) {
+  for (const c of combos) console.log('would patch', c._id, '→', c.font, '+', c.thread);
+  process.exit(0);
+}
+
+const client = createClient({
+  projectId: env.PUBLIC_SANITY_PROJECT_ID,
+  dataset,
+  apiVersion: '2024-01-01',
+  token: env.SANITY_API_WRITE_TOKEN,
+  useCdn: false,
+  ...apiHostOption(env),
+});
 
 for (const c of combos) {
   const res = await client

@@ -2,23 +2,27 @@
 // sensible STARTER content. Re-runnable (deterministic ids via createOrReplace).
 // The wording is a reasonable first draft — the owner should review it (and,
 // for anything legally binding, have a professional look it over).
-// Run: node scripts/seed-legal.mjs
+// createOrReplace OVERWRITES Mary Ann's edits to these pages: fresh datasets only.
+// Dry run by default (scripts/lib/write-gate.mjs, starter PORTS.md card 86):
+//   node scripts/seed-legal.mjs                                   # prints the plan
+//   NCS_PRODUCTION_WRITE=yes node scripts/seed-legal.mjs --apply  # writes (Nathan only)
 import { createClient } from '@sanity/client';
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { loadEnv } from './lib/loadEnv.mjs';
+import { writeGate, apiHostOption } from './lib/write-gate.mjs';
 
-const envPath = join(dirname(fileURLToPath(import.meta.url)), '..', '.env');
-for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
-  if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
-}
+const env = loadEnv(resolve(dirname(fileURLToPath(import.meta.url)), '..'));
+const dataset = env.PUBLIC_SANITY_DATASET || 'production';
+const APPLY = writeGate({ dataset });
+
 const client = createClient({
-  projectId: process.env.PUBLIC_SANITY_PROJECT_ID,
-  dataset: process.env.PUBLIC_SANITY_DATASET,
+  projectId: env.PUBLIC_SANITY_PROJECT_ID,
+  dataset,
   apiVersion: '2024-01-01',
-  token: process.env.SANITY_API_WRITE_TOKEN,
+  token: env.SANITY_API_WRITE_TOKEN,
   useCdn: false,
+  ...apiHostOption(env),
 });
 
 const settings = await client.fetch(`*[_type=="siteSettings"][0]{ email, title }`);
@@ -168,6 +172,10 @@ const accessibility = {
 };
 
 for (const doc of [privacy, terms, accessibility]) {
+  if (!APPLY) {
+    console.log('would createOrReplace', doc._id, '→ /legal/' + doc.slug.current);
+    continue;
+  }
   const res = await client.createOrReplace(doc);
   console.log('seeded', res._id, '→ /legal/' + doc.slug.current);
 }
