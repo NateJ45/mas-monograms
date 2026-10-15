@@ -106,7 +106,7 @@ Read during `npm run build`. Required for the site to pull content:
 not) and GA4 only when `PUBLIC_GA_ID` matches `G-[A-Z0-9]+`. `PUBLIC_GA_ID` is set to `G-JTX5TMPVQ0`
 (GA4 property 557338771, in the Nixon Creative Studio account) as a **build** variable in Cloudflare
 Workers Builds; it is inlined at build time, so a runtime variable does nothing. GA4 fires only on
-`mas-monograms.com` and `www.`, so localhost and `*.workers.dev` never file hits. GA4 sets `_ga`
+`mas-monograms.com` and `www.`, so localhost and `*.workers.dev` never file hits. It also skips automated browsers (WebDriver, Lighthouse, PageSpeed, GTmetrix; starter PORTS card 96), so our own test sweeps never count as visitors. GA4 sets `_ga`
 cookies, and the Privacy page in Sanity (`legalPage` "privacy", mirrored in `scripts/seed-legal.mjs`)
 says so; if GA4 is ever removed, change that sentence back. The id is deliberately not in `ci.yml`
 (starter PORTS card 54). To check it is alive, look for the id in the live home page HTML. Search
