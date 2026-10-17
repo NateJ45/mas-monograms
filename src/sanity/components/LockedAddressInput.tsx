@@ -28,7 +28,7 @@
 import type { ObjectInputProps } from 'sanity';
 import { useEditState, useFormValue } from 'sanity';
 import { Card, Stack, Text } from '@sanity/ui';
-import { LockIcon } from '@sanity/icons';
+import { LockIcon } from '@sanity/icons/Lock';
 import { pathForDoc } from '../urls';
 
 export const LOCKED_NOTE =
@@ -48,7 +48,7 @@ export function LockedAddressInput(props: ObjectInputProps) {
 
   return (
     <Card padding={4} radius={3} border tone="transparent">
-      <Stack space={4}>
+      <Stack gap={4}>
         <Text size={3} weight="semibold">
           <LockIcon style={{ marginRight: 8 }} />
           {address}

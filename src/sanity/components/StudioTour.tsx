@@ -131,7 +131,7 @@ export function StudioTour() {
       }
     >
       <Box padding={5}>
-        <Stack space={5}>
+        <Stack gap={5}>
           <Flex align="center" gap={3}>
             <span
               aria-hidden

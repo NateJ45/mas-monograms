@@ -129,7 +129,7 @@ async function svgToPng(svg: string): Promise<Blob> {
 
 function StepHeading({ n, children }: { n: number; children: ReactNode }) {
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Text size={1} weight="semibold" style={{ color: HEIRLOOM.taupe, letterSpacing: 0.3 }}>
         {fill(QR_COPY.stepNumber, { n })}
       </Text>
@@ -200,7 +200,7 @@ function Choice({
         >
           {selected ? '✓' : ''}
         </span>
-        <Stack space={3} style={{ flex: 1 }}>
+        <Stack gap={3} style={{ flex: 1 }}>
           <Text size={3} weight="semibold" style={{ color: HEIRLOOM.ink }}>
             {title}
           </Text>
@@ -221,7 +221,7 @@ function MissingChoice({ title, platform }: { title: string; platform: string })
   const link = linkTo(SOCIAL_FIELD);
   return (
     <Card padding={4} radius={3} style={{ border: `2px dashed ${HEIRLOOM.taupe}`, minHeight: 72 }}>
-      <Stack space={3}>
+      <Stack gap={3}>
         <Text size={3} weight="semibold" style={{ color: HEIRLOOM.taupe }}>
           {title}
         </Text>
@@ -252,7 +252,7 @@ function BigButton(props: {
   disabled?: boolean;
 }) {
   return (
-    <Stack space={2}>
+    <Stack gap={2}>
       <Button
         text={props.text}
         tone={props.tone ?? 'default'}
@@ -412,9 +412,9 @@ export function QrCodeTool() {
 
   return (
     <Box padding={[4, 4, 5]} style={{ height: '100%', overflow: 'auto' }}>
-      <Stack space={6} style={{ maxWidth: 960, margin: '0 auto', paddingBottom: 64 }}>
+      <Stack gap={6} style={{ maxWidth: 960, margin: '0 auto', paddingBottom: 64 }}>
         {/* ── Hello ─────────────────────────────────────────────────── */}
-        <Stack space={4}>
+        <Stack gap={4}>
           <ToolHeading emoji="🔳">{QR_COPY.heading}</ToolHeading>
           <Text size={3} style={{ lineHeight: 1.6 }}>
             {QR_COPY.intro}
@@ -427,9 +427,9 @@ export function QrCodeTool() {
         </Stack>
 
         {/* ── Step 1 ────────────────────────────────────────────────── */}
-        <Stack space={4}>
+        <Stack gap={4}>
           <StepHeading n={1}>{QR_COPY.step1}</StepHeading>
-          <Grid columns={[1, 1, 2]} gap={3}>
+          <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
             {DESTINATION_IDS.map((id) => {
               const copy = QR_COPY.destinations[id];
               const platform = PLATFORM[id];
@@ -458,8 +458,8 @@ export function QrCodeTool() {
                   {QR_COPY.review.fromDetails}
                 </Text>
               ) : (
-                <Stack space={4}>
-                  <Stack space={3}>
+                <Stack gap={4}>
+                  <Stack gap={3}>
                     <label htmlFor="qr-review-link">
                       <Text size={3} weight="semibold">
                         {QR_COPY.review.pasteLabel}
@@ -489,7 +489,7 @@ export function QrCodeTool() {
                     </Text>
                   </Stack>
                   <Card padding={4} radius={3} tone="caution" border>
-                    <Stack space={3}>
+                    <Stack gap={3}>
                       <Text size={2} weight="semibold">
                         {QR_COPY.review.howTitle}
                       </Text>
@@ -535,9 +535,9 @@ export function QrCodeTool() {
         {/* ── Step 2 ────────────────────────────────────────────────── */}
         {canGoOn && (
           <div ref={step2} style={{ scrollMarginTop: 16 }}>
-            <Stack space={4}>
+            <Stack gap={4}>
               <StepHeading n={2}>{QR_COPY.step2}</StepHeading>
-              <Grid columns={[1, 1, 2]} gap={3}>
+              <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
                 {PLACEMENT_IDS.map((id) => (
                   <Choice
                     key={id}
@@ -555,12 +555,12 @@ export function QrCodeTool() {
         {/* ── Step 3 ────────────────────────────────────────────────── */}
         {canGoOn && placement && made && (
           <div ref={step3} style={{ scrollMarginTop: 16 }}>
-            <Stack space={5}>
+            <Stack gap={5}>
               <StepHeading n={3}>{QR_COPY.step3}</StepHeading>
 
-              <Grid columns={[1, 1, 2]} gap={5}>
+              <Grid gridTemplateColumns={[1, 1, 2]} gap={5}>
                 {/* The code, at a size a phone can read off the screen. */}
-                <Stack space={4}>
+                <Stack gap={4}>
                   <Card
                     padding={3}
                     radius={3}
@@ -575,7 +575,7 @@ export function QrCodeTool() {
                     />
                   </Card>
                   <Card padding={4} radius={3} tone="primary" border>
-                    <Stack space={3}>
+                    <Stack gap={3}>
                       <Text size={3} weight="semibold">
                         {QR_COPY.testTitle}
                       </Text>
@@ -584,7 +584,7 @@ export function QrCodeTool() {
                       </Text>
                     </Stack>
                   </Card>
-                  <Stack space={2}>
+                  <Stack gap={2}>
                     <Text size={2} weight="semibold">
                       {fill(QR_COPY.sizeLine, { size: sizeText(PLACEMENTS[placement]) })}
                     </Text>
@@ -595,8 +595,8 @@ export function QrCodeTool() {
                 </Stack>
 
                 {/* Her options. */}
-                <Stack space={5}>
-                  <Stack space={3}>
+                <Stack gap={5}>
+                  <Stack gap={3}>
                     <label htmlFor="qr-label">
                       <Text size={3} weight="semibold">
                         {QR_COPY.labelBox}
@@ -616,7 +616,7 @@ export function QrCodeTool() {
                   </Stack>
 
                   {made.fit.fits ? (
-                    <Stack space={2}>
+                    <Stack gap={2}>
                       <label
                         htmlFor="qr-seal"
                         style={{
@@ -647,11 +647,11 @@ export function QrCodeTool() {
                     </Text>
                   )}
 
-                  <Stack space={3}>
+                  <Stack gap={3}>
                     <Text size={3} weight="semibold">
                       {QR_COPY.backgroundTitle}
                     </Text>
-                    <Grid columns={1} gap={2}>
+                    <Grid gridTemplateColumns={1} gap={2}>
                       <Choice
                         selected={background === 'white'}
                         title={QR_COPY.backgroundWhite}
@@ -665,7 +665,7 @@ export function QrCodeTool() {
                     </Grid>
                   </Stack>
 
-                  <Stack space={3}>
+                  <Stack gap={3}>
                     <label htmlFor="qr-campaign">
                       <Text size={3} weight="semibold">
                         {QR_COPY.campaignBox}
@@ -687,7 +687,7 @@ export function QrCodeTool() {
               </Grid>
 
               {/* The four buttons. */}
-              <Grid columns={[1, 1, 2]} gap={4}>
+              <Grid gridTemplateColumns={[1, 1, 2]} gap={4}>
                 <BigButton
                   text={QR_COPY.downloadSvg}
                   help={QR_COPY.downloadSvgHelp}
@@ -711,7 +711,7 @@ export function QrCodeTool() {
                 )}
               </div>
 
-              <Stack space={2}>
+              <Stack gap={2}>
                 <Text size={2} weight="semibold">
                   {QR_COPY.linkCaption}
                 </Text>
@@ -721,7 +721,7 @@ export function QrCodeTool() {
               </Stack>
 
               <Card padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-                <Stack space={3}>
+                <Stack gap={3}>
                   <Text size={3} weight="semibold">
                     {QR_COPY.tipsTitle}
                   </Text>

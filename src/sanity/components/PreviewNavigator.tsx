@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useClient } from 'sanity';
 import { usePresentationNavigate, usePresentationParams } from 'sanity/presentation';
 import { Box, Button, Card, Flex, Spinner, Stack, Text } from '@sanity/ui';
-import { LaunchIcon } from '@sanity/icons';
+import { LaunchIcon } from '@sanity/icons/Launch';
 import { SINGLETON_PREVIEW_PATHS } from '../resolve';
 import { startNav, stepNav, type PendingNav } from '../../lib/preview-navigation';
 import { LiveDraftBridge } from './LiveDraftBridge';
@@ -204,7 +204,7 @@ export function PreviewNavigator() {
         />
       )}
       <Box flex={1} padding={3} style={{ overflowY: 'auto' }}>
-        <Stack space={2}>
+        <Stack gap={2}>
           <Text size={1} weight="semibold" muted style={{ textTransform: 'uppercase' }}>
             Website pages
           </Text>
@@ -216,7 +216,7 @@ export function PreviewNavigator() {
               </Text>
             </Flex>
           ) : (
-            <Stack space={1}>
+            <Stack gap={1}>
               {rows.map((r) => {
                 const active = pending
                   ? pending.href === r.href

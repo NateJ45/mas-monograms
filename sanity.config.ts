@@ -49,7 +49,8 @@ import { STUDIO_THEME_PROPS, readableFonts } from './src/sanity/theme';
 import { QrCodeTool, QrIcon } from './src/sanity/components/QrCodeTool';
 import { BrandKitTool } from './src/sanity/components/BrandKitPane';
 import { CheckupTool } from './src/sanity/components/CheckupTool';
-import { ActivityIcon, ColorWheelIcon } from '@sanity/icons';
+import { ActivityIcon } from '@sanity/icons/Activity';
+import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
 
 // =============================================================================
 // Studio theme - "Heirloom Coast" (matches the live site, 2026-07-03)

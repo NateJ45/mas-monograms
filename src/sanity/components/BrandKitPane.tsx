@@ -146,7 +146,7 @@ function DownloadButton({
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <Box id={`brand-kit-${id}`} style={{ scrollMarginTop: 16 }}>
-      <Stack space={4}>
+      <Stack gap={4}>
         <Heading
           as="h2"
           size={3}
@@ -197,7 +197,7 @@ function JumpMenu() {
 function DownloadEverything() {
   return (
     <Card padding={[4, 4, 5]} radius={3} border style={{ background: HEIRLOOM.paper }}>
-      <Stack space={4}>
+      <Stack gap={4}>
         <Text size={3} weight="semibold" style={{ lineHeight: 1.4 }}>
           Everything in one file
         </Text>
@@ -211,11 +211,11 @@ function DownloadEverything() {
             Download everything (one file, {sizeOf(KIT_ZIP)})
           </DownloadButton>
         </Box>
-        <Stack space={3}>
+        <Stack gap={3}>
           <Text size={2} weight="semibold">
             What is in it
           </Text>
-          <Stack as="ul" space={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
+          <Stack as="ul" gap={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
             {ZIP_CONTENTS.map((line) => (
               <Text as="li" size={2} key={line} style={{ lineHeight: 1.5 }}>
                 {line}
@@ -272,7 +272,7 @@ function LogoTile({ logo, way }: { logo: Logo; way: Colorway }) {
           }}
         />
       </Flex>
-      <Stack space={3} padding={4}>
+      <Stack gap={3} padding={4}>
         <Text size={2} style={{ lineHeight: 1.5 }}>
           {way.useWhen}
         </Text>
@@ -283,7 +283,7 @@ function LogoTile({ logo, way }: { logo: Logo; way: Colorway }) {
         >
           {way.button}
         </DownloadButton>
-        <Grid columns={[1, 2]} gap={2}>
+        <Grid gridTemplateColumns={[1, 2]} gap={2}>
           <DownloadButton
             href={small}
             tone="plain"
@@ -368,14 +368,14 @@ function LogoSection() {
         SVG file: it stays sharp at any size.
       </Text>
       {LOGOS.map((logo) => (
-        <Stack key={logo.id} space={3}>
+        <Stack key={logo.id} gap={3}>
           <Text size={3} weight="semibold" style={{ lineHeight: 1.4 }}>
             {logo.name}
           </Text>
           <Text size={2} muted style={{ lineHeight: 1.5 }}>
             {logo.useWhen}
           </Text>
-          <Grid columns={[1, 1, 2]} gap={3}>
+          <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
             {COLORWAYS.map((way) => (
               <LogoTile key={way.id} logo={logo} way={way} />
             ))}
@@ -385,7 +385,7 @@ function LogoSection() {
       <Card padding={4} radius={3} border tone="caution">
         <Flex gap={4} wrap="wrap" align="flex-start">
           <ClearSpaceDiagram />
-          <Stack space={3} style={{ flex: '1 1 280px' }}>
+          <Stack gap={3} style={{ flex: '1 1 280px' }}>
             <Text size={3} weight="semibold">
               Using my logo
             </Text>
@@ -397,7 +397,7 @@ function LogoSection() {
                 {r}
               </Text>
             ))}
-            <Stack as="ul" space={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
+            <Stack as="ul" gap={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
               {LOGO_RULES.doNot.map((r) => (
                 <Text as="li" size={2} key={r} style={{ lineHeight: 1.5 }}>
                   {r}
@@ -436,7 +436,7 @@ function ImageTile({ image }: { image: (typeof KIT_IMAGES)[number] }) {
           }}
         />
       </Flex>
-      <Stack space={3} padding={4}>
+      <Stack gap={3} padding={4}>
         <Text size={3} weight="semibold" style={{ lineHeight: 1.4 }}>
           {image.title}
         </Text>
@@ -466,11 +466,11 @@ function PicturesSection() {
         or app asks for a picture.
       </Text>
       {IMAGE_GROUPS.map((g) => (
-        <Stack key={g.id} space={3}>
+        <Stack key={g.id} gap={3}>
           <Text size={3} weight="semibold">
             {g.title}
           </Text>
-          <Grid columns={[1, 1, 2, 3]} gap={3}>
+          <Grid gridTemplateColumns={[1, 1, 2, 3]} gap={3}>
             {KIT_IMAGES.filter((i) => i.group === g.id).map((i) => (
               <ImageTile key={i.id} image={i} />
             ))}
@@ -484,7 +484,7 @@ function PicturesSection() {
 function PrintSection() {
   return (
     <Section id="print" title="Ready to print">
-      <Grid columns={[1, 1, 3]} gap={3}>
+      <Grid gridTemplateColumns={[1, 1, 3]} gap={3}>
         {KIT_PRINTS.map((p) => (
           <Card
             key={p.id}
@@ -506,7 +506,7 @@ function PrintSection() {
                 }}
               />
             </Flex>
-            <Stack space={3} padding={4}>
+            <Stack gap={3} padding={4}>
               <Text size={3} weight="semibold" style={{ lineHeight: 1.4 }}>
                 {p.title}
               </Text>
@@ -625,7 +625,7 @@ function ColorsSection() {
       <div aria-live="polite" style={{ position: 'absolute', left: -9999 }}>
         {copied ? 'Copied' : ''}
       </div>
-      <Grid columns={[1, 1, 2]} gap={3}>
+      <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
         {BRAND_COLORS.map((c) => (
           <Card
             key={c.id}
@@ -641,9 +641,9 @@ function ColorsSection() {
                 borderBottom: `1px solid ${HEIRLOOM.taupe}33`,
               }}
             />
-            <Stack space={3} padding={4}>
+            <Stack gap={3} padding={4}>
               <Flex align="center" justify="space-between" gap={3} wrap="wrap">
-                <Stack space={2}>
+                <Stack gap={2}>
                   <Text size={3} weight="semibold">
                     {c.name}
                   </Text>
@@ -670,7 +670,7 @@ function ColorsSection() {
         ))}
         <Card radius={3} border style={{ overflow: 'hidden', background: HEIRLOOM.paper }}>
           <div aria-hidden style={{ background: gradient, height: 96 }} />
-          <Stack space={3} padding={4}>
+          <Stack gap={3} padding={4}>
             <Text size={3} weight="semibold">
               {GOLD_THREAD.name}
             </Text>
@@ -684,11 +684,11 @@ function ColorsSection() {
         </Card>
       </Grid>
 
-      <Stack space={3}>
+      <Stack gap={3}>
         <Text size={3} weight="semibold">
           Which words are easy to read on which color
         </Text>
-        <Grid columns={[1, 1, 2]} gap={3}>
+        <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
           {COLOR_PAIRS.map((p) => (
             <Card key={`${p.text}-${p.ground}`} radius={3} border style={{ overflow: 'hidden' }}>
               <Flex
@@ -721,11 +721,11 @@ function FontsSection() {
       <Text size={2} style={{ lineHeight: 1.6 }}>
         {FONT_LICENSE_NOTE}
       </Text>
-      <Stack space={3}>
+      <Stack gap={3}>
         {BRAND_FONTS.map((f) => (
           <Card key={f.id} padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-            <Stack space={4}>
-              <Stack space={2}>
+            <Stack gap={4}>
+              <Stack gap={2}>
                 <Text size={3} weight="semibold">
                   {f.name}: {f.role}
                 </Text>
@@ -785,14 +785,14 @@ function FontsSection() {
       <Text size={3} weight="semibold">
         How to install the fonts
       </Text>
-      <Grid columns={[1, 1, 2]} gap={3}>
+      <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
         {INSTALL_STEPS.map((s) => (
           <Card key={s.id} padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-            <Stack space={3}>
+            <Stack gap={3}>
               <Text size={3} weight="semibold">
                 {s.title}
               </Text>
-              <Stack as="ol" space={3} style={{ margin: 0, paddingLeft: '1.4rem' }}>
+              <Stack as="ol" gap={3} style={{ margin: 0, paddingLeft: '1.4rem' }}>
                 {s.steps.map((step) => (
                   <Text as="li" size={2} key={step} style={{ lineHeight: 1.5 }}>
                     {step}
@@ -819,8 +819,8 @@ function VoiceSection() {
   return (
     <Section id="voice" title="How I sound">
       <Card padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-        <Stack space={4}>
-          <Stack space={2}>
+        <Stack gap={4}>
+          <Stack gap={2}>
             <Text size={2} weight="semibold" muted>
               My business in one sentence
             </Text>
@@ -828,7 +828,7 @@ function VoiceSection() {
               {VOICE.oneSentence}
             </Text>
           </Stack>
-          <Stack space={2}>
+          <Stack gap={2}>
             <Text size={2} weight="semibold" muted>
               My tagline (from My business details)
             </Text>
@@ -838,14 +838,14 @@ function VoiceSection() {
           </Stack>
         </Stack>
       </Card>
-      <Stack as="ul" space={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
+      <Stack as="ul" gap={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
         {VOICE.howISound.map((v) => (
           <Text as="li" size={2} key={v} style={{ lineHeight: 1.5 }}>
             {v}
           </Text>
         ))}
       </Stack>
-      <Stack space={3}>
+      <Stack gap={3}>
         <Text size={3} weight="semibold">
           Lines from my own website
         </Text>
@@ -863,7 +863,7 @@ function VoiceSection() {
           </Card>
         ))}
       </Stack>
-      <Stack space={3}>
+      <Stack gap={3}>
         <Text size={3} weight="semibold">
           Three example posts
         </Text>
@@ -890,11 +890,11 @@ function VoiceSection() {
         ))}
       </Stack>
       <Card padding={4} radius={3} border tone="caution">
-        <Stack space={3}>
+        <Stack gap={3}>
           <Text size={3} weight="semibold">
             Words I never use
           </Text>
-          <Stack as="ul" space={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
+          <Stack as="ul" gap={3} style={{ margin: 0, paddingLeft: '1.3rem' }}>
             {VOICE.neverUse.map((v) => (
               <Text as="li" size={2} key={v} style={{ lineHeight: 1.5 }}>
                 {v}
@@ -912,8 +912,8 @@ function VoiceSection() {
 export function BrandKitPane() {
   return (
     <Box padding={[3, 4, 5]}>
-      <Stack space={6} style={{ maxWidth: 1040, margin: '0 auto' }}>
-        <Stack space={4}>
+      <Stack gap={6} style={{ maxWidth: 1040, margin: '0 auto' }}>
+        <Stack gap={4}>
           <ToolHeading emoji="🎨">My brand kit</ToolHeading>
           <Text size={3} style={{ lineHeight: 1.6 }}>
             Your logo, colors and fonts, and pictures made at the right size for Facebook,

@@ -7,7 +7,7 @@
 // titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { TagIcon } from '@sanity/icons';
+import { TagIcon } from '@sanity/icons/Tag';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

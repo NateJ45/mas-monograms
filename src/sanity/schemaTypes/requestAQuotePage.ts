@@ -22,7 +22,7 @@
 //     new names boxes of their own.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { EnvelopeIcon } from '@sanity/icons';
+import { EnvelopeIcon } from '@sanity/icons/Envelope';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

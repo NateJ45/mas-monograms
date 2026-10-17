@@ -18,7 +18,10 @@
 //     googleReviewUrl is set), and socialLinks gained Nextdoor.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { CogIcon, LinkIcon, ChevronDownIcon, ListIcon } from '@sanity/icons';
+import { CogIcon } from '@sanity/icons/Cog';
+import { LinkIcon } from '@sanity/icons/Link';
+import { ChevronDownIcon } from '@sanity/icons/ChevronDown';
+import { ListIcon } from '@sanity/icons/List';
 import { SEO_FIELDSET, SEO_GROUP, SEO_DESCRIPTION_TOO_LONG, PHOTO_WORDS, TOO_LONG } from './_copy';
 
 export const siteSettings = defineType({

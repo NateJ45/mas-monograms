@@ -31,7 +31,7 @@ function ResultCard({ r }: { r: CheckResult }) {
   const link = r.target ? linkTo(r.target) : null;
   return (
     <Card padding={4} radius={3} border tone={TONE[r.severity]}>
-      <Stack space={4}>
+      <Stack gap={4}>
         <Flex align="center" gap={3} wrap="wrap">
           <Badge tone={TONE[r.severity]} padding={2} fontSize={2}>
             {r.severity}
@@ -93,8 +93,8 @@ export function CheckupTool() {
 
   return (
     <Box padding={[4, 4, 5]}>
-      <Stack space={5} style={{ maxWidth: 760, margin: '0 auto' }}>
-        <Stack space={4}>
+      <Stack gap={5} style={{ maxWidth: 760, margin: '0 auto' }}>
+        <Stack gap={4}>
           <ToolHeading emoji="🩺">What needs attention</ToolHeading>
           <Text size={3} style={{ lineHeight: 1.6 }}>
             A quick look over your website for things worth fixing, such as a photo with no
@@ -122,7 +122,7 @@ export function CheckupTool() {
             </Text>
           </Flex>
         ) : (
-          <Stack space={3}>
+          <Stack gap={3}>
             {isAllClear(results) && (
               <Card padding={4} radius={3} tone="positive" border>
                 <Flex align="center" gap={3} wrap="wrap">

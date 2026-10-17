@@ -7,7 +7,7 @@
 // top-level "Legal / Policy Page" entry.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { DocumentIcon } from '@sanity/icons';
+import { DocumentIcon } from '@sanity/icons/Document';
 import { SEO_DESCRIPTION, SEO_DESCRIPTION_TOO_LONG, TOO_LONG } from './_copy';
 import { SEO_PREVIEW } from './_seoPreview';
 import { LockedAddressInput } from '../components/LockedAddressInput';

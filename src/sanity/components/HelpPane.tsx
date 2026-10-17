@@ -66,7 +66,7 @@ function AnswerCard({ item }: { item: Answer }) {
   const link = item.link ? linkTo(item.link.target) : null;
   return (
     <Card padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-      <Stack space={3}>
+      <Stack gap={3}>
         <Text size={3} weight="semibold">
           {item.question}
         </Text>
@@ -114,9 +114,9 @@ export function HelpPane() {
   const contact = useHelpContact();
   return (
     <Box padding={[4, 4, 5]}>
-      <Stack space={6} style={{ maxWidth: 760, margin: '0 auto' }}>
+      <Stack gap={6} style={{ maxWidth: 760, margin: '0 auto' }}>
         <ToolHeading emoji="❔">How do I...?</ToolHeading>
-        <Stack space={3}>
+        <Stack gap={3}>
           <Text size={3} weight="semibold">
             Quick answers
           </Text>
@@ -125,7 +125,7 @@ export function HelpPane() {
           ))}
         </Stack>
 
-        <Stack space={4}>
+        <Stack gap={4}>
           <Heading as="h2" size={3} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
             Guides by topic
           </Heading>
@@ -138,7 +138,7 @@ export function HelpPane() {
         </Stack>
 
         <Card padding={4} radius={3} tone="primary" border>
-          <Stack space={3}>
+          <Stack gap={3}>
             <Text size={3} weight="semibold">
               Still stuck?
             </Text>

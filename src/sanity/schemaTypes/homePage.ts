@@ -17,7 +17,7 @@
 //     without must never put a red mark on her form.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { HomeIcon } from '@sanity/icons';
+import { HomeIcon } from '@sanity/icons/Home';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

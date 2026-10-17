@@ -6,7 +6,7 @@
 // six tabs, only the headline required, plain titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { BillIcon } from '@sanity/icons';
+import { BillIcon } from '@sanity/icons/Bill';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

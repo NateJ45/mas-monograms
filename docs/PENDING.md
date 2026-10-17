@@ -77,9 +77,9 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   sanity.io/manage, project `xp3elugr`; after that the `https://*.sanity.studio` entries in
   `public/_headers` can go.
 - **CORS tidy-up.** The live origins are allowed (`mas-monograms.com` and the workers.dev host, both with
-  credentials, checked 2026-10-05). Missing: `http://localhost:4321` (the local embedded Studio; the list
-  has the old `:3333` instead). Stale: the retired staging Worker origin.
-  `npx sanity cors add http://localhost:4321 --credentials`.
+  credentials, checked 2026-10-05). `http://localhost:4321` (the local embedded Studio) was added with
+  credentials on 2026-10-17, for the Sanity phase-2 browser check. Still stale: the old `http://localhost:3333`
+  and the retired staging Worker origin; removing them is a deletion, so it waits for a yes.
 - **Set the `SITE_URL` repo variable** to make the hourly uptime check do something
   (`.github/workflows/uptime.yml` warn-and-skips without it; not set as of 2026-10-05). A variable, not a
   secret: `gh variable set SITE_URL --repo NateJ45/mas-monograms --body "https://mas-monograms.com"`.

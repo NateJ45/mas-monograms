@@ -32,34 +32,34 @@ Never bump one of the matched-set packages in isolation.
      real message, `Incompatible React versions`, is buried **above** the
      `MiniflareCoreError`.
    - The Sanity set is pinned to a combination known to work **together**, and
-     it moves as a SET. As of 2026-09-06 (phase 1 of the coordinated stack
-     migration): `sanity` **6.9.1**, `@sanity/vision` 6.9.1, `@sanity/ui`
-     **3.5.4**, `styled-components` 6.5.3, `@sanity/client` **7.26.2**,
-     `@sanity/visual-editing` **5.7.3**, `@sanity/preview-url-secret` **4.1.5**,
-     `sanity-plugin-media` 5.0.11, `sanity-plugin-asset-source-unsplash` 7.0.15,
-     `@sanity/orderable-document-list` 2.0.9, plus `sanity-plugin-utils` 2.0.6
-     and `@sanity/visual-editing` 5.7.3 held through **`overrides`** — a plain
-     dependency pin does not stop npm nesting a newer `@sanity/visual-editing`
-     under `@sanity/astro` and dragging a second `@sanity/ui` in with it.
-     `@sanity/visual-editing` therefore appears BOTH as a dependency and in
-     `overrides`, and the two must be edited in the same step or npm refuses the
-     whole install with EOVERRIDE.
-   - **The rule is not "hold `@sanity/ui` at 3.3.5".** It is "`@sanity/ui` must
-     be whatever the installed `sanity` core declares": 6.4.0 declared `^3.3.0`,
-     6.9.1 declares `^3.5.1`. The worked example that taught it: `@sanity/ui`
-     3.5.3 against `sanity` 6.4.0 cleared styled-components error #18 and then
-     failed differently, because 6.4.0 expected the 3.3.x theme shape. So
-     "latest v3" is still not the rule; "what the core declares" is.
-     `sanity` **6.9.2 is the next wall**: that PATCH release moves to
-     `@sanity/ui` 4, which is phase 2 and a real migration.
-   - **Invariant after any Sanity dependency work:** exactly ONE `@sanity/ui` on
-     disk, and exactly ONE styled-components chunk in the build. Verify on DISK,
-     not from install output. Never delete or regenerate the lockfile: move
-     packages with targeted `npm install <pkg>@<version>` only.
-     `@sanity/icons` is deliberately NOT deduped (core wants v5, `@sanity/ui` v3
-     wants 3.8; icons are stateless, and deduping them broke the build elsewhere
-     in the family on a missing v5 `CogIcon`). Nine `@sanity/icons` copies on disk
-     is expected and fine.
+     since 2026-10-17 that is the family's phase-2 set (starter PORTS.md card
+     103): `sanity` **6.19.0**, `@sanity/vision` 6.19.0, `@sanity/ui` **4.4.9**,
+     `@sanity/icons` **5.2.3**, `styled-components` 6.6.0, `@sanity/client` 8.9.0,
+     `@sanity/preview-url-secret` 4.1.5, `@sanity/astro` 3.5.1,
+     `sanity-plugin-media` 6.3.5, `sanity-plugin-asset-source-unsplash` 7.0.29,
+     `@sanity/orderable-document-list` 2.0.28, plus `sanity-plugin-utils` 2.0.22
+     and `@sanity/visual-editing` 6.1.3 held through **`overrides`**.
+     `@sanity/visual-editing` appears BOTH as a dependency and in `overrides`, and
+     the two must be edited in the same step or npm refuses the whole install
+     with EOVERRIDE. Studio code is written against `@sanity/ui` 4: `gap` not
+     `space`, `gridTemplateColumns` not `columns`, no `Badge mode`, `Menu*` from
+     `@sanity/ui/menu`, `useToast` from `@sanity/ui/toast`, and every icon from its
+     own subpath (`import { BellIcon } from '@sanity/icons/Bell'`; the root
+     exports none, and `astro check` does NOT catch a root icon import, only
+     `astro build` does). That includes `sanity.config.ts` at the repo root, which
+     is outside `src/`. A Studio file from a repo still on the phase-1 set
+     (`sanity` 6.9.1, `@sanity/ui` 3.5.4) does not port without that migration.
+   - **Invariant after any Sanity dependency work:** exactly ONE `@sanity/ui`
+     and ONE `@sanity/icons` on disk (`find node_modules -path
+     "*@sanity/ui/package.json"`, same for icons), and exactly ONE
+     styled-components chunk in the build (`grep -l "errors.md#"
+     dist/client/_astro/*.js`; a second hit that is the `polished` library's
+     own errors.md link, bundled by `sanity`, is not a second styled-components).
+     Verify on DISK, not from install output. Never delete or regenerate the
+     lockfile. `react/compiler-runtime` stays in `optimizeDeps.include` in
+     `astro.config.mjs`: `@sanity/ui` is excluded from pre-bundling, and without
+     the include the dev Studio does not hydrate (`does not provide an export
+     named 'c'`); the build cannot show it.
    - **`session: false` in `astro.config.mjs` is load-bearing.** Left on, the
      Cloudflare adapter auto-declares a `SESSION` KV binding in the generated
      config, and a KV binding with no namespace id fails the deploy. This site has

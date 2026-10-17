@@ -7,7 +7,7 @@
 // shopPage.cta*), which the banner tab now says.
 
 import { defineType, defineField } from 'sanity';
-import { BasketIcon } from '@sanity/icons';
+import { BasketIcon } from '@sanity/icons/Basket';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

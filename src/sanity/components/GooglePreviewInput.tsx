@@ -98,14 +98,14 @@ export function GooglePreviewInput() {
   const dHint = descriptionHint(ownDescription.length);
 
   return (
-    <Stack space={4}>
+    <Stack gap={4}>
       <Text size={2} style={{ lineHeight: 1.6 }}>
         This is a picture of how this page shows up. It changes as you type in the boxes below.
       </Text>
 
       {/* The Google result */}
       <Card padding={4} radius={3} border tone="default" style={{ background: '#ffffff' }}>
-        <Stack space={3}>
+        <Stack gap={3}>
           <Text size={1} weight="semibold" muted>
             On Google
           </Text>
@@ -120,7 +120,7 @@ export function GooglePreviewInput() {
           </Text>
         </Stack>
       </Card>
-      <Stack space={2}>
+      <Stack gap={2}>
         <Hint
           text={ownTitle ? tHint.text : 'Title: empty, so your usual title for this page is used.'}
           tone={tHint.tone}
@@ -154,7 +154,7 @@ export function GooglePreviewInput() {
           )}
         </Box>
         <Card padding={4} style={{ background: '#f2f3f5' }}>
-          <Stack space={3}>
+          <Stack gap={3}>
             <Text size={1} weight="semibold" muted>
               When someone shares a link to this page
             </Text>

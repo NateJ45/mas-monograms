@@ -59,7 +59,7 @@ function TaskCard({ task }: { task: WelcomeTask }) {
         >
           {task.emoji}
         </span>
-        <Stack space={3} style={{ flex: 1 }}>
+        <Stack gap={3} style={{ flex: 1 }}>
           <Text size={3} weight="semibold" style={{ color: HEIRLOOM.ink }}>
             {task.title}
           </Text>
@@ -75,8 +75,8 @@ function TaskCard({ task }: { task: WelcomeTask }) {
 export function WelcomePane() {
   return (
     <Box padding={[4, 4, 5]}>
-      <Stack space={5} style={{ maxWidth: 960, margin: '0 auto' }}>
-        <Stack space={4}>
+      <Stack gap={5} style={{ maxWidth: 960, margin: '0 auto' }}>
+        <Stack gap={4}>
           <ToolHeading emoji="🧵">Hello, Mary Ann</ToolHeading>
           <Text size={3} style={{ lineHeight: 1.6 }}>
             This is where you change the words, photos and prices on your website.
@@ -94,11 +94,11 @@ export function WelcomePane() {
           </Card>
         </Stack>
 
-        <Stack space={3}>
+        <Stack gap={3}>
           <Text size={3} weight="semibold">
             What would you like to do?
           </Text>
-          <Grid columns={[1, 1, 2]} gap={3}>
+          <Grid gridTemplateColumns={[1, 1, 2]} gap={3}>
             {WELCOME_TASKS.map((t) => (
               <TaskCard key={t.title} task={t} />
             ))}

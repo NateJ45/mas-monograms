@@ -27,8 +27,9 @@
 import { useState } from 'react';
 import { useClient } from 'sanity';
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity';
-import { useToast } from '@sanity/ui';
-import { RestoreIcon, TrashIcon } from '@sanity/icons';
+import { useToast } from '@sanity/ui/toast';
+import { RestoreIcon } from '@sanity/icons/Restore';
+import { TrashIcon } from '@sanity/icons/Trash';
 import {
   REFERRERS_QUERY,
   buildTrashRecord,

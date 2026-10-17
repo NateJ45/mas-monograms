@@ -10,7 +10,7 @@
 // thing "Bring it back" writes back, and a typo in it could not be undone.
 
 import { defineType, defineField } from 'sanity';
-import { TrashIcon } from '@sanity/icons';
+import { TrashIcon } from '@sanity/icons/Trash';
 
 export const trashedItem = defineType({
   name: 'trashedItem',

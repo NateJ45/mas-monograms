@@ -10,7 +10,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
-import { TagIcon } from '@sanity/icons';
+import { TagIcon } from '@sanity/icons/Tag';
 import { PHOTO_WORDS, PHOTO_WORDS_NEEDED, bracketsLeft } from './_copy';
 
 export const clearanceItem = defineType({

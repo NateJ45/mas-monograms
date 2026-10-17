@@ -9,7 +9,7 @@
 
 import { defineType, defineField } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
-import { BillIcon } from '@sanity/icons';
+import { BillIcon } from '@sanity/icons/Bill';
 import { TOO_LONG } from './_copy';
 
 export const pricingTier = defineType({

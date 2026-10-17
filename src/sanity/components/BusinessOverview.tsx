@@ -135,7 +135,7 @@ export default function BusinessOverview() {
 
   return (
     <Container width={1} padding={4}>
-      <Stack space={6}>
+      <Stack gap={6}>
         {/* Header */}
         <Box>
           <Heading as="h1" size={3}>
@@ -152,7 +152,7 @@ export default function BusinessOverview() {
 
         {/* ── LIVE: Pricing tiers ──────────────────────────────────────────── */}
         <Card padding={4} radius={2} shadow={1} tone="default">
-          <Stack space={4}>
+          <Stack gap={4}>
             <Heading as="h2" size={1}>
               Your pricing tiers (live)
             </Heading>
@@ -166,10 +166,10 @@ export default function BusinessOverview() {
               </Text>
             )}
             {pricing !== null && pricing.length > 0 && (
-              <Stack space={3}>
+              <Stack gap={3}>
                 {pricing.map((tier, i) => (
                   <Card key={i} padding={3} radius={2} tone="transparent" shadow={1}>
-                    <Stack space={2}>
+                    <Stack gap={2}>
                       <Box
                         style={{
                           display: 'flex',
@@ -203,7 +203,7 @@ export default function BusinessOverview() {
 
         {/* ── LIVE: Contact, turnaround, reach ─────────────────────────────── */}
         <Card padding={4} radius={2} shadow={1} tone="default">
-          <Stack space={4}>
+          <Stack gap={4}>
             <Heading as="h2" size={1}>
               Contact, turnaround, and reach (live)
             </Heading>
@@ -212,7 +212,7 @@ export default function BusinessOverview() {
             {settingsError && <ErrorCard label="site settings" />}
 
             {settings !== null && (
-              <Stack space={3}>
+              <Stack gap={3}>
                 <Field label="Email" value={settings.email} />
                 <Field label="Phone" value={settings.phone} />
                 <Field
@@ -239,7 +239,7 @@ export default function BusinessOverview() {
                       Social
                     </Text>
                     <Box marginTop={1}>
-                      <Stack space={1}>
+                      <Stack gap={1}>
                         {socials.map((s, i) => (
                           <Text key={i} size={1}>
                             {s.platform}: {s.url}
@@ -257,7 +257,7 @@ export default function BusinessOverview() {
         {/* ── EDITABLE: Who you are ────────────────────────────────────────── */}
         {notes?.businessSummary && (
           <Card padding={4} radius={2} shadow={1} tone="default">
-            <Stack space={3}>
+            <Stack gap={3}>
               <Heading as="h2" size={1}>
                 Who you are
               </Heading>
@@ -273,7 +273,7 @@ export default function BusinessOverview() {
         {/* ── EDITABLE: Your ideal customer ────────────────────────────────── */}
         {notes?.idealClient && (
           <Card padding={4} radius={2} shadow={1} tone="default">
-            <Stack space={3}>
+            <Stack gap={3}>
               <Heading as="h2" size={1}>
                 Your ideal customer
               </Heading>
@@ -289,7 +289,7 @@ export default function BusinessOverview() {
         {/* ── EDITABLE: Your voice ─────────────────────────────────────────── */}
         {(notes?.voiceSummary || (notes?.wordsToAvoid && notes.wordsToAvoid.length > 0)) && (
           <Card padding={4} radius={2} shadow={1} tone="default">
-            <Stack space={3}>
+            <Stack gap={3}>
               <Heading as="h2" size={1}>
                 Your voice (how you sound in writing)
               </Heading>

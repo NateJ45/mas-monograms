@@ -8,7 +8,7 @@
 
 import { createElement } from 'react';
 import { defineType, defineField } from 'sanity';
-import { ColorWheelIcon } from '@sanity/icons';
+import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
 import { PHOTO_WORDS } from './_copy';
 
 export const threadColor = defineType({

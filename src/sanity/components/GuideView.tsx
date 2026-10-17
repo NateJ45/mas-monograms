@@ -1,7 +1,9 @@
 import { Fragment, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Button, Card, Flex, Heading, Stack, Text, TextInput } from '@sanity/ui';
-import { ArrowLeftIcon, LaunchIcon, SearchIcon } from '@sanity/icons';
+import { ArrowLeftIcon } from '@sanity/icons/ArrowLeft';
+import { LaunchIcon } from '@sanity/icons/Launch';
+import { SearchIcon } from '@sanity/icons/Search';
 import { useStudioLink } from './studioLink';
 import { HEADING_STACK, HEIRLOOM } from '../theme';
 import {
@@ -149,7 +151,7 @@ function TakeMeThere({ label, detail, to }: { label: string; detail?: string; to
       style={{ textDecoration: 'none', color: 'inherit', display: 'block', minHeight: 64 }}
     >
       <Flex align="center" gap={3}>
-        <Stack space={3} style={{ flex: 1 }}>
+        <Stack gap={3} style={{ flex: 1 }}>
           <Text size={1} weight="semibold" style={{ color: HEIRLOOM.indigo }}>
             {external ? 'Opens in a new tab' : 'Take me there'}
           </Text>
@@ -177,7 +179,7 @@ const stepText = (s: GuideStep) => (typeof s === 'string' ? s : s.text);
 function Steps({ items }: { items: GuideStep[] }) {
   // Explicit numbered discs: @sanity/ui's reset strips native list markers.
   return (
-    <Stack as="ol" space={4} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+    <Stack as="ol" gap={4} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
       {items.map((item, i) => (
         <Flex as="li" key={i} gap={3} align="flex-start">
           <span
@@ -198,7 +200,7 @@ function Steps({ items }: { items: GuideStep[] }) {
           >
             {i + 1}
           </span>
-          <Stack space={3} style={{ flex: 1, paddingTop: 6 }}>
+          <Stack gap={3} style={{ flex: 1, paddingTop: 6 }}>
             <Text size={3} style={{ lineHeight: 1.55 }}>
               <RichText text={stepText(item)} />
             </Text>
@@ -249,7 +251,7 @@ function BlockView({ block, open }: { block: GuideBlock; open: (id: string) => v
       return <Steps items={block.items} />;
     case 'bullets':
       return (
-        <Stack as="ul" space={4} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        <Stack as="ul" gap={4} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {block.items.map((item, i) => (
             <Flex as="li" key={i} gap={3} align="flex-start">
               <span
@@ -276,7 +278,7 @@ function BlockView({ block, open }: { block: GuideBlock; open: (id: string) => v
       const c = CALLOUT[block.tone];
       return (
         <Card tone={c.tone} padding={4} radius={3} border>
-          <Stack space={3}>
+          <Stack gap={3}>
             <Text size={2} weight="semibold">
               {block.title ? `${c.word}: ${block.title}` : c.word}
             </Text>
@@ -291,7 +293,7 @@ function BlockView({ block, open }: { block: GuideBlock; open: (id: string) => v
       const guides = block.ids.map(guideById).filter((g): g is Guide => Boolean(g));
       if (!guides.length) return null;
       return (
-        <Stack space={3} paddingTop={2}>
+        <Stack gap={3} paddingTop={2}>
           <Text size={2} weight="semibold">
             See also
           </Text>
@@ -415,7 +417,7 @@ function GuidePage({
   open: (id: string) => void;
 }) {
   return (
-    <Stack space={5}>
+    <Stack gap={5}>
       <Flex gap={3} wrap="wrap">
         <Button
           icon={ArrowLeftIcon}
@@ -433,7 +435,7 @@ function GuidePage({
           onClick={() => window.print()}
         />
       </Flex>
-      <Stack space={4}>
+      <Stack gap={4}>
         <Flex align="center" gap={3}>
           <IconChip guide={guide} />
           <Heading as="h2" size={4} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
@@ -458,11 +460,11 @@ function GuidePage({
       </Stack>
       {guide.before?.length ? (
         <Card padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-          <Stack space={4}>
+          <Stack gap={4}>
             <Text size={2} weight="semibold">
               Before you start, have ready
             </Text>
-            <Stack as="ul" space={3} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            <Stack as="ul" gap={3} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {guide.before.map((b, i) => (
                 <Flex as="li" key={i} gap={3}>
                   <Text size={3} aria-hidden>
@@ -477,7 +479,7 @@ function GuidePage({
           </Stack>
         </Card>
       ) : null}
-      <Stack space={5}>
+      <Stack gap={5}>
         {guide.blocks.map((block, i) => (
           <BlockView key={i} block={block} open={open} />
         ))}
@@ -513,7 +515,7 @@ function GuideRow({ guide, open }: { guide: Guide; open: (id: string) => void })
     >
       <Flex gap={3} align="flex-start">
         <IconChip guide={guide} size={40} />
-        <Stack space={3} style={{ flex: 1 }}>
+        <Stack gap={3} style={{ flex: 1 }}>
           <Text size={3} weight="semibold" style={{ color: HEIRLOOM.ink }}>
             {guide.title}
           </Text>
@@ -534,7 +536,7 @@ function GuideRow({ guide, open }: { guide: Guide; open: (id: string) => void })
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Heading as="h2" size={2} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
         {title}
       </Heading>
@@ -561,8 +563,8 @@ export function GuideView({ guides = ALL_GUIDES }: { guides?: Guide[] }) {
       {guide ? (
         <GuidePage guide={guide} back={() => open(null)} open={open} />
       ) : (
-        <Stack space={5}>
-          <Stack space={3}>
+        <Stack gap={5}>
+          <Stack gap={3}>
             <Text as="label" htmlFor="mas-guide-search" size={2} weight="semibold">
               Search the guides
             </Text>
