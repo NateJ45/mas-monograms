@@ -5,7 +5,7 @@
 // headline required, plain titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { ColorWheelIcon } from '@sanity/icons';
+import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

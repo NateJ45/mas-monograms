@@ -10,7 +10,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
-import { ImagesIcon } from '@sanity/icons';
+import { ImagesIcon } from '@sanity/icons/Images';
 import { PHOTO_WORDS, PHOTO_WORDS_NEEDED } from './_copy';
 
 export const galleryItem = defineType({

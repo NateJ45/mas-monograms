@@ -12,7 +12,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
-import { PackageIcon } from '@sanity/icons';
+import { PackageIcon } from '@sanity/icons/Package';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

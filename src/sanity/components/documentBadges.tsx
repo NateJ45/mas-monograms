@@ -17,7 +17,9 @@
 // returns null when it does not apply, and a brand-new empty document is left
 // alone (no nagging before there is anything to nag about).
 
-import { CheckmarkCircleIcon, ImageIcon, SearchIcon } from '@sanity/icons';
+import { CheckmarkCircleIcon } from '@sanity/icons/CheckmarkCircle';
+import { ImageIcon } from '@sanity/icons/Image';
+import { SearchIcon } from '@sanity/icons/Search';
 import type { DocumentBadgeComponent, DocumentBadgeProps } from 'sanity';
 
 /**

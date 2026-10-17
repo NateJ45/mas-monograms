@@ -62,7 +62,7 @@ Run from the repo root. Node scripts are in `package.json`.
   adapter (exact `14.3.4` since 2026-10-13, starter card 94; see gotcha 9/10), Sharp image service, `session: false`
 - **Cloudflare Workers** — unified Pages/Workers platform, Git auto-deploy (Workers Builds),
   `wrangler.jsonc`; wrangler `^4.129.0`
-- **Sanity 6.9.1**: headless CMS. The Studio lives IN THIS PACKAGE (schemas in
+- **Sanity 6.19.0**: headless CMS. The Studio lives IN THIS PACKAGE (schemas in
   `src/sanity/schemaTypes/`, desk in `src/sanity/structure.ts`, config at the repo-root
   `sanity.config.ts`, CLI config in `sanity.cli.ts`) and is **embedded at `/studio`** via
   `@sanity/astro`, so it rebuilds with every deploy and can never drift stale. There is

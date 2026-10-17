@@ -7,7 +7,7 @@
 // titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { CheckmarkCircleIcon } from '@sanity/icons';
+import { CheckmarkCircleIcon } from '@sanity/icons/CheckmarkCircle';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

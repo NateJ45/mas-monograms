@@ -12,7 +12,7 @@
 // filters getStaticPaths).
 
 import { defineType, defineField } from 'sanity';
-import { DocumentsIcon } from '@sanity/icons';
+import { DocumentsIcon } from '@sanity/icons/Documents';
 import { SECTION_TYPES } from './sections';
 
 // Every built-in route segment. A custom page slug may not match any of these.

@@ -8,7 +8,7 @@
 // when makerPhoto is empty (about.astro), and makerPhoto is set. Data kept.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { UserIcon } from '@sanity/icons';
+import { UserIcon } from '@sanity/icons/User';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

@@ -8,7 +8,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
-import { HelpCircleIcon } from '@sanity/icons';
+import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
 import { bracketsLeft } from './_copy';
 
 export const faqItem = defineType({

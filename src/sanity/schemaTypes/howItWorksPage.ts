@@ -6,7 +6,7 @@
 // never draws it; the data is kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { ControlsIcon } from '@sanity/icons';
+import { ControlsIcon } from '@sanity/icons/Controls';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

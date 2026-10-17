@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { DocumentActionComponent, DocumentActionProps } from 'sanity';
-import { useToast } from '@sanity/ui';
+import { useToast } from '@sanity/ui/toast';
 
 // =============================================================================
 // publishNote: "Published. It will be on your website in about 2 to 3 minutes."

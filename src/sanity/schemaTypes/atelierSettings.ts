@@ -10,7 +10,7 @@
 // note she can fix by typing. Every one is filled in today.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { SparklesIcon } from '@sanity/icons';
+import { SparklesIcon } from '@sanity/icons/Sparkles';
 import { TOO_LONG } from './_copy';
 
 /** Friendly "please fill this in" for the labels the preview cannot do without. */

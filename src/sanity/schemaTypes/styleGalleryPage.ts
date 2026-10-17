@@ -8,7 +8,7 @@
 // reads it (data kept).
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { ImagesIcon } from '@sanity/icons';
+import { ImagesIcon } from '@sanity/icons/Images';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

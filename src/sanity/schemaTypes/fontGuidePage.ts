@@ -6,7 +6,7 @@
 // headline required, plain titles from ./_copy.ts.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import { TextIcon } from '@sanity/icons';
+import { TextIcon } from '@sanity/icons/Text';
 import {
   SEO_FIELDSET,
   SEO_GROUP,

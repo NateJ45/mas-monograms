@@ -41,26 +41,24 @@ import type {
   StructureResolverContext,
 } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
-import {
-  ActivityIcon,
-  AddIcon,
-  BillIcon,
-  CogIcon,
-  ColorWheelIcon,
-  DocumentTextIcon,
-  DocumentsIcon,
-  HelpCircleIcon,
-  HomeIcon,
-  ImagesIcon,
-  InfoOutlineIcon,
-  PackageIcon,
-  RocketIcon,
-  TagIcon,
-  TextIcon,
-  ThumbsUpIcon,
-  ThListIcon,
-  TrashIcon,
-} from '@sanity/icons';
+import { ActivityIcon } from '@sanity/icons/Activity';
+import { AddIcon } from '@sanity/icons/Add';
+import { BillIcon } from '@sanity/icons/Bill';
+import { CogIcon } from '@sanity/icons/Cog';
+import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
+import { DocumentTextIcon } from '@sanity/icons/DocumentText';
+import { DocumentsIcon } from '@sanity/icons/Documents';
+import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
+import { HomeIcon } from '@sanity/icons/Home';
+import { ImagesIcon } from '@sanity/icons/Images';
+import { InfoOutlineIcon } from '@sanity/icons/InfoOutline';
+import { PackageIcon } from '@sanity/icons/Package';
+import { RocketIcon } from '@sanity/icons/Rocket';
+import { TagIcon } from '@sanity/icons/Tag';
+import { TextIcon } from '@sanity/icons/Text';
+import { ThumbsUpIcon } from '@sanity/icons/ThumbsUp';
+import { ThListIcon } from '@sanity/icons/ThList';
+import { TrashIcon } from '@sanity/icons/Trash';
 import type { ComponentType } from 'react';
 import { DESK } from './studioTargets';
 import { WelcomePane } from './components/WelcomePane';

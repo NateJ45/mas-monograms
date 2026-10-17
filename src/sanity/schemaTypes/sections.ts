@@ -13,19 +13,17 @@
 // defined so every builder offers the same library.
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
-import {
-  BlockElementIcon,
-  ImageIcon,
-  ImagesIcon,
-  BulbOutlineIcon,
-  StarIcon,
-  ComponentIcon,
-  RemoveIcon,
-  PlayIcon,
-  ThLargeIcon,
-  EarthGlobeIcon,
-  CodeBlockIcon,
-} from '@sanity/icons';
+import { BlockElementIcon } from '@sanity/icons/BlockElement';
+import { ImageIcon } from '@sanity/icons/Image';
+import { ImagesIcon } from '@sanity/icons/Images';
+import { BulbOutlineIcon } from '@sanity/icons/BulbOutline';
+import { StarIcon } from '@sanity/icons/Star';
+import { ComponentIcon } from '@sanity/icons/Component';
+import { RemoveIcon } from '@sanity/icons/Remove';
+import { PlayIcon } from '@sanity/icons/Play';
+import { ThLargeIcon } from '@sanity/icons/ThLarge';
+import { EarthGlobeIcon } from '@sanity/icons/EarthGlobe';
+import { CodeBlockIcon } from '@sanity/icons/CodeBlock';
 
 // Shared image field with required alt text (accessibility + SEO).
 const imageWithAlt = (name = 'image', title = 'Image') =>

@@ -11,7 +11,7 @@
 
 import { defineType, defineField, defineArrayMember } from 'sanity';
 import { orderRankField } from '@sanity/orderable-document-list';
-import { TextIcon } from '@sanity/icons';
+import { TextIcon } from '@sanity/icons/Text';
 import { PHOTO_WORDS, PHOTO_WORDS_NEEDED } from './_copy';
 
 export const font = defineType({

@@ -9,7 +9,7 @@
 // `body` in the same change.
 
 import { defineType, defineField } from 'sanity';
-import { HelpCircleIcon } from '@sanity/icons';
+import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
 import {
   SEO_FIELDSET,
   SEO_GROUP,
