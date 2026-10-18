@@ -57,6 +57,7 @@ import { TABLES } from './tables.config';
 import { WEEK_TYPE } from '../lib/studio-kit';
 import { TRASH_TYPE } from '../lib/studio-trash';
 import { SHARE_RECORD_TYPE } from '../lib/preview-share';
+import { NOTICE_TEMPLATES, SEASON_TEMPLATES } from './templates';
 
 /**
  * Every type the desk places on purpose. The safety net at the bottom lists
@@ -85,6 +86,8 @@ const PLACED = new Set<string>([
   'pricingTier',
   'clearanceItem',
   'faqItem',
+  'collection',
+  'announcement',
   'studioGuide',
   'studioNotes',
   'studioPlaybook',
@@ -351,6 +354,41 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
         icon: typeIcon('faqItem'),
         template: 'new-question',
         addLabel: 'Add a question',
+      }),
+
+      // ── The seasons of her shop (2026-10-18) ────────────────────────────────
+      // Gift guides and season pages (/collections/<address>/), newest first,
+      // with a "+" that offers one starting point per season; and the notices
+      // across the top of every page, ending soonest first.
+      emptyAwareList(S, context, {
+        id: DESK.collections,
+        type: 'collection',
+        title: 'Gift guides and seasons',
+        icon: typeIcon('collection'),
+        explain:
+          'A page of your work for one season or occasion: a Christmas gift guide, wedding season, graduation, back to school. Each starts from a ready-made page with your words to fill in.',
+        createLabel: 'Make the first one',
+        list: (S) =>
+          S.documentTypeList('collection')
+            .id('collections-list')
+            .title('Gift guides and seasons')
+            .defaultOrdering([{ field: '_createdAt', direction: 'desc' }])
+            .initialValueTemplates(SEASON_TEMPLATES.map((id) => S.initialValueTemplateItem(id))),
+      }),
+      emptyAwareList(S, context, {
+        id: DESK.notices,
+        type: 'announcement',
+        title: 'Notices across the top',
+        icon: typeIcon('announcement'),
+        explain:
+          'A short line across the top of every page: an order-by date for a holiday, new clearance items, or a week away. It comes down by itself after its last day.',
+        createLabel: 'Put up the first one',
+        list: (S) =>
+          S.documentTypeList('announcement')
+            .id('notices-list')
+            .title('Notices across the top')
+            .defaultOrdering([{ field: 'endDate', direction: 'asc' }])
+            .initialValueTemplates(NOTICE_TEMPLATES.map((id) => S.initialValueTemplateItem(id))),
       }),
 
       S.divider(),

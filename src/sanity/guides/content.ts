@@ -562,6 +562,121 @@ export const editingGuides: Guide[] = [
     ],
   },
   {
+    id: 'season-page',
+    category: 'Change my website',
+    title: 'Make a gift guide or a season page',
+    icon: 'calendar',
+    badge: 'You can do this yourself',
+    summary:
+      "A page of your work for one season or occasion: a Christmas gift guide, wedding season, graduation, back to school, Mother's Day or baby gifts.",
+    time: 'About 15 minutes',
+    before: [
+      'A few photos of your work for that season, already in Photos of my work.',
+      'The date people should order by, if there is one.',
+    ],
+    blocks: [
+      {
+        kind: 'steps',
+        items: [
+          {
+            text: 'Click `Gift guides and seasons` in the menu on the left, then the + button at the top of the list.',
+            see: 'A short list of ready-made pages, one for each season. Pick the one you want.',
+          },
+          {
+            text: 'Fill in the words in [square brackets]: a few words about it, and the date to order by.',
+            see: 'A yellow note stays until all the [square brackets] are gone.',
+          },
+          {
+            text: 'Under `Web address`, press `Generate`.',
+            see: 'The page gets its own address, like mas-monograms.com/collections/christmas-gift-guide/',
+          },
+          {
+            text: 'Open the `Photos and items` tab. Check the tags in `Show photos of my work with these tags`, and pick the `Items to start from`.',
+            see: 'Every photo of your work with one of those tags will show on the page.',
+          },
+          {
+            text: 'Press `Publish`.',
+            see: `The page is on your website in ${WAIT}.`,
+          },
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'tip',
+        title: 'Tag a photo, and it joins the page',
+        text: 'The photos come from their tags. Give a new photo the tag "christmas" (in its `Tags` box) and it shows on the Christmas page next time you publish. No second step.',
+      },
+      {
+        kind: 'callout',
+        tone: 'tip',
+        title: 'Tell people it is there',
+        text: 'Put up a notice across the top that links to it ("Our Christmas gift guide is up"), add it to the top menu in `My business details`, or share the link on Facebook.',
+      },
+      {
+        kind: 'path',
+        label: 'Open Gift guides and seasons',
+        to: { pane: 'collections' },
+      },
+      { kind: 'seealso', ids: ['notice', 'add-a-photo', 'share-before-publish'] },
+    ],
+  },
+  {
+    id: 'notice',
+    category: 'Change my website',
+    title: 'Put up a notice across the top of every page',
+    icon: 'megaphone',
+    badge: 'You can do this yourself',
+    summary:
+      'A short line across the top of your website: an order-by date for a holiday, new clearance items, or a week away. It comes down by itself after its last day.',
+    time: 'About 3 minutes',
+    blocks: [
+      { kind: 'h', text: 'The quick way, from your phone' },
+      {
+        kind: 'steps',
+        items: [
+          {
+            text: 'Open `Quick update` in the bar at the top (or the button on `Home`).',
+            see: 'Big buttons for the jobs you can do from a phone.',
+          },
+          {
+            text: 'Press `Put up a notice` (or `I am away for a while`), type the words and pick the last day.',
+            see: 'The form checks your answers before it saves.',
+          },
+          {
+            text: 'Press `Put it on my website`.',
+            see: `Your notice is across the top of your website in ${WAIT}.`,
+          },
+        ],
+      },
+      { kind: 'h', text: 'The full way, with a ready-made notice' },
+      {
+        kind: 'steps',
+        items: [
+          {
+            text: 'Click `Notices across the top` in the menu on the left, then the + button at the top of the list.',
+            see: 'Ready-made notices: an order-by date for a holiday, new clearance items, and a week away.',
+          },
+          {
+            text: 'Fill in the words in [square brackets]. Pick the `First day to show it` and the `Take it down after` time.',
+            see: 'Leave the first day empty to show it as soon as you publish.',
+          },
+          {
+            text: 'Press `Publish`.',
+            see: 'On its first day the notice appears, and after its last day it disappears by itself.',
+          },
+        ],
+      },
+      {
+        kind: 'callout',
+        tone: 'why',
+        title: 'Only one shows at a time',
+        text: 'If two notices are up on the same day, the important one shows first. To take one down early, turn off `Show it on my website` and press Publish.',
+      },
+      { kind: 'path', label: 'Open Notices across the top', to: { pane: 'notices' } },
+      { kind: 'seealso', ids: ['season-page', 'clearance-add'] },
+    ],
+  },
+  {
     id: 'monogram-preview',
     category: 'Change my website',
     title: 'Change the words in the Monogram preview',

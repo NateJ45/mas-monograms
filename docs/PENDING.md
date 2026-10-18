@@ -36,6 +36,12 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
     repo. `SANITY_AUTH_TOKEN` is already set (the backup uses it).
   - **`PUBLIC_STUDIO_HELP_EMAIL`** build variable in Workers Builds, so Home's "Ask Nathan" has an email
     button (kept out of the repo on purpose).
+- **Check the season pages and notices signed in (2026-10-18, PR 2).** Make a season page from "Season page:
+  Christmas gift guide" (the "+" of "Gift guides and seasons"), press Generate, check the photos tagged
+  "christmas" appear in Edit on the page (`/preview/collections/<address>`), then press Discard (or Move to
+  Trash). Put up a notice from Quick update on a phone, see it across the top of the live site after the
+  rebuild, and that it hides itself after its last day. The page itself was checked rendered with real
+  photos (a local scratch page), not from a published document.
 - **Check the kit Studio signed in (2026-10-18).** It replaces the Phase A, B and D click lists below for
   everything the kit now draws. Open `/studio` signed in, read the console, and check: Home opens first with
   the Indigo Deep banner, the Hoop Seal, "Monograms" in Petemoss and the gold thread along the foot; the four

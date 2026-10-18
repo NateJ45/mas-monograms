@@ -55,7 +55,7 @@ import { CharacterCountInput } from './src/sanity/components/CharacterCountInput
 import { documentBadges } from './src/sanity/components/documentBadges';
 import { undoRedoShortcuts } from './src/sanity/components/UndoRedo';
 import { SINGLETON_TYPES, withEditorActions } from './src/sanity/editorActions';
-import { STARTING_TEMPLATES } from './src/sanity/templates';
+import { NOTICE_TEMPLATES, SEASON_TEMPLATES, STARTING_TEMPLATES } from './src/sanity/templates';
 import { QrCodeTool } from './src/sanity/components/QrCodeTool';
 import { BrandKitTool } from './src/sanity/components/BrandKitPane';
 import { HelpPane } from './src/sanity/components/HelpPane';
@@ -128,13 +128,17 @@ const masSiteGuide = definePlugin({
 });
 
 /**
- * The only things the global "+ Create" menu offers, in this order (Phase A).
+ * The only things the global "+ Create" menu offers, in this order (Phase A;
+ * the notices and season pages joined on 2026-10-18).
  * The three she makes most start from a template (src/sanity/templates.ts).
  */
 const CREATE_MENU = [
   'new-photo',
   'new-clearance-item',
   'new-question',
+  // The seasons of her shop (2026-10-18): the notices and the season pages.
+  ...NOTICE_TEMPLATES,
+  ...SEASON_TEMPLATES,
   'pricingTier',
   'font',
   'threadColor',

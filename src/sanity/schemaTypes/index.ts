@@ -36,6 +36,10 @@ import { pricingTier } from './pricingTier';
 import { clearanceItem } from './clearanceItem';
 import { faqItem } from './faqItem';
 import { legalPage } from './legalPage';
+// The seasons of her shop (2026-10-18): gift guides and season pages, and the
+// notice across the top of every page.
+import { collection } from './collection';
+import { announcement } from './announcement';
 
 // ── Start Here (studio helper documents — keep from starter) ──────────────────
 import { studioGuide } from './studioGuide';
@@ -76,6 +80,8 @@ export const schemaTypes = [
   clearanceItem,
   faqItem,
   legalPage,
+  collection,
+  announcement,
 
   // ── Start Here helper docs ────────────────────────────────────────────────────
   studioGuide,

@@ -1,133 +1,140 @@
-// Foundation, edit with care
-// Site-wide announcement banner collection.
+// Safe to edit by hand (the words); field names hold data, never rename them
+// =============================================================================
+// "Notice across the top": a short line above the header on every page
+// =============================================================================
+// Registered for Mary Ann on 2026-10-18 (the file was a starter leftover that
+// BaseLayout already knew how to draw; the query is getActiveNotices() in
+// src/lib/queries.ts). For the seasons of her shop: "Order by December 1 for
+// Christmas", "New clearance items are up", "I am away until January 5".
 //
-// Editors can queue several notices ahead of time (a sale, a closure, a
-// seasonal promotion) and let them switch on and off by date. The active
-// announcement shows at the top of every page above the header. BaseLayout
-// picks the most urgent entry that is currently within its date window.
+// One notice shows at a time: the most important one inside its dates. The
+// site is built ahead of time, so the dates are honoured TWICE: at build time
+// (a notice outside its dates is drawn hidden) and in the visitor's browser (a
+// small script in BaseLayout shows or hides each notice by the clock), so a
+// notice appears on its first day and comes down after its last without a
+// rebuild. With JavaScript off, the build-time choice stands.
 //
-// "Active" = enabled AND (no startDate or startDate has passed) AND
-//            (no endDate or endDate is still in the future).
-//
-// Build-time note: date-window logic is evaluated at BUILD TIME. This is a
-// static site -- a banner only appears or disappears after a rebuild. Set up a
-// Cloudflare deploy hook on a daily schedule (docs/agent/deployment.md) if you
-// need banners to auto-expire without a manual publish.
-//
-// Style tokens map to existing semantic color tokens -- no new tokens are
-// introduced here:
-//   info      -> bg-muted (calm, informational)
-//   highlight -> bg-primary / text-primary-foreground (brand accent, good news)
-//   urgent    -> bg-destructive / text-destructive-foreground (red, closures)
+// The Quick update tool's "Put up a notice" and "I am away" forms make these
+// (src/lib/quick-updates.ts). Words: plain, no em-dashes, no developer words.
+// =============================================================================
 
 import { defineType, defineField } from 'sanity';
-import { BellIcon } from '@sanity/icons/Bell';
+import { previewDate, previewSubtitle } from '../../lib/studio-icons';
+import { bracketsLeft } from './_copy';
+
+/** The three looks, in her words. The values are stored data: never rename them. */
+export const NOTICE_STYLES = [
+  { title: 'Calm (a soft linen band)', value: 'info' },
+  { title: 'Good news (an indigo band)', value: 'highlight' },
+  { title: 'Important (a midnight blue band)', value: 'urgent' },
+] as const;
 
 export const announcement = defineType({
   name: 'announcement',
-  title: 'Announcement',
+  title: 'Notice across the top',
   type: 'document',
-  icon: BellIcon,
   fields: [
     defineField({
-      name: 'internalTitle',
-      title: 'Internal name',
+      name: 'message',
+      title: 'What the notice says',
       type: 'string',
       description:
-        'For your reference in the Studio only. Not shown on the site. Example: "Summer hours notice".',
-      validation: (Rule) => Rule.required(),
+        'One or two short sentences, shown across the top of every page. For example "Order by December 1 for Christmas delivery."',
+      validation: (Rule) => [
+        Rule.required().error('Please type what the notice says.'),
+        Rule.max(160).warning('This is getting long, so it may not fit nicely on a phone.'),
+        Rule.custom(bracketsLeft).warning(),
+      ],
     }),
     defineField({
-      name: 'message',
-      title: 'Message',
-      type: 'string',
+      name: 'enabled',
+      title: 'Show it on my website',
+      type: 'boolean',
       description:
-        'The text shown in the banner. Keep it short (under 160 characters). Example: "We are closed 26 Dec through 1 Jan. Replies will be slower than usual."',
-      validation: (Rule) => Rule.required().max(160),
+        'Turn this off to take the notice down straight away. You can turn it on again later.',
+      initialValue: true,
     }),
     defineField({
       name: 'style',
-      title: 'Style',
+      title: 'How it looks',
       type: 'string',
-      description:
-        'Info = calm muted background (neutral updates). Highlight = brand primary (good news, promotions). Urgent = red (closures, important warnings).',
-      options: {
-        list: [
-          { title: 'Info (neutral, muted background)', value: 'info' },
-          { title: 'Highlight (brand primary, good news)', value: 'highlight' },
-          { title: 'Urgent (red, closures or warnings)', value: 'urgent' },
-        ],
-        layout: 'radio',
-      },
+      options: { list: [...NOTICE_STYLES], layout: 'radio' },
       initialValue: 'info',
     }),
     defineField({
+      name: 'startDate',
+      title: 'First day to show it',
+      type: 'datetime',
+      description: 'Leave it empty to show the notice as soon as you press Publish.',
+    }),
+    defineField({
+      name: 'endDate',
+      title: 'Take it down after',
+      type: 'datetime',
+      description:
+        'After this time the notice disappears by itself. Leave it empty to keep it up until you turn it off.',
+    }),
+    defineField({
       name: 'link',
-      title: 'Link (optional)',
+      title: 'A link for more (you can leave this empty)',
       type: 'object',
-      description: 'Optional. Adds a clickable link at the end of the message.',
-      options: { collapsible: true, collapsed: true },
+      options: { collapsible: true, collapsed: false },
       fields: [
         defineField({
           name: 'label',
-          title: 'Link label',
+          title: 'Words on the link',
           type: 'string',
-          description: 'The clickable text. Example: "See our holiday schedule".',
+          description: 'For example "See the gift guide".',
         }),
         defineField({
           name: 'url',
-          title: 'URL',
+          title: 'Where the link goes',
           type: 'string',
-          description: 'A page on this site like /contact, or a full https:// address.',
+          description:
+            'A page on your website, written like /clearance/, or a full web address starting with https://',
         }),
       ],
     }),
     defineField({
-      name: 'startDate',
-      title: 'Show from (optional)',
-      type: 'datetime',
+      name: 'internalTitle',
+      title: 'Name for you',
+      type: 'string',
       description:
-        'Leave blank to show immediately when enabled. Set a date to schedule the banner ahead of time. Evaluated at build time -- set up a scheduled rebuild if you need precise timing.',
-    }),
-    defineField({
-      name: 'endDate',
-      title: 'Hide after (optional)',
-      type: 'datetime',
-      description:
-        'Leave blank to keep showing until you disable it. Set a date to auto-expire the banner. Evaluated at build time -- a rebuild is needed for the banner to disappear.',
-    }),
-    defineField({
-      name: 'enabled',
-      title: 'Enabled',
-      type: 'boolean',
-      description:
-        'Master on/off switch. When off, this announcement never shows regardless of dates.',
-      initialValue: true,
+        'Only you see this, in the list of notices. For example "Christmas order deadline". Leave it empty to use the notice itself.',
     }),
   ],
   preview: {
     select: {
       message: 'message',
-      style: 'style',
+      name: 'internalTitle',
       enabled: 'enabled',
       start: 'startDate',
       end: 'endDate',
     },
-    prepare: ({ message, style, enabled, start, end }) => {
-      const window = [
-        start ? new Date(start).toLocaleDateString() : null,
-        end ? new Date(end).toLocaleDateString() : null,
-      ]
-        .filter(Boolean)
-        .join(' to ');
+    prepare: ({ message, name, enabled, start, end }) => {
+      const now = Date.now();
+      const status =
+        enabled === false
+          ? 'Off'
+          : end && Date.parse(end) < now
+            ? 'Ended'
+            : start && Date.parse(start) > now
+              ? `Starts ${previewDate(start)}`
+              : end
+                ? `Shows until ${previewDate(end)}`
+                : 'Showing';
       return {
-        title: message || 'Announcement',
-        subtitle: `${enabled ? '' : 'OFF: '}${style ?? 'info'}${window ? ` (${window})` : ''}`,
+        title: name || message || 'A notice with no words yet',
+        subtitle: previewSubtitle(status, name ? message : null),
       };
     },
   },
   orderings: [
-    { title: 'Soonest to end', name: 'endAsc', by: [{ field: 'endDate', direction: 'asc' }] },
-    { title: 'Newest', name: 'createdDesc', by: [{ field: '_createdAt', direction: 'desc' }] },
+    { title: 'Ending soonest', name: 'endAsc', by: [{ field: 'endDate', direction: 'asc' }] },
+    {
+      title: 'Newest first',
+      name: 'createdDesc',
+      by: [{ field: '_createdAt', direction: 'desc' }],
+    },
   ],
 });

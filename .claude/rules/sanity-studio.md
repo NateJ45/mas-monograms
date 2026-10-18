@@ -47,27 +47,29 @@ generate`), not from a `studio/` workspace.
   `docs/agent/studio-kit.md`, all PORTABLE) dressed for her, with every piece she had kept. Her settings are
   ONE file, `src/sanity/kit.config.ts`. Where each 2026-10-05 piece went:
 
-  | Before (2026-10-05)                                     | Now                                                                                                   |
-  | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-  | Welcome pane + 10 cards (`WelcomePane`, `welcomeTasks`) | Home tool: the first four cards are its big buttons (`quickActions`), the rest are "Your pages" links |
-  | `StudioLayout`: open on Welcome, tour, hide Drafts      | Home is the first tool; the kit's tour (`tourSteps`, her words); staff view hides Drafts and Releases |
-  | `StudioTour` (key `mas-studio-tour-v1`)                 | the kit's tour, once per Sanity user per browser (she sees it once more)                              |
-  | "What needs attention" (`CheckupTool`, `CHECKS`)        | the Checkup tool and Home's Fix-it list: generic rules + her six in `src/sanity/checkupRules.ts`      |
-  | Help (how do I...?) pane, guides                        | the Site Guide tool, still HER handbook (`HelpPane`, swapped in by `masSiteGuide` in sanity.config)   |
-  | Move to Trash / Bring it back (`actions/trash.tsx`)     | the kit's Trash (same snapshot model, same words; `trashTypes` = the six lists)                       |
-  | Publish note ("2 to 3 minutes")                         | the kit's note after Publish + the status line counting down (`typicalUpdateMinutes: 3`)              |
-  | `buildLegacyTheme` Heirloom Coast + `readableFonts`     | the kit theme from `brand/brand.config.json` + her ramp (`readableTheme.ts`)                          |
-  | `StudioLogo` (never drawn by Sanity 6)                  | workspace title and icon, the site's own `/studio` page and splash, the wordmark (cards 110, 120)     |
-  | emoji `ToolHeading`                                     | the kit's `ToolHeading` with icons by meaning (card 119, `brandIconArt.tsx`: hoop, spool, needle...)  |
-  | (new)                                                   | weekly checklist "My weekly 15 minutes", help panel beside each form, Messages, table panes, banner   |
+  | Before (2026-10-05)                                     | Now                                                                                                                                                               |
+  | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | Welcome pane + 10 cards (`WelcomePane`, `welcomeTasks`) | Home tool: the first four cards are its big buttons (`quickActions`), the rest are "Your pages" links                                                             |
+  | `StudioLayout`: open on Welcome, tour, hide Drafts      | Home is the first tool; the kit's tour (`tourSteps`, her words); staff view hides Drafts and Releases                                                             |
+  | `StudioTour` (key `mas-studio-tour-v1`)                 | the kit's tour, once per Sanity user per browser (she sees it once more)                                                                                          |
+  | "What needs attention" (`CheckupTool`, `CHECKS`)        | the Checkup tool and Home's Fix-it list: generic rules + her six in `src/sanity/checkupRules.ts`                                                                  |
+  | Help (how do I...?) pane, guides                        | the Site Guide tool, still HER handbook (`HelpPane`, swapped in by `masSiteGuide` in sanity.config)                                                               |
+  | Move to Trash / Bring it back (`actions/trash.tsx`)     | the kit's Trash (same snapshot model, same words; `trashTypes` = the six lists)                                                                                   |
+  | Publish note ("2 to 3 minutes")                         | the kit's note after Publish + the status line counting down (`typicalUpdateMinutes: 3`)                                                                          |
+  | `buildLegacyTheme` Heirloom Coast + `readableFonts`     | the kit theme from `brand/brand.config.json` + her ramp (`readableTheme.ts`)                                                                                      |
+  | `StudioLogo` (never drawn by Sanity 6)                  | workspace title and icon, the site's own `/studio` page and splash, the wordmark (cards 110, 120)                                                                 |
+  | emoji `ToolHeading`                                     | the kit's `ToolHeading` with icons by meaning (card 119, `brandIconArt.tsx`: hoop, spool, needle...)                                                              |
+  | (new)                                                   | weekly checklist "My weekly 15 minutes", help panel beside each form, Messages, table panes, banner                                                               |
+  | (new, 2026-10-18 PR 2)                                  | "Gift guides and seasons" (`collection`, six season starting points) and "Notices across the top" (`announcement`, three starting points, two Quick update forms) |
 
   Kept as they were: the QR tool and brand kit (registered by `masTools` before the kit), "Copy a link..."
   (`actions/shareLink.tsx`; the kit's "Share a preview" is NOT on, see `docs/PENDING.md`), Undo/Redo, badges,
   the Google preview, locked addresses, drag lists, plain tool names (`kitConfig.toolTitles`), one
-  publishing model, the seven-item Create menu. Mary Ann is in `kitConfig.staff` (her public email until her
+  publishing model, a Create menu of only the things she makes. Mary Ann is in `kitConfig.staff` (her public email until her
   invitation is accepted and her user id can replace it). The desk (`src/sanity/structure.ts`, wrapped in
   `staffDesk`): My business details, Pages on my website (legal pages inside), Photos of my work, Clearance and
-  prices (with two table panes), Fonts, threads and categories, Questions and answers, Make a QR code, My
+  prices (with two table panes), Fonts, threads and categories, Questions and answers, Gift guides and seasons
+  (`DESK.collections`), Notices across the top (`DESK.notices`), Make a QR code, My
   brand kit, My notes and ideas, Trash. **Every pane has an explicit `.id()`**, and the ids anything links
   to live in `DESK` (`src/sanity/studioTargets.ts`); a derived id comes from the title and breaks deep
   links (the Stone Steps lesson). `src/lib/studio-targets.test.ts` fails if Home points at a pane the desk
@@ -77,8 +79,8 @@ generate`), not from a `studio/` workspace.
     `{create, template}`, `{tool}` (the same shape as the kit's `StudioTarget`).
   - Config: tool titles "Edit my content" / "Edit on the page" / "My photo library" (`kitConfig.toolTitles`:
     sanity-plugin-media has no title option); releases, scheduled drafts, scheduled
-    publishing, tasks, comments and announcements are OFF; the global "+" menu offers only the seven things
-    she makes (`CREATE_MENU`), and a reference box can never create a singleton (`creationContext.type ===
+    publishing, tasks, comments and announcements are OFF; the global "+" menu offers only the things
+    she makes (`CREATE_MENU`: photos, clearance, questions, notices, season pages and the lists), and a reference box can never create a singleton (`creationContext.type ===
 'document'`, the fbcm fix).
   - Document actions: the kit adds the note after Publish and Move to Trash first; then
     `src/sanity/editorActions.ts` applies the singleton rules (`SINGLETON_TYPES`, the ONE list), Undo/Redo

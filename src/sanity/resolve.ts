@@ -59,6 +59,11 @@ export const resolve: PresentationPluginOptions['resolve'] = {
     ...Object.entries(SINGLETON_PREVIEW_PATHS)
       .filter(([type]) => type !== 'homePage')
       .map(([type, href]) => ({ route: href, filter: `_type == "${type}"` })),
+    // Gift guides and season pages (2026-10-18): /preview/collections/<slug>.
+    {
+      route: '/preview/collections/:slug',
+      filter: `_type == "collection" && slug.current == $slug`,
+    },
     // Category pages (2026-10-05): /preview/<slug> renders the real category
     // page. LAST on purpose: the pattern would also match every fixed page
     // above, and the first match wins.
@@ -83,6 +88,16 @@ export const resolve: PresentationPluginOptions['resolve'] = {
             : []),
           { title: 'Shop by Item', href: '/preview/shop-by-item' },
         ],
+      }),
+    }),
+    // Each gift guide or season page has its own page (2026-10-18).
+    collection: defineLocations({
+      select: { name: 'name', slug: 'slug.current' },
+      resolve: (doc) => ({
+        locations: doc?.slug
+          ? [{ title: doc.name || 'This page', href: `/preview/collections/${doc.slug}` }]
+          : [],
+        message: doc?.slug ? undefined : 'Press Generate under Web address to see this page.',
       }),
     }),
     pricingTier: { locations: [{ title: 'Pricing', href: '/preview/pricing' }] },

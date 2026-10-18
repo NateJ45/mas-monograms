@@ -46,6 +46,7 @@ export const RESERVED_SLUGS = new Set([
   'thread-color-chart',
   'thank-you',
   'legal',
+  'collections',
 ]);
 
 /** Returns true when a slug collides with a built-in route. */

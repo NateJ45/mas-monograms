@@ -34,6 +34,7 @@ import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
 import { DESK } from './studioTargets';
 import { brandIcon, typeIcon } from './brandIcons';
+import { buildAwayNotice, buildNotice } from '../lib/quick-updates';
 
 const PUBLISHED = '!(_id in path("drafts.**"))';
 
@@ -51,6 +52,7 @@ const SEO_TYPES = [
   'clearancePage',
   'itemCategory',
   'legalPage',
+  'collection',
 ];
 
 const rules: CheckupRule[] = [
@@ -78,6 +80,7 @@ export const kitConfig: KitConfig = {
 
   staffTools: [
     'home',
+    'quick-update',
     'structure',
     'presentation',
     'messages',
@@ -89,6 +92,7 @@ export const kitConfig: KitConfig = {
   ],
   toolOrder: [
     'home',
+    'quick-update',
     'structure',
     'presentation',
     'messages',
@@ -120,6 +124,8 @@ export const kitConfig: KitConfig = {
     pricingTier: 'Price tag',
     threadColor: 'Thread color',
     font: 'Embroidery font',
+    collection: 'Gift guide or season page',
+    announcement: 'Notice',
   },
 
   weekStartsOn: 1,
@@ -169,6 +175,72 @@ export const kitConfig: KitConfig = {
     },
   ],
 
+  // Quick update (card 111): the notices she puts up from her phone. Each
+  // publishes straight away, so the builders in src/lib/quick-updates.ts
+  // return whole, valid notices (tested in quick-updates.test.ts).
+  quickUpdate: [
+    {
+      id: 'notice',
+      title: 'Put up a notice',
+      detail: 'A short line across the top of every page, until the day you pick.',
+      icon: typeIcon('announcement'),
+      fields: [
+        {
+          name: 'message',
+          title: 'The notice',
+          kind: 'text',
+          required: true,
+          max: 160,
+          description: 'One or two short sentences, like "Order by December 1 for Christmas."',
+        },
+        { name: 'lastDay', title: 'Last day to show it', kind: 'date', required: true },
+        {
+          name: 'link',
+          title: 'A link for more',
+          kind: 'url',
+          description: 'A full web address starting with https://, or leave it empty.',
+        },
+      ],
+      submitLabel: 'Put it on my website',
+      build: (v) =>
+        buildNotice({ message: v.message, lastDay: v.lastDay, link: v.link || undefined }),
+      doneMessage:
+        'The notice will be on your website in about 2 to 3 minutes, and it comes down by itself after the day you picked.',
+    },
+    {
+      id: 'away',
+      title: 'I am away for a while',
+      detail: 'A vacation or a busy week. People see it before they send a quote request.',
+      icon: brandIcon('times'),
+      fields: [
+        {
+          name: 'firstDay',
+          title: 'First day away',
+          kind: 'date',
+          description: 'Leave it empty to show the notice straight away.',
+        },
+        { name: 'lastDay', title: 'Last day away', kind: 'date', required: true },
+        {
+          name: 'message',
+          title: 'What it says (you can leave this empty)',
+          kind: 'text',
+          max: 160,
+          description:
+            'Leave it empty for "I am away until <the day>. Quote requests will be answered when I am back."',
+        },
+      ],
+      submitLabel: 'Put it on my website',
+      build: (v) =>
+        buildAwayNotice({
+          firstDay: v.firstDay || undefined,
+          lastDay: v.lastDay,
+          message: v.message || undefined,
+        }),
+      doneMessage:
+        'The notice will be on your website in about 2 to 3 minutes, from the first day you picked until the last.',
+    },
+  ],
+
   checkup: {
     rules,
     // Her notes and Nathan's older help pages are not website content.
@@ -210,6 +282,12 @@ export const kitConfig: KitConfig = {
           target: { doc: 'atelierSettings' },
         },
       ],
+    },
+    {
+      title: 'Gift guides and seasons',
+      detail: 'Your season pages, and the notice across the top',
+      links: [{ title: 'Notices across the top', target: { pane: DESK.notices } }],
+      listType: 'collection',
     },
     {
       title: 'Lists',

@@ -75,7 +75,8 @@
         "threadColor": "brandKit",
         "pricingTier": "give",
         "clearanceItem": "give",
-        "studioPlaybook": "guide"
+        "studioPlaybook": "guide",
+        "collection": "event"
       },
       "groups": {},
       "tools": {

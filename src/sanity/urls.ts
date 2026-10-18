@@ -76,6 +76,8 @@ export function pathForDoc(schemaType: string, doc: any): string | null {
       return slug ? `/${slug}` : '/shop-by-item';
     case 'legalPage':
       return slug ? `/legal/${slug}` : null;
+    case 'collection':
+      return slug ? `/collections/${slug}` : null;
     // ── Collections that render inside a parent page ────────────────────────
     case 'galleryItem':
       return '/style-gallery';
