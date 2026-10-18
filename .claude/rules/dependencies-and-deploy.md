@@ -27,7 +27,7 @@ Never bump one of the matched-set packages in isolation.
      wrangler 4.126+ rejects that field outright. (The starter checked the same
      thing and found no `legacy_env` on its config, so do not take its "currently
      belt-and-braces" note as applying here.)
-   - `react`, `react-dom` and `react-is` are pinned **exact** at 19.2.7. A
+   - `react`, `react-dom` and `react-is` are pinned **exact** at 19.3.1 (since 2026-10-18, PORTS.md card 112). A
      mismatch dies inside workerd behind a wall of Miniflare stack frames; the
      real message, `Incompatible React versions`, is buried **above** the
      `MiniflareCoreError`.
