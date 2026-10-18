@@ -1,23 +1,26 @@
 // =============================================================================
-// Mary Ann's Studio: deep links, the Welcome cards and the desk agree
+// Mary Ann's Studio: deep links, Home's buttons and the desk agree
 // =============================================================================
-// The Welcome cards, the help pane and the desk all name panes by id. A card
-// whose pane id the desk no longer has is a dead button she will press and
-// wonder about, and nothing else would notice: the build, the type check and
-// the site tests all pass. This file holds them together (2026-10-05, Phase A
-// of docs/superpowers/specs/2026-10-05-studio-direction.md).
+// Home's big buttons and "Your pages" (src/sanity/kit.config.ts), the guides
+// and the desk all name panes by id. A button whose pane id the desk no longer
+// has is a dead button she will press and wonder about, and nothing else would
+// notice: the build, the type check and the site tests all pass. This file
+// holds them together (2026-10-05, Phase A of
+// docs/superpowers/specs/2026-10-05-studio-direction.md; Home replaced the
+// Welcome pane on 2026-10-18).
 // =============================================================================
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { DESK, shouldOpenWelcome, studioTargetPath } from '../sanity/studioTargets.ts';
-import { WELCOME_TASKS } from '../sanity/welcomeTasks.ts';
+import { DESK, studioTargetPath } from '../sanity/studioTargets.ts';
 
 const read = (relative: string) =>
   readFileSync(fileURLToPath(new URL(relative, import.meta.url)), 'utf8');
 
 const STRUCTURE = read('../sanity/structure.ts');
+// Read as text: kit.config.ts pulls in the Studio's React icons.
+const KIT = read('../sanity/kit.config.ts');
 
 // ── studioTargetPath ──────────────────────────────────────────────────────────
 
@@ -48,33 +51,6 @@ test('pane and tool targets are plain paths', () => {
   assert.equal(studioTargetPath('/studio', { tool: 'presentation' }), '/studio/presentation');
 });
 
-// ── shouldOpenWelcome ─────────────────────────────────────────────────────────
-
-test('an empty desk opens Welcome; anything open, or another tool, does not', () => {
-  assert.equal(shouldOpenWelcome({ tool: 'structure' }), true);
-  assert.equal(shouldOpenWelcome({ tool: 'structure', structure: {} }), true);
-  assert.equal(shouldOpenWelcome({ tool: 'structure', structure: { panes: [] } }), true);
-  assert.equal(
-    shouldOpenWelcome({ tool: 'structure', structure: { panes: [[{ id: 'photos' }]] } }),
-    false,
-  );
-  assert.equal(shouldOpenWelcome({ tool: 'presentation' }), false);
-  assert.equal(shouldOpenWelcome({}), false);
-  assert.equal(shouldOpenWelcome(null), false);
-});
-
-test('an edit link being resolved is left alone', () => {
-  assert.equal(shouldOpenWelcome({ tool: 'structure', intent: 'edit' }), false);
-  assert.equal(
-    shouldOpenWelcome({ tool: 'structure', structure: { intent: 'edit', params: {} } }),
-    false,
-  );
-  assert.equal(
-    shouldOpenWelcome({ tool: 'structure', structure: { editDocumentId: 'homePage' } }),
-    false,
-  );
-});
-
 // ── The desk has every pane anything links to ─────────────────────────────────
 
 test('every DESK id is given to a pane in structure.ts', () => {
@@ -85,28 +61,36 @@ test('every DESK id is given to a pane in structure.ts', () => {
   }
 });
 
-test('every Welcome card that names a pane names one the desk has', () => {
-  const ids = new Set<string>(Object.values(DESK));
-  for (const task of WELCOME_TASKS) {
-    if (!('pane' in task.target)) continue;
-    for (const part of task.target.pane.split(';')) {
-      assert.ok(ids.has(part), `"${task.title}" points at a pane "${part}" the desk does not have`);
-    }
+test('every pane Home links to is one the desk has', () => {
+  const used = [...KIT.matchAll(/DESK\.(\w+)/g)].map((m) => m[1]);
+  assert.ok(used.length > 5, 'the check found the pane links');
+  for (const key of used) {
+    assert.ok(key in DESK, `kit.config.ts names DESK.${key}, which does not exist`);
   }
 });
 
-test('the Welcome cards cover the jobs the spec names', () => {
-  const titles = WELCOME_TASKS.map((t) => t.title);
-  for (const job of [
+test("Home's big buttons are the four jobs she does most", () => {
+  const quick = KIT.slice(KIT.indexOf('quickActions: ['), KIT.indexOf('tourSteps: ['));
+  const titles = [...quick.matchAll(/^\s+title: '([^']+)',$/gm)].map((m) => m[1]);
+  assert.deepEqual(titles, [
     'Add a photo of my work',
-    'Mark a clearance item sold or add one',
+    'Mark a clearance item sold, or add one',
     'Change a price',
     'Change my phone number or email',
-    'Change the words on my home page',
-    'See my website and edit it on the page',
-    'Something went wrong? Get help',
+  ]);
+});
+
+test('the old Welcome jobs all have a home on Home', () => {
+  // The other cards of the 2026-10-05 Welcome page: the home page words, Edit
+  // on the page (Home's "Edit the website" button), the QR tool, the brand kit,
+  // help (the Site Guide button) and the checkup (the Fix-it list).
+  for (const target of [
+    "{ doc: 'homePage' }",
+    "{ tool: 'qr-codes' }",
+    "{ tool: 'brand-kit' }",
+    "{ tool: 'checkup' }",
   ]) {
-    assert.ok(titles.includes(job), `no Welcome card for "${job}"`);
+    assert.ok(KIT.includes(target), `Home has no link to ${target}`);
   }
 });
 
@@ -126,23 +110,22 @@ test('every list item and pane in the desk has an explicit id', () => {
 
 const BANNED = [/—/, /\bslug\b/i, /\bschema\b/i, /\bdocument\b/i, /\bsingleton\b/i, /\bdataset\b/i];
 
-test('no Welcome card uses an em-dash or a developer word', () => {
-  for (const t of WELCOME_TASKS) {
-    for (const re of BANNED) {
-      assert.ok(!re.test(t.title) && !re.test(t.blurb), `"${t.title}" fails ${re}`);
-    }
+test('no word on Home or in the tour uses an em-dash or a developer word', () => {
+  const words = [...KIT.matchAll(/(?:title|detail|body|explain): '([^']+)'/g)].map((m) => m[1]);
+  assert.ok(words.length > 20, 'the check found the words');
+  for (const w of words) {
+    for (const re of BANNED) assert.ok(!re.test(w), `"${w}" fails ${re}`);
   }
 });
 
 test('no new Studio file for Mary Ann contains an em-dash', () => {
   for (const file of [
     '../sanity/structure.ts',
-    '../sanity/components/WelcomePane.tsx',
+    '../sanity/kit.config.ts',
+    '../sanity/checkupRules.ts',
+    '../sanity/studioEdges.config.ts',
+    '../sanity/tables.config.ts',
     '../sanity/components/HelpPane.tsx',
-    '../sanity/components/StudioTour.tsx',
-    '../sanity/components/StudioLayout.tsx',
-    '../sanity/components/ToolHeading.tsx',
-    '../sanity/components/publishNote.tsx',
     '../sanity/components/documentBadges.tsx',
     '../sanity/schemaTypes/_copy.ts',
   ]) {
@@ -157,12 +140,7 @@ test('the desk titles say what she does, not what the data is called', () => {
     ...STRUCTURE.matchAll(/\.title\('([^']+)'\)/g),
     ...STRUCTURE.matchAll(/^\s+title: '([^']+)',$/gm),
   ].map((m) => m[1]);
-  for (const expected of [
-    'Welcome',
-    'Photos of my work',
-    'My business details',
-    'Pages on my website',
-  ]) {
+  for (const expected of ['Photos of my work', 'My business details', 'Pages on my website']) {
     assert.ok(titles.includes(expected), `no desk title "${expected}"`);
   }
   for (const t of titles) {

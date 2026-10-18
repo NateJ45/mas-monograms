@@ -1,18 +1,21 @@
 // Phase D (2026-10-05): Trash, drag order, share link, Google preview, locked
 // addresses. Bare Node: the pure halves are imported, the wiring is read as text.
+//
+// Since 2026-10-18 the Trash is the shared Studio kit's (src/sanity/kit/trash.tsx,
+// src/lib/studio-trash.ts, tested in studio-trash.test.ts): the same
+// snapshot-to-Trash model this site started, ported back to the starter. What
+// stays here is what is only true of MAS: which lists have a Trash, her names
+// for them, and the words she reads.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  ARCHIVABLE_TYPES,
-  TRASH_KIND,
   buildTrashRecord,
   parseTrashPayload,
-  publishedId,
   referrersMessage,
   restoreDocs,
   trashTitle,
-} from '../sanity/lib/trash.ts';
+} from './studio-trash.ts';
 import {
   FIXED_PREVIEW_PATHS,
   SHARE_COPIED,
@@ -22,7 +25,6 @@ import {
   shareLinksWorkHere,
 } from '../sanity/lib/previewable.ts';
 import { descriptionHint, titleHint } from '../sanity/lib/googlePreview.ts';
-import { CHECKS } from './studio-checkup.ts';
 import { DESK } from '../sanity/studioTargets.ts';
 import { JARGON } from '../../scripts/audit-studio.mjs';
 
@@ -30,6 +32,36 @@ const read = (p: string) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const NOW = '2026-10-05T12:00:00.000Z';
 
 // ── Trash ─────────────────────────────────────────────────────────────────────
+
+/** kitConfig.trashTypes, read as text (kit.config.ts pulls in React icons). */
+function trashTypes(): Record<string, string> {
+  const src = read('../sanity/kit.config.ts');
+  const block = src.slice(
+    src.indexOf('trashTypes: {'),
+    src.indexOf('},', src.indexOf('trashTypes: {')),
+  );
+  return Object.fromEntries(
+    [...block.matchAll(/^\s+(\w+): '([^']+)',$/gm)].map((m) => [m[1], m[2]]),
+  );
+}
+
+test('the six everyday lists have a Trash, each with her name for it', () => {
+  assert.deepEqual(trashTypes(), {
+    galleryItem: 'Photo of my work',
+    clearanceItem: 'Clearance item',
+    faqItem: 'Question and answer',
+    pricingTier: 'Price tag',
+    threadColor: 'Thread color',
+    font: 'Embroidery font',
+  });
+});
+
+test('categories, pages and the Trash itself never go to the Trash', () => {
+  const types = trashTypes();
+  for (const t of ['itemCategory', 'legalPage', 'homePage', 'siteSettings', 'trashedItem']) {
+    assert.ok(!(t in types), t);
+  }
+});
 
 const photo = {
   _id: 'galleryItem-1',
@@ -42,149 +74,60 @@ const photo = {
   displayOrder: 1,
 };
 
-test('categories, pages and the Trash itself are never archivable', () => {
-  for (const t of ['itemCategory', 'legalPage', 'homePage', 'siteSettings', 'trashedItem']) {
-    assert.ok(!ARCHIVABLE_TYPES.has(t), t);
-  }
-  for (const t of ARCHIVABLE_TYPES) assert.ok(TRASH_KIND[t], `${t} has a plain name`);
-});
-
-test('a trash record keeps the published copy and the unpublished changes apart', () => {
-  const draft = {
-    ...photo,
-    _id: 'drafts.galleryItem-1',
-    image: { ...photo.image, alt: 'Navy towel, new words' },
-  };
-  const rec = buildTrashRecord('galleryItem', 'drafts.galleryItem-1', photo, draft, NOW);
-  assert.equal(rec._type, 'trashedItem');
-  assert.equal(rec.originalId, 'galleryItem-1');
-  assert.equal(rec.originalType, 'galleryItem');
-  assert.equal(rec.kind, 'Photo of my work');
-  assert.equal(rec.title, 'Navy towel, new words');
-  assert.equal(rec.wasPublished, true);
-  const back = parseTrashPayload(rec.payload, rec.originalId);
-  assert.equal(back.published?._id, 'galleryItem-1');
-  assert.equal(back.published?.image.alt, 'Navy towel');
-  assert.equal(back.draft?._id, 'drafts.galleryItem-1');
-  assert.equal(back.draft?.image.alt, 'Navy towel, new words');
-  // System fields are gone, so `create` cannot clash on _rev.
-  for (const d of restoreDocs(back)) {
-    assert.ok(!('_rev' in d) && !('_createdAt' in d) && !('_updatedAt' in d));
-  }
-  // The drag position comes back with it.
-  assert.equal(back.published?.orderRank, '0|100008:');
-});
-
-test('restoring a never-published item does not publish it', () => {
-  const draft = { ...photo, _id: 'drafts.galleryItem-2' };
-  const rec = buildTrashRecord('galleryItem', 'drafts.galleryItem-2', null, draft, NOW);
-  assert.equal(rec.wasPublished, false);
-  const docs = restoreDocs(parseTrashPayload(rec.payload, rec.originalId));
-  assert.deepEqual(
-    docs.map((d) => d._id),
-    ['drafts.galleryItem-2'],
-  );
-});
-
-test('the payload cannot move an item to a different id', () => {
+test('a photo goes to the Trash with its drag place and comes back unpublished changes apart', () => {
+  const draft = { ...photo, _id: 'drafts.galleryItem-1', name: 'Navy towel, new words' };
   const rec = buildTrashRecord(
-    'font',
-    'font-a',
-    { _id: 'font-a', _type: 'font', name: 'A' },
-    null,
+    'galleryItem',
+    'drafts.galleryItem-1',
+    photo,
+    draft,
     NOW,
+    'Photo of my work',
   );
-  const tampered = JSON.stringify({
-    published: { _id: 'homePage', _type: 'font', name: 'A' },
-    draft: null,
-  });
-  const back = parseTrashPayload(tampered, rec.originalId);
-  assert.equal(back.published?._id, 'font-a');
-});
-
-test("Reid's older single-copy payload still restores, as published", () => {
-  const back = parseTrashPayload(
-    JSON.stringify({ _id: 'faq-1', _type: 'faqItem', question: 'Q?' }),
-    'faq-1',
+  assert.equal(rec.kind, 'Photo of my work');
+  assert.equal(rec.originalId, 'galleryItem-1');
+  const back = parseTrashPayload(rec.payload as string, rec.originalId as string);
+  assert.equal(back.published?.orderRank, '0|100008:');
+  assert.equal(back.draft?._id, 'drafts.galleryItem-1');
+  assert.deepEqual(
+    restoreDocs(back).map((d) => d._id),
+    ['galleryItem-1', 'drafts.galleryItem-1'],
   );
-  assert.equal(back.published?._id, 'faq-1');
-  assert.equal(back.draft, null);
-});
-
-test('nothing to trash is an error, not an empty Trash row', () => {
-  assert.throws(() => buildTrashRecord('font', 'font-a', null, null, NOW));
 });
 
 test('trash titles are readable and never blank', () => {
-  assert.equal(trashTitle(photo), 'Navy towel');
   assert.equal(trashTitle({ _type: 'faqItem', question: 'How long?' }), 'How long?');
   assert.equal(trashTitle({ _type: 'pricingTier', label: 'Basic' }), 'Basic');
-  assert.equal(trashTitle({ _type: 'font' }), 'Embroidery font with no name');
+  assert.equal(trashTitle({ _type: 'font' }, 'Embroidery font'), 'Embroidery font with no name');
   assert.equal(trashTitle(null), 'Something with no name');
-  assert.equal(publishedId('drafts.x'), 'x');
-});
-
-test('an item another item uses is refused in plain words', () => {
-  assert.equal(referrersMessage([]), null);
-  const one = referrersMessage([{ _id: 'g1', _type: 'galleryItem', name: 'Navy towel' }]);
-  assert.match(one!, /^Another item uses this one: Navy towel\./);
-  const many = referrersMessage([
-    { _id: 'g1', _type: 'galleryItem', name: 'A' },
-    { _id: 'g2', _type: 'galleryItem', name: 'B' },
-    { _id: 'g3', _type: 'galleryItem', name: 'C' },
-    { _id: 'g4', _type: 'galleryItem', name: null },
-  ]);
-  assert.match(many!, /4 other items use this one: A, B, C and 1 more/);
 });
 
 test('the Trash words she reads use no jargon and no em-dash', () => {
-  const action = read('../sanity/actions/trash.tsx');
+  const action = read('../sanity/kit/trash.tsx');
   const words = [
     ...[
       ...action.matchAll(
         /(?:message|label|title|description|confirmButtonText|cancelButtonText|header):\s*\n?\s*['`]([^'`]+)['`]/g,
       ),
     ].map((m) => m[1]),
-    ...[...action.matchAll(/export const TRASH_\w+ =\s*\n?\s*'([^']+)'/g)].map((m) => m[1]),
     referrersMessage([{ _id: 'g1', _type: 'galleryItem', name: 'X' }])!,
-    ...Object.values(TRASH_KIND),
+    ...Object.values(trashTypes()),
   ];
   assert.ok(words.length > 10, 'found the words');
   for (const w of words) for (const j of JARGON) assert.ok(!j.re.test(w), `"${w}": ${j.why}`);
-  assert.ok(
-    action.includes(
-      'Move this to Trash? It comes off your website, and you can bring it back from Trash if you change your mind.',
-    ),
-  );
+  for (const w of words) assert.ok(!w.includes('\u2014'), w);
 });
 
-test('editorActions swaps Delete for Move to Trash and gives the Trash only two actions', () => {
-  const src = read('../sanity/editorActions.ts');
-  assert.match(src, /schemaType === TRASH_TYPE\) return \[RestoreAction, DeleteForeverAction\]/);
-  assert.match(src, /action !== 'delete'\), MoveToTrashAction\]/);
+test('the desk lists the Trash under her words, and the safety net never does', () => {
   const desk = read('../sanity/structure.ts');
   assert.match(desk, /\.id\(DESK\.trash\)/);
   assert.match(desk, /\.title\('Trash \(bring things back\)'\)/);
-  assert.match(desk, /'trashedItem',/); // in PLACED, so the safety net never lists it
+  assert.match(desk, /\n  TRASH_TYPE,\n/); // in PLACED
+  assert.equal(DESK.trash, 'trash'); // the kit's Checkup links to the pane 'trash'
 });
 
 test('the site never reads the Trash', () => {
   assert.ok(!read('./queries.ts').includes('trashedItem'));
-});
-
-test('the checkup says how many things are in the Trash, and nothing else counts them', () => {
-  const c = CHECKS.find((x) => x.id === 'things-in-trash');
-  assert.ok(c);
-  assert.equal(c.evaluate(0, 0), null);
-  const r = c.evaluate(2, 0);
-  assert.equal(r?.severity, 'For information');
-  assert.equal(r?.label, '2 things in the Trash');
-  assert.deepEqual(r?.target, { pane: DESK.trash });
-  // No other check looks at trashedItem: a trashed original is deleted, so it
-  // cannot be counted as a photo, a clearance item or an unpublished change.
-  for (const other of CHECKS.filter((x) => x.id !== 'things-in-trash')) {
-    assert.ok(!other.query.includes('trashedItem'), other.id);
-  }
 });
 
 // ── Drag order ────────────────────────────────────────────────────────────────

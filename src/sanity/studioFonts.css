@@ -1,0 +1,8 @@
+/* The site's font files, loaded into the Studio (PORTS.md card 116).
+   Written by hand for MAS Monograms from brand/brand.config.json
+   (fonts.display.imports and fonts.body.imports): this repo does not run
+   apply-brand. sanity.config.ts imports this file; the family names are
+   DISPLAY_STACK and BODY_STACK there. studio-theme.test.ts fails if this list
+   drifts from the brand. */
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/mulish';

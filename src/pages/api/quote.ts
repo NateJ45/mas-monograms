@@ -31,12 +31,32 @@ interface EmailMessage {
   replyTo?: string;
 }
 
+/** The two R2 calls this route makes (the binding's real type is Cloudflare's R2Bucket). */
+interface QuoteBucket {
+  put(
+    key: string,
+    value: string | ArrayBuffer,
+    options?: { httpMetadata?: { contentType?: string } },
+  ): Promise<unknown>;
+}
+
+/** The one D1 call this route makes (the binding's real type is Cloudflare's D1Database). */
+interface MessagesDb {
+  prepare(sql: string): { bind(...values: unknown[]): { run(): Promise<unknown> } };
+}
+
 interface Env {
   /** Cloudflare Email Service `send_email` binding (wrangler.jsonc). */
   EMAIL?: { send(message: EmailMessage): Promise<{ messageId?: string }> };
   QUOTE_OWNER_EMAIL?: string;
   TURNSTILE_SECRET_KEY?: string;
-  QUOTE_BACKUP?: R2Bucket;
+  QUOTE_BACKUP?: QuoteBucket;
+  /**
+   * Optional D1 database for the Studio's Messages inbox (starter PORTS.md card
+   * 117). Not bound yet: see docs/PENDING.md. While it is missing the quote
+   * works exactly as before (R2 backup + email).
+   */
+  CONTACT_DB?: MessagesDb;
 }
 
 /** Must match data-action on the widget in request-a-quote.astro. */
@@ -280,6 +300,37 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
       );
     }
   });
+  // ── 7. A row for the Studio's Messages inbox (card 117), when D1 is bound ──
+  // Same table and columns as the family's contact form
+  // (migrations/0001_contact_submissions.sql), so the kit's Messages tool lists
+  // quote requests with a status pill (New, Needs a person, Replied, Spam).
+  // `notified` is whether Mary Ann's email went out, so a quote whose email
+  // failed shows as "Needs a person". Never fatal: the email and R2 come first.
+  if (env.CONTACT_DB) {
+    const ownerFailed = results[0].status === 'rejected';
+    try {
+      await env.CONTACT_DB.prepare(
+        `INSERT INTO contact_submissions
+           (received_at, name, email, subject, message, notified, notify_error, user_agent, country)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+        .bind(
+          submission.submittedAt.toISOString(),
+          name,
+          email,
+          owner.subject,
+          owner.text,
+          ownerFailed ? 0 : 1,
+          ownerFailed ? String((results[0] as PromiseRejectedResult).reason).slice(0, 300) : null,
+          (request.headers.get('user-agent') ?? '').slice(0, 300) || null,
+          request.headers.get('cf-ipcountry'),
+        )
+        .run();
+    } catch (err) {
+      console.error('Messages inbox row failed (non-fatal):', err);
+    }
+  }
+
   // Mary Ann's copy is the one that matters. If it failed, do not claim success.
   if (results[0].status === 'rejected') {
     return jsonError('We could not send your request. Please email us directly.', 502);

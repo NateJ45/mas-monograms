@@ -9,6 +9,43 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: needs a human (Nathan or Mary Ann)
 
+- **The Studio on the shared kit (2026-10-18, starter cards 106 to 120): Nathan's switches.** Built and
+  unit-tested; the signed-out `/studio/` page was checked in a browser. Each item below unlocks one piece and
+  until then that piece says "not set up yet" by itself:
+  - **Mary Ann's invitation is still pending** (Sanity project members, checked 2026-10-18: invited
+    2026-07-08 as Administrator, never accepted). Until she accepts she cannot sign in at all. When she
+    has, swap her email in `kitConfig.staff` (`src/sanity/kit.config.ts`) for her Sanity user id.
+  - **Publish webhook filter**: add `"studioWeek"` and `"previewShare"` to the "Rebuild live site" webhook's
+    deny-list (sanity.io/manage, API, Webhooks), or every hand tick on Home rebuilds the site.
+  - **Visitors card**: create a Cloudflare Web Analytics site for mas-monograms.com, set the beacon token
+    as the `PUBLIC_CF_ANALYTICS_TOKEN` BUILD variable in Workers Builds (the site already renders the beacon
+    when it is set; it is not set in production), then on the Worker: secret `CF_ANALYTICS_TOKEN` (Account
+    Analytics: Read), vars `CF_ACCOUNT_ID` and `CF_WEB_ANALYTICS_SITE_TAG`. The Privacy page names Google
+    Analytics; add a line for Cloudflare Web Analytics (cookieless) in the same change.
+  - **Messages (quote requests in the Studio)**: `npx wrangler d1 create mas-monograms-messages`, add the
+    `CONTACT_DB` binding to `wrangler.jsonc` (a commented block is there), apply
+    `migrations/0001_contact_submissions.sql` and `0002_message_status.sql` with
+    `npx wrangler d1 migrations apply mas-monograms-messages --remote`, and say so on the Privacy page (the
+    quote details are then also kept in D1, beside the R2 backup). `src/pages/api/quote.ts` writes a row
+    only when the binding exists.
+  - **"The last update didn't go through"** (card 111) reads GitHub Actions, but this site deploys through
+    Cloudflare Workers Builds, so the route answers "not set up" and the status line falls back to the
+    build-time check. Nothing to set; a Workers Builds version is a starter proposal.
+  - **Morning change note**: `.github/workflows/change-note.yml` is in with its schedule commented out. To
+    switch on: the `SANITY_PROJECT_ID` repo variable (`xp3elugr`), uncomment the schedule, and watch the
+    repo. `SANITY_AUTH_TOKEN` is already set (the backup uses it).
+  - **`PUBLIC_STUDIO_HELP_EMAIL`** build variable in Workers Builds, so Home's "Ask Nathan" has an email
+    button (kept out of the repo on purpose).
+- **Check the kit Studio signed in (2026-10-18).** It replaces the Phase A, B and D click lists below for
+  everything the kit now draws. Open `/studio` signed in, read the console, and check: Home opens first with
+  the Indigo Deep banner, the Hoop Seal, "Monograms" in Petemoss and the gold thread along the foot; the four
+  big buttons land on a new photo, the clearance items, the price tags and the phone box; "My weekly 15
+  minutes" ticks (and a hand tick sticks after a reload); the Fix-it list names things with Edit buttons; the
+  status line under the top bar; the Site Guide shows her handbook (quick answers, search, print); "Help for
+  this page" beside a photo lists the photo guides; Move to Trash and Bring it back on a throwaway question;
+  the two table panes under Clearance and prices; the icons (hoop, spool, needle, tag, tote, seal) in the
+  desk and lists in light and dark; the larger type is still there; the tour shows once.
+
 - **Click-check Phase D (drag order, Google preview, locked addresses; 2026-10-05) in the signed-in browser.**
   Done on the live Studio 2026-10-05 with a throwaway draft FAQ (since discarded): Move to Trash (confirm,
   atomic move to `trashedItem`) and Bring it back (restored, Trash row gone), and "Copy a link..." (shows
@@ -100,10 +137,13 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: code work queued
 
-- **Point the handbook's brand kit cards at the real pane.** `BRAND_KIT` in
-  `src/sanity/guides/brandAndPrint.ts` still opens Help (it was written before Phase F). Change that one
-  line to `{ tool: 'brand-kit' }` (or `{ pane: DESK.brandKit }`) and refresh its maintenance note: the pane's
-  buttons are "Copy" and "Download everything (one file, ...)", and the font files ARE bundled (OFL allows it).
+- **"Share a preview" (starter card 117) is not switched on here.** Mary Ann already has "Copy a link..."
+  (one hour, `src/sanity/actions/shareLink.tsx`), and the kit's action says "draft" in its tooltip, which her
+  Studio never says, and its `?share=` block would need adapting to this site's preview route (each page
+  reads many documents). `ncsWorkflowTools({ shareTypes: [] })` keeps it off. To adopt: the starter rewords
+  the tooltip, then add the `?share=` block to `src/pages/preview/[...slug].astro` (drafts for every loader),
+  copy `preview-share-server.ts` and `api/studio/share-preview.ts`, set `SHARE_PREVIEW_SECRET`, retire
+  "Copy a link..." and update the `share-before-publish` guide in the same change.
 
 - **The 404 page ignores its Studio box.** `NotFoundBody.astro` (was `404.astro`) reads `page.subhead`, which
   no schema declares, so the line under the headline is always the built-in "The page you're looking for

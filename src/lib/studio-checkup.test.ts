@@ -1,188 +1,189 @@
-// "What needs attention": the checkup's pure logic, without Sanity.
-// Each check is a query plus a pure evaluate(); these tests feed evaluate() the
-// shapes the queries return and check what Mary Ann would read.
-import { test } from 'node:test';
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
+// Checkup rules (src/lib/studio-checkup.ts): each generic rule finds what it
+// should, stays quiet when all is well, and one broken rule never stops the rest.
+
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CHECKS,
-  HEADLINE_PAGES,
+  countBySeverity,
+  defaultNameOf,
+  genericRules,
   isAllClear,
-  isStripeLink,
   listNames,
-  runChecks,
-  TYPE_NAMES,
-  type Check,
+  runCheckup,
+  unconfirmedRule,
+  type Doc,
 } from './studio-checkup.ts';
-import { DESK } from '../sanity/studioTargets.ts';
-import { JARGON } from '../../scripts/audit-studio.mjs';
 
-const NOW = Date.parse('2026-10-05T12:00:00Z');
-const check = (id: string): Check => {
-  const c = CHECKS.find((x) => x.id === id);
-  assert.ok(c, `no check "${id}"`);
-  return c;
-};
+const NOW = Date.parse('2026-10-17T12:00:00Z');
+const typeTitle = (t: string) => ({ page: 'Page', homePage: 'Home page' })[t] ?? t;
+const opts = { nameOf: defaultNameOf(typeTitle), typeTitle, now: NOW };
+const rules = genericRules({ seoTypes: ['page', 'homePage'] });
+const run = (docs: Doc[], r = rules) => runCheckup(docs, r, opts);
+const ids = (docs: Doc[]) => run(docs).map((r) => r.id);
 
-test('every check id is unique', () => {
-  const ids = CHECKS.map((c) => c.id);
-  assert.equal(new Set(ids).size, ids.length);
+const img = (alt?: string) => ({
+  _type: 'image',
+  asset: { _ref: 'image-abc-10x10-png', _type: 'reference' },
+  ...(alt === undefined ? {} : { alt }),
 });
 
-test('every check reports nothing on an empty answer', () => {
-  for (const c of CHECKS) {
-    for (const empty of [null, [], 0]) {
-      assert.equal(c.evaluate(empty, NOW), null, `${c.id} reported on ${JSON.stringify(empty)}`);
-    }
-  }
+describe('generic checkup rules', () => {
+  it('finds a picture with no words, inside a page builder, with a deep link', () => {
+    const docs: Doc[] = [
+      {
+        _id: 'p1',
+        _type: 'page',
+        title: 'Visit',
+        seoDescription: 'x',
+        sections: [{ _key: 'k1', _type: 'imageBlock', image: img('') }],
+      },
+    ];
+    const [hit] = run(docs).filter((r) => r.id === 'image-no-description');
+    assert.ok(hit);
+    assert.equal(hit.severity, 'Needs doing');
+    assert.deepEqual(hit.target, {
+      doc: 'p1',
+      type: 'page',
+      field: 'sections[_key=="k1"].image',
+    });
+  });
+
+  it('leaves described pictures and logos alone', () => {
+    const docs: Doc[] = [
+      { _id: 'siteSettings', _type: 'siteSettings', logo: img() },
+      { _id: 'p1', _type: 'page', title: 'A', seoDescription: 'x', hero: img('A doorway') },
+    ];
+    assert.ok(!ids(docs).includes('image-no-description'));
+  });
+
+  it('asks for a Google description on page types only, unless hidden from search', () => {
+    const docs: Doc[] = [
+      { _id: 'homePage', _type: 'homePage' },
+      { _id: 'p2', _type: 'page', title: 'Hidden', hideFromSearch: true },
+      { _id: 'a1', _type: 'announcement', title: 'Not a page' },
+    ];
+    const hit = run(docs).find((r) => r.id === 'seo-missing');
+    assert.ok(hit);
+    assert.match(hit.label, /^1 page /);
+    assert.equal(hit.target && 'field' in hit.target ? hit.target.field : '', 'seoDescription');
+  });
+
+  it('finds a reference to something unpublished, but not image assets or weak refs', () => {
+    const base: Doc = { _id: 'p1', _type: 'page', title: 'A', seoDescription: 'x' };
+    const ok: Doc[] = [
+      { ...base, hero: img('x'), weak: { _ref: 'gone', _weak: true } },
+      { _id: 'nav', _type: 'nav', links: [{ _key: 'a', page: { _ref: 'p1' } }] },
+    ];
+    assert.ok(!ids(ok).includes('link-to-missing'));
+    const bad: Doc[] = [...ok, { _id: 'nav2', _type: 'nav', link: { _ref: 'drafts-only' } }];
+    assert.ok(ids(bad).includes('link-to-missing'));
+  });
+
+  it('splits drafts into old (worth a look) and recent (for information)', () => {
+    const docs: Doc[] = [
+      { _id: 'drafts.a', _type: 'page', title: 'Old', _updatedAt: '2026-09-01T00:00:00Z' },
+      { _id: 'drafts.b', _type: 'page', title: 'New', _updatedAt: '2026-10-16T00:00:00Z' },
+    ];
+    const res = run(docs);
+    const old = res.find((r) => r.id === 'old-drafts');
+    const recent = res.find((r) => r.id === 'unpublished-changes');
+    assert.equal(old?.severity, 'Worth a look');
+    assert.equal(recent?.severity, 'For information');
+    assert.deepEqual(old?.target, { doc: 'a', type: 'page' });
+  });
+
+  it('reports the last publish and the Trash for information only', () => {
+    const docs: Doc[] = [
+      {
+        _id: 'p1',
+        _type: 'page',
+        title: 'A',
+        seoDescription: 'x',
+        _updatedAt: '2026-10-16T09:00:00Z',
+      },
+      { _id: 't1', _type: 'trashedItem', title: 'Old notice' },
+    ];
+    const res = run(docs);
+    assert.ok(isAllClear(res));
+    assert.match(res.find((r) => r.id === 'last-publish')?.label ?? '', /yesterday/);
+    assert.match(res.find((r) => r.id === 'things-in-trash')?.label ?? '', /^1 thing /);
+  });
+
+  it('sorts by severity and counts for the Home card', () => {
+    const docs: Doc[] = [
+      { _id: 'homePage', _type: 'homePage', hero: img('') },
+      { _id: 'drafts.x', _type: 'page', title: 'X', _updatedAt: '2026-10-17T00:00:00Z' },
+    ];
+    const res = run(docs);
+    assert.equal(res[0].severity, 'Needs doing');
+    const counts = countBySeverity(res);
+    assert.equal(counts['Needs doing'], 1);
+    assert.equal(counts['Worth a look'], 1);
+    assert.ok(!isAllClear(res));
+  });
 });
 
-test('photos with no description: one opens the photo on its photo box', () => {
-  const r = check('photo-description-missing').evaluate([{ _id: 'g1' }], NOW);
-  assert.equal(r?.severity, 'Needs doing');
-  assert.deepEqual(r?.target, { doc: 'g1', type: 'galleryItem', field: 'image' });
-  const many = check('photo-description-missing').evaluate([{ _id: 'a' }, { _id: 'b' }], NOW);
-  assert.match(many!.label, /^2 photos/);
-  assert.deepEqual(many?.target, { pane: DESK.photos });
+describe('unconfirmed facts', () => {
+  it('finds the marker in text and an unticked confirmed box', () => {
+    const r = [unconfirmedRule()];
+    const docs: Doc[] = [
+      {
+        _id: 'a',
+        _type: 'page',
+        title: 'Times',
+        body: [
+          { _type: 'block', children: [{ _type: 'span', text: 'Sunday 11am (to be confirmed)' }] },
+        ],
+      },
+      { _id: 'b', _type: 'event', title: 'Picnic', confirmed: false },
+      { _id: 'c', _type: 'event', title: 'Fine', confirmed: true },
+      { _id: 'd', _type: 'x', title: 'Address', address: { street: '1', confirmed: true } },
+    ];
+    const [hit] = run(docs, r);
+    assert.equal(hit.id, 'unconfirmed-facts');
+    assert.match(hit.label, /^2 pages /);
+    assert.match(hit.detail, /Times and Picnic/);
+  });
+
+  it('finds unticked boxes nested in objects and arrays, and *Confirmed flags', () => {
+    const r = [unconfirmedRule()];
+    const one = (doc: Doc) => run([doc], r).length;
+    assert.equal(one({ _id: 's', _type: 'siteSettings', address: { confirmed: false } }), 1);
+    assert.equal(one({ _id: 's', _type: 'siteSettings', phoneConfirmed: false }), 1);
+    assert.equal(
+      one({ _id: 's', _type: 'siteSettings', serviceTimes: [{ _key: 'a', confirmed: false }] }),
+      1,
+    );
+    assert.equal(one({ _id: 's', _type: 'siteSettings', phoneConfirmed: true }), 0);
+  });
 });
 
-test('isStripeLink accepts buy.stripe.com and refuses anything else', () => {
-  assert.equal(isStripeLink('https://buy.stripe.com/abc123'), true);
-  assert.equal(isStripeLink('https://stripe.com/x'), true);
-  assert.equal(isStripeLink('http://buy.stripe.com/abc'), false);
-  assert.equal(isStripeLink('https://notstripe.com/abc'), false);
-  assert.equal(isStripeLink('https://buy.stripe.com.evil.example/abc'), false);
-  assert.equal(isStripeLink(''), false);
-  assert.equal(isStripeLink(null), false);
-  assert.equal(isStripeLink('not a link'), false);
-});
-
-test('a broken Buy button is "Needs doing" and names the item', () => {
-  const r = check('stripe-link-broken').evaluate(
-    [
-      { _id: 'ok', name: 'Fine', stripePaymentLink: 'https://buy.stripe.com/x' },
-      { _id: 'c1', name: 'Napkins JKL', stripePaymentLink: '' },
-    ],
-    NOW,
-  );
-  assert.equal(r?.severity, 'Needs doing');
-  assert.match(r!.detail, /Napkins JKL/);
-  assert.deepEqual(r?.target, { doc: 'c1', type: 'clearanceItem', field: 'stripePaymentLink' });
-  assert.equal(
-    check('stripe-link-broken').evaluate(
-      [{ _id: 'ok', name: 'Fine', stripePaymentLink: 'https://buy.stripe.com/x' }],
-      NOW,
-    ),
-    null,
-  );
-});
-
-test('a missing headline names the page in her words and opens its headline box', () => {
-  const r = check('headline-missing').evaluate(
-    [
-      { _id: 'homePage', _type: 'homePage', heroHeadline: 'Hello' },
-      { _id: 'thankYouPage', _type: 'thankYouPage', headline: '  ' },
-    ],
-    NOW,
-  );
-  assert.match(r!.detail, /Thank You page/);
-  assert.deepEqual(r?.target, { doc: 'thankYouPage', type: 'thankYouPage', field: 'headline' });
-  for (const type of Object.keys(HEADLINE_PAGES)) assert.ok(TYPE_NAMES[type], type);
-});
-
-test('none left but not sold is worth a look; sold items are only information', () => {
-  const r = check('clearance-none-left').evaluate([{ _id: 'c', name: 'Tote' }], NOW);
-  assert.equal(r?.severity, 'Worth a look');
-  const s = check('clearance-sold-still-shown').evaluate([{ _id: 'c', name: 'Tote' }], NOW);
-  assert.equal(s?.severity, 'For information');
-});
-
-test('unpublished changes list what they are, and ignore system records', () => {
-  const c = check('unpublished-changes');
-  assert.equal(c.evaluate([{ _id: 'drafts.secret', _type: 'sanity.previewUrlSecret' }], NOW), null);
-  const r = c.evaluate(
-    [
-      { _id: 'drafts.homePage', _type: 'homePage' },
-      { _id: 'drafts.g1', _type: 'galleryItem' },
-      { _id: 'drafts.g2', _type: 'galleryItem' },
-    ],
-    NOW,
-  );
-  assert.match(r!.label, /^3 changes not on your website yet/);
-  assert.match(r!.detail, /Home page and 2 photos of your work/);
-  assert.deepEqual(r?.target, { doc: 'homePage', type: 'homePage' });
-  assert.ok(c.query.includes('!(_type match "sanity.*")'));
-});
-
-test('the last publish reads as today, yesterday or N days ago', () => {
-  const c = check('last-publish');
-  assert.match(c.evaluate({ _updatedAt: '2026-10-05T09:00:00Z' }, NOW)!.label, /today$/);
-  assert.match(c.evaluate({ _updatedAt: '2026-10-04T09:00:00Z' }, NOW)!.label, /yesterday$/);
-  assert.match(c.evaluate({ _updatedAt: '2026-09-25T09:00:00Z' }, NOW)!.label, /10 days ago$/);
-  assert.equal(c.evaluate({ _updatedAt: 'nonsense' }, NOW), null);
-});
-
-test('runChecks survives a failing check and sorts by severity', async () => {
-  const checks: Check[] = [
-    {
-      id: 'info',
-      query: 'i',
-      evaluate: () => ({ severity: 'For information', label: 'i', detail: '' }),
-    },
-    {
+describe('robustness and wording', () => {
+  it('a rule that throws is skipped', () => {
+    const boom = {
       id: 'boom',
-      query: 'b',
-      evaluate: () => ({ severity: 'Needs doing', label: 'b', detail: '' }),
-    },
-    {
-      id: 'must',
-      query: 'm',
-      evaluate: () => ({ severity: 'Needs doing', label: 'm', detail: '' }),
-    },
-  ];
-  const results = await runChecks(
-    async (q) => {
-      if (q === 'b') throw new Error('network');
-      return [];
-    },
-    NOW,
-    checks,
-  );
-  assert.deepEqual(
-    results.map((r) => r.id),
-    ['must', 'info'],
-  );
-  assert.equal(isAllClear(results), false);
-  assert.equal(isAllClear(results.filter((r) => r.id === 'info')), true);
-});
+      run: () => {
+        throw new Error('x');
+      },
+    };
+    assert.deepEqual(run([], [boom]), []);
+  });
 
-test('listNames reads naturally', () => {
-  assert.equal(listNames(['a']), 'a');
-  assert.equal(listNames(['a', 'b']), 'a and b');
-  assert.equal(listNames(['a', 'b', 'c']), 'a, b and c');
-  assert.equal(listNames(['a', 'b', 'c', 'd', 'e', 'f'], 4), 'a, b, c, d and 2 more');
-});
+  it('lists names plainly', () => {
+    assert.equal(listNames(['a']), 'a');
+    assert.equal(listNames(['a', 'b', 'c']), 'a, b and c');
+    assert.equal(listNames(['a', 'b', 'c', 'd', 'e', 'f'], 4), 'a, b, c, d and 2 more');
+  });
 
-test('no finding she reads uses an em-dash or a developer word', () => {
-  const samples: unknown[] = [
-    [{ _id: 'a', name: 'X', stripePaymentLink: '' }],
-    [{ _id: 'homePage', _type: 'homePage', heroHeadline: '' }],
-    [{ _id: 'drafts.homePage', _type: 'homePage' }],
-    { _updatedAt: '2026-10-01T00:00:00Z' },
-    3,
-    [{ _id: 'a', name: 'X' }],
-  ];
-  for (const c of CHECKS) {
-    for (const s of samples) {
-      let r;
-      try {
-        r = c.evaluate(s, NOW);
-      } catch {
-        continue; // a sample shaped for another check
-      }
-      if (!r) continue;
-      for (const text of [r.label, r.detail, r.targetLabel ?? '']) {
-        for (const j of JARGON) assert.ok(!j.re.test(text), `${c.id}: ${j.why} in "${text}"`);
-      }
+  it('no finding uses an em-dash', () => {
+    const docs: Doc[] = [
+      { _id: 'homePage', _type: 'homePage', hero: img(''), x: { _ref: 'gone' } },
+      { _id: 'drafts.a', _type: 'page', _updatedAt: '2026-01-01T00:00:00Z' },
+      { _id: 't', _type: 'trashedItem', confirmed: false },
+    ];
+    for (const r of run(docs, [...rules, unconfirmedRule()])) {
+      assert.ok(!`${r.label} ${r.detail}`.includes('—'), r.id);
     }
-  }
+  });
 });

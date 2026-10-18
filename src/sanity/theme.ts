@@ -1,29 +1,35 @@
 // Foundation, edit with care
 // =============================================================================
-// Studio theme: "Heirloom Coast" colours and Mary Ann's larger, calmer type
+// Mary Ann's Studio: the Heirloom Coast colours her own panes use, and her
+// larger, calmer type
 // =============================================================================
-// Pure data and one pure function, so `npm run test:unit` can check the colour
-// contrast with real maths (src/lib/studio-theme.test.ts) without loading
-// Sanity. sanity.config.ts feeds these to buildLegacyTheme() and then to
-// readableFonts().
+// Since 2026-10-18 the Studio's theme is the shared kit's (src/sanity/
+// studioTheme.ts, starter PORTS.md cards 110 and 116): the brand accent and a
+// warm paper from brand/brand.config.json, the Indigo Deep top bar, the site's
+// Fraunces and Mulish. It replaced the old buildLegacyTheme() here, which was
+// light-only and could not take the brand fonts.
 //
-// WHY buildLegacyTheme, not buildTheme (kept across the Sanity 6 upgrade):
-// Mary Ann is a non-technical editor who has used this Heirloom Coast Studio
-// since 2026-07, the whole site is a no-dark-mode brand by decision, and stock
-// Sanity grey buys a dark mode nobody asked for. The legacy builder is
-// light-only; see the sanity.config.ts header for the trade.
+// Two things stay this site's own, and live in this file:
 //
-// WHY THE TYPE IS BIGGER (2026-10-05, Phase A of
-// docs/superpowers/specs/2026-10-05-studio-direction.md, principle 3): Sanity's
-// interface text is 13px in lists and 15px in boxes, which is small for an
-// older editor. readableFonts() scales the text and label ramps by 1.2, so
-// list rows read at about 16px and the boxes she types in at 18px, and the
-// headings by 1.1. The legacy theme hands its `fonts` straight to the
-// ThemeProvider (sanity's getThemeValues), so scaling the ramp here is the
-// supported lever, not a CSS override. The interface uses the system sans
-// (fbcm learned on 2026-09-22 that a serif at Studio sizes is hard to read);
-// the pane headings alone use a serif, via ToolHeading.
+//   1. HEIRLOOM, the palette her own panes (the Site Guide's handbook, the QR
+//      tool, the brand kit) paint with. Pure data, mirroring
+//      src/styles/globals.css; contrast-checked in src/lib/studio-readable.test.ts.
+//
+//   2. THE BIGGER TYPE (2026-10-05, Phase A of
+//      docs/superpowers/specs/2026-10-05-studio-direction.md, principle 3).
+//      Sanity's interface text is 13px in lists and 15px in boxes, which is
+//      small for an older editor. readableFontConfig() scales the text and
+//      label ramps by 1.2 (list rows about 16px, the boxes she types in 18px)
+//      and the headings by 1.1. @sanity/ui 4 bakes its CSS from the font config
+//      at build time, so the scale goes INTO buildTheme({ font }) here, never
+//      as a patch on a built theme (a patch is ignored): readableTheme.ts
+//      builds it. The navbar keeps the kit's unscaled chrome theme.
+//
+// Pure data and pure functions, so src/lib/studio-readable.test.ts can load
+// this file without Sanity.
 // =============================================================================
+
+import type { StudioFonts } from './studioTheme';
 
 /** The Heirloom Coast palette, mirroring src/styles/globals.css. */
 export const HEIRLOOM = {
@@ -31,55 +37,21 @@ export const HEIRLOOM = {
   paper: '#FBF8F1', // Paper: lightest surface
   linen: '#F4EEE3', // Linen: card and panel backgrounds
   taupe: '#5A5148', // Secondary Taupe: the warm neutral ramp
-  indigo: '#28486B', // Heritage Indigo: links, selections, the navbar
-  claret: '#8C3A2E', // Claret: the Publish button (the site's call to action)
+  indigo: '#28486B', // Heritage Indigo: links, selections
+  claret: '#8C3A2E', // Claret: the site's call to action
   success: '#3F7A4B',
   brass: '#B98A3E', // decorative only, never text
   brassText: '#835A24', // Brass for text (AA-safe)
   danger: '#B3261E',
 } as const;
 
-/** The system sans the whole interface uses. */
-export const SANS_STACK =
-  'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-
-/** buildLegacyTheme's CSS-variable input. */
-export const STUDIO_THEME_PROPS: Record<string, string> = {
-  '--black': HEIRLOOM.ink,
-  '--white': HEIRLOOM.paper,
-  '--gray-base': HEIRLOOM.taupe, // the grey ramp leans warm, not cold
-
-  '--brand-primary': HEIRLOOM.indigo,
-  '--brand-primary--inverted': HEIRLOOM.paper,
-  '--focus-color': HEIRLOOM.indigo,
-
-  '--input-bg': HEIRLOOM.paper,
-  '--component-bg': HEIRLOOM.linen,
-  '--component-text-color': HEIRLOOM.ink,
-
-  '--default-button-color': HEIRLOOM.taupe,
-  '--default-button-primary-color': HEIRLOOM.claret,
-  '--default-button-success-color': HEIRLOOM.success,
-  '--default-button-warning-color': HEIRLOOM.brass,
-  '--default-button-danger-color': HEIRLOOM.danger,
-
-  '--state-success-color': HEIRLOOM.success,
-  '--state-warning-color': HEIRLOOM.brassText,
-  '--state-danger-color': HEIRLOOM.danger,
-
-  '--main-navigation-color': HEIRLOOM.indigo, // echoes the live site header band
-  '--main-navigation-color--inverted': HEIRLOOM.paper,
-
-  // The interface face: the system sans (see the header).
-  '--font-family-base': SANS_STACK,
-};
-
 /**
- * The serif for pane headings only. The site's Fraunces is not loaded in the
- * Studio (no font request, no CSP grant needed), so this is the closest calm
- * book serif every computer already has.
+ * The serif for her panes' headings: the site's own Fraunces (loaded in the
+ * Studio by src/sanity/studioFonts.css since card 116), then calm book serifs
+ * every computer has.
  */
-export const HEADING_STACK = '"Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif';
+export const HEADING_STACK =
+  '"Fraunces Variable", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif';
 
 interface FontSize {
   fontSize: number;
@@ -92,9 +64,10 @@ interface FontSize {
 interface FontRamp {
   family: string;
   sizes: FontSize[];
+  weights?: Record<string, number>;
   [key: string]: unknown;
 }
-interface Fonts {
+interface FontConfig {
   text: FontRamp;
   label: FontRamp;
   heading: FontRamp;
@@ -114,27 +87,35 @@ export function scaleSize(size: FontSize, k: number): FontSize {
   };
 }
 
-/** Text and labels 1.2x, headings 1.1x; the interface stays in the system sans. */
+/** Text and labels 1.2x, headings 1.1x. */
 export const TEXT_SCALE = 1.2;
 export const HEADING_SCALE = 1.1;
 
-/** A theme whose fonts are Mary Ann's larger, calmer ramp. Never mutates its input. */
-export function readableFonts<T extends { fonts?: unknown }>(theme: T): T {
-  // Typed loosely on the way in: Sanity's StudioTheme types its fonts as a
-  // readonly @sanity/ui ThemeFonts, which this shape matches at runtime.
-  const fonts = theme.fonts as Fonts;
-  const ramp = (r: FontRamp, k: number, family?: string): FontRamp => ({
+/**
+ * @sanity/ui's font config with Mary Ann's larger ramp and the brand's two
+ * families. `headingWeight` caps the heading weights at what the display face
+ * ships (null: a variable font, every weight exists). Never mutates its input.
+ */
+export function readableFontConfig<T extends FontConfig>(
+  font: T,
+  fonts: StudioFonts,
+  headingWeight: number | null = null,
+): T {
+  const ramp = (r: FontRamp, k: number, family: string): FontRamp => ({
     ...r,
-    ...(family ? { family } : {}),
+    family,
     sizes: r.sizes.map((s) => scaleSize(s, k)),
   });
+  const heading = ramp(font.heading, HEADING_SCALE, fonts.display);
+  if (headingWeight && heading.weights) {
+    heading.weights = Object.fromEntries(
+      Object.entries(heading.weights).map(([k, w]) => [k, Math.min(w, headingWeight)]),
+    );
+  }
   return {
-    ...theme,
-    fonts: {
-      ...fonts,
-      text: ramp(fonts.text, TEXT_SCALE, SANS_STACK),
-      label: ramp(fonts.label, TEXT_SCALE, SANS_STACK),
-      heading: ramp(fonts.heading, HEADING_SCALE, SANS_STACK),
-    },
-  } as T;
+    ...font,
+    text: ramp(font.text, TEXT_SCALE, fonts.body),
+    label: ramp(font.label, TEXT_SCALE, fonts.body),
+    heading,
+  };
 }

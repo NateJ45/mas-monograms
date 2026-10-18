@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 60" width="1000" height="60" aria-hidden="true">
+  <!-- MAS Monograms, Studio Home banner (starter PORTS.md card 118): the golden
+       thread from the site's Atelier, sewn as a running stitch across the foot of
+       the banner, ending at a needle. Decorative. -->
+  <defs>
+    <linearGradient id="t" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#A9772A"/>
+      <stop offset="0.35" stop-color="#D9B15F"/>
+      <stop offset="0.6" stop-color="#F0D58A"/>
+      <stop offset="1" stop-color="#D9B15F"/>
+    </linearGradient>
+  </defs>
+  <path d="M-10 40 C 110 18, 220 54, 340 36 S 560 14, 690 34 S 850 52, 914 33" fill="none" stroke="url(#t)" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="15 9"/>
+  <path d="M914 33 C 926 29, 934 26, 943 24" fill="none" stroke="#F0D58A" stroke-width="2.2" stroke-linecap="round"/>
+  <g transform="translate(940 24) rotate(-17)">
+    <path d="M0 -2.6 L52 -1 Q57 0 52 1 L0 2.6 Q-3 0 0 -2.6 Z" fill="#C8C0B0"/>
+    <path d="M2 -1.2 L50 -0.4" stroke="#FBF8F1" stroke-width="0.9" stroke-linecap="round" opacity="0.8"/>
+    <ellipse cx="5" cy="0" rx="3.2" ry="1.1" fill="#1C3550"/>
+  </g>
+  <g fill="#F0D58A" opacity="0.9">
+    <path d="M60 14 l6 6 m0 -6 l-6 6" stroke="#D9B15F" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M470 46 l6 6 m0 -6 l-6 6" stroke="#D9B15F" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M800 10 l6 6 m0 -6 l-6 6" stroke="#D9B15F" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,92 @@
+{
+  "_note": "MAS Monograms. Read by the Studio only (theme, icons, the /studio page; starter PORTS.md cards 110 to 120). The site's own look lives in src/styles/globals.css and DESIGN.md, NOT here: do not run npm run apply-brand on this repo, it would rewrite globals.css from this file.",
+  "name": "MAS Monograms",
+  "domain": "mas-monograms.com",
+  "tagline": "Custom embroidery and monograms, stitched by hand in St. Matthews, SC.",
+  "contact": {
+    "email": "",
+    "phone": "",
+    "address": ""
+  },
+  "palette": {
+    "theme": {
+      "--color-primary": "#28486B",
+      "--color-primary-dark": "#1C3550",
+      "--color-accent": "#26312E",
+      "--color-bg": "#F4EEE3"
+    },
+    "light": {
+      "--background": "#F4EEE3",
+      "--foreground": "#26312E",
+      "--card": "#FBF8F1",
+      "--primary": "#28486B",
+      "--link": "#28486B"
+    },
+    "dark": {
+      "--background": "#1A1512",
+      "--foreground": "#F4EEE3",
+      "--primary": "#F0D58A",
+      "--link": "#F0D58A"
+    }
+  },
+  "fonts": {
+    "display": {
+      "familyValue": "\"Fraunces Variable\", Georgia, \"Times New Roman\", serif",
+      "ogFontStack": "Fraunces, Georgia, serif",
+      "imports": ["@fontsource-variable/fraunces/opsz.css"]
+    },
+    "body": {
+      "familyValue": "\"Mulish Variable\", system-ui, -apple-system, sans-serif",
+      "ogFontStack": "Mulish, system-ui, sans-serif",
+      "imports": ["@fontsource-variable/mulish"]
+    },
+    "script": null
+  },
+  "radius": "0.25rem",
+  "workerName": "mas-monograms",
+  "logoPaths": {
+    "light": "src/assets/brand/wordmark-light.svg",
+    "dark": "src/assets/brand/wordmark-dark.svg"
+  },
+  "studio": {
+    "accent": "#28486B",
+    "chrome": "#1C3550",
+    "paper": "#FBF8F1",
+    "fonts": {
+      "display": "\"Fraunces Variable\", Georgia, \"Times New Roman\", serif",
+      "body": "\"Mulish Variable\", system-ui, -apple-system, sans-serif"
+    },
+    "icons": {
+      "types": {
+        "howItWorksPage": "step",
+        "pricingPage": "give",
+        "requestAQuotePage": "form",
+        "shopIndexPage": "category",
+        "styleGalleryPage": "image",
+        "fontGuidePage": "text",
+        "threadChartPage": "brandKit",
+        "clearancePage": "give",
+        "thankYouPage": "page",
+        "atelierSettings": "preview",
+        "legalPage": "privacy",
+        "galleryItem": "image",
+        "itemCategory": "category",
+        "font": "text",
+        "threadColor": "brandKit",
+        "pricingTier": "give",
+        "clearanceItem": "give",
+        "studioPlaybook": "guide"
+      },
+      "groups": {},
+      "tools": {
+        "structure": "pages",
+        "qr-codes": "link",
+        "brand-kit": "download",
+        "media": "image"
+      },
+      "tile": {
+        "dark": "#E2CFA9"
+      }
+    }
+  }
+}

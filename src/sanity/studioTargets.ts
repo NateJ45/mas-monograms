@@ -6,12 +6,13 @@
 // imports so `npm run test:unit` (bare Node) can check it:
 //
 //   - DESK: every pane id the desk (structure.ts) defines and anything links
-//     to. The Welcome cards, the help pane and the tests all read ids from here,
+//     to. Home (kit.config.ts), the guides and the tests all read ids from here,
 //     so a renamed pane cannot quietly turn a card into a dead link.
 //   - studioTargetPath(): the Studio path for "this document", "this pane",
 //     "a new one of these" or "that tool". studioLink.ts turns it into a click
 //     that goes through the router (the embedded Studio is hash-routed).
-//   - shouldOpenWelcome(): whether the desk is empty and should open Welcome.
+//   (Since 2026-10-18 the Studio opens on the kit's Home tool, so the old
+//   shouldOpenWelcome() rule is gone.)
 //
 // THE ID LESSON (Stone Steps, 2026-09-12): a desk item with no explicit
 // `.id()` gets one derived from its TITLE, so "Race day (date, times, fees)"
@@ -22,14 +23,10 @@
 
 /** Pane ids, exactly as structure.ts sets them with `.id()`. */
 export const DESK = {
-  welcome: 'welcome',
-  help: 'help',
-  /** Phase B: the handbook (quick answers + guides), first item under Help. */
-  helpGuides: 'help-guides',
-  /** Phase B: Mary Ann's own notes (the studioNotes page), under Help. */
+  /** Her notes and Nathan's ideas (was under Help until 2026-10-18). */
+  notesAndIdeas: 'notes-and-ideas',
+  /** Mary Ann's own notes (the studioNotes page), inside notesAndIdeas. */
   notes: 'studioNotes',
-  /** Phase B: the read-only checkup, also a top-bar tool named 'checkup'. */
-  checkup: 'what-needs-attention',
   business: 'siteSettings',
   pages: 'pages',
   legal: 'legal-pages',
@@ -87,24 +84,4 @@ export function studioTargetPath(basePath: string, target: StudioTarget): string
   }
   if ('tool' in target) return `${base}/${target.tool}`;
   return `${base}/structure/${target.pane}`;
-}
-
-/**
- * Should the Studio open the Welcome pane? True when the desk tool is showing
- * nothing but its menu: no pane open, no edit link being resolved.
- *
- * Sanity 6.9 scopes each tool's router state under the tool's name
- * (WorkspaceLoader: `route.scope(tool.name, "/", tool.router)`), and the desk
- * keeps its open panes in `panes` (structureTool: `route.create("/:panes")`).
- * An intent link (`/intent/edit/...`) arrives with `intent` set instead, and
- * must be left alone so the link can open its document.
- */
-export function shouldOpenWelcome(state: unknown, toolName = 'structure'): boolean {
-  const s = (state ?? {}) as Record<string, unknown>;
-  if (s.tool !== toolName) return false;
-  if (s.intent) return false;
-  const scoped = (s[toolName] ?? {}) as Record<string, unknown>;
-  if (scoped.intent || scoped.editDocumentId || scoped.legacyEditDocumentId) return false;
-  const panes = scoped.panes;
-  return !Array.isArray(panes) || panes.length === 0;
 }

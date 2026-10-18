@@ -42,8 +42,9 @@ import { studioGuide } from './studioGuide';
 import { studioNotes } from './studioNotes';
 import { studioPlaybook } from './studioPlaybook';
 
-// ── Trash (Phase D): what "Move to Trash" keeps, so it can be brought back ────
-import { trashedItem } from './trashedItem';
+// The Trash type (trashedItem), the weekly checklist ticks (studioWeek) and the
+// preview-link records (previewShare) are registered by the Studio kit plugins
+// (src/sanity/kit/, src/sanity/workflow/), not here.
 
 export const schemaTypes = [
   // ── Shared building blocks ───────────────────────────────────────────────────
@@ -80,9 +81,6 @@ export const schemaTypes = [
   studioGuide,
   studioNotes,
   studioPlaybook,
-
-  // ── Trash ─────────────────────────────────────────────────────────────────────
-  trashedItem,
 ];
 
 // ── Default every grouped form to the "All fields" tab (2026-07-03) ────────────

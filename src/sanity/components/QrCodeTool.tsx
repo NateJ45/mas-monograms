@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Box, Button, Card, Checkbox, Flex, Grid, Stack, Text, TextInput } from '@sanity/ui';
 import { useClient } from 'sanity';
-import { ToolHeading } from './ToolHeading';
+import { ToolHeading } from '../kit/shared';
+import { brandIcon } from '../brandIcons';
 import { useStudioLink, type StudioTarget } from './studioLink';
 import { HEIRLOOM, HEADING_STACK } from '../theme';
-import { DESK } from '../studioTargets';
 import { QR_COPY, REVIEW_GUIDE_ID } from '../qrCopy';
 import { sealSvg } from '../../lib/brand/brandSvg.js';
 import {
@@ -30,7 +30,7 @@ import { parseWebAddress } from '../../lib/qr/url';
 // QrCodeTool: "Make a QR code" (Phase E of the Studio upgrade, 2026-10-05)
 // =============================================================================
 // A top-bar tool (registered in sanity.config.ts as `qr-codes`) and a desk pane
-// (structure.ts, DESK.qrCodes), so it is reachable from the Welcome card, the
+// (structure.ts, DESK.qrCodes), so it is reachable from Home, the
 // top bar and the menu. Three steps, each shown once the one before is chosen:
 //
 //   1. Where should the QR code take people?   (her pages, review link, socials)
@@ -54,7 +54,7 @@ const REVIEW_KEY = 'mas-qr-google-review-url';
  * format that opens one guide yet, so the card names the guide
  * (REVIEW_GUIDE_ID, its title read from the guide data) and opens the handbook.
  */
-const GUIDE_TARGET: StudioTarget = { pane: `${DESK.help};${DESK.helpGuides}` };
+const GUIDE_TARGET: StudioTarget = { tool: 'site-guide' };
 /** Her social and review links in My business details. */
 const SOCIAL_FIELD: StudioTarget = { doc: 'siteSettings', field: 'socialLinks' };
 const REVIEW_FIELD: StudioTarget = { doc: 'siteSettings', field: 'googleReviewUrl' };
@@ -415,7 +415,7 @@ export function QrCodeTool() {
       <Stack gap={6} style={{ maxWidth: 960, margin: '0 auto', paddingBottom: 64 }}>
         {/* ── Hello ─────────────────────────────────────────────────── */}
         <Stack gap={4}>
-          <ToolHeading emoji="🔳">{QR_COPY.heading}</ToolHeading>
+          <ToolHeading icon={brandIcon('link')}>{QR_COPY.heading}</ToolHeading>
           <Text size={3} style={{ lineHeight: 1.6 }}>
             {QR_COPY.intro}
           </Text>

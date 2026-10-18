@@ -19,6 +19,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import {
   ALL_GUIDES,
+  GUIDES_FOR_TYPE,
   GUIDE_BADGES,
   GUIDE_CATEGORIES,
   GUIDE_ICON_NAMES,
@@ -28,7 +29,6 @@ import {
 } from '../sanity/guides/index.ts';
 import { editingGuides } from '../sanity/guides/content.ts';
 import { DESK } from '../sanity/studioTargets.ts';
-import { WELCOME_TASKS } from '../sanity/welcomeTasks.ts';
 import { JARGON } from '../../scripts/audit-studio.mjs';
 
 const read = (relative: string) =>
@@ -36,6 +36,10 @@ const read = (relative: string) =>
 
 const STRUCTURE = read('../sanity/structure.ts');
 const CONFIG = read('../../sanity.config.ts');
+// The shared Studio kit's settings and words (2026-10-18), read as text.
+const KIT = read('../sanity/kit.config.ts');
+const KIT_HOME = read('../sanity/kit/HomeTool.tsx');
+const KIT_TRASH = read('../sanity/kit/trash.tsx');
 const TEMPLATES = read('../sanity/templates.ts');
 const SCHEMA_DIR = fileURLToPath(new URL('../sanity/schemaTypes/', import.meta.url));
 const SCHEMA_FILES = readdirSync(SCHEMA_DIR).filter((f) => f.endsWith('.ts'));
@@ -219,21 +223,24 @@ function studioNames(): Set<string> {
   add(/\.title\('((?:[^'\\]|\\.)+)'\)/g, STRUCTURE);
   add(/\btitle: '((?:[^'\\]|\\.)+)'/g, STRUCTURE);
   add(/\btitle: '((?:[^'\\]|\\.)+)'/g, CONFIG);
-  add(/:\s*'((?:[^'\\]|\\.)+)',?\s*$/gm, CONFIG.slice(CONFIG.indexOf('TOOL_TITLES')));
+  // The kit's tools and her names for Sanity's (kitConfig.toolTitles), Home's
+  // big buttons, weekly jobs and "Your pages" links, and Home's own buttons.
+  for (const t of ['Home', 'Site Guide', 'Checkup', 'Messages', 'Trash']) names.add(t);
+  add(/\btitle: '((?:[^'\\]|\\.)+)'/g, KIT);
+  add(/^\s+[a-z]+: '((?:[^'\\]|\\.)+)',$/gm, KIT.slice(KIT.indexOf('toolTitles: {')));
+  add(/text="([^"]+)"/g, KIT_HOME);
   add(/\btitle: '((?:[^'\\]|\\.)+)'/g, SCHEMA);
   add(/\btitle: "((?:[^"\\]|\\.)+)"/g, SCHEMA);
   // Shared wording in _copy.ts is spread into fields as { title: '...' }: covered above.
   // The Undo button's label (PORTABLE components/UndoRedo.tsx).
   add(/label: busy \? '[^']*' : '([^']+)'/g, read('../sanity/components/UndoRedo.tsx'));
-  // Phase D actions: Move to Trash / Bring it back / Delete forever and their
-  // confirm buttons (actions/trash.tsx), the share link (lib/previewable.ts),
-  // and the "+" buttons of the drag lists (addLabel in structure.ts).
-  const TRASH = read('../sanity/actions/trash.tsx');
-  add(/label: (?:stage === 'busy'|busy) \? '[^']*' : '([^']+)'/g, TRASH);
-  add(/confirmButtonText: '([^']+)'/g, TRASH);
+  // Move to Trash / Bring it back / Delete forever and their confirm buttons
+  // (the kit's trash.tsx), the share link (lib/previewable.ts), and the "+"
+  // buttons of the drag lists (addLabel in structure.ts).
+  add(/label: (?:stage === 'busy'|busy) \? '[^']*' : '([^']+)'/g, KIT_TRASH);
+  add(/confirmButtonText: '([^']+)'/g, KIT_TRASH);
   add(/export const SHARE_LABEL = '([^']+)'/g, read('../sanity/lib/previewable.ts'));
   add(/addLabel: '([^']+)'/g, STRUCTURE);
-  for (const t of WELCOME_TASKS) names.add(t.title);
   return names;
 }
 
@@ -256,7 +263,17 @@ test('every `thing you click` in an editing guide is a name the Studio really sh
 
 // ── Every "Take me there" goes somewhere real ─────────────────────────────────
 
-const TOOLS = new Set(['structure', 'presentation', 'media']);
+// Sanity's tools, the kit's (Home, Site Guide, Checkup, Messages), and the two
+// her own plugin registers in sanity.config.ts (QR codes, brand kit).
+const TOOLS = new Set([
+  'structure',
+  'presentation',
+  'media',
+  'home',
+  'site-guide',
+  'checkup',
+  'messages',
+]);
 for (const m of CONFIG.matchAll(/name: '([a-z-]+)',\s*\n?\s*title:/g)) TOOLS.add(m[1]);
 
 test('every "Take me there" card goes to a real pane, page, box, template or tool', () => {
@@ -301,8 +318,17 @@ test('every "Take me there" card goes to a real pane, page, box, template or too
   }
 });
 
-test('the TOOLS list read from sanity.config.ts includes the checkup', () => {
-  assert.ok(TOOLS.has('checkup'));
+test('the TOOLS list read from sanity.config.ts includes her own two tools', () => {
+  assert.ok(TOOLS.has('qr-codes') && TOOLS.has('brand-kit'));
+});
+
+test('"Help for this page" names only guides that exist', () => {
+  const ids = new Set(ALL_GUIDES.map((g) => g.id));
+  assert.ok(GUIDES_FOR_TYPE['*']?.length, 'a fallback list for every other page');
+  for (const [type, list] of Object.entries(GUIDES_FOR_TYPE)) {
+    for (const id of list)
+      assert.ok(ids.has(id), `${type} names a guide "${id}" that does not exist`);
+  }
 });
 
 // ── Search ────────────────────────────────────────────────────────────────────

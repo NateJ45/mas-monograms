@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { useClient } from 'sanity';
 import { Box, Card, Heading, Stack, Text } from '@sanity/ui';
 import { GuideView } from './GuideView';
-import { ToolHeading } from './ToolHeading';
+import { ToolHeading } from '../kit/shared';
+import { brandIcon } from '../brandIcons';
 import { useStudioLink, type StudioTarget } from './studioLink';
 import { DESK } from '../studioTargets';
 import { HEADING_STACK, HEIRLOOM } from '../theme';
 
 // =============================================================================
-// HelpPane: "Help (how do I...?)" (Phase A, extended in Phase B, 2026-10-05)
+// HelpPane: the Site Guide (Phase A, extended in Phase B, 2026-10-05; the
+// shared kit's Site Guide tool since 2026-10-18, see sanity.config.ts)
 // =============================================================================
 // Top: the five questions Mary Ann is most likely to arrive with, each answered
 // in two or three plain sentences, with a "Take me there" link. Then the full
@@ -113,9 +115,14 @@ function useHelpContact(): string | null {
 export function HelpPane() {
   const contact = useHelpContact();
   return (
-    <Box padding={[4, 4, 5]}>
+    <Box padding={[4, 4, 5]} style={{ overflowY: 'auto', height: '100%' }}>
       <Stack gap={6} style={{ maxWidth: 760, margin: '0 auto' }}>
-        <ToolHeading emoji="❔">How do I...?</ToolHeading>
+        <ToolHeading
+          icon={brandIcon('guide')}
+          lead="Step-by-step help for the jobs you do on your website. Start with a quick answer, or pick a guide."
+        >
+          Site Guide
+        </ToolHeading>
         <Stack gap={3}>
           <Text size={3} weight="semibold">
             Quick answers

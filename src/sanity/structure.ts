@@ -1,12 +1,11 @@
 // MAS Monograms Studio desk ("Edit my content").
 //
 // Rebuilt 2026-10-05 around Mary Ann's JOBS, not around the data (Phase A of
-// docs/superpowers/specs/2026-10-05-studio-direction.md, principle 1):
+// docs/superpowers/specs/2026-10-05-studio-direction.md, principle 1). Since
+// 2026-10-18 the Studio opens on the shared kit's Home tool (big buttons, her
+// weekly 15 minutes, the Fix-it list), which replaced the old Welcome pane;
+// the Checkup and the Site Guide are top-bar tools.
 //
-//   Welcome                       the landing pane: big task cards (WelcomePane)
-//   Help (how do I...?)           quick answers + the handbook (./guides), My notes
-//   What needs attention          the read-only checkup (src/lib/studio-checkup.ts)
-//   ─
 //   My business details           phone, email, address, hours, menus, footer
 //   Pages on my website           every page, as a visitor thinks of them,
 //                                 with the legal pages INSIDE (no stray entry)
@@ -18,7 +17,8 @@
 //   ─
 //   Make a QR code                the QR tool (also in the top bar)
 //   My brand kit                  logos, colors, fonts (also in the top bar)
-//   Trash (bring things back)     what "Move to Trash" took off (Phase D)
+//   My notes and ideas            her notes (studioNotes) and "Ideas to grow"
+//   Trash (bring things back)     what "Move to Trash" took off (the kit's)
 //
 // THE ID RULE. Every pane has an explicit `.id()`, and the ids live in DESK
 // (./studioTargets.ts) wherever anything links to them. A list item with no
@@ -41,33 +41,22 @@ import type {
   StructureResolverContext,
 } from 'sanity/structure';
 import { orderableDocumentListDeskItem } from '@sanity/orderable-document-list';
-import { ActivityIcon } from '@sanity/icons/Activity';
 import { AddIcon } from '@sanity/icons/Add';
-import { BillIcon } from '@sanity/icons/Bill';
-import { CogIcon } from '@sanity/icons/Cog';
-import { ColorWheelIcon } from '@sanity/icons/ColorWheel';
-import { DocumentTextIcon } from '@sanity/icons/DocumentText';
-import { DocumentsIcon } from '@sanity/icons/Documents';
-import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
-import { HomeIcon } from '@sanity/icons/Home';
-import { ImagesIcon } from '@sanity/icons/Images';
-import { InfoOutlineIcon } from '@sanity/icons/InfoOutline';
-import { PackageIcon } from '@sanity/icons/Package';
-import { RocketIcon } from '@sanity/icons/Rocket';
-import { TagIcon } from '@sanity/icons/Tag';
-import { TextIcon } from '@sanity/icons/Text';
-import { ThumbsUpIcon } from '@sanity/icons/ThumbsUp';
-import { ThListIcon } from '@sanity/icons/ThList';
-import { TrashIcon } from '@sanity/icons/Trash';
 import type { ComponentType } from 'react';
 import { DESK } from './studioTargets';
-import { WelcomePane } from './components/WelcomePane';
-import { HelpPane } from './components/HelpPane';
-import { CheckupTool } from './components/CheckupTool';
-import { QrCodeTool, QrIcon } from './components/QrCodeTool';
+import { QrCodeTool } from './components/QrCodeTool';
 import BusinessOverview from './components/BusinessOverview';
 import { BrandKitPane } from './components/BrandKitPane';
 import StudioPlaybook from './components/StudioPlaybook';
+import { staffDesk } from './kit/shared';
+import { emptyAwareList } from './kit/emptyList';
+import { kitConfig } from './kit.config';
+import { brandIcon, typeIcon } from './brandIcons';
+import { tableListItem } from './workflow';
+import { TABLES } from './tables.config';
+import { WEEK_TYPE } from '../lib/studio-kit';
+import { TRASH_TYPE } from '../lib/studio-trash';
+import { SHARE_RECORD_TYPE } from '../lib/preview-share';
 
 /**
  * Every type the desk places on purpose. The safety net at the bottom lists
@@ -99,12 +88,15 @@ const PLACED = new Set<string>([
   'studioGuide',
   'studioNotes',
   'studioPlaybook',
-  // Phase D: what "Move to Trash" keeps, listed as "Trash (bring things back)".
-  'trashedItem',
-  // System types that must never sit at the desk root: sanity-plugin-media's
-  // tags belong in "My photo library".
-  'media.tag',
+  // What "Move to Trash" keeps, listed as "Trash (bring things back)".
+  TRASH_TYPE,
+  // The kit's weekly hand ticks and the preview-link records: never lists.
+  WEEK_TYPE,
+  SHARE_RECORD_TYPE,
 ]);
+
+/** sanity-plugin-media's own types (tags, folders) belong in "My photo library". */
+const isMediaType = (id: string) => id.startsWith('media.');
 
 /**
  * One page (a singleton): the row shows the page's own preview and opens its
@@ -195,91 +187,20 @@ function dragList(
   return item;
 }
 
+/** One table pane per entry in tables.config.ts for this type (beside the normal list). */
+const tablesFor = (S: StructureBuilder, type: string) =>
+  TABLES.filter((t) => t.type === type).map((t) => tableListItem(S, t));
+
+// The staff view (Mary Ann) hides the panes in kitConfig.staffHiddenPanes
+// (src/sanity/kit/shared.tsx, staffDesk); everyone else sees all of it.
 export const deskStructure = (S: StructureBuilder, context: StructureResolverContext) =>
+  staffDesk(fullDesk(S, context), context, kitConfig);
+
+const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
   S.list()
     .id('root')
     .title('MAS Monograms')
     .items([
-      // ── Welcome ─────────────────────────────────────────────────────────────
-      // The landing pane. StudioLayout opens it whenever the desk is empty, so
-      // it is the first thing she sees.
-      S.listItem()
-        .id(DESK.welcome)
-        .title('Welcome')
-        .icon(HomeIcon)
-        .child(S.component(WelcomePane).id('welcome-pane').title('Welcome')),
-
-      // ── Help ────────────────────────────────────────────────────────────────
-      // Phase B replaces the short answers with the full handbook. The older
-      // Start Here guides stay reachable here so nothing she had is lost; they
-      // are labelled honestly, because parts of them describe the old Studio.
-      S.listItem()
-        .id(DESK.help)
-        .title('Help (how do I...?)')
-        .icon(HelpCircleIcon)
-        .child(
-          S.list()
-            .id('help-list')
-            .title('Help')
-            .items([
-              // Phase B: the handbook (quick answers, guides by topic, search,
-              // print). The guides are repo data in ./guides.
-              S.listItem()
-                .id(DESK.helpGuides)
-                .title('Guides and quick answers')
-                .icon(HelpCircleIcon)
-                .child(S.component(HelpPane).id('help-guides-pane').title('How do I...?')),
-              // Her own notes, and the "Who to ask for help" box the Help page reads.
-              S.listItem()
-                .id(DESK.notes)
-                .title('My notes')
-                .icon(ThumbsUpIcon)
-                .child(
-                  S.document()
-                    .id(DESK.notes)
-                    .schemaType('studioNotes')
-                    .documentId('studioNotes')
-                    .title('My notes')
-                    .views([
-                      S.view.component(BusinessOverview).id('overview').title('Overview'),
-                      S.view.form().id('edit').title('Edit notes'),
-                    ]),
-                ),
-              // The old "How the website works" guide (studioGuide) is no longer
-              // listed: the guides above replace it, and parts of it were false
-              // (a removed Preview tab, "live within a few seconds"). The
-              // document is kept, never deleted, and stays in PLACED so the
-              // safety net does not list it. The one below stays until the
-              // "Get found" guides replace it. (The old brand colors and fonts
-              // panel is gone: "My brand kit" at the desk root absorbed it.)
-              S.divider().title('Older pages (being replaced)'),
-              S.listItem()
-                .id('studioPlaybook')
-                .title('Ideas to grow your studio')
-                .icon(RocketIcon)
-                .child(
-                  S.document()
-                    .id('studioPlaybook')
-                    .schemaType('studioPlaybook')
-                    .documentId('studioPlaybook')
-                    .views([
-                      S.view.component(StudioPlaybook).id('guides').title('Guides'),
-                      S.view.form().id('edit').title('Edit'),
-                    ]),
-                ),
-            ]),
-        ),
-
-      // ── What needs attention ────────────────────────────────────────────────
-      // Phase B: the read-only checkup (also a top-bar tool, 'checkup').
-      S.listItem()
-        .id(DESK.checkup)
-        .title('What needs attention')
-        .icon(ActivityIcon)
-        .child(S.component(CheckupTool).id('checkup-pane').title('What needs attention')),
-
-      S.divider(),
-
       // ── My business details ─────────────────────────────────────────────────
       // Phone, email, address, hours, socials, menus and footer: siteSettings.
       // The Welcome card "Change my phone number or email" opens this form on
@@ -287,7 +208,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.business)
         .title('My business details')
-        .icon(CogIcon)
+        .icon(typeIcon('siteSettings'))
         .child(
           S.document()
             .id(DESK.business)
@@ -305,7 +226,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.pages)
         .title('Pages on my website')
-        .icon(DocumentTextIcon)
+        .icon(brandIcon('pages'))
         .child(
           S.list()
             .id('pages-list')
@@ -327,11 +248,13 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
               S.divider().title('Pages people see now and then'),
               page(S, 'thankYouPage'),
               page(S, 'notFoundPage'),
-              list(S, {
+              emptyAwareList(S, context, {
                 id: DESK.legal,
                 type: 'legalPage',
                 title: 'Privacy, terms and other legal pages',
-                icon: DocumentsIcon,
+                icon: typeIcon('legalPage'),
+                explain:
+                  'Your privacy policy and any other legal pages. Adding a new one is a job for Nathan.',
               }),
             ]),
         ),
@@ -347,7 +270,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
         id: DESK.photos,
         type: 'galleryItem',
         title: 'Photos of my work',
-        icon: ImagesIcon,
+        icon: typeIcon('galleryItem'),
         template: 'new-photo',
         addLabel: 'Add a photo of my work',
       }),
@@ -356,7 +279,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.clearance)
         .title('Clearance and prices')
-        .icon(TagIcon)
+        .icon(typeIcon('clearanceItem'))
         .child(
           S.list()
             .id('clearance-and-prices-list')
@@ -366,17 +289,19 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 id: DESK.clearanceItems,
                 type: 'clearanceItem',
                 title: 'Clearance items for sale',
-                icon: TagIcon,
+                icon: typeIcon('clearanceItem'),
                 template: 'new-clearance-item',
                 addLabel: 'Add a clearance item',
               }),
+              ...tablesFor(S, 'clearanceItem'),
               dragList(S, context, {
                 id: DESK.priceTags,
                 type: 'pricingTier',
                 title: 'Price tags on the Pricing page',
-                icon: BillIcon,
+                icon: typeIcon('pricingTier'),
                 addLabel: 'Add a price tag',
               }),
+              ...tablesFor(S, 'pricingTier'),
             ]),
         ),
 
@@ -384,7 +309,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.reference)
         .title('Fonts, threads and categories')
-        .icon(ThListIcon)
+        .icon(typeIcon('threadColor'))
         .child(
           S.list()
             .id('fonts-threads-categories-list')
@@ -394,7 +319,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 id: DESK.fonts,
                 type: 'font',
                 title: 'Embroidery fonts',
-                icon: TextIcon,
+                icon: typeIcon('font'),
                 addLabel: 'Add a font',
               }),
               // NOT draggable: the Thread Color Chart sorts the colors by hue in
@@ -404,7 +329,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 id: DESK.threads,
                 type: 'threadColor',
                 title: 'Thread colors',
-                icon: ColorWheelIcon,
+                icon: typeIcon('threadColor'),
               }),
               // Draggable (the order of the Shop by Item cards and the home page
               // circles); making or removing a category is still a job for Nathan.
@@ -412,7 +337,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
                 id: DESK.categories,
                 type: 'itemCategory',
                 title: 'Shop categories (Hats, Totes...)',
-                icon: PackageIcon,
+                icon: typeIcon('itemCategory'),
                 addLabel: 'Add a shop category',
               }),
             ]),
@@ -423,7 +348,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
         id: DESK.questions,
         type: 'faqItem',
         title: 'Questions and answers',
-        icon: InfoOutlineIcon,
+        icon: typeIcon('faqItem'),
         template: 'new-question',
         addLabel: 'Add a question',
       }),
@@ -435,7 +360,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.qrCodes)
         .title('Make a QR code')
-        .icon(QrIcon)
+        .icon(brandIcon('link'))
         .child(S.component(QrCodeTool).id('qr-codes-pane').title('Make a QR code')),
 
       // ── My brand kit (Phase F) ──────────────────────────────────────────────
@@ -445,8 +370,53 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.brandKit)
         .title('My brand kit')
-        .icon(ColorWheelIcon)
+        .icon(brandIcon('download'))
         .child(S.component(BrandKitPane).id('brand-kit-pane').title('My brand kit')),
+
+      // ── My notes and ideas ──────────────────────────────────────────────────
+      // Her own notes (with the "Who to ask for help" box the Site Guide reads)
+      // and Nathan's "Ideas to grow your studio". They lived under the old Help
+      // item, which the Site Guide tool replaced on 2026-10-18.
+      S.listItem()
+        .id(DESK.notesAndIdeas)
+        .title('My notes and ideas')
+        .icon(typeIcon('studioNotes'))
+        .child(
+          S.list()
+            .id('notes-and-ideas-list')
+            .title('My notes and ideas')
+            .items([
+              S.listItem()
+                .id(DESK.notes)
+                .title('My notes')
+                .icon(typeIcon('studioNotes'))
+                .child(
+                  S.document()
+                    .id(DESK.notes)
+                    .schemaType('studioNotes')
+                    .documentId('studioNotes')
+                    .title('My notes')
+                    .views([
+                      S.view.component(BusinessOverview).id('overview').title('Overview'),
+                      S.view.form().id('edit').title('Edit notes'),
+                    ]),
+                ),
+              S.listItem()
+                .id('studioPlaybook')
+                .title('Ideas to grow your studio')
+                .icon(typeIcon('studioPlaybook'))
+                .child(
+                  S.document()
+                    .id('studioPlaybook')
+                    .schemaType('studioPlaybook')
+                    .documentId('studioPlaybook')
+                    .views([
+                      S.view.component(StudioPlaybook).id('guides').title('Guides'),
+                      S.view.form().id('edit').title('Edit'),
+                    ]),
+                ),
+            ]),
+        ),
 
       // ── Trash (Phase D) ─────────────────────────────────────────────────────
       // Everything "Move to Trash" took off the website, the most recent first.
@@ -455,7 +425,7 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       S.listItem()
         .id(DESK.trash)
         .title('Trash (bring things back)')
-        .icon(TrashIcon)
+        .icon(typeIcon(TRASH_TYPE))
         .child(
           S.documentTypeList('trashedItem')
             .id('trash-list')
@@ -469,5 +439,8 @@ export const deskStructure = (S: StructureBuilder, context: StructureResolverCon
       // ── Safety net ──────────────────────────────────────────────────────────
       // Any type NOT placed above surfaces here under its own (plain) schema
       // title, so a type added later is never unreachable. Empty today.
-      ...S.documentTypeListItems().filter((item) => !PLACED.has(item.getId() as string)),
+      ...S.documentTypeListItems().filter((item) => {
+        const id = item.getId() as string;
+        return !PLACED.has(id) && !isMediaType(id);
+      }),
     ]);

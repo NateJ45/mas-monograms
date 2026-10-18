@@ -1290,7 +1290,7 @@ export const getFoundGuides: Guide[] = [
       { kind: 'seealso', ids: ['add-a-photo', 'instagram-account', 'pinterest-account'] },
     ],
     maintenance:
-      'Written 2026-10-05 as general phone photography advice (no platform facts). The site weak spot is photo quality (PRODUCT.md, spec). Path target uses the same create target as the Welcome card "Add a photo of my work" (welcomeTasks.ts: create galleryItem, template new-photo). See also add-a-photo is the editing guide written by B1.',
+      'Written 2026-10-05 as general phone photography advice (no platform facts). The site weak spot is photo quality (PRODUCT.md, spec). Path target uses the same create target as the Home button "Add a photo of my work" (kit.config.ts quickActions: create galleryItem, template new-photo). See also add-a-photo is the editing guide written by B1.',
   },
 
   // ───────────────────────────────────────────────────────────────────────────
