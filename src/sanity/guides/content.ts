@@ -36,6 +36,8 @@
 // =============================================================================
 
 import type { Guide } from './types.ts';
+import { getFoundGuides } from './getFound.ts';
+import { brandAndPrintGuides } from './brandAndPrint.ts';
 
 const WAIT = 'about 2 to 3 minutes';
 
@@ -1546,3 +1548,10 @@ export const editingGuides: Guide[] = [
     ],
   },
 ];
+
+// The shape src/lib/guide-shots.test.ts (PORTABLE, card 130) reads: every guide with its
+// slug and blocks. This site's guides carry no picture blocks yet, so it passes trivially.
+export const guides = [...editingGuides, ...getFoundGuides, ...brandAndPrintGuides].map((g) => ({
+  slug: g.id,
+  body: g.blocks as unknown[],
+}));
