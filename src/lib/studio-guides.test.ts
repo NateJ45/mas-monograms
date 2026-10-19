@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import {
   ALL_GUIDES,
   GUIDES_FOR_TYPE,
+  GUIDE_FOR_FIELD,
   GUIDE_BADGES,
   GUIDE_CATEGORIES,
   GUIDE_ICON_NAMES,
@@ -244,6 +245,22 @@ function studioNames(): Set<string> {
   add(/confirmButtonText: '([^']+)'/g, KIT_TRASH);
   add(/export const SHARE_LABEL = '([^']+)'/g, read('../sanity/lib/previewable.ts'));
   add(/addLabel: '([^']+)'/g, STRUCTURE);
+  // Quick update's "Post a photo" (kit PostPhoto.tsx) and the Messages labels
+  // (lib/studio-messages.ts), checked against their source so a rename fails here.
+  for (const [file, words] of [
+    [
+      '../sanity/kit/PostPhoto.tsx',
+      ['Post a photo', 'Take a photo', 'Choose from your photos', 'Describe the photo'],
+    ],
+    ['../sanity/kit/QuickUpdateTool.tsx', ['Open it in the full editor']],
+    ['./studio-messages.ts', ['New', 'Needs a person', 'Replied', 'Spam']],
+  ] as const) {
+    const src = read(file);
+    for (const w of words) {
+      assert.ok(src.includes(w), `${file} no longer says "${w}"`);
+      names.add(w);
+    }
+  }
   return names;
 }
 
@@ -276,6 +293,7 @@ const TOOLS = new Set([
   'site-guide',
   'checkup',
   'messages',
+  'quick-update',
 ]);
 for (const m of CONFIG.matchAll(/name: '([a-z-]+)',\s*\n?\s*title:/g)) TOOLS.add(m[1]);
 
@@ -344,4 +362,21 @@ test('search finds guides by words in the title, summary and steps', () => {
   assert.equal(searchGuides('zzzz-nothing').length, 0);
   // Title matches come first.
   assert.equal(searchGuides('sold')[0].id, 'clearance-sold');
+});
+
+test('"How to" beside a field names a real field, guide and heading, at most 16 of them', () => {
+  const entries = Object.entries(GUIDE_FOR_FIELD.fields);
+  assert.ok(entries.length <= 16, `${entries.length} fields have a "How to"; keep it to 16`);
+  for (const [field, link] of entries) {
+    assert.match(SCHEMA, new RegExp(`name: '${field}'`), `no field named "${field}"`);
+    const g = ALL_GUIDES.find((x) => x.id === link.guide);
+    assert.ok(g, `${field}: no guide "${link.guide}"`);
+    if (link.section) {
+      const heads = g.blocks.filter((b) => b.kind === 'h').map((b) => b.text);
+      assert.ok(
+        heads.includes(link.section),
+        `${field}: "${link.section}" is not a heading in ${g.id}`,
+      );
+    }
+  }
 });

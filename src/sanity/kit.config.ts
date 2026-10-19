@@ -29,12 +29,18 @@
 import type { KitConfig } from './kit/types';
 import { genericRules, type CheckupRule } from '../lib/studio-checkup';
 import { MAS_RULES } from './checkupRules';
-import { GUIDE_CATEGORIES, GUIDES_FOR_TYPE, KIT_GUIDES } from './guides';
+import { GUIDE_CATEGORIES, GUIDE_FOR_FIELD, GUIDES_FOR_TYPE, KIT_GUIDES } from './guides';
 import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
 import { DESK } from './studioTargets';
 import { brandIcon, typeIcon } from './brandIcons';
-import { buildAwayNotice, buildNotice } from '../lib/quick-updates';
+import {
+  buildAwayNotice,
+  buildDeadlineNotice,
+  buildNotice,
+  buildQuestion,
+  buildWorkPhoto,
+} from '../lib/quick-updates';
 
 const PUBLISHED = '!(_id in path("drafts.**"))';
 
@@ -210,6 +216,43 @@ export const kitConfig: KitConfig = {
         'The notice will be on your website in about 2 to 3 minutes, and it comes down by itself after the day you picked.',
     },
     {
+      id: 'deadline',
+      title: 'Order deadline',
+      detail:
+        "The last day to order for Christmas, Mother's Day or a wedding. It is worded for you and comes down by itself.",
+      icon: typeIcon('announcement'),
+      // Card 131: the hang tag on the shop door, as for a notice.
+      meaning: 'give',
+      fields: [
+        {
+          name: 'occasion',
+          title: 'What is it for?',
+          kind: 'string',
+          required: true,
+          max: 40,
+          description: `One or two words, like "Christmas" or "Mother's Day".`,
+        },
+        { name: 'lastOrderDay', title: 'Last day to order', kind: 'date', required: true },
+        {
+          name: 'message',
+          title: 'Your own words (you can leave this empty)',
+          kind: 'text',
+          max: 160,
+          description:
+            'Leave it empty for "Order by <the day> to have it in time for <the occasion>."',
+        },
+      ],
+      submitLabel: 'Put it on my website',
+      build: (v) =>
+        buildDeadlineNotice({
+          occasion: v.occasion,
+          lastOrderDay: v.lastOrderDay,
+          message: v.message || undefined,
+        }),
+      doneMessage:
+        'The deadline will be across the top of your website in about 2 to 3 minutes, and it comes down by itself after the last day to order.',
+    },
+    {
       id: 'away',
       title: 'I am away for a while',
       detail: 'A vacation or a busy week. People see it before they send a quote request.',
@@ -243,7 +286,59 @@ export const kitConfig: KitConfig = {
       doneMessage:
         'The notice will be on your website in about 2 to 3 minutes, from the first day you picked until the last.',
     },
+    {
+      id: 'question',
+      title: 'Add a question and answer',
+      detail:
+        'For something customers keep asking. It goes on your How It Works page, at the end of your questions.',
+      icon: typeIcon('faqItem'),
+      // Her needle and thread: words she writes.
+      meaning: 'text',
+      fields: [
+        {
+          name: 'question',
+          title: 'The question',
+          kind: 'string',
+          required: true,
+          max: 120,
+          description: 'As a customer would ask it, like "Can you embroider on a hat?"',
+        },
+        {
+          name: 'answer',
+          title: 'Your answer',
+          kind: 'text',
+          required: true,
+          max: 800,
+          description: 'A few short sentences. Leave an empty line to start a new paragraph.',
+        },
+      ],
+      submitLabel: 'Put it on my website',
+      // Async: looks up the last question's place in her drag order, so the new
+      // one lands at the end of the list, as one added in the full editor does.
+      build: async (v, { client }) =>
+        buildQuestion(
+          { question: v.question, answer: v.answer },
+          await client.fetch<string | null>(
+            `*[_type == "faqItem" && ${PUBLISHED} && defined(orderRank)] | order(orderRank desc)[0].orderRank`,
+          ),
+        ),
+      doneMessage:
+        'Your question will be on the How It Works page in about 2 to 3 minutes. To show it on the Pricing page too, open it in the full editor.',
+    },
   ],
+
+  // "Post a photo" (card 125), the first button on Quick update: a photo of her
+  // work from the phone's camera or gallery, saved for her to check and
+  // Publish. She has no page galleries; every photo is a Style Gallery photo.
+  postPhoto: {
+    galleryTypes: [],
+    post: {
+      label: 'My Style Gallery',
+      type: 'galleryItem',
+      build: (input) => buildWorkPhoto(input),
+    },
+    note: 'Pick "My Style Gallery". The title shows under the photo when someone opens it large. Then open it in the full editor to pick the kind of item and press Publish.',
+  },
 
   checkup: {
     rules,
@@ -257,6 +352,8 @@ export const kitConfig: KitConfig = {
     view: makeGuideView,
     // "Help for this page": which guides each kind of thing shows.
     forType: GUIDES_FOR_TYPE,
+    // Card 134: the "How to" chip beside the boxes she is most likely to get wrong.
+    forField: GUIDE_FOR_FIELD,
   },
 
   // Home's "Your pages" card: every page she can change, in the order a
@@ -383,8 +480,8 @@ export const kitConfig: KitConfig = {
     },
   },
 
-  // Home's big buttons: the four jobs she does most (the first four cards of
-  // her old Welcome page).
+  // Home's big buttons: the jobs she does most (the first four cards of her old
+  // Welcome page, and since 2026-10-19 her quote requests, a weekly job).
   quickActions: [
     {
       title: 'Add a photo of my work',
@@ -403,6 +500,13 @@ export const kitConfig: KitConfig = {
       detail: 'The price tags on your Pricing page. Open one, change the number, then Publish.',
       target: { pane: `${DESK.clearance};${DESK.priceTags}` },
       icon: typeIcon('pricingTier'),
+    },
+    {
+      title: 'See my quote requests',
+      detail:
+        'Every request from your website, newest first. Mark each one Replied once you have answered.',
+      target: { tool: 'messages' },
+      icon: brandIcon('contact'),
     },
     {
       title: 'Change my phone number or email',

@@ -121,3 +121,35 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
     'undo-a-change',
   ],
 };
+
+/**
+ * "How to" beside a field (starter PORTS.md card 134): the boxes Mary Ann is
+ * most likely to get wrong, each with the guide (and the heading in it) that
+ * explains it. A field's NAME wins over its type, so only names that mean one
+ * thing everywhere are listed. kitConfig.guide.forField reads this;
+ * src/lib/studio-guides.test.ts checks every guide, heading and field exists
+ * and that the list stays at 16 or fewer.
+ */
+export const GUIDE_FOR_FIELD: {
+  fields: Record<string, { guide: string; section?: string }>;
+  types: Record<string, { guide: string; section?: string }>;
+} = {
+  fields: {
+    // The words under a photo, read aloud and read by Google.
+    alt: { guide: 'photo-description' },
+    hoopFit: { guide: 'round-hoop' },
+    relatedCategory: { guide: 'add-a-photo' },
+    sold: { guide: 'clearance-sold' },
+    quantityAvailable: { guide: 'clearance-sold' },
+    salePrice: { guide: 'clearance-add' },
+    stripePaymentLink: { guide: 'stripe-link' },
+    pricePerPiece: { guide: 'change-a-price' },
+    hexColor: { guide: 'add-a-thread' },
+    endDate: { guide: 'notice', section: 'The full way, with a ready-made notice' },
+    photoTags: { guide: 'season-page' },
+    answer: { guide: 'questions', section: 'Add a new question' },
+    seoTitle: { guide: 'google-preview' },
+    seoDescription: { guide: 'google-preview' },
+  },
+  types: {},
+};

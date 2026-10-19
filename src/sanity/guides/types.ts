@@ -43,6 +43,7 @@ export const GUIDE_CATEGORIES = [
   'Start here',
   'Change my website',
   'Photos and clearance',
+  'My week and my seasons',
   'Get found (so customers can find me)',
   'Brand kit and print',
   'When something goes wrong',
@@ -92,7 +93,16 @@ export type GuideBlock =
       title?: string;
       text: string;
     }
-  | { kind: 'seealso'; ids: string[] };
+  | { kind: 'seealso'; ids: string[] }
+  | {
+      /**
+       * A picture of the Studio (card 130): a key in ./shots.ts, drawn by the
+       * kit's GuideShot. A key with no capture yet draws the wireframe.
+       */
+      kind: 'shot';
+      key: string;
+      caption?: string;
+    };
 
 export interface Guide {
   /** Stable id: used by see-also links and by the tests. kebab-case. */

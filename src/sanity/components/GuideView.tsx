@@ -1,11 +1,12 @@
 // Safe to edit by hand (the pieces are the kit's: src/sanity/kit/ui/, PORTS.md card 128)
-import { useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Button, Flex, TextInput } from '@sanity/ui';
 import { ArrowLeftIcon } from '@sanity/icons/ArrowLeft';
 import { SearchIcon } from '@sanity/icons/Search';
 import { useStudioLink } from './studioLink';
 import {
+  GuideShot,
   InlineText,
   KitCard,
   KitNotice,
@@ -17,6 +18,9 @@ import {
   StoneTag,
 } from '../kit/ui';
 import type { GuideViewProps } from '../kit/types';
+import { GUIDE_SHOTS } from '../guides/shots';
+import { resolveShot } from '../../lib/studio-look';
+import { guideSectionId } from '../../lib/studio-kit';
 import {
   ALL_GUIDES,
   GUIDE_MEANINGS,
@@ -189,6 +193,12 @@ function BlockView({ block, open }: { block: GuideBlock; open: (id: string) => v
     }
     case 'seealso':
       return <SeeAlso ids={block.ids} open={open} />;
+    case 'shot': {
+      // Card 130: a capture from this site's registry (guides/shots.ts), or the
+      // wireframe while a key has none yet.
+      const shot = resolveShot(block, GUIDE_SHOTS);
+      return shot ? <GuideShot shot={shot} /> : null;
+    }
     default:
       return null;
   }
@@ -232,18 +242,43 @@ function sections(blocks: GuideBlock[]) {
 function Section({
   heading,
   compact,
+  id,
+  focus,
   children,
 }: {
   heading?: string;
   compact?: boolean;
+  id?: string;
+  focus?: boolean;
   children: ReactNode;
 }) {
+  // Card 134: a field's "How to" opens the guide at this section. Scroll it to
+  // the top at once (no glide, so reduced motion needs nothing more) and move
+  // focus to its heading, after the dialog's own first focus, so ours wins.
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!focus) return;
+    const h = headingRef.current;
+    if (!h) return;
+    h.scrollIntoView({ block: 'start', behavior: 'instant' as ScrollBehavior });
+    const timer = window.setTimeout(() => h.focus({ preventScroll: true }), 80);
+    return () => window.clearTimeout(timer);
+  }, [focus]);
   return (
-    <section style={{ display: 'grid', gap: compact ? 16 : 22 }}>
+    <section
+      style={{ display: 'grid', gap: compact ? 16 : 22 }}
+      className={focus ? 'ui-section--focus' : undefined}
+    >
       {heading && (
         <div style={{ display: 'grid', gap: 14 }}>
           <SectionRule />
-          <h2 className="ui-h2" style={compact ? { fontSize: 22 } : undefined}>
+          <h2
+            ref={headingRef}
+            id={id}
+            tabIndex={focus ? -1 : undefined}
+            className="ui-h2"
+            style={compact ? { fontSize: 22 } : undefined}
+          >
             {heading}
           </h2>
         </div>
@@ -325,6 +360,14 @@ function PrintableGuide({ guide }: { guide: Guide }) {
                 <div>{plain(b.text)}</div>
               </div>
             );
+          case 'shot': {
+            const shot = resolveShot(b, GUIDE_SHOTS);
+            return shot ? (
+              <p key={i}>
+                <em>Picture: {shot.alt}</em>
+              </p>
+            ) : null;
+          }
           case 'path':
             return (
               <p key={i}>
@@ -348,10 +391,13 @@ function GuideBody({
   guide,
   open,
   compact = false,
+  section,
 }: {
   guide: Guide;
   open: (id: string) => void;
   compact?: boolean;
+  /** A heading to open at (card 134, a field's "How to"). */
+  section?: string;
 }) {
   return (
     <KitScope>
@@ -385,7 +431,13 @@ function GuideBody({
           </KitNotice>
         ) : null}
         {sections(guide.blocks).map((s, i) => (
-          <Section key={i} heading={s.h} compact={compact}>
+          <Section
+            key={i}
+            heading={s.h}
+            compact={compact}
+            id={s.h ? guideSectionId(guide.id, s.h) : undefined}
+            focus={Boolean(section && s.h && s.h.trim() === section.trim())}
+          >
             {s.blocks.map((b, j) => (
               <BlockView key={j} block={b} open={open} />
             ))}
@@ -442,7 +494,7 @@ function GuidePage({
  * that guide in place.
  */
 export function makeGuideView(slug: string): ComponentType<GuideViewProps> {
-  return function OneGuide({ variant = 'page', onOpen }: GuideViewProps) {
+  return function OneGuide({ variant = 'page', onOpen, section }: GuideViewProps) {
     const [id, setId] = useState(slug);
     const guide = guideById(id);
     if (!guide) {
@@ -452,7 +504,15 @@ export function makeGuideView(slug: string): ComponentType<GuideViewProps> {
         </p>
       );
     }
-    return <GuideBody guide={guide} open={onOpen ?? setId} compact={variant === 'panel'} />;
+    return (
+      <GuideBody
+        guide={guide}
+        open={onOpen ?? setId}
+        compact={variant === 'panel'}
+        // The section belongs to the guide the field named, not to one opened from See also.
+        section={id === slug ? section : undefined}
+      />
+    );
   };
 }
 

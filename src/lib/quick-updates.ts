@@ -74,3 +74,116 @@ export function buildAwayNotice(v: {
   if (v.firstDay) doc.startDate = startOfDay(v.firstDay);
   return doc;
 }
+
+// ── Seasonal order deadlines (2026-10-19, studio-complete) ───────────────────
+// Her busy seasons each have a last day to order (Christmas, Mother's Day,
+// graduation, wedding season). "Order deadline" asks for the occasion and the
+// last day, and writes the notice for her, so she never has to word it.
+
+/** "December 1" from "2026-12-01", in her American date style. */
+export function shortDay(date: string): string {
+  return new Date(`${date}T12:00:00`).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+/**
+ * "Order deadline": "Order by December 1 for Christmas." until the end of the
+ * last order day, as a highlight. Her own words win when she types some.
+ */
+export function buildDeadlineNotice(v: {
+  occasion: string;
+  lastOrderDay: string;
+  message?: string;
+}): NoticeDoc {
+  const occasion = v.occasion.trim().replace(/[.!]+$/, '');
+  const message =
+    v.message?.trim() || `Order by ${shortDay(v.lastOrderDay)} to have it in time for ${occasion}.`;
+  return buildNotice({ message, lastDay: v.lastOrderDay }, 'highlight');
+}
+
+// ── A new question and answer (2026-10-19, studio-complete) ──────────────────
+// When a customer asks something twice, the answer belongs on the website.
+// The answer is one or more plain paragraphs (a blank line starts a new one),
+// turned into the rich text the faqItem `answer` holds.
+
+export type QuestionDoc = {
+  _type: 'faqItem';
+  question: string;
+  answer: {
+    _type: 'block';
+    _key: string;
+    style: 'normal';
+    markDefs: [];
+    children: { _type: 'span'; _key: string; text: string; marks: [] }[];
+  }[];
+  showOnHowItWorks: boolean;
+  showOnPricing: boolean;
+  displayOrder: number;
+  orderRank?: string;
+};
+
+/**
+ * A drag-order rank just after `last` (the list's last LexoRank, such as
+ * "0|i0000o:"), so a new question lands at the END of her list, as a question
+ * added in the full editor does. LexoRank keeps a decimal part after the colon,
+ * and a longer decimal sorts after its own prefix, so adding one character is a
+ * valid rank that sorts after `last` and before anything after it. With no
+ * list yet, the middle of the range.
+ */
+export function rankAfter(last: string | null | undefined): string {
+  if (!last || !/^\d\|[0-9a-z]+:[0-9a-z]*$/.test(last)) return '0|hzzzzz:';
+  return `${last}i`;
+}
+
+/** Paragraphs split at blank lines; single line breaks become spaces. */
+export function paragraphs(text: string): string[] {
+  return text
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+}
+
+/** "Add a question and answer": a whole faqItem for the How It Works page. */
+export function buildQuestion(
+  v: { question: string; answer: string },
+  last?: string | null,
+): QuestionDoc {
+  const key = (i: number, part: string) => `qa${part}${i}`;
+  return {
+    _type: 'faqItem',
+    question: v.question.trim(),
+    answer: paragraphs(v.answer).map((text, i) => ({
+      _type: 'block',
+      _key: key(i, 'b'),
+      style: 'normal',
+      markDefs: [],
+      children: [{ _type: 'span', _key: key(i, 's'), text, marks: [] }],
+    })),
+    showOnHowItWorks: true,
+    showOnPricing: false,
+    displayOrder: 99,
+    orderRank: rankAfter(last),
+  };
+}
+
+// ── A photo of her work from the phone (2026-10-19, studio-complete) ─────────
+// "Post a photo" (kit card 125) on Quick update makes a new galleryItem DRAFT
+// from the photo she takes or picks; she presses Publish in the full editor,
+// where she can also pick the item kind and the font. The kit's form asks for a
+// "title", which a gallery photo does not have: it becomes the caption under
+// the photo when someone opens it large, unless she typed a caption too.
+
+export function buildWorkPhoto(input: {
+  title: string;
+  alt: string;
+  caption: string;
+  image: Record<string, unknown>;
+}): { _type: 'galleryItem' } & Record<string, unknown> {
+  const caption = input.caption.trim() || input.title.trim();
+  const image: Record<string, unknown> = { ...input.image, alt: input.alt.trim() };
+  if (caption) image.caption = caption;
+  else delete image.caption;
+  return { _type: 'galleryItem', image, featured: false, hoopFit: 'good', displayOrder: 99 };
+}
