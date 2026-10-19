@@ -22,7 +22,8 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 - Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28. **On the
   family's shared Studio kit since 2026-10-18** (starter cards 106 to 120: Home, Checkup, Site Guide, Trash,
   status line, help panel, Messages, icons, the site's own `/studio` page; her settings in
-  `src/sanity/kit.config.ts`, the old-to-new map in `.claude/rules/sanity-studio.md`). Rebuilt for
+  `src/sanity/kit.config.ts`, the old-to-new map in `.claude/rules/sanity-studio.md`), with gift guides and
+  season pages (`/collections/<slug>/`) and the notice across the top for her seasons. Rebuilt for
   her 2026-10-05 (PR #85, spec `docs/superpowers/specs/2026-10-05-studio-direction.md`, phases A to F all
   live): Welcome pane and first-visit tour, a desk built around her jobs (explicit pane ids), plain-language
   forms, Edit on the real pages, a repo-data handbook (`src/sanity/guides`: 26 editing + 18 Get found

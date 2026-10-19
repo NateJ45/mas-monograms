@@ -39,6 +39,9 @@ export const DESK = {
   threads: 'threads',
   categories: 'categories',
   questions: 'questions',
+  /** 2026-10-18: gift guides and season pages, and the notices across the top. */
+  collections: 'collections',
+  notices: 'notices',
   /** Phase E: "Make a QR code", also a top-bar tool with the same name. */
   qrCodes: 'qr-codes',
   /** Phase D: "Trash (bring things back)", what "Move to Trash" keeps. */

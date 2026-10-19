@@ -31,7 +31,14 @@ page now does (brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`):
   hand-off preview (`components/quote/QuotePreview.astro`, hidden until valid initials arrive).
 - `/pricing` (hang tags), `/how-it-works`, `/about`, `/clearance` (Stripe links stay plain `<a>`),
   `/thank-you`, `/404`, `/font-lettering-guide`, legal pages: same data, new Atelier components.
-- `ThreadLine` (the golden thread) and `RevealScript` are rendered once by `BaseLayout`.
+- `ThreadLine` (the golden thread) and `RevealScript` are rendered once by `BaseLayout`, and so is the
+  notice across the top (`announcement`, 2026-10-18): every switched-on notice that has not ended is
+  drawn, only the first one inside its dates is visible, and an inline script re-checks the dates in the
+  browser (`src/lib/notices.ts`), so a notice starts and ends on time without a rebuild.
+- `/collections/[slug]` (2026-10-18): a gift guide or season page in the category page's grammar (Midnight
+  hoop band, "order by" note, swatches of every photo carrying one of its tags after her picks, items to start
+  from, closing banner). The quote buttons carry `?item=<slug>` only when the page names exactly one item
+  (`src/lib/collections.ts`). Previewed at `/preview/collections/<slug>`.
 
 | Page            | Route                   | Schema                                                                 |
 | --------------- | ----------------------- | ---------------------------------------------------------------------- |
@@ -42,13 +49,14 @@ page now does (brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`):
 | Request a Quote | `/request-a-quote`      | `requestAQuotePage` (+ `atelierSettings`, `threadColor`)               |
 | Shop by Item    | `/shop-by-item`         | `shopIndexPage`                                                        |
 | Item category   | `/[slug]`               | `itemCategory`                                                         |
+| Season page     | `/collections/[slug]`   | `collection` (gift guides and seasons, 2026-10-18; photos by tag)      |
 | Style Gallery   | `/style-gallery`        | `styleGalleryPage`                                                     |
 | Font Guide      | `/font-lettering-guide` | `fontGuidePage`                                                        |
 | Thread Chart    | `/thread-color-chart`   | `threadChartPage`                                                      |
 | Clearance       | `/clearance`            | `clearancePage`                                                        |
 | Thank You       | `/thank-you`            | `thankYouPage`                                                         |
 | 404             | `/404`                  | `notFoundPage`                                                         |
-| Studio          | `/studio`               | `@sanity/astro` (mounted) — the embedded Sanity Studio                 |
+| Studio          | `/studio`               | the site's own page (`src/pages/studio/index.astro`, starter card 120) |
 | Draft preview   | `/preview/**`           | SSR draft preview for the Presentation tool. noindex, sitemap-excluded |
 | Preview stream  | `/preview/live`         | SSE proxy for preview auto-refresh (403 without the Studio cookie)     |
 | Draft mode      | `/api/draft-mode/*`     | Turns draft mode on/off for the preview                                |

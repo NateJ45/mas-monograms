@@ -45,7 +45,7 @@ function trashTypes(): Record<string, string> {
   );
 }
 
-test('the six everyday lists have a Trash, each with her name for it', () => {
+test('the everyday lists have a Trash, each with her name for it', () => {
   assert.deepEqual(trashTypes(), {
     galleryItem: 'Photo of my work',
     clearanceItem: 'Clearance item',
@@ -53,6 +53,9 @@ test('the six everyday lists have a Trash, each with her name for it', () => {
     pricingTier: 'Price tag',
     threadColor: 'Thread color',
     font: 'Embroidery font',
+    // 2026-10-18: the seasons of her shop.
+    collection: 'Gift guide or season page',
+    announcement: 'Notice',
   });
 });
 

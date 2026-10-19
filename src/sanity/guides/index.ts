@@ -95,6 +95,8 @@ export const GUIDES_FOR_TYPE: Record<string, string[]> = {
   threadChartPage: ['add-a-thread', 'page-words-form'],
   itemCategory: ['add-a-category', 'google-preview'],
   faqItem: ['questions'],
+  collection: ['season-page', 'add-a-photo'],
+  announcement: ['notice'],
   siteSettings: ['business-details'],
   atelierSettings: ['monogram-preview'],
   studioNotes: ['before-asking'],

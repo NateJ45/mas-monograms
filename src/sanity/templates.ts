@@ -31,6 +31,81 @@ const para = (key: string, text: string) => ({
   children: [{ _type: 'span', _key: `${key}-s`, marks: [], text }],
 });
 
+/**
+ * The seasons of her shop, each a starting point for a gift guide or season
+ * page (schemaTypes/collection.ts). Words in [square brackets] are hers to
+ * fill in; nothing here claims a price, a date or a promise for her.
+ */
+const SEASONS = [
+  {
+    id: 'christmas',
+    title: 'Christmas gift guide',
+    description: 'Personalized gifts for the holidays.',
+    name: 'Christmas gift guide',
+    eyebrow: 'Holiday gifts',
+    intro:
+      '[Who these are for, and what you can stitch on them: names, initials, a family monogram.]',
+    orderBy: 'Order by [the date] for Christmas',
+    tags: ['christmas'],
+  },
+  {
+    id: 'wedding',
+    title: 'Wedding season',
+    description: 'For the bride, the wedding party and the new home.',
+    name: 'Wedding season',
+    eyebrow: 'Weddings',
+    intro: '[What you make for weddings: bridal party gifts, the new monogram, towels and totes.]',
+    orderBy: 'Order [how many weeks] before the big day',
+    tags: ['wedding'],
+  },
+  {
+    id: 'graduation',
+    title: 'Graduation',
+    description: 'Gifts for the graduate, in school colors.',
+    name: 'Graduation gifts',
+    eyebrow: 'Graduation',
+    intro: '[What you make for graduates: totes, towels and hats in their school colors.]',
+    orderBy: 'Order by [the date] for graduation',
+    tags: ['graduation', 'collegiate'],
+  },
+  {
+    id: 'back-to-school',
+    title: 'Back to school',
+    description: 'Names on bags, lunch totes and more.',
+    name: 'Back to school',
+    eyebrow: 'Back to school',
+    intro: '[What you make for school: names on backpacks, lunch totes and bag tags.]',
+    orderBy: 'Order by [the date] for the first day of school',
+    tags: ['back-to-school', 'bag-tag'],
+  },
+  {
+    id: 'mothers-day',
+    title: "Mother's Day",
+    description: 'Gifts for mothers and grandmothers.',
+    name: "Mother's Day gifts",
+    eyebrow: "Mother's Day",
+    intro: '[What you make for mothers and grandmothers: names, initials, the grandchildren.]',
+    orderBy: "Order by [the date] for Mother's Day",
+    tags: ['mothers-day'],
+  },
+  {
+    id: 'baby',
+    title: 'Baby gifts',
+    description: 'For a new baby and the baby shower.',
+    name: 'Baby gifts',
+    eyebrow: 'For a new baby',
+    intro: "[What you make for babies: blankets, bibs and burp cloths with the baby's name.]",
+    orderBy: '',
+    tags: ['baby'],
+  },
+];
+
+/** The season page starting points, for the "+" of "Gift guides and seasons". */
+export const SEASON_TEMPLATES = SEASONS.map((s) => `new-collection-${s.id}`);
+
+/** The notice starting points, for the "+" of "Notices across the top". */
+export const NOTICE_TEMPLATES = ['new-notice-order-by', 'new-notice-clearance', 'new-notice-away'];
+
 export const STARTING_TEMPLATES: Template[] = [
   {
     id: 'new-photo',
@@ -73,4 +148,60 @@ export const STARTING_TEMPLATES: Template[] = [
       displayOrder: 99,
     },
   },
+
+  // ── The seasons of her shop (2026-10-18) ─────────────────────────────────
+  // Notices across the top: three she will reach for every year. Dates are left
+  // empty on purpose: she picks them when she makes one.
+  {
+    id: 'new-notice-order-by',
+    title: 'Notice: order by a date for a holiday',
+    description: 'For example "Order by December 1 for Christmas".',
+    schemaType: 'announcement',
+    value: {
+      message: 'Order by [the date] for [the holiday]. Request a quote today.',
+      style: 'highlight',
+      enabled: true,
+      link: { label: 'Request a Quote', url: '/request-a-quote/' },
+    },
+  },
+  {
+    id: 'new-notice-clearance',
+    title: 'Notice: new clearance items',
+    description: 'Tell everyone new clearance items are up.',
+    schemaType: 'announcement',
+    value: {
+      message: 'New clearance items are up: [what they are].',
+      style: 'highlight',
+      enabled: true,
+      link: { label: 'See the clearance', url: '/clearance/' },
+    },
+  },
+  {
+    id: 'new-notice-away',
+    title: 'Notice: I am away for a while',
+    description: 'A vacation or a busy week. Set the last day and it comes down by itself.',
+    schemaType: 'announcement',
+    value: {
+      message: 'I am away until [the date]. Quote requests will be answered when I am back.',
+      style: 'urgent',
+      enabled: true,
+    },
+  },
+  // Gift guides and season pages: one starting point per season. The photos
+  // come from the tags (a photo tagged "wedding" shows on the wedding page).
+  ...SEASONS.map((season) => ({
+    id: `new-collection-${season.id}`,
+    title: `Season page: ${season.title}`,
+    description: season.description,
+    schemaType: 'collection',
+    value: {
+      name: season.name,
+      eyebrow: season.eyebrow,
+      intro: season.intro,
+      ...(season.orderBy ? { orderBy: season.orderBy } : {}),
+      photoTags: season.tags,
+      ctaLabel: 'Request a Quote',
+      itemsHeading: 'Start from one of these',
+    },
+  })),
 ];

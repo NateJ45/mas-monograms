@@ -1,0 +1,308 @@
+---
+// Safe to edit by hand (layout); the words all come from Sanity
+// =============================================================================
+// Gift guide or season page: /collections/<slug>/ (2026-10-18)
+// =============================================================================
+// One page per `collection` document ("Gift guides and seasons" in the
+// Studio): a Christmas gift guide, wedding season, graduation, back to school,
+// Mother's Day. Drawn in the Atelier's own grammar, the same as a shop
+// category page ([slug].astro): the Midnight opening band with a big hoop, her
+// words and the "order by" note, then the photos of her work for the season
+// as swatches (with the lightbox), the items to start from as hoops, and the
+// closing banner. Every quote button goes to the form, started on the item
+// when the page names exactly one (src/lib/collections.ts).
+//
+// The photos are derived at build time from her gallery tags plus her picks
+// (collectionPhotos), so tagging a new photo "wedding" is enough.
+//
+// The Studio's canvas renders this file too ("Edit on the page"):
+// src/pages/preview/[...slug].astro passes `preview` (draft data, stega on,
+// PreviewLayout), exactly as for the category pages.
+// =============================================================================
+
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import CategoryCard from '@/components/CategoryCard.astro';
+import CtaBanner from '@/components/CtaBanner.astro';
+import CtaLink from '@/components/CtaLink.astro';
+import HoopFrame from '@/components/motifs/HoopFrame.astro';
+import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import EmptyHoopOrnament from '@/components/gallery/EmptyHoopOrnament.astro';
+import GallerySwatch from '@/components/gallery/GallerySwatch.astro';
+import Lightbox from '@/components/gallery/Lightbox.astro';
+import { splitSwash } from '@/components/gallery/swash';
+import { breadcrumbSchema } from '@/lib/schemas';
+import { pickCardImage } from '@/lib/hoop';
+import { site } from '@/data/site';
+import { getSiteSettings, getAllCollectionSlugs } from '@/lib/queries';
+import { editField, editItem, editOther } from '@/lib/edit-target';
+import { loadCollection, type PageProps, type CollectionData } from '@/lib/page-data';
+import { collectionPhotos, collectionQuoteHref } from '@/lib/collections';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const slugs = await getAllCollectionSlugs();
+  return (slugs ?? []).filter(Boolean).map((slug) => ({ params: { slug } }));
+};
+
+const { slug } = Astro.params as { slug: string };
+const { preview } = Astro.props as PageProps<CollectionData>;
+const [siteSettings, data] = preview
+  ? [preview.siteSettings, preview.data]
+  : await Promise.all([getSiteSettings(), loadCollection(slug)]);
+const { collection, allGallery, galleryPage, shopPage } = data;
+const edit = preview?.edit;
+const Layout = (preview?.layout ?? BaseLayout) as typeof BaseLayout;
+
+// getStaticPaths listed this slug, so an empty answer is a failed read: stop
+// the production build rather than publish a broken page.
+if (!preview && !collection && import.meta.env.PROD) {
+  throw new Error(`collections/[slug] "${slug}" was listed but came back empty`);
+}
+if (!collection) {
+  return Astro.redirect('/404', 307);
+}
+
+const photos = collectionPhotos(collection, allGallery);
+const lead = collection.heroImage?.asset ? collection.heroImage : (photos[0]?.image ?? null);
+const name = splitSwash(collection.headline || collection.name || '');
+const quoteHref = collectionQuoteHref(collection);
+const ctaLabel: string = collection.ctaLabel || 'Request a Quote';
+const categories = (collection.categories ?? []).filter((c: any) => c?.slug?.current);
+const ownBanner = !!(
+  collection.bannerEyebrow ||
+  collection.bannerHeadline ||
+  collection.bannerSubhead
+);
+const banner = ownBanner
+  ? {
+      eyebrow: collection.bannerEyebrow ?? undefined,
+      headline: collection.bannerHeadline ?? undefined,
+      subhead: collection.bannerSubhead ?? undefined,
+    }
+  : {
+      eyebrow: shopPage?.ctaEyebrow ?? undefined,
+      headline: shopPage?.ctaHeadline ?? undefined,
+      subhead: shopPage?.ctaSubhead ?? undefined,
+    };
+
+const title = collection.seoTitle || `${collection.name} | ${site.name}`;
+const description =
+  collection.seoDescription ||
+  collection.intro ||
+  `Custom embroidery and monograms from ${site.name} in St. Matthews, SC.`;
+const focal = (img: any) => (img?.hotspot ? null : { x: 0.5, y: 0.42 });
+const HOOP_SIZES = '(min-width: 1024px) min(35vw, 399px), min(399px, calc((100vw - 2rem) * 0.711))';
+
+const pageSchemas = [
+  breadcrumbSchema([
+    { name: 'Home', url: `${site.url}/` },
+    { name: collection.name, url: `${site.url}/collections/${slug}/` },
+  ]),
+];
+---
+
+<Layout
+  {title}
+  {description}
+  seoImage={collection.seoImage}
+  {siteSettings}
+  schemas={pageSchemas}
+  {...preview?.layoutProps}
+>
+  <section class="col-intro surface-midnight py-section-lg" aria-labelledby="collection-heading">
+    <div class="gap-xl mx-auto grid max-w-content grid-cols-1 items-center px-m lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <div class="order-2 lg:order-1">
+        {collection.eyebrow && (
+          <p class="eyebrow mb-m" data-reveal="fade">
+            {collection.eyebrow}
+          </p>
+        )}
+        <h1 id="collection-heading" class="display-sm max-w-[14ch]" data-reveal>
+          {name.before}
+          <em class="swash">{name.word}</em>
+          {name.after}
+        </h1>
+        {collection.intro && (
+          <p class="col-intro__lede mt-m" data-reveal style="--reveal-delay: 120ms">
+            {collection.intro}
+          </p>
+        )}
+        {collection.orderBy && (
+          <p class="col-intro__order mt-l" data-reveal style="--reveal-delay: 180ms">
+            <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+              <path d="M2 2l8 8M10 2l-8 8" />
+            </svg>
+            {collection.orderBy}
+          </p>
+        )}
+        <div class="mt-l" data-reveal style="--reveal-delay: 240ms">
+          <CtaLink cta={{ label: ctaLabel, href: quoteHref }} variant="primary" />
+        </div>
+      </div>
+
+      <div
+        class="col-intro__hoop order-1 lg:order-2"
+        data-reveal="fade"
+        data-sanity={editField(edit, 'heroImage')}
+      >
+        <HoopFrame
+          image={lead}
+          size={460}
+          sizes={HOOP_SIZES}
+          tilt={-2}
+          focal={focal(lead)}
+          loading="eager"
+          fetchpriority="high"
+        />
+        {!lead && <EmptyHoopOrnament class="col-intro__ornament" />}
+      </div>
+    </div>
+  </section>
+
+  {photos.length > 0 && (
+    <section class="surface-linen py-section-lg" aria-labelledby="collection-photos-heading">
+      <div class="mx-auto max-w-content px-m">
+        <div class="mb-l flex flex-col items-center text-center">
+          <h2
+            id="collection-photos-heading"
+            class="font-display text-h2 text-foreground"
+            data-reveal
+          >
+            {collection.name}
+          </h2>
+          <div class="mt-m w-full max-w-[14rem]" data-reveal="stitch" aria-hidden="true">
+            <RunningStitch tone="brass" ornament="cross" />
+          </div>
+        </div>
+        <div class="columns-2 gap-m sm:columns-3 lg:columns-4">
+          {photos.map((item: any, i: number) => (
+            <GallerySwatch
+              item={item}
+              index={i + 1}
+              fontCaption={galleryPage?.fontCaption}
+              showRequest={false}
+              showCategory={false}
+              editAttr={editOther(edit, item._id, 'galleryItem', 'image')}
+            />
+          ))}
+        </div>
+        <div class="mt-l flex justify-center">
+          <CtaLink cta={{ label: ctaLabel, href: quoteHref }} variant="primary" arrow />
+        </div>
+      </div>
+    </section>
+  )}
+
+  {categories.length > 0 && (
+    <section
+      class:list={['py-section-lg', photos.length > 0 ? 'surface-indigo' : 'surface-linen']}
+      aria-labelledby="collection-items-heading"
+    >
+      <div class="mx-auto max-w-content px-m">
+        <h2
+          id="collection-items-heading"
+          class="mb-l text-center font-display text-h2 text-foreground"
+          data-reveal
+        >
+          {collection.itemsHeading || 'Start from one of these'}
+        </h2>
+        <ul class="col-items" role="list" data-reveal-stagger="90">
+          {categories.map((cat: any, i: number) => (
+            <li data-reveal data-sanity={editItem(edit, 'categories', null, i)}>
+              <CategoryCard
+                name={cat.name}
+                slug={cat.slug?.current ?? ''}
+                cardImage={pickCardImage(cat.cardImage, cat.heroImages)}
+                size={240}
+                tilt={[-2, 1.5, -1][i % 3]}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <CtaBanner
+    eyebrow={banner.eyebrow}
+    headline={banner.headline}
+    subhead={banner.subhead}
+    ctaLabel={ctaLabel}
+    ctaHref={quoteHref}
+  />
+  {photos.length > 0 && (
+    <Lightbox
+      label={galleryPage?.lightboxLabel}
+      closeLabel={galleryPage?.lightboxCloseLabel}
+      prevLabel={galleryPage?.lightboxPrevLabel}
+      nextLabel={galleryPage?.lightboxNextLabel}
+    />
+  )}
+</Layout>
+
+<style>
+  .col-intro__lede {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 1.05rem + 0.7vw, 1.65rem);
+    line-height: 1.45;
+    font-weight: 360;
+    color: var(--color-text-secondary);
+    max-width: 32ch;
+    text-wrap: pretty;
+  }
+  .col-intro__order {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px dashed var(--stitch-color);
+    font-size: var(--text-meta);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--foreground);
+    max-width: 34rem;
+  }
+  .col-intro__order svg {
+    width: 0.7rem;
+    height: 0.7rem;
+    flex: none;
+    stroke: var(--color-gold);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .col-intro__hoop {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 1rem 0 2rem;
+  }
+  .col-intro__hoop :global(.hoop) {
+    width: min(460px, 82%);
+  }
+  .col-intro__hoop :global(.col-intro__ornament) {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 52%;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    margin-top: 18%;
+    pointer-events: none;
+  }
+  .col-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1rem;
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  @media (min-width: 768px) {
+    .col-items {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem;
+    }
+  }
+</style>

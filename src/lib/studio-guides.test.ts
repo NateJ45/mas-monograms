@@ -225,10 +225,13 @@ function studioNames(): Set<string> {
   add(/\btitle: '((?:[^'\\]|\\.)+)'/g, CONFIG);
   // The kit's tools and her names for Sanity's (kitConfig.toolTitles), Home's
   // big buttons, weekly jobs and "Your pages" links, and Home's own buttons.
-  for (const t of ['Home', 'Site Guide', 'Checkup', 'Messages', 'Trash']) names.add(t);
+  for (const t of ['Home', 'Site Guide', 'Checkup', 'Messages', 'Trash', 'Quick update'])
+    names.add(t);
   add(/\btitle: '((?:[^'\\]|\\.)+)'/g, KIT);
   add(/^\s+[a-z]+: '((?:[^'\\]|\\.)+)',$/gm, KIT.slice(KIT.indexOf('toolTitles: {')));
   add(/text="([^"]+)"/g, KIT_HOME);
+  // Quick update's form buttons (kitConfig.quickUpdate submitLabel).
+  add(/submitLabel: '([^']+)'/g, KIT);
   add(/\btitle: '((?:[^'\\]|\\.)+)'/g, SCHEMA);
   add(/\btitle: "((?:[^"\\]|\\.)+)"/g, SCHEMA);
   // Shared wording in _copy.ts is spread into fields as { title: '...' }: covered above.

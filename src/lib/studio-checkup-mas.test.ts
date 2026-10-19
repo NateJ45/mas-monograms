@@ -116,3 +116,38 @@ test('no rule uses an em-dash or the word draft', () => {
     assert.ok(!/\bdraft\b/i.test(words), r.id);
   }
 });
+
+test('a season page that would show no photos Needs doing; a tag match or a pick clears it', () => {
+  const photo = { _id: 'p', _type: 'galleryItem', tags: ['Christmas'] };
+  const empty = { _id: 'c1', _type: 'collection', name: 'Wedding season', photoTags: ['wedding'] };
+  const tagged = { _id: 'c2', _type: 'collection', name: 'Christmas', photoTags: ['christmas '] };
+  const picked = { _id: 'c3', _type: 'collection', name: 'Baby', photos: [{ _ref: 'p' }] };
+  const r = byId([photo, empty, tagged, picked], 'collection-no-photos');
+  assert.equal(r?.severity, 'Needs doing');
+  assert.deepEqual(
+    r?.items?.map((i) => i.name),
+    ['Wedding season'],
+  );
+});
+
+test('a switched-on notice past its last day is only for information', () => {
+  const now = Date.now();
+  const docs: Doc[] = [
+    {
+      _id: 'n1',
+      _type: 'announcement',
+      enabled: true,
+      endDate: new Date(now - 86_400_000).toISOString(),
+    },
+    {
+      _id: 'n2',
+      _type: 'announcement',
+      enabled: false,
+      endDate: new Date(now - 86_400_000).toISOString(),
+    },
+    { _id: 'n3', _type: 'announcement', endDate: new Date(now + 86_400_000).toISOString() },
+  ];
+  const r = byId(docs, 'ended-notices');
+  assert.equal(r?.severity, 'For information');
+  assert.equal(r?.label, '1 notice past its last day');
+});

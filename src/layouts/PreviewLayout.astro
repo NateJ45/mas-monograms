@@ -343,7 +343,9 @@ const footerAttr = docEditAttr('siteSettings', 'siteSettings', 'tagline');
           const previewable =
             path === '/' ||
             (segments.length === 1 &&
-              (FIRST_SEGMENT_PREVIEWABLE.has(first) || CATEGORY_SLUGS.has(first)));
+              (FIRST_SEGMENT_PREVIEWABLE.has(first) || CATEGORY_SLUGS.has(first))) ||
+            // Gift guides and season pages (2026-10-18): /collections/<slug>.
+            (segments.length === 2 && first === 'collections');
 
           event.preventDefault();
           if (previewable) {

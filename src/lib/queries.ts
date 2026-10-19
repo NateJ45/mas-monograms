@@ -3,6 +3,7 @@
 // and returns the fallback on error so pages never hard-crash at build time.
 
 import { sanityFetch } from './sanity';
+import type { Notice } from './notices';
 
 /**
  * How a query reaches Sanity. Every page getter below defaults to `sanityFetch`
@@ -519,6 +520,40 @@ export function getItemCategoryBySlug(slug: string, fetch: Fetcher = sanityFetch
   );
 }
 
+// ─── Gift guides and season pages (2026-10-18) ──────────────────────────────
+
+export function getAllCollectionSlugs(fetch: Fetcher = sanityFetch): Promise<string[]> {
+  return fetch(`*[_type == "collection" && defined(slug.current)].slug.current`, {}, []);
+}
+
+export function getCollectionBySlug(slug: string, fetch: Fetcher = sanityFetch): Promise<any> {
+  return fetch(
+    `*[_type == "collection" && slug.current == $slug][0]{
+      _id,
+      name,
+      slug,
+      eyebrow,
+      headline,
+      intro,
+      orderBy,
+      heroImage ${IMG_HOOP},
+      photoTags,
+      "pickedIds": photos[]._ref,
+      itemsHeading,
+      "categories": categories[]->{ _id, name, slug, cardImage ${IMG_HOOP}, heroImages[] ${IMG_HOOP} },
+      ctaLabel,
+      bannerEyebrow,
+      bannerHeadline,
+      bannerSubhead,
+      seoTitle,
+      seoDescription,
+      seoImage ${IMG}
+    }`,
+    { slug },
+    null,
+  );
+}
+
 // ─── Style Gallery Page ─────────────────────────────────────────────────────
 
 export function getStyleGalleryPage(fetch: Fetcher = sanityFetch): Promise<any> {
@@ -888,17 +923,25 @@ export function getGalleryItemsForWall(limit = 12, fetch: Fetcher = sanityFetch)
   );
 }
 
-// ─── Stub: kept so BaseLayout import doesn't break ──────────────────────────
+// ─── Notices across the top (2026-10-18) ────────────────────────────────────
+// Every switched-on, published notice that has not ended by build time. Which
+// one shows, and the browser-side dates, are src/lib/notices.ts. Fetched once
+// per build (BaseLayout runs on every page).
 
-// The shape BaseLayout renders when an announcement exists. Typed here rather
-// than as `null` so the layout's `announcement.message` / `.style` / `.link`
-// reads type-check instead of collapsing to `never` (astro check, 2026-09-05).
-export interface Announcement {
-  message?: string;
-  style?: 'info' | 'highlight' | 'urgent';
-  link?: { url?: string; label?: string };
+let _notices: Promise<Notice[]> | null = null;
+
+export function getActiveNotices(fetch: Fetcher = sanityFetch): Promise<Notice[]> {
+  if (fetch !== sanityFetch) return loadNotices(fetch);
+  _notices ??= loadNotices(fetch);
+  return _notices;
 }
 
-export function getActiveAnnouncement(): Promise<Announcement | null> {
-  return Promise.resolve(null);
+function loadNotices(fetch: Fetcher): Promise<Notice[]> {
+  return fetch<Notice[]>(
+    `*[_type == "announcement" && enabled != false && !(_id in path("drafts.**")) && (!defined(endDate) || endDate > now())]{
+      message, style, link { url, label }, startDate, endDate
+    }`,
+    {},
+    [],
+  ).then((list) => list ?? []);
 }

@@ -36,6 +36,12 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
     repo. `SANITY_AUTH_TOKEN` is already set (the backup uses it).
   - **`PUBLIC_STUDIO_HELP_EMAIL`** build variable in Workers Builds, so Home's "Ask Nathan" has an email
     button (kept out of the repo on purpose).
+- **Check the season pages and notices signed in (2026-10-18, PR 2).** Make a season page from "Season page:
+  Christmas gift guide" (the "+" of "Gift guides and seasons"), press Generate, check the photos tagged
+  "christmas" appear in Edit on the page (`/preview/collections/<address>`), then press Discard (or Move to
+  Trash). Put up a notice from Quick update on a phone, see it across the top of the live site after the
+  rebuild, and that it hides itself after its last day. The page itself was checked rendered with real
+  photos (a local scratch page), not from a published document.
 - **Check the kit Studio signed in (2026-10-18).** It replaces the Phase A, B and D click lists below for
   everything the kit now draws. Open `/studio` signed in, read the console, and check: Home opens first with
   the Indigo Deep banner, the Hoop Seal, "Monograms" in Petemoss and the gold thread along the foot; the four
@@ -274,3 +280,10 @@ list`); post-bump sign-in check (Nathan, on staging, 2026-09-06); `sanity.types.
 - 2026-10-04: Redesign day closed: quote email via Cloudflare Email Service, Turnstile, hotspots on all
   76 images, label fields seeded, logo/header/footer rework, parity baselines re-captured for Direction D,
   44px tap targets (PORTS cards 82, 83).
+
+- **Studio as a phone app and Earlier versions (starter cards 125, copied 2026-10-19).** The files are in, and the
+  Studio can be installed from `/studio/` (icon `public/icon-maskable-512.png`, drawn from `favicon.svg` on white).
+  Earlier versions is OFF (`features.earlierVersions: false` in `src/sanity/kit.config.ts`): it needs the nightly
+  backups, `SANITY_API_WRITE_TOKEN` and `SANITY_PROJECT_ID` in the repo and a `GITHUB_DEPLOY_TOKEN` on the Worker,
+  none of which exist here. Turn it on once they do. "Post a photo" (`kitConfig.postPhoto`) is not configured.
+  Not checked on a real phone.

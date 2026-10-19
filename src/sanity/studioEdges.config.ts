@@ -11,8 +11,11 @@
 // =============================================================================
 
 import type { StudioWordingInput } from './studioWording';
+import type { StudioStart } from '../lib/studio-app';
 
 export interface StudioEdgesConfig extends StudioWordingInput {
+  /** The Studio as a phone app (card 125): the name under its icon and where it opens. Defaults: the site's name, Home. */
+  app?: { shortName?: string; start?: StudioStart };
   wordmark: {
     /** Which brand.config.json `logoPaths` entry the navy top bar shows ('dark' is the one for dark grounds). null hides it. */
     logo: 'dark' | 'light' | null;
