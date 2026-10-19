@@ -11,7 +11,7 @@
 // Where each of her pieces went:
 //   Welcome pane and its ten cards  -> Home: the four big buttons below, "Your
 //                                      pages", and the tools group
-//   first-visit tour                -> tourSteps below (her words)
+//   first-visit tour                -> tours in studio-tours.ts (her words)
 //   "What needs attention"          -> the Checkup tool: the kit's generic
 //                                      rules plus src/sanity/checkupRules.ts
 //   "Help (how do I...?)"           -> the Site Guide tool, which still shows
@@ -33,6 +33,7 @@ import { GUIDE_CATEGORIES, GUIDE_FOR_FIELD, GUIDES_FOR_TYPE, KIT_GUIDES } from '
 import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
 import { DESK } from './studioTargets';
+import { TOURS, WELCOME, WHATS_NEW } from './studio-tours';
 import { brandIcon, typeIcon } from './brandIcons';
 import {
   buildAwayNotice,
@@ -185,6 +186,113 @@ export const kitConfig: KitConfig = {
   // publishes straight away, so the builders in src/lib/quick-updates.ts
   // return whole, valid notices (tested in quick-updates.test.ts).
   quickUpdate: [
+    // Card 137 jobs: change a thing that is already there. Each starts from
+    // what is on the document now and writes the published copy straight away.
+    {
+      id: 'mark-sold',
+      title: 'Mark a clearance item sold',
+      detail: 'Pick the item that sold. Its Buy button goes away and it moves to the end.',
+      icon: typeIcon('clearanceItem'),
+      meaning: 'give',
+      job: {
+        kind: 'edit',
+        pick: {
+          type: 'clearanceItem',
+          filter: 'sold != true',
+          order: 'orderRank',
+          titleField: 'name',
+          label: 'Which one sold?',
+        },
+      },
+      fields: [
+        {
+          name: 'sold',
+          title: 'Sold',
+          kind: 'boolean',
+          description: 'Yes, it sold. Take the Buy button away.',
+        },
+        {
+          name: 'quantityAvailable',
+          title: 'How many are left',
+          kind: 'number',
+          description: 'Leave it as it is, or type 0 if none are left.',
+        },
+      ],
+      submitLabel: 'Save it on my website',
+      doneTitle: 'Marked as sold',
+      doneMessage: 'The Buy button will be gone from your website in about 2 to 3 minutes.',
+    },
+    {
+      id: 'change-price',
+      title: 'Change a price',
+      detail: 'Pick a price tag from your Pricing page and type the new price.',
+      icon: typeIcon('pricingTier'),
+      meaning: 'give',
+      job: {
+        kind: 'edit',
+        pick: {
+          type: 'pricingTier',
+          order: 'orderRank',
+          titleField: 'label',
+          label: 'Which price tag?',
+        },
+      },
+      fields: [
+        {
+          name: 'pricePerPiece',
+          title: 'Price per piece, in dollars',
+          kind: 'number',
+          required: true,
+          description: 'Just the number, for example 16 or 12.50.',
+        },
+      ],
+      submitLabel: 'Save it on my website',
+      doneTitle: 'Price changed',
+      doneMessage: 'The new price will be on your Pricing page in about 2 to 3 minutes.',
+    },
+    {
+      id: 'change-clearance-price',
+      title: 'Change a clearance price',
+      detail: 'Pick a clearance item that is still for sale and type its new sale price.',
+      icon: typeIcon('clearanceItem'),
+      meaning: 'give',
+      job: {
+        kind: 'edit',
+        pick: {
+          type: 'clearanceItem',
+          filter: 'sold != true',
+          order: 'orderRank',
+          titleField: 'name',
+          label: 'Which item?',
+        },
+      },
+      fields: [
+        {
+          name: 'salePrice',
+          title: 'Sale price, in dollars',
+          kind: 'number',
+          required: true,
+          description: 'Just the number, for example 25 or 19.50.',
+        },
+        {
+          name: 'originalPrice',
+          title: 'Original price, in dollars',
+          kind: 'number',
+          description: 'Shown crossed out. Leave it empty to show only the sale price.',
+        },
+      ],
+      submitLabel: 'Save it on my website',
+      doneTitle: 'Price changed',
+      doneMessage: 'The new price will be on your Clearance page in about 2 to 3 minutes.',
+    },
+    {
+      id: 'quote-requests',
+      title: 'See my quote requests',
+      detail: 'Every request from your website, newest first. Mark each one Replied.',
+      icon: brandIcon('contact'),
+      meaning: 'message',
+      job: { kind: 'link', target: { tool: 'messages' } },
+    },
     {
       id: 'notice',
       title: 'Put up a notice',
@@ -516,28 +624,12 @@ export const kitConfig: KitConfig = {
     },
   ],
 
-  tourSteps: [
-    {
-      title: 'This is Home',
-      body: 'Home opens first every time. It has big buttons for the jobs you do most, your weekly 15 minutes, whether your last change is on your website yet, and anything worth fixing.',
-    },
-    {
-      title: 'Your changes are private until you press Publish',
-      body: 'Nothing you change reaches your website until you press the Publish button, so it is safe to look around and click things. After Publish, wait 2 to 3 minutes, then refresh your website to see it.',
-    },
-    {
-      title: 'You can change the words right on the page',
-      body: 'Click "Edit on the page" in the bar at the top. Your website appears; click any words on it and a small box opens where you can type.',
-    },
-    {
-      title: 'You can always undo',
-      body: 'Changed something by mistake? Click the three dots beside Publish and choose "Undo last change". Moved something to the Trash? Open the Trash and press "Bring it back".',
-    },
-    {
-      title: 'Help is always in the top bar',
-      body: 'The Site Guide has step-by-step help for every job, and you can print any of it. Stuck? Home has a button for asking Nathan.',
-    },
-  ],
+  // Spotlight tours, the welcome and What's new (card 137): src/sanity/studio-tours.ts.
+  // The fallback the kit keeps for a site with no tours; the tours below win.
+  tourSteps: [],
+  tours: TOURS,
+  welcome: WELCOME,
+  whatsNew: WHATS_NEW,
 
   // A rebuild takes 2 to 3 minutes (Cloudflare Workers Builds, from the Sanity
   // publish webhook).
