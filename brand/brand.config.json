@@ -50,7 +50,7 @@
   },
   "studio": {
     "accent": "#28486B",
-    "chrome": "#1C3550",
+    "chrome": "#0F1B2D",
     "paper": "#FBF8F1",
     "fonts": {
       "display": "\"Fraunces Variable\", Georgia, \"Times New Roman\", serif",
@@ -86,6 +86,7 @@
         "media": "image"
       },
       "tile": {
+        "light": "#E2CFA9",
         "dark": "#E2CFA9"
       }
     }

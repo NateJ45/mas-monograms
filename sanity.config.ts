@@ -69,7 +69,7 @@ import { brandIcon, brandIcons, withBrandPreviews } from './src/sanity/brandIcon
 // =============================================================================
 // The kit's theme from brand/brand.config.json (cards 110 and 116): a warm
 // paper, the Heritage Indigo accent, re-hued greys, the site's radius, the
-// Indigo Deep top bar (StudioLook.tsx), with Mary Ann's larger type on top
+// Midnight top bar (the site header's ground; StudioLook.tsx), with Mary Ann's larger type on top
 // (src/sanity/readableTheme.ts). Light is the default for a first visit
 // (seedLightScheme): the site itself has no dark mode.
 //
@@ -209,7 +209,7 @@ export default defineConfig({
     // Ctrl+Z / Ctrl+Shift+Z for everything that is not typing (PORTS.md card
     // 27). The buttons are document actions (src/sanity/editorActions.ts).
     undoRedoShortcuts(),
-    // The Indigo Deep top bar (StudioLook.tsx, card 116).
+    // The Midnight top bar, the site header's ground (StudioLook.tsx, card 116).
     studioLook(STUDIO_FONTS),
     // Her QR tool and brand kit, before the kit so it can order them.
     masTools(),

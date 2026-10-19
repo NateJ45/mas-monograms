@@ -8,9 +8,10 @@
 // embroidery hoop, a spool of thread, a needle and thread, a hang tag, a tote
 // and the Hoop Seal. They are drawn in the site's own colours (wood, claret,
 // gold, indigo, linen, kraft), shown exactly as drawn: artIcon() only places
-// them in Sanity's 1em icon box. On the dark appearance the tile behind them is
-// kraft (brand.config.json studio.icons.tile.dark), so the ink and wood keep
-// their contrast.
+// them in Sanity's 1em icon box. The tile behind them in list rows is kraft,
+// her hang-tag card stock, in both appearances (brand.config.json
+// studio.icons.tile), so the ink and wood keep their contrast. The hoop holds
+// a claret monogram M (it used to hold a cross, which read as "close").
 //
 // Which document type, field group or tool means what: brand/brand.config.json
 // `studio.icons`. Meanings with no picture here keep the starter's @sanity/icons.

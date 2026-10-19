@@ -143,6 +143,13 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: code work queued
 
+- **Starter card 128 (Studio design language with a per-site art slot) to adopt when it merges.** The
+  art is ready in `public/studio-art/` (2026-10-19 art pass, drawn by `node scripts/gen-studio-art.mjs`
+  from the site's own parts): `hoop.svg` / `hoop-thread.svg` (her Hoop Seal lettering in the Home hero's
+  gilded hoop), `stitch-rule.svg` (the header's running-stitch hem), `cross-stitch.svg` (the gold list
+  stitch), `weave-midnight.svg` / `weave-linen.svg` (the grounds). Heading treatment: Fraunces, with the
+  accent words in the site's swash italic in thread gold (`public/studio-banner/fraunces-swash.woff2`).
+
 - **Starter card 122 (private and hidden pages) to adopt next round.** Only its PORTABLE copies are in
   (2026-10-18). This site has no `_seoFields.ts` and no `hideFromSearch` box, and its menus are typed by hand
   in My business details, so nothing here needs to honour it yet.
