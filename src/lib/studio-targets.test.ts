@@ -69,13 +69,15 @@ test('every pane Home links to is one the desk has', () => {
   }
 });
 
-test("Home's big buttons are the four jobs she does most", () => {
+// Five since 2026-10-19: her quote requests joined them (docs/agent/studio-plan.md).
+test("Home's big buttons are the jobs she does most", () => {
   const quick = KIT.slice(KIT.indexOf('quickActions: ['), KIT.indexOf('tourSteps: ['));
   const titles = [...quick.matchAll(/^\s+title: '([^']+)',$/gm)].map((m) => m[1]);
   assert.deepEqual(titles, [
     'Add a photo of my work',
     'Mark a clearance item sold, or add one',
     'Change a price',
+    'See my quote requests',
     'Change my phone number or email',
   ]);
 });
