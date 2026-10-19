@@ -2,11 +2,8 @@
 // Every word on /404 comes from here.
 //
 // 2026-10-05, Mary Ann's Studio pass: only the headline is required; plain
-// titles. `body` is HIDDEN (data kept): src/pages/404.astro reads `page.subhead`,
-// which this schema has never declared, so the line under the headline always
-// shows its built-in words and editing `body` changed nothing on the website.
-// docs/PENDING.md tracks the one-line fix (read `body` in 404.astro); unhide
-// `body` in the same change.
+// titles. 2026-10-19: `body` is visible again. getNotFoundPage maps it to
+// `subhead` (the line under the headline on /404), so editing it changes the page.
 
 import { defineType, defineField } from 'sanity';
 import { HelpCircleIcon } from '@sanity/icons/HelpCircle';
@@ -46,6 +43,16 @@ export const notFoundPage = defineType({
         R.required().error('Please type a headline. It is the big heading on this page.'),
         R.max(100).warning(TOO_LONG),
       ],
+    }),
+
+    defineField({
+      name: 'body',
+      title: 'Line under the headline',
+      description: 'The sentence under the big headline on the "page not found" page.',
+      type: 'text',
+      group: 'content',
+      rows: 3,
+      validation: (R) => R.max(200).warning(TOO_LONG),
     }),
 
     // ── Buttons ──────────────────────────────────────────────────────────────
@@ -101,15 +108,6 @@ export const notFoundPage = defineType({
       fieldset: 'seo',
       initialValue: 'That page wandered off. Head back to the homepage or request a quote.',
       validation: (R) => R.max(160).warning(SEO_DESCRIPTION_TOO_LONG),
-    }),
-
-    // ── Hidden: the page does not read it yet (see the header) ───────────────
-    defineField({
-      name: 'body',
-      title: 'Line under the headline (not shown yet)',
-      type: 'text',
-      rows: 3,
-      hidden: true,
     }),
   ],
   preview: {

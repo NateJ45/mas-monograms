@@ -155,11 +155,6 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   copy `preview-share-server.ts` and `api/studio/share-preview.ts`, set `SHARE_PREVIEW_SECRET`, retire
   "Copy a link..." and update the `share-before-publish` guide in the same change.
 
-- **The 404 page ignores its Studio box.** `NotFoundBody.astro` (was `404.astro`) reads `page.subhead`, which
-  no schema declares, so the line under the headline is always the built-in "The page you're looking for
-  doesn't exist or may have moved." The Studio's `notFoundPage.body` ("It happens! Maybe a link...") never
-  showed; it is hidden since 2026-10-05 so editing it cannot mislead. Fix: read `page.body` there, unhide
-  `body` in `src/sanity/schemaTypes/notFoundPage.ts`, re-baseline parity for `/404` (the words change).
 - **Quote-form words with no Studio box.** The redesigned form (`request-a-quote.astro` `L` table) reads
   `itemTypePlaceholder`, `*Error` messages, `personalization*`, `threadColor*`, `gift*`, `attachmentsHelp` /
   `attachmentsError`, `notesLabel` / `notesPlaceholder` and `submittingLabel`, none of which the schema
