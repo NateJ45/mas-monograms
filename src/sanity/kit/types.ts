@@ -13,6 +13,7 @@ import type { SanityClient } from 'sanity';
 import type { CheckGroup } from '../../lib/page-checks';
 import type { CheckupRule } from '../../lib/studio-checkup';
 import type { QuickFieldKind, StudioTarget } from '../../lib/studio-kit';
+import type { BrandIconKey } from '../../lib/studio-icons';
 import type { GallerySpec } from '../../lib/photo-post';
 
 /**
@@ -70,6 +71,8 @@ export interface QuickForm {
   title: string;
   detail?: string;
   icon?: ComponentType;
+  /** Card 131: the site's art for the tile (its stone icon); the icon is the fallback. */
+  meaning?: BrandIconKey;
   fields: QuickField[];
   /** The button at the bottom of the form ("Put it on the website"). */
   submitLabel?: string;
@@ -305,6 +308,13 @@ export interface KitConfig {
    * groups, each a one-click link. Missing or empty hides the card.
    */
   pages?: PageMapGroup[];
+
+  /**
+   * Types Home's "Recent edits" and "Pick up" skip, on top of `checkup.ignoreTypes`
+   * (card 129). For documents a script writes (nightly imports) that are not an
+   * editor's work but should still be checked. Missing: only the Checkup list.
+   */
+  recentIgnoreTypes?: string[];
 
   /** Home's quick actions, in order. Empty or missing shows the two plain buttons. */
   quickActions?: QuickAction[];

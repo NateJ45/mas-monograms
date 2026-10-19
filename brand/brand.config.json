@@ -89,6 +89,35 @@
         "light": "#E2CFA9",
         "dark": "#E2CFA9"
       }
+    },
+    "look": {
+      "marker": {
+        "src": "/studio-art/cross-stitch.svg",
+        "width": 12,
+        "height": 12
+      },
+      "headingColor": "#28486B",
+      "markColors": ["#8C3A2E"],
+      "stone": "round",
+      "connector": {
+        "kind": "dashes",
+        "color": "#8C3A2E"
+      },
+      "tones": {
+        "note": "#28486B",
+        "tip": "#D9B15F",
+        "careful": "#8C3A2E"
+      },
+      "motif": "/studio-banner/thread.svg",
+      "motifNarrow": "/studio-banner/thread-phone.svg",
+      "texture": "/studio-art/weave-midnight.svg",
+      "edgeColors": ["#A9772A", "#D9B15F", "#F0D58A", "#D9B15F", "#A9772A"],
+      "lettering": {
+        "family": "MAS Fraunces Swash",
+        "src": "/studio-banner/fraunces-swash.woff2",
+        "colors": ["#C9A04F", "#D9B15F", "#E4C373", "#F0D58A", "#F0D58A", "#E4C373", "#D9B15F"]
+      },
+      "motion": "draw"
     }
   }
 }
