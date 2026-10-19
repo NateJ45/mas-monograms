@@ -176,6 +176,61 @@ const keptOutOfHoops: CheckupRule = {
   },
 };
 
+/** A season page that would show no photos at all (no tag matches, no picks). */
+const collectionNoPhotos: CheckupRule = {
+  id: 'collection-no-photos',
+  run: ({ published, nameOf }) => {
+    const photos = published.filter((d) => d._type === 'galleryItem');
+    const empty = published.filter((d) => {
+      if (d._type !== 'collection') return false;
+      const picks = Array.isArray(d.photos) ? d.photos.length : 0;
+      const tags = new Set(
+        (Array.isArray(d.photoTags) ? d.photoTags : [])
+          .filter((t): t is string => typeof t === 'string')
+          .map((t) => t.trim().toLowerCase()),
+      );
+      const tagged = photos.some(
+        (p) =>
+          Array.isArray(p.tags) &&
+          p.tags.some((t) => typeof t === 'string' && tags.has(t.trim().toLowerCase())),
+      );
+      return picks === 0 && !tagged;
+    });
+    if (!empty.length) return null;
+    return {
+      severity: 'Needs doing',
+      label: `${plural(empty.length, 'season page')} with no photos`,
+      detail: `${listNames(empty.map(nameOf))}. No photo of your work has one of its tags yet. Add the tag to a few photos, or pick photos on the page.`,
+      ...openFirst(empty, 'photoTags'),
+      items: itemsOf(empty, nameOf, () => 'photoTags'),
+      itemLabel: 'No photos show yet',
+    };
+  },
+};
+
+/** A notice switched on whose last day has passed (it no longer shows). */
+const endedNotices: CheckupRule = {
+  id: 'ended-notices',
+  run: ({ published, now }) => {
+    const n = published.filter(
+      (d) =>
+        d._type === 'announcement' &&
+        d.enabled !== false &&
+        typeof d.endDate === 'string' &&
+        Date.parse(d.endDate) < now,
+    ).length;
+    if (!n) return null;
+    return {
+      severity: 'For information',
+      label: `${plural(n, 'notice')} past its last day`,
+      detail:
+        'Your website stopped showing it by itself, so nothing is wrong. Move it to the Trash when you like, to keep the list tidy.',
+      target: { pane: 'notices' },
+      targetLabel: 'Open the notices',
+    };
+  },
+};
+
 export const MAS_RULES: CheckupRule[] = [
   stripeLinkBroken,
   headlineMissing,
@@ -183,4 +238,6 @@ export const MAS_RULES: CheckupRule[] = [
   fontNoPhoto,
   soldStillShown,
   keptOutOfHoops,
+  collectionNoPhotos,
+  endedNotices,
 ];

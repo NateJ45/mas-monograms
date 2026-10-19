@@ -89,6 +89,116 @@ export type StudioGuide = {
   }>;
 };
 
+export type Announcement = {
+  _id: string;
+  _type: 'announcement';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  message?: string;
+  enabled?: boolean;
+  style?: 'info' | 'highlight' | 'urgent';
+  startDate?: string;
+  endDate?: string;
+  link?: {
+    label?: string;
+    url?: string;
+  };
+  internalTitle?: string;
+};
+
+export type SanityImageAssetReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
+};
+
+export type GalleryItemReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'galleryItem';
+};
+
+export type ItemCategoryReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'itemCategory';
+};
+
+export type Collection = {
+  _id: string;
+  _type: 'collection';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  eyebrow?: string;
+  headline?: string;
+  intro?: string;
+  orderBy?: string;
+  heroImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+  photoTags?: Array<string>;
+  photos?: Array<
+    {
+      _key: string;
+    } & GalleryItemReference
+  >;
+  itemsHeading?: string;
+  categories?: Array<
+    {
+      _key: string;
+    } & ItemCategoryReference
+  >;
+  ctaLabel?: string;
+  bannerEyebrow?: string;
+  bannerHeadline?: string;
+  bannerSubhead?: string;
+  seoPreview?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoImage?: {
+    asset?: SanityImageAssetReference;
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    _type: 'image';
+  };
+};
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop';
+  top?: number;
+  bottom?: number;
+  left?: number;
+  right?: number;
+};
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot';
+  x?: number;
+  y?: number;
+  height?: number;
+  width?: number;
+};
+
+export type Slug = {
+  _type: 'slug';
+  current?: string;
+  source?: string;
+};
+
 export type FaqItem = {
   _id: string;
   _type: 'faqItem';
@@ -122,13 +232,6 @@ export type FaqItem = {
   orderRank?: string;
 };
 
-export type SanityImageAssetReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
-};
-
 export type ClearanceItem = {
   _id: string;
   _type: 'clearanceItem';
@@ -156,22 +259,6 @@ export type ClearanceItem = {
   featured?: boolean;
 };
 
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop';
-  top?: number;
-  bottom?: number;
-  left?: number;
-  right?: number;
-};
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot';
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-};
-
 export type PricingTier = {
   _id: string;
   _type: 'pricingTier';
@@ -187,13 +274,6 @@ export type PricingTier = {
   orderRank?: string;
   minQuantity?: number;
   maxQuantity?: number;
-};
-
-export type ItemCategoryReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'itemCategory';
 };
 
 export type FontReference = {
@@ -248,12 +328,6 @@ export type ThreadColor = {
     alt?: string;
     _type: 'image';
   };
-};
-
-export type Slug = {
-  _type: 'slug';
-  current?: string;
-  source?: string;
 };
 
 export type Font = {
@@ -1468,17 +1542,20 @@ export type AllSanitySchemaTypes =
   | StudioPlaybook
   | StudioNotes
   | StudioGuide
-  | FaqItem
+  | Announcement
   | SanityImageAssetReference
-  | ClearanceItem
+  | GalleryItemReference
+  | ItemCategoryReference
+  | Collection
   | SanityImageCrop
   | SanityImageHotspot
+  | Slug
+  | FaqItem
+  | ClearanceItem
   | PricingTier
-  | ItemCategoryReference
   | FontReference
   | GalleryItem
   | ThreadColor
-  | Slug
   | Font
   | NotFoundPage
   | AtelierSettings

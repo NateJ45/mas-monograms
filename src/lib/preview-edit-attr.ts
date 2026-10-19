@@ -68,7 +68,9 @@ export type EditableArrayField =
   // styleGalleryPage
   | 'filterGroups'
   // thankYouPage
-  | 'nextSteps';
+  | 'nextSteps'
+  // collection (gift guides and season pages, 2026-10-18)
+  | 'categories';
 
 export interface EditDoc {
   /** The PUBLISHED document id (no `drafts.` prefix). */

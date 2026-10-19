@@ -25,6 +25,7 @@ import {
   type Fetcher,
   getAboutPage,
   getAllClearanceItems,
+  getCollectionBySlug,
   getAllFonts,
   getAllGalleryItems,
   getAllItemCategories,
@@ -334,4 +335,29 @@ export async function loadCategory(
     getShopIndexPage(fetch),
   ]);
   return { slug, category, allGallery, allCategories, galleryPage, shopPage };
+}
+
+// -----------------------------------------------------------------------------
+// Gift guide or season page (/collections/<slug>/, 2026-10-18)
+// -----------------------------------------------------------------------------
+
+export interface CollectionData {
+  slug: string;
+  collection: any;
+  allGallery: any[];
+  galleryPage: any;
+  shopPage: any;
+}
+
+export async function loadCollection(
+  slug: string,
+  fetch: Fetcher = publishedFetcher,
+): Promise<CollectionData> {
+  const [collection, allGallery, galleryPage, shopPage] = await Promise.all([
+    getCollectionBySlug(slug, fetch),
+    getAllGalleryItems(fetch),
+    getStyleGalleryPage(fetch),
+    getShopIndexPage(fetch),
+  ]);
+  return { slug, collection, allGallery, galleryPage, shopPage };
 }

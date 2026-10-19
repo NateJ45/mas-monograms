@@ -68,15 +68,24 @@ test('the three jobs she does most each have a starting point', () => {
   assert.equal(byType.get('faqItem')?.id, 'new-question');
 });
 
+/** Templates whose words are partly hers already (season pages, notices; 2026-10-18). */
+const SEASONAL = new Set(['collection', 'announcement']);
+
 test('free-text prompts are bracketed, in her voice, with no em-dashes', () => {
   const text = JSON.stringify(STARTING_TEMPLATES.map(valueOf));
   assert.ok(!text.includes('—'), 'a template contains an em-dash');
   for (const t of STARTING_TEMPLATES) {
     for (const [key, value] of Object.entries(valueOf(t))) {
       // The free-text boxes. Choices (hoopFit: 'good') are values, not prompts.
-      if (typeof value === 'string' && FREE_TEXT.has(key)) {
+      if (typeof value === 'string' && FREE_TEXT.has(key) && !SEASONAL.has(t.schemaType)) {
         assert.match(value, /^\[.+\]$/, `${t.id}.${key} should be a [bracketed prompt]`);
       }
+    }
+    // The season pages and notices keep sensible words of their own
+    // ("Christmas gift guide") and put the parts only she knows in brackets
+    // ("Order by [the date]"), so every one still has a prompt left to fill.
+    if (SEASONAL.has(t.schemaType)) {
+      assert.match(JSON.stringify(valueOf(t)), /\[[^\]]+\]/, `${t.id} has nothing in [brackets]`);
     }
   }
   for (const banned of ['curated', 'elevated', 'bespoke', 'seamless', 'lorem']) {

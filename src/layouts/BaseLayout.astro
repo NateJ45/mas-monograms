@@ -16,7 +16,8 @@ import { ClientRouter } from 'astro:transitions';
 import { site } from '@/data/site';
 import { urlFor } from '@/lib/sanity';
 import { localBusinessSchema } from '@/lib/schemas';
-import { getActiveAnnouncement, getAllLegalPages, getAllClearanceItems } from '@/lib/queries';
+import { getActiveNotices, getAllLegalPages, getAllClearanceItems } from '@/lib/queries';
+import { NOTICE_SCRIPT, placeNotices } from '@/lib/notices';
 import Analytics from '@/components/Analytics.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
@@ -116,25 +117,25 @@ const fullTitle =
 // Pages can still pass their own additional schemas (Service, FAQPage, BreadcrumbList).
 const allSchemas = siteSettings ? [localBusinessSchema(siteSettings), ...schemas] : schemas;
 
-// Optional site-wide announcement banner (Announcement collection in Sanity).
-// Fetched here once so every page gets it without each page running its own
-// query. Returns null when no active announcement exists (graceful absence).
-// Evaluated at BUILD TIME — banner changes require a rebuild. No .catch on
-// these reads: sanityFetch throws on a failed read in a production build, and
-// swallowing that would ship every page with the banner and footer links gone.
-const announcement = await getActiveAnnouncement();
+// The notice across the top ("Notice across the top" in the Studio, the
+// announcement type; registered 2026-10-18). Every switched-on notice that has
+// not ended is drawn, most important first, and only the first one inside its
+// dates is visible; a few lines of script re-check the dates in the visitor's
+// browser, so a notice starts and ends on time without a rebuild
+// (src/lib/notices.ts). No .catch on these reads: sanityFetch throws on a
+// failed read in a production build, and swallowing that would ship every page
+// with the banner and footer links gone.
+const notices = placeNotices(await getActiveNotices(), Date.now());
 // Legal/policy pages for the footer links (Sanity-managed collection).
 const legalPages = await getAllLegalPages();
 // Hide the Clearance nav/footer link entirely when there's nothing on clearance.
 const clearanceItems = await getAllClearanceItems();
 const hasClearance = (clearanceItems?.length ?? 0) > 0;
-const showAnnouncement = !!announcement?.message;
-
-// Map announcement style -> semantic Tailwind token classes.
-// Uses only existing semantic tokens (no new custom tokens introduced).
-//   info      -> muted surface (calm, informational)
-//   highlight -> primary surface (brand accent, promotions / good news)
-//   urgent    -> destructive surface (red, closures / warnings)
+// Notice style -> Heirloom Coast token classes (2026-10-18, Direction D):
+//   info      -> Sage Linen band, Heirloom Ink text (10:1)
+//   highlight -> Heritage Indigo band, white text (8:1)
+//   urgent    -> Midnight band, Linen text (15:1; claret is kept for buttons,
+//                DESIGN.md, and the shadcn red was only ~4:1)
 const ANNOUNCEMENT_STYLES: Record<string, { wrapper: string; link: string }> = {
   info: {
     wrapper: 'bg-muted text-foreground',
@@ -145,12 +146,12 @@ const ANNOUNCEMENT_STYLES: Record<string, { wrapper: string; link: string }> = {
     link: 'font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity',
   },
   urgent: {
-    wrapper: 'bg-destructive text-destructive-foreground',
+    wrapper: 'bg-midnight text-bg',
     link: 'font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity',
   },
 };
-const announcementStyle =
-  ANNOUNCEMENT_STYLES[announcement?.style ?? 'info'] ?? ANNOUNCEMENT_STYLES.info;
+const noticeStyle = (style?: string | null) =>
+  ANNOUNCEMENT_STYLES[style ?? 'info'] ?? ANNOUNCEMENT_STYLES.info;
 ---
 
 <!doctype html>
@@ -248,31 +249,32 @@ const announcementStyle =
       Skip to main content
     </a>
 
-    {/* Optional announcement banner. Renders above the header when an active
-        announcement exists in Sanity. Scrolls away with the page content.
-        No dismiss button by design -- static sites rebuild to remove a banner,
-        and a dismiss button would require client-side JS + localStorage state.
-        Style driven by announcement.style -> semantic token classes only. */}
-    {showAnnouncement && (
+    {/* The notice across the top (src/lib/notices.ts). Above the header,
+        scrolls away with the page. One shows at a time; the inline script
+        re-checks the dates by the visitor's clock. No dismiss button: the
+        notice is the shop's own news and comes down on its last day. */}
+    {notices.map((n) => (
       <div
+        data-notice
+        data-from={n.startDate ?? undefined}
+        data-until={n.endDate ?? undefined}
+        hidden={!n.visible}
         class:list={[
-          announcementStyle.wrapper,
+          noticeStyle(n.style).wrapper,
           'border-b border-black/10 px-m py-2 text-center text-sm',
         ]}
         role="region"
-        aria-label="Site announcement"
+        aria-label="Notice"
       >
-        <span>{announcement!.message}</span>
-        {announcement?.link?.url && announcement?.link?.label && (
-          <a
-            href={internalHref(announcement.link.url)}
-            class:list={['ml-2', announcementStyle.link]}
-          >
-            {announcement.link.label}
+        <span>{n.message}</span>
+        {n.link?.url && n.link?.label && (
+          <a href={internalHref(n.link.url)} class:list={['ml-2', noticeStyle(n.style).link]}>
+            {n.link.label}
           </a>
         )}
       </div>
-    )}
+    ))}
+    {notices.length > 0 && <script is:inline set:html={NOTICE_SCRIPT} />}
 
     <Header siteSettings={siteSettings} hasClearance={hasClearance} tone={header} />
 

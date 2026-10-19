@@ -48,6 +48,7 @@ import { SITE_SETTINGS_PROJECTION } from '@/lib/queries';
 import {
   loadAbout,
   loadCategory,
+  loadCollection,
   loadClearance,
   loadFontGuide,
   loadHome,
@@ -76,6 +77,7 @@ import ClearancePage from '../clearance.astro';
 import ThankYouPage from '../thank-you.astro';
 import NotFoundBody from '@/components/pages/NotFoundBody.astro';
 import CategoryPage from '../[slug].astro';
+import CollectionPage from '../collections/[slug].astro';
 
 // Fresh clone / unset secret: say so, do not 500.
 const config = previewConfig();
@@ -175,6 +177,21 @@ const categorySlugs: string[] =
 
 let entry: PreviewPage | undefined = PREVIEW_PAGES[slug];
 let docId: string | null = null;
+// Gift guides and season pages (2026-10-18): /preview/collections/<slug>.
+const collectionSlug = slug.startsWith('collections/') ? slug.slice('collections/'.length) : null;
+if (!entry && collectionSlug) {
+  docId = await draftFetch<string | null>(
+    `*[_type == "collection" && slug.current == $slug][0]._id`,
+    { slug: collectionSlug },
+  );
+  if (docId) {
+    entry = {
+      type: 'collection',
+      component: CollectionPage,
+      load: (f) => loadCollection(collectionSlug, f),
+    };
+  }
+}
 if (!entry && categorySlugs.includes(slug)) {
   entry = { type: 'itemCategory', component: CategoryPage, load: (f) => loadCategory(slug, f) };
   docId = await draftFetch<string | null>(
