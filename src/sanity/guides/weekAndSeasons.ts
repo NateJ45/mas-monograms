@@ -81,7 +81,7 @@ export const weekAndSeasonGuides: Guide[] = [
     icon: 'phone',
     badge: 'You can do this yourself',
     summary:
-      'Big buttons for the jobs you can do from your phone: a photo of your work, a notice, a holiday order deadline, a week away and a new question and answer.',
+      'Big buttons for the jobs you can do from your phone: a photo of your work, a sold sign, a new price, a notice, a holiday order deadline, a week away and a new question and answer.',
     time: 'About 2 minutes each',
     blocks: [
       {
@@ -107,6 +107,10 @@ export const weekAndSeasonGuides: Guide[] = [
         kind: 'bullets',
         items: [
           '`Post a photo`: a photo of your work from your camera or your photos. It waits for you to check it and press Publish.',
+          '`Mark a clearance item sold`: pick the item that sold and its Buy button goes away.',
+          '`Change a price`: pick a price tag from your Pricing page and type the new price.',
+          '`Change a clearance price`: the same for an item on your Clearance page.',
+          '`See my quote requests`: opens Messages, where every request is listed.',
           '`Put up a notice`: a short line across the top of every page, until the day you pick.',
           '`Order deadline`: "Order by December 1 to have it in time for Christmas", worded for you.',
           '`I am away for a while`: tells people before they send a quote request.',
@@ -116,8 +120,8 @@ export const weekAndSeasonGuides: Guide[] = [
       {
         kind: 'callout',
         tone: 'careful',
-        title: 'Notices, deadlines and questions go up straight away',
-        text: 'They do not wait for Publish. If you spot a mistake afterwards, press `Open it in the full editor`, fix it, and press Publish.',
+        title: 'Everything except a photo goes up straight away',
+        text: 'Sold signs, prices, notices, deadlines and questions do not wait for Publish. If you spot a mistake afterwards, do the job again, or open the item in the full editor, fix it and press Publish.',
       },
       { kind: 'h', text: 'Put the Studio on your phone like an app' },
       {
@@ -134,7 +138,17 @@ export const weekAndSeasonGuides: Guide[] = [
         ],
       },
       { kind: 'path', label: 'Open Quick update', to: { tool: 'quick-update' } },
-      { kind: 'seealso', ids: ['photo-from-phone', 'order-deadline', 'away-notice', 'questions'] },
+      {
+        kind: 'seealso',
+        ids: [
+          'photo-from-phone',
+          'clearance-sold',
+          'change-a-price',
+          'order-deadline',
+          'away-notice',
+          'questions',
+        ],
+      },
     ],
   },
   {

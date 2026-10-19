@@ -169,7 +169,7 @@ The numbered gotchas keep their original numbers because code comments cite them
 - **`docs/PENDING.md`** — the authoritative registry of open patches and
   waiting-on-a-human items. Edit it in the same commit that opens or closes one.
 - **`docs/TESTING.md`** — which check covers what, and how to run each.
-- **`docs/agent/studio-plan.md`** — Mary Ann's weekly, monthly and seasonal jobs and the Studio surface for each; tours (`src/sanity/studioTours.ts`) and video scripts (`docs/agent/studio-videos.md`) wait on starter card 137.
+- **`docs/agent/studio-plan.md`** — Mary Ann's weekly, monthly and seasonal jobs and the Studio surface for each; tours, welcome and What's new (`src/sanity/studio-tours.ts`, starter card 137), Quick update jobs (`kit.config.ts`) and the video scripts and clips (`docs/agent/studio-videos.md`, `tools/tutorial-videos/scripts/`).
 - **`ncs-astro-sanity-starter/PORTS.md`** — the library of record for the shared
   build/QA plumbing this repo now carries. Files whose first lines say
   `PORTABLE: canonical copy ...` are owned there, not here: change them in the

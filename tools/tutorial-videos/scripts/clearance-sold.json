@@ -1,0 +1,43 @@
+{
+  "slug": "clearance-sold",
+  "title": "Mark a clearance item sold",
+  "start": "/",
+  "viewport": { "width": 390, "height": 844 },
+  "steps": [
+    {
+      "do": "goto",
+      "path": "/quick-update",
+      "caption": "On your phone, open Quick update.",
+      "ms": 2400,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"mark-sold\"]",
+      "caption": "Press Mark a clearance item sold.",
+      "ms": 2400
+    },
+    { "do": "click", "target": "[data-quick=\"mark-sold\"]", "ms": 1500 },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-pick\"]",
+      "caption": "Pick the item that sold.",
+      "ms": 2400
+    },
+    { "do": "click", "target": "[data-tour=\"quick-pick\"] button", "ms": 1500 },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-field-sold\"]",
+      "caption": "Tick Sold.",
+      "ms": 2200
+    },
+    { "do": "click", "target": "[data-tour=\"quick-field-sold\"] input", "ms": 800 },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-submit\"]",
+      "caption": "Press the button at the bottom.",
+      "ms": 2400
+    },
+    { "do": "caption", "text": "The Buy button is gone in 2 to 3 minutes.", "ms": 2600 }
+  ]
+}
