@@ -235,7 +235,7 @@ export const kitConfig: KitConfig = {
         { name: 'lastOrderDay', title: 'Last day to order', kind: 'date', required: true },
         {
           name: 'message',
-          title: 'Your own words (you can leave this empty)',
+          title: 'Your own words',
           kind: 'text',
           max: 160,
           description:
@@ -269,7 +269,7 @@ export const kitConfig: KitConfig = {
         { name: 'lastDay', title: 'Last day away', kind: 'date', required: true },
         {
           name: 'message',
-          title: 'What it says (you can leave this empty)',
+          title: 'What it says',
           kind: 'text',
           max: 160,
           description:
