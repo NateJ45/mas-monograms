@@ -50,8 +50,6 @@ import { studioWording } from './src/sanity/studioWording';
 import { studioEdges } from './src/sanity/studioEdges.config';
 // The site's own font files for the Studio (card 116).
 import './src/sanity/studioFonts.css';
-// Her site's own button on Home's banner ("View the website"), card 128 round.
-import './src/sanity/studioArt.css';
 import brand from './brand/brand.config.json';
 import { CharacterCountInput } from './src/sanity/components/CharacterCountInput';
 import { documentBadges } from './src/sanity/components/documentBadges';

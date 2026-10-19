@@ -363,6 +363,24 @@ export const kitConfig: KitConfig = {
         '#B98A3E',
       ],
     },
+    // The button on her Midnight band is the paper patch with a running stitch (the
+    // site's .btn), drawn by the kit's own chip shape since card 135. Paper with Ink,
+    // Gold Light with Midnight on hover and keyboard focus.
+    style: {
+      chip: {
+        shape: 'stitched',
+        bg: '#fbf8f1',
+        fg: '#26312e',
+        hoverBg: '#f0d58a',
+        hoverFg: '#0f1b2d',
+        edge: '#0f1b2d',
+        ring: '#f0d58a',
+        size: '0.8125rem',
+        weight: 700,
+        tracking: '0.2em',
+        case: 'upper',
+      },
+    },
   },
 
   // Home's big buttons: the four jobs she does most (the first four cards of
