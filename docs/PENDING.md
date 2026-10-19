@@ -137,6 +137,10 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: code work queued
 
+- **Starter card 122 (private and hidden pages) to adopt next round.** Only its PORTABLE copies are in
+  (2026-10-18). This site has no `_seoFields.ts` and no `hideFromSearch` box, and its menus are typed by hand
+  in My business details, so nothing here needs to honour it yet.
+
 - **"Share a preview" (starter card 117) is not switched on here.** Mary Ann already has "Copy a link..."
   (one hour, `src/sanity/actions/shareLink.tsx`), and the kit's action says "draft" in its tooltip, which her
   Studio never says, and its `?share=` block would need adapting to this site's preview route (each page
