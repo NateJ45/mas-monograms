@@ -1,0 +1,41 @@
+{
+  "slug": "away-notice",
+  "title": "Tell people you are away",
+  "start": "/",
+  "viewport": { "width": 390, "height": 844 },
+  "steps": [
+    {
+      "do": "goto",
+      "path": "/quick-update",
+      "caption": "Going away? Open Quick update.",
+      "ms": 2400,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"away\"]",
+      "caption": "Press I am away for a while.",
+      "ms": 2200
+    },
+    { "do": "click", "target": "[data-quick=\"away\"]", "ms": 1500 },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-field-firstDay\"]",
+      "caption": "The first day away is optional.",
+      "ms": 2400
+    },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-field-lastDay\"]",
+      "caption": "Pick the last day you are away.",
+      "ms": 2400
+    },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-submit\"]",
+      "caption": "Press Put it on my website.",
+      "ms": 2400
+    },
+    { "do": "caption", "text": "People read it before they ask for a quote.", "ms": 2600 }
+  ]
+}

@@ -143,12 +143,11 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: code work queued
 
-- **Studio complete, Phase B (waits on starter card 137, 2026-10-19).** Phase A (branch `feat/studio-complete`)
-  wrote `docs/agent/studio-plan.md`, added Quick update `Post a photo` (Style Gallery), `Order deadline` and `Add a
-question and answer`, seven week-and-season guides, "How to" chips (`GUIDE_FOR_FIELD`) and the first guide
-  captures. Left: merge `main`, resync PORTABLE files, wire `src/sanity/studioTours.ts` into the kit's tours,
-  record the eight clips in `docs/agent/studio-videos.md`, capture the shot keys still drawing the wireframe
-  (`messages-list` needs sample messages), and the card 137 ideas listed at the foot of the plan.
+- **Studio complete, Phase B (2026-10-19, branch `feat/studio-complete-b`): code done, media left.** Card 137 resynced,
+  tours wired (`src/sanity/studio-tours.ts`), Quick update has Mark sold, Change a price, Change a clearance price and a
+  Messages link. Left: check tour anchors in the harness (plan doc, "Tour anchors"), capture the shot keys still drawing
+  the wireframe, record the five scripts in `tools/tutorial-videos/scripts/` (with music, under the build lock),
+  register them in `src/sanity/guides/videos.ts`, put them on the guides.
 
 - **Starter card 128 (Studio design language) adopted 2026-10-19; left: signed-in checks and real guide
   pictures.** `brand/brand.config.json` `studio.look` names her devices (gold cross-stitch marker, round claret

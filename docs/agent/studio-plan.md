@@ -14,13 +14,13 @@ There is one editor, so there is no approval step and no roles beyond staff and 
 
 ## Weekly jobs (the "My weekly 15 minutes" card on Home)
 
-| Job                                         | How often                      | Where she does it                                                           | Phone?                             | Ticks itself?                        |
-| ------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------ |
-| Add a photo of something she made           | Weekly, often more             | Quick update, `Post a photo` (phone); Home, `Add a photo of my work` (desk) | Yes                                | Yes, a new published photo this week |
-| Answer the quote requests (order enquiries) | As they arrive; checked weekly | Her email, then `Messages` to mark each one Replied                         | Reading yes, replying in her email | By hand (card 137 idea below)        |
-| Mark clearance items sold                   | When one sells                 | Home, `Mark a clearance item sold, or add one`; the item's `Sold` switch    | Not yet (card 137 idea)            | Yes, no sold-out item still for sale |
-| Share one photo on Facebook or Instagram    | Weekly                         | Outside the Studio                                                          | Yes                                | By hand                              |
-| Clear the Checkup                           | Weekly                         | `Checkup`                                                                   | Desk is easier                     | Yes                                  |
+| Job                                         | How often                      | Where she does it                                                                          | Phone?                             | Ticks itself?                        |
+| ------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------ | ---------------------------------- | ------------------------------------ |
+| Add a photo of something she made           | Weekly, often more             | Quick update, `Post a photo` (phone); Home, `Add a photo of my work` (desk)                | Yes                                | Yes, a new published photo this week |
+| Answer the quote requests (order enquiries) | As they arrive; checked weekly | Her email, then `Messages` to mark each one Replied (Quick update has a link tile)         | Reading yes, replying in her email | By hand (card 138 idea below)        |
+| Mark clearance items sold                   | When one sells                 | Quick update, `Mark a clearance item sold` (phone); or Home, then the item's `Sold` switch | Yes                                | Yes, no sold-out item still for sale |
+| Share one photo on Facebook or Instagram    | Weekly                         | Outside the Studio                                                                         | Yes                                | By hand                              |
+| Clear the Checkup                           | Weekly                         | `Checkup`                                                                                  | Desk is easier                     | Yes                                  |
 
 ## Monthly jobs
 
@@ -84,22 +84,33 @@ brand kit for print. Each has a guide in the Site Guide and a link on Home's "Yo
 | Fonts and threads         | `add-a-font`, `add-a-thread` |                                            |       |
 | Everything else           | the existing 40-odd guides   |                                            |       |
 
-Tour steps for card 137 are data in `src/sanity/studioTours.ts`.
+Tours, the welcome and What's new are data in `src/sanity/studio-tours.ts`, passed to the kit as `tours`, `welcome` and `whatsNew`.
 
-## Notes for card 137 (generic job types the kit does not have yet)
+## Card 137: what arrived, what is left
 
-1. **Patch an existing document from Quick update** ("Mark a clearance item sold", "Change a price"): pick one from a
-   short list, change one field, Publish. Today a quick form can only create. Closest now: Home's big buttons open the
-   right list on the desk.
-2. **A `choice` field kind** for quick forms (a dropdown), so "Add a question and answer" could ask for the topic and
-   the page (How It Works or Pricing). Today it goes on How It Works with no topic.
-3. **A `check: 'messages'` weekly job** that ticks itself when no quote request is still New. Today it is a hand tick.
-4. **Post a photo's words per site**: the post title label ("Title for the post"), the button ("Save as a draft",
-   which uses a word her guides avoid) and the description example (a church example) are fixed in the kit. A site
-   with a post type that has no title should be able to drop the title box. Today her title becomes the caption.
-5. **`post.build` gets the client**, so a new gallery photo can take its place at the end of the drag order (as the
-   question form does). Today a photo with no rank sorts last, which is the same place.
-6. **A link tile on Quick update** ("See my quote requests" opening Messages), for phone jobs that are not a form.
+Built in Phase B (2026-10-19), all in `kit.config.ts` as data:
+
+1. **Patch an existing document from Quick update.** `Mark a clearance item sold` (pick an item still for sale, tick
+   Sold, optionally set how many are left), `Change a price` (pick a price tag, type the new price) and `Change a
+clearance price` (sale and original price). All are `edit` jobs with a `pick`, so they write the published
+   document straight away, as notices do.
+2. **A link tile on Quick update.** `See my quote requests` opens Messages.
+3. **Tours, the welcome and What's new**, in `src/sanity/studio-tours.ts` (see "Tour anchors" below).
+
+Still open:
+
+- **A `select` field for "Add a question and answer"** (the page it goes on) is possible now; left because the form
+  is short on purpose and the topic can be set in the full editor.
+- **A `check: 'messages'` weekly job** that ticks itself when no quote request is still New (starter PENDING 32, card
+  138). Today it is a hand tick.
+- **`post.build` gets the client**, so a new gallery photo can take its place at the end of the drag order. Today a
+  photo with no rank sorts last, which is the same place.
+- **Post a photo's words.** `postPhoto.tileLead` and `draftNote` now reword two lines; the title label and the
+  description example are still the kit's.
+
+## Tour anchors
+
+NOT yet checked against the running Studio (the build lock was held for hours). Home hooks (`home-*`, `navbar-status`), `tool:*` and `quick:<id>` come from the kit's documented list. Unverified guesses: `field:image` and `field:relatedCategory` (Sanity's `field-<path>` test ids) and the `new-photo` template goTo. A stop whose anchor is missing centres itself, so nothing breaks. Check them signed in or with the harness, then delete this paragraph.
 
 ## Bigger ideas (not built)
 

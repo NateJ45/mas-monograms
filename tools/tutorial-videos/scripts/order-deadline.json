@@ -1,0 +1,48 @@
+{
+  "slug": "order-deadline",
+  "title": "Put up a holiday order deadline",
+  "start": "/",
+  "viewport": { "width": 390, "height": 844 },
+  "steps": [
+    {
+      "do": "goto",
+      "path": "/quick-update",
+      "caption": "Open Quick update and find Order deadline.",
+      "ms": 2400,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"deadline\"]",
+      "caption": "Press Order deadline.",
+      "ms": 2200
+    },
+    { "do": "click", "target": "[data-quick=\"deadline\"]", "ms": 1500 },
+    {
+      "do": "type",
+      "target": "#quick-occasion",
+      "text": "Christmas",
+      "caption": "Type what it is for.",
+      "ms": 2000
+    },
+    {
+      "do": "ring",
+      "target": "#quick-lastOrderDay",
+      "caption": "Pick the last day you can take an order.",
+      "ms": 2400
+    },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-field-message\"]",
+      "caption": "Leave the last box empty and it is worded for you.",
+      "ms": 2800
+    },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-submit\"]",
+      "caption": "Press Put it on my website.",
+      "ms": 2400
+    },
+    { "do": "caption", "text": "It comes down by itself after that day.", "ms": 2600 }
+  ]
+}

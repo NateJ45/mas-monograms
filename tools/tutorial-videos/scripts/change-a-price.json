@@ -1,0 +1,49 @@
+{
+  "slug": "change-a-price",
+  "title": "Change a price",
+  "start": "/",
+  "viewport": { "width": 390, "height": 844 },
+  "steps": [
+    {
+      "do": "goto",
+      "path": "/quick-update",
+      "caption": "Open Quick update on your phone.",
+      "ms": 2400,
+      "poster": true
+    },
+    {
+      "do": "ring",
+      "target": "[data-quick=\"change-price\"]",
+      "caption": "Press Change a price.",
+      "ms": 2200
+    },
+    { "do": "click", "target": "[data-quick=\"change-price\"]", "ms": 1500 },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-pick\"]",
+      "caption": "Pick the price tag.",
+      "ms": 2400
+    },
+    { "do": "click", "target": "[data-tour=\"quick-pick\"] button", "ms": 1500 },
+    {
+      "do": "ring",
+      "target": "#quick-pricePerPiece",
+      "caption": "The price now on the tag is here.",
+      "ms": 2400
+    },
+    {
+      "do": "type",
+      "target": "#quick-pricePerPiece",
+      "text": "17.50",
+      "caption": "Type the new price. Just the number.",
+      "ms": 2400
+    },
+    {
+      "do": "ring",
+      "target": "[data-tour=\"quick-submit\"]",
+      "caption": "Press the button at the bottom.",
+      "ms": 2400
+    },
+    { "do": "caption", "text": "It is on your Pricing page in 2 to 3 minutes.", "ms": 2600 }
+  ]
+}
