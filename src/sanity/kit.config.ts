@@ -184,6 +184,8 @@ export const kitConfig: KitConfig = {
       title: 'Put up a notice',
       detail: 'A short line across the top of every page, until the day you pick.',
       icon: typeIcon('announcement'),
+      // Card 131: the tile wears her own art. A notice is the hang tag on the shop door.
+      meaning: 'give',
       fields: [
         {
           name: 'message',
@@ -212,6 +214,8 @@ export const kitConfig: KitConfig = {
       title: 'I am away for a while',
       detail: 'A vacation or a busy week. People see it before they send a quote request.',
       icon: brandIcon('times'),
+      // Card 131: her Hoop Seal, the sign on the shop, for "I am away".
+      meaning: 'home',
       fields: [
         {
           name: 'firstDay',
