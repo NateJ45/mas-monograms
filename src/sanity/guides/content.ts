@@ -352,6 +352,12 @@ const coreGuides: Guide[] = [
       {
         kind: 'callout',
         tone: 'tip',
+        title: 'On your phone',
+        text: 'Press `Quick update`, then `Change a price`. Pick the price tag, type the new price and press the button at the bottom. It goes up without waiting for Publish.',
+      },
+      {
+        kind: 'callout',
+        tone: 'tip',
         text: 'Turn on `Make this tag stand out` for the one price you recommend most. It gets a highlight on the page. Use it on one tag only.',
       },
       {
@@ -1072,6 +1078,12 @@ const coreGuides: Guide[] = [
         ],
       },
       { kind: 'shot', key: 'clearance-sold-switch' },
+      {
+        kind: 'callout',
+        tone: 'tip',
+        title: 'On your phone',
+        text: 'Press `Quick update`, then `Mark a clearance item sold`. Pick the item and tick `Sold`. It goes up without waiting for Publish.',
+      },
       {
         kind: 'callout',
         tone: 'tip',
