@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 56" width="390" height="56" aria-hidden="true">
+  <!-- MAS Monograms, the Studio Home banner's thread at phone width (card 118). Decorative. -->
+  <defs>
+    <linearGradient id="t" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#A9772A"/>
+      <stop offset="0.4" stop-color="#D9B15F"/>
+      <stop offset="0.7" stop-color="#F0D58A"/>
+      <stop offset="1" stop-color="#D9B15F"/>
+    </linearGradient>
+  </defs>
+  <path d="M-8 36 C 60 18, 120 50, 190 32 S 280 16, 316 30" fill="none" stroke="url(#t)" stroke-width="3" stroke-linecap="round" stroke-dasharray="13 8"/>
+  <path d="M316 30 C 324 27, 330 25, 336 23" fill="none" stroke="#F0D58A" stroke-width="2" stroke-linecap="round"/>
+  <g transform="translate(334 23) rotate(-17)">
+    <path d="M0 -2.4 L44 -0.9 Q48 0 44 0.9 L0 2.4 Q-3 0 0 -2.4 Z" fill="#C8C0B0"/>
+    <path d="M2 -1.1 L42 -0.4" stroke="#FBF8F1" stroke-width="0.8" stroke-linecap="round" opacity="0.8"/>
+    <ellipse cx="4.6" cy="0" rx="2.9" ry="1" fill="#1C3550"/>
+  </g>
+  <path d="M40 12 l5 5 m0 -5 l-5 5" stroke="#D9B15F" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M250 44 l5 5 m0 -5 l-5 5" stroke="#D9B15F" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

@@ -30,6 +30,22 @@ export const RESERVED_SLUGS = new Set([
   'sitemap-index.xml',
   'og',
   '_astro',
+  // MAS Monograms' own pages and Studio plumbing (2026-10-18): a shop category
+  // named like one of these would sit on top of a real page. 'studio' is the
+  // site's own /studio page since starter card 120.
+  'studio',
+  'preview',
+  'api',
+  'pricing',
+  'clearance',
+  'how-it-works',
+  'request-a-quote',
+  'shop-by-item',
+  'style-gallery',
+  'font-lettering-guide',
+  'thread-color-chart',
+  'thank-you',
+  'legal',
 ]);
 
 /** Returns true when a slug collides with a built-in route. */

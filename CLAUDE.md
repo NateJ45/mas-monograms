@@ -7,7 +7,7 @@ Built by Nixon Creative Studio (nathanjnixon86@gmail.com · nixoncreativestudio.
 this matches the live footer credit in `siteSettings.footerCredit`.
 Migrated from Squarespace 7.1 → Astro 7 + Sanity 6 + Cloudflare Workers.
 
-## Status (current: 2026-10-05)
+## Status (current: 2026-10-18)
 
 **Live at https://mas-monograms.com** (also https://mas-monograms.nathanjnixon86.workers.dev). Every page
 wears **Direction D, "The Atelier"** (PR #75, 2026-10-04): a live **Monogram Atelier** (canvas embroidery
@@ -19,7 +19,10 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 
 - Rules: `.claude/rules/atelier-engine.md` (engine), `design-system.md` (look), `site-routes.md` (routes
   and the quote query-string contract), `sanity-studio.md` (fields and seed scripts).
-- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28. Rebuilt for
+- Studio (Mary Ann's editor): **`<site>/studio`**, embedded in the site build since 2026-08-28. **On the
+  family's shared Studio kit since 2026-10-18** (starter cards 106 to 120: Home, Checkup, Site Guide, Trash,
+  status line, help panel, Messages, icons, the site's own `/studio` page; her settings in
+  `src/sanity/kit.config.ts`, the old-to-new map in `.claude/rules/sanity-studio.md`). Rebuilt for
   her 2026-10-05 (PR #85, spec `docs/superpowers/specs/2026-10-05-studio-direction.md`, phases A to F all
   live): Welcome pane and first-visit tour, a desk built around her jobs (explicit pane ids), plain-language
   forms, Edit on the real pages, a repo-data handbook (`src/sanity/guides`: 26 editing + 18 Get found

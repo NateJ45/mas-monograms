@@ -1,61 +1,110 @@
-// Safe to edit by hand (the words); the queries are read-only GROQ
+// PORTABLE: canonical copy - ncs-astro-sanity-starter is the library of record for this file
+// Foundation, edit with care (the words are safe to edit)
 // =============================================================================
-// "What needs attention": the checkup's logic, as plain data (2026-10-05)
+// Checkup: "What needs attention", as pure rules (Studio kit, 2026-10-17)
 // =============================================================================
-// Mary Ann's Studio, Phase B. Ported in spirit from stonesteps-50k's
-// CheckupTool.tsx, with the logic pulled OUT of the React component so bare-Node
-// unit tests can check it (src/lib/studio-checkup.test.ts). Each check is a
-// read-only GROQ query plus a pure `evaluate` that turns the query's answer into
-// nothing (all well) or one finding. The Studio tool
-// (src/sanity/components/CheckupTool.tsx) only runs them and draws the cards.
+// Ported in spirit from mas-monograms (src/lib/studio-checkup.ts) and
+// stonesteps-50k (CheckupTool). The difference: mas wrote one GROQ query per
+// check against its own document types. The kit has to work on any site in
+// the family, so it fetches every content document ONCE (sites in this family
+// hold a few hundred at most) and each rule is a pure function over that list.
+// No rule names a document type unless the site config hands it one, so a
+// fork gets the generic checks for free and adds its own in kit.config.ts.
 //
-// It CHANGES NOTHING. It points, and she fixes it in the Studio. Every finding
-// has a one-line plain explanation and a "Take me there" target.
+// It CHANGES NOTHING. It points, and the editor fixes it in the Studio. Every
+// finding has one plain sentence and a "Take me there" target.
 //
-// Rules for every check:
-//   - Published content only, unless the check is about unpublished changes.
-//   - Sanity's own system records (sanity.*, system.*, media.*) never count:
-//     the Presentation tool keeps its preview secret as a draft, and counting it
-//     reported "1 unpublished change" on an untouched Stone Steps dataset.
-//   - One failing check never takes the others down (runChecks catches).
-//   - Severity is in her words: Needs doing / Worth a look / For information.
-//   - Not for her, so not here: the font-to-Monogram-preview style mapping.
+// Rules for every rule:
+//   - Sanity's own records (sanity.*, system.*, media.*) never count: the
+//     Presentation tool keeps its preview secret as a draft, and counting it
+//     reported "1 unpublished change" on an untouched dataset (Stone Steps).
+//   - One rule that throws never takes the others down (runCheckup catches).
+//   - Severity is in plain words: Needs doing / Worth a look / For information.
+// Unit tests: src/lib/studio-checkup.test.ts.
 // =============================================================================
 
-import { DESK, type StudioTarget } from '../sanity/studioTargets.ts';
+import type { StudioTarget } from './studio-kit.ts';
+import { onPageCodePaths, siteCodeFieldsInUse } from './custom-code.ts';
 
 export type Severity = 'Needs doing' | 'Worth a look' | 'For information';
+
+/** One page or thing a finding is about, for Home's Fix-it list (PORTS.md card 115). */
+export interface FindingItem {
+  name: string;
+  target: StudioTarget;
+}
 
 export interface Finding {
   severity: Severity;
   label: string;
   detail: string;
-  /** Where "Take me there" goes. */
   target?: StudioTarget;
   /** Words on the "Take me there" button. */
   targetLabel?: string;
+  /**
+   * Card 115: each page or thing the finding is about, with its own link, so
+   * Home's Fix-it list can name them one by one. Optional: a finding without
+   * items shows on Home as one row from its label.
+   */
+  items?: FindingItem[];
+  /** What is wrong with each item, short ("A picture needs a description"). */
+  itemLabel?: string;
 }
 
 export interface CheckResult extends Finding {
   id: string;
 }
 
-export interface Check {
-  id: string;
-  query: string;
-  params?: Record<string, unknown>;
-  /** Pure: the query's answer (and the time now) to a finding or null. */
-  evaluate: (data: unknown, now: number) => Finding | null;
+/** A Sanity document as the checkup sees it (plain JSON). */
+export type Doc = Record<string, unknown> & { _id: string; _type: string; _updatedAt?: string };
+
+export interface CheckupContext {
+  /** Every content document, published and drafts (system types already removed). */
+  docs: Doc[];
+  /** Published copies only. */
+  published: Doc[];
+  /** Drafts only (ids start with `drafts.`). */
+  drafts: Doc[];
+  now: number;
+  /** A readable name for a document ("the Home page", "Easter service"). */
+  nameOf: (doc: Doc) => string;
+  /** A readable name for a type ("Announcement"). */
+  typeTitle: (type: string) => string;
+  /**
+   * Reports written by scheduled jobs (REPORT_TYPES, e.g. the weekly link
+   * check, card 122). Kept OUT of docs/published/drafts, so a weekly write
+   * never reads as "the last change was published today" and no content rule
+   * walks a report as if it were a page.
+   */
+  reports: Doc[];
+  /**
+   * Files the live site serves that a rule may read (card 123: /llms.txt and
+   * /llms-full.txt). Optional: undefined means "not fetched", and a rule that
+   * needs it says nothing.
+   */
+  site?: SiteFiles;
 }
 
-export type Fetcher = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
+/** What the Studio fetched from the site for the Checkup (card 123). Null: the site answered 404. */
+export interface SiteFiles {
+  llmsTxt?: string | null;
+  llmsFull?: string | null;
+}
 
-const PUBLISHED = '!(_id in path("drafts.**")) && !(_id in path("versions.**"))';
-const NOT_SYSTEM =
-  '!(_type match "sanity.*") && !(_type match "system.*") && !(_type match "media.*")';
+/** Document types that are reports about the site, not content (card 122). */
+export const REPORT_TYPES = new Set(['linkReport']);
+
+export interface CheckupRule {
+  id: string;
+  run: (ctx: CheckupContext) => Finding | null;
+}
+
+/** The GROQ that fetches everything the rules read. */
+export const CHECKUP_QUERY = `*[!(_type match "sanity.*") && !(_type match "system.*") && !(_type match "media.*") && !(_id in path("versions.**")) && !(_id match "_.**")]`;
+
 const DAY = 24 * 60 * 60 * 1000;
 
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /** "a, b and c", with "and N more" past `max`. */
 export function listNames(names: string[], max = 4): string {
@@ -66,296 +115,348 @@ export function listNames(names: string[], max = 4): string {
   return `${shown.slice(0, -1).join(', ')} and ${shown[shown.length - 1]}`;
 }
 
-/** What she calls each kind of thing, for the unpublished-changes list. */
-export const TYPE_NAMES: Record<string, string> = {
-  siteSettings: 'My business details',
-  homePage: 'Home page',
-  shopIndexPage: 'Shop by Item page',
-  styleGalleryPage: 'Style Gallery page',
-  pricingPage: 'Pricing page',
-  howItWorksPage: 'How It Works page',
-  aboutPage: 'About page',
-  requestAQuotePage: 'Request a Quote page',
-  fontGuidePage: 'Font and Lettering Guide page',
-  threadChartPage: 'Thread Color Chart page',
-  atelierSettings: 'Monogram preview',
-  clearancePage: 'Clearance page',
-  thankYouPage: 'Thank You page',
-  notFoundPage: '"Page not found" page',
-  legalPage: 'a legal page',
-  galleryItem: 'a photo of your work',
-  clearanceItem: 'a clearance item',
-  pricingTier: 'a price tag',
-  faqItem: 'a question and answer',
-  font: 'an embroidery font',
-  threadColor: 'a thread color',
-  itemCategory: 'a shop category',
-  studioNotes: 'My notes',
-};
+export const isDraftId = (id: string) => id.startsWith('drafts.');
+export const publishedIdOf = (id: string) => (isDraftId(id) ? id.slice('drafts.'.length) : id);
 
-/** The plural of each list type's name ("a photo of your work" twice). */
-const TYPE_MANY: Record<string, string> = {
-  'a legal page': 'legal pages',
-  'a photo of your work': 'photos of your work',
-  'a clearance item': 'clearance items',
-  'a price tag': 'price tags',
-  'a question and answer': 'questions and answers',
-  'an embroidery font': 'embroidery fonts',
-  'a thread color': 'thread colors',
-  'a shop category': 'shop categories',
-};
+/** One Fix-it item per document (card 115), each opening that document (at `field`). */
+export function itemsOf(
+  docs: Doc[],
+  nameOf: (doc: Doc) => string,
+  field?: (doc: Doc) => string | undefined,
+): FindingItem[] {
+  const seen = new Set<string>();
+  const out: FindingItem[] = [];
+  for (const doc of docs) {
+    const id = publishedIdOf(doc._id);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const f = field?.(doc);
+    out.push({
+      name: nameOf(doc),
+      target: { doc: id, type: doc._type, ...(f ? { field: f } : {}) },
+    });
+  }
+  return out;
+}
 
-/** The pages whose big heading must not be empty, and the box that holds it. */
-export const HEADLINE_PAGES: Record<string, 'heroHeadline' | 'headline'> = {
-  homePage: 'heroHeadline',
-  shopIndexPage: 'heroHeadline',
-  styleGalleryPage: 'heroHeadline',
-  pricingPage: 'heroHeadline',
-  howItWorksPage: 'heroHeadline',
-  aboutPage: 'heroHeadline',
-  requestAQuotePage: 'heroHeadline',
-  fontGuidePage: 'heroHeadline',
-  threadChartPage: 'heroHeadline',
-  clearancePage: 'heroHeadline',
-  thankYouPage: 'headline',
-  notFoundPage: 'headline',
-};
+/** Open the one document, or say "Open the first one" when there are several. */
+export function openFirst(docs: Doc[], field?: string): Pick<Finding, 'target' | 'targetLabel'> {
+  const first = docs[0];
+  if (!first) return {};
+  return {
+    target: {
+      doc: publishedIdOf(first._id),
+      type: first._type,
+      ...(field ? { field } : {}),
+    },
+    targetLabel: docs.length === 1 ? 'Open it' : 'Open the first one',
+  };
+}
 
-/** The query's answer as a list (anything else is an empty list). */
-const rowsOf = <T>(data: unknown): T[] => (Array.isArray(data) ? (data as T[]) : []);
-
-const isBlank = (v: unknown) => typeof v !== 'string' || v.trim() === '';
-
-/** A Stripe payment link must be https on stripe.com (buy.stripe.com in practice). */
-export function isStripeLink(value: unknown): boolean {
-  if (typeof value !== 'string' || value.trim() === '') return false;
-  try {
-    const u = new URL(value.trim());
-    return (
-      u.protocol === 'https:' && (u.hostname === 'stripe.com' || u.hostname.endsWith('.stripe.com'))
-    );
-  } catch {
-    return false;
+/** Visit every plain object inside a value, with the dotted path to it. */
+export function walk(
+  value: unknown,
+  visit: (obj: Record<string, unknown>, path: string[]) => void,
+  path: string[] = [],
+): void {
+  if (Array.isArray(value)) {
+    value.forEach((v, i) => {
+      const key =
+        v && typeof v === 'object' && typeof (v as { _key?: unknown })._key === 'string'
+          ? `[_key=="${(v as { _key: string })._key}"]`
+          : `[${i}]`;
+      walk(v, visit, [...path, key]);
+    });
+    return;
+  }
+  if (value && typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+    visit(obj, path);
+    for (const [k, v] of Object.entries(obj)) {
+      if (k.startsWith('_') && k !== '_key') continue;
+      walk(v, visit, [...path, k]);
+    }
   }
 }
 
-/** One document of a list: open it if there is one, else the list. */
-function oneOrList(
-  ids: string[],
-  type: string,
-  pane: string,
-  field?: string,
-): { target: StudioTarget; targetLabel: string } {
-  if (ids.length === 1) {
-    return { target: { doc: ids[0], type, ...(field ? { field } : {}) }, targetLabel: 'Open it' };
-  }
-  return { target: { pane }, targetLabel: 'Open the list' };
+/** Every string inside a value (Portable Text spans included). */
+export function strings(value: unknown): string[] {
+  const out: string[] = [];
+  const go = (v: unknown) => {
+    if (typeof v === 'string') out.push(v);
+    else if (Array.isArray(v)) v.forEach(go);
+    else if (v && typeof v === 'object') {
+      for (const [k, inner] of Object.entries(v as Record<string, unknown>)) {
+        if (k.startsWith('_')) continue;
+        go(inner);
+      }
+    }
+  };
+  go(value);
+  return out;
 }
 
-type Named = { _id: string; name?: string | null };
+/** A Sanity path string from walk()'s segments, for `field` deep links. */
+export function pathString(segments: string[]): string {
+  return segments.reduce((acc, s) => (s.startsWith('[') ? acc + s : acc ? `${acc}.${s}` : s), '');
+}
 
-export const CHECKS: Check[] = [
-  {
-    // A photo with no words cannot be read aloud and tells Google nothing.
-    id: 'photo-description-missing',
-    query: `*[_type == "galleryItem" && ${PUBLISHED} && defined(image.asset) && (!defined(image.alt) || image.alt == "")]{ _id }`,
-    evaluate: (data) => {
-      const rows = rowsOf<{ _id: string }>(data);
-      if (!rows.length) return null;
-      return {
-        severity: 'Needs doing',
-        label: `${plural(rows.length, 'photo')} of your work with no description`,
-        detail:
-          'Each photo needs a few words saying what it shows. They are read aloud to people who cannot see the picture, and Google reads them too.',
-        ...oneOrList(
-          rows.map((r) => r._id),
-          'galleryItem',
-          DESK.photos,
-          'image',
-        ),
-      };
+// -----------------------------------------------------------------------------
+// Generic rules (true of every site in the family)
+// -----------------------------------------------------------------------------
+
+export interface GenericRuleOptions {
+  /** Image fields that never need words (a logo beside the site's name, a favicon). */
+  altExemptFields?: string[];
+  /** Document types that are pages with SEO fields (seoTitle / seoDescription). */
+  seoTypes?: string[];
+  /** Drafts older than this many days are "Worth a look". */
+  staleDraftDays?: number;
+  /** The Trash document type, if the site uses the kit's Trash. */
+  trashType?: string;
+}
+
+export function genericRules(opts: GenericRuleOptions = {}): CheckupRule[] {
+  const altExempt = new Set(opts.altExemptFields ?? ['logo', 'favicon', 'icon', 'logoImage']);
+  const seoTypes = new Set(opts.seoTypes ?? []);
+  const staleDays = opts.staleDraftDays ?? 14;
+  const trashType = opts.trashType ?? 'trashedItem';
+
+  return [
+    {
+      // A picture with no words cannot be read aloud and tells Google nothing.
+      id: 'image-no-description',
+      run: ({ published, nameOf }) => {
+        const hits: Array<{ doc: Doc; field: string }> = [];
+        for (const doc of published) {
+          if (doc._type === trashType) continue;
+          walk(doc, (obj, path) => {
+            const asset = obj.asset as { _ref?: string } | undefined;
+            if (!asset?._ref?.startsWith('image-')) return;
+            const fieldName = [...path].reverse().find((s) => !s.startsWith('['));
+            if (fieldName && altExempt.has(fieldName)) return;
+            const alt = obj.alt;
+            if (typeof alt === 'string' && alt.trim()) return;
+            hits.push({ doc, field: pathString(path) });
+          });
+        }
+        if (!hits.length) return null;
+        const docs = [...new Map(hits.map((h) => [h.doc._id, h.doc])).values()];
+        return {
+          severity: 'Needs doing',
+          label: `${plural(hits.length, 'picture')} with no description`,
+          detail: `On ${listNames(docs.map(nameOf))}. Each picture needs a few words saying what it shows. They are read aloud to people who cannot see it, and Google reads them too.`,
+          ...openFirst([hits[0].doc], hits[0].field),
+          items: itemsOf(docs, nameOf, (d) => hits.find((h) => h.doc._id === d._id)?.field),
+          itemLabel: 'A picture needs a description',
+        };
+      },
     },
-  },
-  {
-    // An unsold item whose Buy button goes nowhere (or somewhere that is not Stripe).
-    id: 'stripe-link-broken',
-    query: `*[_type == "clearanceItem" && ${PUBLISHED} && sold != true]{ _id, name, stripePaymentLink }`,
-    evaluate: (data) => {
-      const rows = rowsOf<Named & { stripePaymentLink?: string | null }>(data);
-      const bad = rows.filter((r) => !isStripeLink(r.stripePaymentLink));
-      if (!bad.length) return null;
-      return {
-        severity: 'Needs doing',
-        label: `${plural(bad.length, 'clearance item')} with a Buy button that will not work`,
-        detail: `${listNames(bad.map((r) => r.name || 'An item with no name'))}. The Stripe payment link is empty or is not a Stripe link, so customers cannot pay. Paste the link from Stripe; it starts with https://buy.stripe.com/`,
-        ...oneOrList(
-          bad.map((r) => r._id),
-          'clearanceItem',
-          `${DESK.clearance};${DESK.clearanceItems}`,
-          'stripePaymentLink',
-        ),
-      };
+    {
+      // A page with nothing for Google to show under its link.
+      id: 'seo-missing',
+      run: ({ published, nameOf }) => {
+        const missing = published.filter((d) => {
+          if (!seoTypes.has(d._type)) return false;
+          if (d.hideFromSearch === true) return false;
+          const desc = d.seoDescription;
+          return typeof desc !== 'string' || !desc.trim();
+        });
+        if (!missing.length) return null;
+        return {
+          severity: 'Worth a look',
+          label: `${plural(missing.length, 'page')} with no Google description`,
+          detail: `${listNames(missing.map(nameOf))}. The description is the line Google shows under the page's name. Without one, Google picks some words itself.`,
+          ...openFirst(missing, 'seoDescription'),
+          items: itemsOf(missing, nameOf, () => 'seoDescription'),
+          itemLabel: 'No Google description',
+        };
+      },
     },
-  },
-  {
-    // The big heading at the top of a page, empty: the page opens on nothing.
-    id: 'headline-missing',
-    query: `*[_id in $ids]{ _id, _type, heroHeadline, headline }`,
-    params: { ids: Object.keys(HEADLINE_PAGES) },
-    evaluate: (data) => {
-      const rows = rowsOf<{ _id: string; _type: string; heroHeadline?: string; headline?: string }>(
-        data,
+    {
+      // A link to something that is gone, or was never published.
+      id: 'link-to-missing',
+      run: ({ published, nameOf }) => {
+        const ids = new Set(published.map((d) => d._id));
+        const broken: Doc[] = [];
+        for (const doc of published) {
+          if (doc._type === trashType) continue;
+          let bad = false;
+          walk(doc, (obj) => {
+            const ref = obj._ref;
+            if (typeof ref !== 'string') return;
+            if (/^(image|file)-/.test(ref)) return;
+            if (obj._weak === true) return;
+            if (!ids.has(ref)) bad = true;
+          });
+          if (bad) broken.push(doc);
+        }
+        if (!broken.length) return null;
+        return {
+          severity: 'Needs doing',
+          label: `${plural(broken.length, 'page')} linking to something that is not on the website`,
+          detail: `${listNames(broken.map(nameOf))}. A link or a choice on it points at something that was removed or has not been published. Publish that, or change the link.`,
+          ...openFirst(broken),
+          items: itemsOf(broken, nameOf),
+          itemLabel: 'Links to something not on the website',
+        };
+      },
+    },
+    {
+      // Pasted code switched to run directly on the page (PORTS.md card 121).
+      // Not wrong in itself (a giving or booking widget may need it), so it is
+      // listed for information: every page where code runs outside its box.
+      id: 'code-runs-on-page',
+      run: ({ published, nameOf }) => {
+        const hits: Array<{ doc: Doc; field: string }> = [];
+        for (const doc of published) {
+          if (doc._type === trashType) continue;
+          for (const path of onPageCodePaths(doc)) {
+            hits.push({ doc, field: pathString([...path, 'runsOnPage']) });
+          }
+        }
+        if (!hits.length) return null;
+        const docs = [...new Map(hits.map((h) => [h.doc._id, h.doc])).values()];
+        return {
+          severity: 'For information',
+          label: `Code that runs directly on the page: ${plural(docs.length, 'page')}`,
+          detail: `On ${listNames(docs.map(nameOf))}. This code is not in its own box, so it can do anything the website can, including reading what a signed-in editor is doing. Keep it only for a provider you trust, such as a giving or booking service. If you are not sure, turn the switch off and check the page still works.`,
+          ...openFirst([hits[0].doc], hits[0].field),
+          items: itemsOf(docs, nameOf, (d) => hits.find((h) => h.doc._id === d._id)?.field),
+          itemLabel: 'Code runs directly on the page',
+        };
+      },
+    },
+    {
+      // Site settings' "Code on every page" (PORTS.md card 121).
+      id: 'code-on-every-page',
+      run: ({ published, nameOf }) => {
+        const hits = published.filter(
+          (d) => d._type !== trashType && siteCodeFieldsInUse(d).length > 0,
+        );
+        if (!hits.length) return null;
+        const where = [...new Set(hits.flatMap((d) => siteCodeFieldsInUse(d)))].map((f) =>
+          f === 'headCode' ? 'the page head' : 'the end of every page',
+        );
+        return {
+          severity: 'For information',
+          label: 'Code on every page',
+          detail: `${listNames(hits.map(nameOf))} adds code to ${listNames(where)} on every page of the website. It runs directly on the page, outside any box. Keep it only if you still need it and trust where it came from.`,
+          ...openFirst(hits, siteCodeFieldsInUse(hits[0])[0]),
+          items: itemsOf(hits, nameOf, (d) => siteCodeFieldsInUse(d)[0]),
+          itemLabel: 'Code on every page',
+        };
+      },
+    },
+    {
+      // Changes started a while ago and never published.
+      id: 'old-drafts',
+      run: ({ drafts, now, nameOf }) => {
+        const old = drafts.filter((d) => {
+          const t = d._updatedAt ? Date.parse(d._updatedAt) : NaN;
+          return !Number.isNaN(t) && now - t > staleDays * DAY;
+        });
+        if (!old.length) return null;
+        return {
+          severity: 'Worth a look',
+          label: `${plural(old.length, 'change')} waiting more than ${staleDays} days`,
+          detail: `${listNames(old.map(nameOf))}. You started a change and have not pressed Publish. Publish it, or open it and use "Discard changes" if you no longer want it.`,
+          ...openFirst(old),
+          items: itemsOf(old, nameOf),
+          itemLabel: `Not published for over ${staleDays} days`,
+        };
+      },
+    },
+    {
+      id: 'unpublished-changes',
+      run: ({ drafts, now, nameOf }) => {
+        const recent = drafts.filter((d) => {
+          const t = d._updatedAt ? Date.parse(d._updatedAt) : NaN;
+          return Number.isNaN(t) || now - t <= staleDays * DAY;
+        });
+        if (!recent.length) return null;
+        return {
+          severity: 'For information',
+          label: `${plural(recent.length, 'change')} not on the website yet`,
+          detail: `${listNames(recent.map(nameOf))}. Nobody sees these until you press Publish. Leave them if you are still working on them.`,
+          ...openFirst(recent),
+        };
+      },
+    },
+    {
+      id: 'things-in-trash',
+      run: ({ published }) => {
+        const n = published.filter((d) => d._type === trashType).length;
+        if (!n) return null;
+        return {
+          severity: 'For information',
+          label: `${plural(n, 'thing')} in the Trash`,
+          detail: 'They are off the website and can be brought back. Nothing to do.',
+          target: { pane: 'trash' },
+          targetLabel: 'Open the Trash',
+        };
+      },
+    },
+    {
+      id: 'last-publish',
+      run: ({ published, now }) => {
+        const times = published
+          .filter((d) => d._type !== trashType)
+          .map((d) => (d._updatedAt ? Date.parse(d._updatedAt) : NaN))
+          .filter((t) => !Number.isNaN(t));
+        if (!times.length) return null;
+        const days = Math.max(0, Math.floor((now - Math.max(...times)) / DAY));
+        const when = days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
+        return {
+          severity: 'For information',
+          label: `The last change was published ${when}`,
+          detail: 'A website that changes now and then looks cared for, and Google notices too.',
+        };
+      },
+    },
+  ];
+}
+
+/** Is any `confirmed` / `...Confirmed` box anywhere in this value unticked? */
+export function hasUnconfirmedFlag(value: unknown): boolean {
+  let found = false;
+  walk(value, (obj) => {
+    for (const [k, v] of Object.entries(obj)) {
+      if (v === false && (k === 'confirmed' || k.endsWith('Confirmed'))) found = true;
+    }
+  });
+  return found;
+}
+
+/**
+ * Text still marked as waiting for someone to confirm it ("to be confirmed",
+ * "[confirm]"), or a `confirmed` box left unticked, on the document or on any
+ * object inside it (`address.confirmed`, `phoneConfirmed`, a service
+ * time's `confirmed`; PORTS.md card 66). Generic, but opt-in: a site that
+ * seeds placeholder copy turns it on.
+ */
+export function unconfirmedRule(
+  pattern: RegExp = /\bto be confirmed\b|\[confirm\]/i,
+  severity: Severity = 'Worth a look',
+): CheckupRule {
+  return {
+    id: 'unconfirmed-facts',
+    run: ({ published, nameOf }) => {
+      const hits = published.filter(
+        (d) => hasUnconfirmedFlag(d) || strings(d).some((s) => pattern.test(s)),
       );
-      const missing = rows.filter((r) => {
-        const box = HEADLINE_PAGES[r._type];
-        return box ? isBlank(r[box]) : false;
-      });
-      if (!missing.length) return null;
-      const first = missing[0];
+      if (!hits.length) return null;
       return {
-        severity: 'Needs doing',
-        label: `${plural(missing.length, 'page')} with no headline`,
-        detail: `${listNames(missing.map((r) => TYPE_NAMES[r._type] ?? r._type))}. The headline is the big heading at the top of the page.`,
-        target: { doc: first._id, type: first._type, field: HEADLINE_PAGES[first._type] },
-        targetLabel: missing.length === 1 ? 'Open it' : 'Open the first one',
+        severity,
+        label: `${plural(hits.length, 'page')} with facts still to confirm`,
+        detail: `${listNames(hits.map(nameOf))}. Some words on these are marked "to be confirmed" or not yet ticked as confirmed. Check them, correct them if needed, and remove the marker.`,
+        ...openFirst(hits),
+        items: itemsOf(hits, nameOf),
+        itemLabel: 'Facts to confirm',
       };
     },
-  },
-  {
-    // "0 left" but not marked Sold: the Buy button still shows.
-    id: 'clearance-none-left',
-    query: `*[_type == "clearanceItem" && ${PUBLISHED} && sold != true && quantityAvailable == 0]{ _id, name }`,
-    evaluate: (data) => {
-      const rows = rowsOf<Named>(data);
-      if (!rows.length) return null;
-      return {
-        severity: 'Worth a look',
-        label: `${plural(rows.length, 'clearance item')} with none left but not marked Sold`,
-        detail: `${listNames(rows.map((r) => r.name || 'An item with no name'))}. The Buy button still shows. If it has sold, turn on Sold and press Publish.`,
-        ...oneOrList(
-          rows.map((r) => r._id),
-          'clearanceItem',
-          `${DESK.clearance};${DESK.clearanceItems}`,
-          'sold',
-        ),
-      };
-    },
-  },
-  {
-    id: 'font-no-photo',
-    query: `*[_type == "font" && ${PUBLISHED} && !defined(previewImage.asset)]{ _id, name }`,
-    evaluate: (data) => {
-      const rows = rowsOf<Named>(data);
-      if (!rows.length) return null;
-      return {
-        severity: 'Worth a look',
-        label: `${plural(rows.length, 'font')} with no photo of it stitched`,
-        detail: `${listNames(rows.map((r) => r.name || 'A font with no name'))}. A font with no photo is left off your Font and Lettering Guide page, so customers cannot see it. Add a photo when you have one.`,
-        ...oneOrList(
-          rows.map((r) => r._id),
-          'font',
-          `${DESK.reference};${DESK.fonts}`,
-          'previewImage',
-        ),
-      };
-    },
-  },
-  {
-    // Not something to fix today: sold items can stay on the page with a badge.
-    id: 'clearance-sold-still-shown',
-    query: `*[_type == "clearanceItem" && ${PUBLISHED} && sold == true]{ _id, name }`,
-    evaluate: (data) => {
-      const rows = rowsOf<Named>(data);
-      if (!rows.length) return null;
-      return {
-        severity: 'For information',
-        label: `${plural(rows.length, 'sold item')} still on your Clearance page`,
-        detail:
-          'They show with a Sold badge, which is fine for a while. It tells customers your work sells. Take them off when you no longer want them shown.',
-        target: { pane: `${DESK.clearance};${DESK.clearanceItems}` },
-        targetLabel: 'Open the list',
-      };
-    },
-  },
-  {
-    // Changes she started and did not publish: nobody sees them yet.
-    id: 'unpublished-changes',
-    query: `*[_id in path("drafts.**") && ${NOT_SYSTEM}]{ _id, _type }`,
-    evaluate: (data) => {
-      const rows = rowsOf<{ _id: string; _type: string }>(data);
-      // Only the kinds of thing she edits. Anything else is not hers to publish.
-      const mine = rows.filter((r) => r._type in TYPE_NAMES);
-      if (!mine.length) return null;
-      const names = mine.map((r) => TYPE_NAMES[r._type]);
-      const counts = new Map<string, number>();
-      for (const n of names) counts.set(n, (counts.get(n) ?? 0) + 1);
-      const described = [...counts].map(([n, c]) => (c === 1 ? n : `${c} ${TYPE_MANY[n] ?? n}`));
-      const first = mine[0];
-      return {
-        severity: 'Worth a look',
-        label: `${plural(mine.length, 'change')} not on your website yet`,
-        detail: `${listNames(described)}. You started a change and have not pressed Publish. Open it and press Publish, or leave it if you are still working on it.`,
-        target: { doc: first._id.replace(/^drafts\./, ''), type: first._type },
-        targetLabel: mine.length === 1 ? 'Open it' : 'Open the first one',
-      };
-    },
-  },
-  {
-    id: 'photos-kept-out-of-hoops',
-    query: `count(*[_type == "galleryItem" && ${PUBLISHED} && hoopFit == "poor"])`,
-    evaluate: (data) => {
-      const n = typeof data === 'number' ? data : 0;
-      if (!n) return null;
-      return {
-        severity: 'For information',
-        label: `${plural(n, 'photo')} kept out of the round hoops`,
-        detail:
-          'You chose "No" for "Show it in a round hoop?" on these. They still show in the gallery. Nothing to do unless you change your mind.',
-        target: { pane: DESK.photos },
-        targetLabel: 'Open my photos',
-      };
-    },
-  },
-  {
-    // Phase D: things she moved to the Trash. Nothing to do; they are off the
-    // website and can come back. (Trashed items are never counted anywhere
-    // else: the original is deleted when it goes to the Trash, so every other
-    // check simply does not see it.)
-    id: 'things-in-trash',
-    query: `count(*[_type == "trashedItem" && ${PUBLISHED}])`,
-    evaluate: (data) => {
-      const n = typeof data === 'number' ? data : 0;
-      if (!n) return null;
-      return {
-        severity: 'For information',
-        label: `${plural(n, 'thing')} in the Trash`,
-        detail:
-          'They are off your website. Open the Trash to bring one back, or leave them there. Nothing to do.',
-        target: { pane: DESK.trash },
-        targetLabel: 'Open the Trash',
-      };
-    },
-  },
-  {
-    id: 'last-publish',
-    query: `*[${PUBLISHED} && ${NOT_SYSTEM} && _type in $types] | order(_updatedAt desc)[0]{ _updatedAt }`,
-    params: { types: Object.keys(TYPE_NAMES) },
-    evaluate: (data, now) => {
-      const at = (data as { _updatedAt?: string } | null)?._updatedAt;
-      if (!at) return null;
-      const t = new Date(at).getTime();
-      if (Number.isNaN(t)) return null;
-      const days = Math.max(0, Math.floor((now - t) / DAY));
-      const when = days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
-      return {
-        severity: 'For information',
-        label: `Your last change was published ${when}`,
-        detail:
-          'A website that changes now and then, with a new photo or a sold item, looks cared for. Google notices too.',
-      };
-    },
-  },
-];
+  };
+}
 
 const RANK: Record<Severity, number> = {
   'Needs doing': 0,
@@ -363,18 +464,29 @@ const RANK: Record<Severity, number> = {
   'For information': 2,
 };
 
-/** Run every check; a check that throws is skipped, never fatal. Sorted by severity. */
-export async function runChecks(
-  fetcher: Fetcher,
-  now = Date.now(),
-  checks: Check[] = CHECKS,
-): Promise<CheckResult[]> {
+/** Split the fetched documents and run every rule; a rule that throws is skipped. */
+export function runCheckup(
+  docs: Doc[],
+  rules: CheckupRule[],
+  opts: Pick<CheckupContext, 'nameOf' | 'typeTitle' | 'site'> & { now?: number },
+): CheckResult[] {
+  const reports = docs.filter((d) => REPORT_TYPES.has(d._type));
+  const content = docs.filter((d) => !REPORT_TYPES.has(d._type));
+  const ctx: CheckupContext = {
+    docs: content,
+    published: content.filter((d) => !isDraftId(d._id)),
+    drafts: content.filter((d) => isDraftId(d._id)),
+    reports,
+    now: opts.now ?? Date.now(),
+    nameOf: opts.nameOf,
+    typeTitle: opts.typeTitle,
+    site: opts.site,
+  };
   const out: CheckResult[] = [];
-  for (const check of checks) {
+  for (const rule of rules) {
     try {
-      const data = await fetcher(check.query, check.params ?? {});
-      const finding = check.evaluate(data, now);
-      if (finding) out.push({ id: check.id, ...finding });
+      const finding = rule.run(ctx);
+      if (finding) out.push({ id: rule.id, ...finding });
     } catch {
       // A half-run report is still useful; a blank screen is not.
     }
@@ -385,4 +497,38 @@ export async function runChecks(
 /** "All clear" means nothing to do: For information never spoils it. */
 export function isAllClear(results: CheckResult[]): boolean {
   return results.every((r) => r.severity === 'For information');
+}
+
+/** Counts for the Home card. */
+export function countBySeverity(results: CheckResult[]): Record<Severity, number> {
+  const out: Record<Severity, number> = {
+    'Needs doing': 0,
+    'Worth a look': 0,
+    'For information': 0,
+  };
+  for (const r of results) out[r.severity] += 1;
+  return out;
+}
+
+/** A readable name for a document, from the usual title fields. */
+export function defaultNameOf(typeTitle: (type: string) => string) {
+  return (doc: Doc): string => {
+    // A singleton (its id is its type, "aboutPage") is named by its type: its
+    // SEO title reads "About us | Site name", which is not what it is called.
+    if (publishedIdOf(doc._id) === doc._type) return typeTitle(doc._type);
+    for (const key of [
+      'title',
+      'name',
+      'heading',
+      'question',
+      'label',
+      'internalTitle',
+      'pageTitle',
+      'seoTitle',
+    ]) {
+      const v = doc[key];
+      if (typeof v === 'string' && v.trim()) return v.trim();
+    }
+    return typeTitle(doc._type);
+  };
 }

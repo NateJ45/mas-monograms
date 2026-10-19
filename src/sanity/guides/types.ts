@@ -111,6 +111,13 @@ export interface Guide {
   before?: string[];
   blocks: GuideBlock[];
   /**
+   * A short clip showing the job (starter PORTS.md card 115): a file in
+   * public/ ("/guides/add-a-photo.mp4"), a YouTube or Vimeo link, or any https
+   * address. Guides with one show in "Watch how it is done" on Home and in the
+   * Site Guide. None are recorded yet.
+   */
+  video?: string;
+  /**
    * Notes for whoever maintains the guide (sources checked and the date).
    * NEVER shown to Mary Ann.
    */

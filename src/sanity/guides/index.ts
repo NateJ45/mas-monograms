@@ -61,3 +61,48 @@ export function searchGuides(query: string, guides: Guide[] = ALL_GUIDES): Guide
       Number(words.every((w) => head(a).includes(w))),
   );
 }
+
+// ── The Studio kit's view of the handbook (2026-10-18) ──────────────────────
+// The shared kit (src/sanity/kit/, starter PORTS.md cards 106, 110, 115) reads
+// guides as { slug, category, title, lead, body }. Home's "Watch how it is done"
+// row, its search and the "Help for this page" panel use these; the Site Guide
+// tool itself shows the full handbook (HelpPane), so nothing is lost.
+
+/** Every guide, in the kit's shape. `body` is the guide's own blocks (searched word by word). */
+export const KIT_GUIDES = ALL_GUIDES.map((g) => ({
+  slug: g.id,
+  category: g.category,
+  title: g.title,
+  lead: g.summary,
+  body: g.blocks as unknown[],
+  ...(g.video ? { video: g.video } : {}),
+}));
+
+/**
+ * Which guides the "Help for this page" panel shows beside each kind of thing
+ * (starter PORTS.md card 110). '*' is every other page. Ids are guide ids;
+ * src/lib/studio-guides.test.ts checks each one exists.
+ */
+export const GUIDES_FOR_TYPE: Record<string, string[]> = {
+  galleryItem: ['add-a-photo', 'photo-description', 'photo-focus', 'round-hoop', 'reorder-photos'],
+  clearanceItem: ['clearance-add', 'clearance-sold', 'stripe-link'],
+  clearancePage: ['clearance-add', 'clearance-sold', 'page-words-form'],
+  pricingTier: ['change-a-price'],
+  pricingPage: ['change-a-price', 'page-words-form', 'google-preview'],
+  font: ['add-a-font'],
+  fontGuidePage: ['add-a-font', 'page-words-form'],
+  threadColor: ['add-a-thread'],
+  threadChartPage: ['add-a-thread', 'page-words-form'],
+  itemCategory: ['add-a-category', 'google-preview'],
+  faqItem: ['questions'],
+  siteSettings: ['business-details'],
+  atelierSettings: ['monogram-preview'],
+  studioNotes: ['before-asking'],
+  '*': [
+    'edit-on-the-page',
+    'page-words-form',
+    'google-preview',
+    'share-before-publish',
+    'undo-a-change',
+  ],
+};

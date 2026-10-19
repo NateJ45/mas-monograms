@@ -36,33 +36,54 @@ generate`), not from a `studio/` workspace.
   localhost:4321 and the Studio at **localhost:4321/studio**; deploying the site deploys the
   Studio. For CLI work (`sanity dataset`, `sanity cors`, typegen) run `npx sanity ...` from
   the repo root; `sanity.cli.ts` configures it. Do **not** run `npx sanity deploy`.
-  The Studio theme is **Heirloom Coast** (`buildLegacyTheme`, colours in `src/sanity/theme.ts`,
-  contrast-tested by `src/lib/studio-theme.test.ts`; kept deliberately across the Sanity 6
-  upgrade, see the `sanity.config.ts` header), with Mary Ann's larger type from `readableFonts()`.
-- **Mary Ann's Studio (2026-10-05, Phase A; spec `docs/superpowers/specs/2026-10-05-studio-direction.md`).**
-  The desk (`src/sanity/structure.ts`) is built around her JOBS: Welcome, Help (how do I...?), My business
-  details, Pages on my website (legal pages inside), Photos of my work (newest first), Clearance and prices,
-  Fonts, threads and categories, Questions and answers. **Every pane has an explicit `.id()`**, and the ids
-  anything links to live in `DESK` (`src/sanity/studioTargets.ts`); a derived id comes from the title and
-  breaks deep links (the Stone Steps lesson). `src/lib/studio-targets.test.ts` fails if a Welcome card points
-  at a pane the desk lacks or a builder call has no `.id()`.
-  - `StudioLayout.tsx` (registered as `studio.components.layout`) mounts the first-visit tour
-    (`StudioTour.tsx`, key `mas-studio-tour-v1`, replay event `mas-studio-tour-open`), sends an EMPTY desk to
-    the Welcome pane (`shouldOpenWelcome`, checked against sanity 6.9.1's router: tool state is scoped under
-    the tool name, open panes in `panes`), and hides the "Drafts" perspective menu with one CSS rule
-    (`[data-ui="ReleasesNav"]`; `releases: { enabled: false }` alone leaves it drawn).
-  - In-Studio links go through `useStudioLink()` (`components/studioLink.ts`): the embedded Studio is
-    hash-routed, so a plain `href="/studio/..."` leaves it. Targets: `{doc, field}`, `{pane}`, `{create,
-template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`.
-  - Config: tool titles "Edit my content" / "Edit on the page" / "My photo library" (set in the `tools`
-    resolver: sanity-plugin-media 5.0.11 has no title option); releases, scheduled drafts, scheduled
+  The Studio theme is the shared kit's since 2026-10-18 (starter cards 110 and 116,
+  `src/sanity/studioTheme.ts` PORTABLE, from `brand/brand.config.json`: Heritage Indigo accent, Paper,
+  the Indigo Deep top bar, Fraunces and Mulish), with Mary Ann's larger type built in by
+  `src/sanity/readableTheme.ts` (the 1.2x ramp from `src/sanity/theme.ts`, tested by
+  `src/lib/studio-readable.test.ts`). The kit's colour gate is `studio-theme.test.ts` (PORTABLE).
+- **Mary Ann's Studio on the shared kit (2026-10-18; built for her 2026-10-05, Phase A to F, spec
+  `docs/superpowers/specs/2026-10-05-studio-direction.md`).** Since 2026-10-18 the Studio is the family's
+  shared kit (starter PORTS.md cards 106 to 120; `src/sanity/kit/`, `src/sanity/workflow/`, the kit doc
+  `docs/agent/studio-kit.md`, all PORTABLE) dressed for her, with every piece she had kept. Her settings are
+  ONE file, `src/sanity/kit.config.ts`. Where each 2026-10-05 piece went:
+
+  | Before (2026-10-05)                                     | Now                                                                                                   |
+  | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+  | Welcome pane + 10 cards (`WelcomePane`, `welcomeTasks`) | Home tool: the first four cards are its big buttons (`quickActions`), the rest are "Your pages" links |
+  | `StudioLayout`: open on Welcome, tour, hide Drafts      | Home is the first tool; the kit's tour (`tourSteps`, her words); staff view hides Drafts and Releases |
+  | `StudioTour` (key `mas-studio-tour-v1`)                 | the kit's tour, once per Sanity user per browser (she sees it once more)                              |
+  | "What needs attention" (`CheckupTool`, `CHECKS`)        | the Checkup tool and Home's Fix-it list: generic rules + her six in `src/sanity/checkupRules.ts`      |
+  | Help (how do I...?) pane, guides                        | the Site Guide tool, still HER handbook (`HelpPane`, swapped in by `masSiteGuide` in sanity.config)   |
+  | Move to Trash / Bring it back (`actions/trash.tsx`)     | the kit's Trash (same snapshot model, same words; `trashTypes` = the six lists)                       |
+  | Publish note ("2 to 3 minutes")                         | the kit's note after Publish + the status line counting down (`typicalUpdateMinutes: 3`)              |
+  | `buildLegacyTheme` Heirloom Coast + `readableFonts`     | the kit theme from `brand/brand.config.json` + her ramp (`readableTheme.ts`)                          |
+  | `StudioLogo` (never drawn by Sanity 6)                  | workspace title and icon, the site's own `/studio` page and splash, the wordmark (cards 110, 120)     |
+  | emoji `ToolHeading`                                     | the kit's `ToolHeading` with icons by meaning (card 119, `brandIconArt.tsx`: hoop, spool, needle...)  |
+  | (new)                                                   | weekly checklist "My weekly 15 minutes", help panel beside each form, Messages, table panes, banner   |
+
+  Kept as they were: the QR tool and brand kit (registered by `masTools` before the kit), "Copy a link..."
+  (`actions/shareLink.tsx`; the kit's "Share a preview" is NOT on, see `docs/PENDING.md`), Undo/Redo, badges,
+  the Google preview, locked addresses, drag lists, plain tool names (`kitConfig.toolTitles`), one
+  publishing model, the seven-item Create menu. Mary Ann is in `kitConfig.staff` (her public email until her
+  invitation is accepted and her user id can replace it). The desk (`src/sanity/structure.ts`, wrapped in
+  `staffDesk`): My business details, Pages on my website (legal pages inside), Photos of my work, Clearance and
+  prices (with two table panes), Fonts, threads and categories, Questions and answers, Make a QR code, My
+  brand kit, My notes and ideas, Trash. **Every pane has an explicit `.id()`**, and the ids anything links
+  to live in `DESK` (`src/sanity/studioTargets.ts`); a derived id comes from the title and breaks deep
+  links (the Stone Steps lesson). `src/lib/studio-targets.test.ts` fails if Home points at a pane the desk
+  lacks or a builder call has no `.id()`.
+  - In-Studio links in her own panes go through `useStudioLink()` (`components/studioLink.ts`): the embedded
+    Studio is hash-routed, so a plain `href="/studio/..."` leaves it. Targets: `{doc, field}`, `{pane}`,
+    `{create, template}`, `{tool}` (the same shape as the kit's `StudioTarget`).
+  - Config: tool titles "Edit my content" / "Edit on the page" / "My photo library" (`kitConfig.toolTitles`:
+    sanity-plugin-media has no title option); releases, scheduled drafts, scheduled
     publishing, tasks, comments and announcements are OFF; the global "+" menu offers only the seven things
     she makes (`CREATE_MENU`), and a reference box can never create a singleton (`creationContext.type ===
 'document'`, the fbcm fix).
-  - Document actions live in `src/sanity/editorActions.ts`: the singleton rules (`SINGLETON_TYPES`, the ONE
-    list now), the Publish note (`components/publishNote.tsx`: a toast once the publish has landed, "about 2
-    to 3 minutes"; no behaviour change), and Undo/Redo (PORTABLE `components/UndoRedo.tsx` + `undoRedo.ts`,
-    card 27, keyboard layer `undoRedoShortcuts()`).
+  - Document actions: the kit adds the note after Publish and Move to Trash first; then
+    `src/sanity/editorActions.ts` applies the singleton rules (`SINGLETON_TYPES`, the ONE list), Undo/Redo
+    (PORTABLE `components/UndoRedo.tsx` + `undoRedo.ts`, card 27, keyboard layer `undoRedoShortcuts()`) and
+    "Copy a link...".
   - Badges (`components/documentBadges.tsx`): "Sold", "Needs a photo" (gallery photo, clearance item's first
     photo, font), "Add a short description for Google" (the 10 pages with both SEO boxes).
   - Schema wording rules and the hidden-field list: `docs/06-sanity-content-model.md` "Mary Ann's Studio
@@ -89,21 +110,22 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
     seealso, and never-shown `maintenance` notes), `iconNames.ts` + `icons.ts` (a Record, so a missing icon is
     a compile error), `content.ts` (editing guides), `getFound.ts`, `brandAndPrint.ts`, aggregated by
     `index.ts` (`ALL_GUIDES`, `searchGuides`). Guide files import with `.ts` extensions (bare-Node tests).
-    `components/GuideView.tsx` renders them inside `HelpPane` (Help > "Guides and quick answers", pane id
-    `DESK.helpGuides`): search, "Guides by topic", the open guide, "Print this guide" (a plain-HTML copy
+    `components/GuideView.tsx` renders them inside `HelpPane`, the Site Guide tool (`site-guide`): search, "Guides by topic", the open guide, "Print this guide" (a plain-HTML copy
     portalled to `#mas-guide-print` plus a print stylesheet). `src/lib/studio-guides.test.ts` checks every
     target against the desk, schema and tools, every `backticked` click name in the editing guides against
-    the real Studio names, the audit's `JARGON` list, badges, times and see-also ids. Help > "My notes"
-    (`studioNotes`, `DESK.notes`) holds `helpContact`, which the Help page shows. The old `studioGuide` is off
-    the desk (kept); StudioPlaybook stays under "Older pages (being replaced)" until the Get found guides
-    replace it (the old BrandKit panel was replaced by "My brand kit", Phase F).
-  - **"What needs attention" (Phase B).** Logic in `src/lib/studio-checkup.ts` (each check = read-only GROQ +
-    pure `evaluate`, unit-tested in `studio-checkup.test.ts`; `runChecks` survives a failing check),
-    rendered by `components/CheckupTool.tsx`, registered as the top-bar tool `checkup` (`sanity.config.ts`)
-    AND the desk item `DESK.checkup`, with a Welcome card. Drafts of `sanity.*`/`system.*`/`media.*` never
-    count as her unpublished changes.
+    the real Studio names (including the kit's), the audit's `JARGON` list, badges, times, see-also ids and
+    the "Help for this page" map (`GUIDES_FOR_TYPE` in `guides/index.ts`; `KIT_GUIDES` is the same guides
+    in the kit's shape, and `makeGuideView` draws one guide in that panel). "My notes and ideas" > "My notes"
+    (`studioNotes`, `DESK.notes`) holds `helpContact`, which the Site Guide shows. The old `studioGuide` is
+    off the desk (kept); StudioPlaybook ("Ideas to grow your studio") sits beside My notes.
+  - **The Checkup** (was "What needs attention", Phase B). The kit's `CheckupTool` and Home's Fix-it list
+    run ONE fetch of every content document through `kitConfig.checkup.rules`: the kit's generic rules
+    (pictures with no description, pages with no Google description, links to removed things, changes
+    waiting, the Trash, the last publish) and her six in `src/sanity/checkupRules.ts` (Stripe link, empty
+    headline, none left but not Sold, font with no photo, sold items shown, photos kept out of hoops),
+    tested in `src/lib/studio-checkup-mas.test.ts`.
   - **"Make a QR code" (Phase E, 2026-10-05).** `components/QrCodeTool.tsx`, registered as the top-bar tool
-    `qr-codes` AND the desk item `DESK.qrCodes` (last in the menu), with a Welcome card. Three steps: where it
+    `qr-codes` (`masTools` in sanity.config.ts) AND the desk item `DESK.qrCodes`, linked from Home. Three steps: where it
     leads (5 site pages, her Google review link, Facebook/Instagram from `siteSettings.socialLinks`, greyed
     with an "Add my ... link" button when missing), where it goes (6 placements: size, quiet zone, utm tag),
     then the preview with the seal toggle, label, background (white/Linen, Midnight code, never inverted),
@@ -117,17 +139,16 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
     kept in localStorage (`mas-qr-google-review-url`) unless `siteSettings.googleReviewUrl` is set (that wins).
     Every word is in `src/sanity/qrCopy.ts` (checked against the audit's `JARGON` by the test). No network,
     so no CSP change.
+
 - **Phase D: safety and polish (2026-10-05).** Tested by `src/lib/studio-phase-d.test.ts` and
   `scripts/lib/order-rank.test.mjs`.
-  - **Trash, not Delete.** On `ARCHIVABLE_TYPES` (`src/sanity/lib/trash.ts`: photos, clearance items, questions,
-    price tags, thread colors, fonts; NOT categories or pages) `editorActions.ts` swaps the stock Delete for
-    "Move to Trash" (`actions/trash.tsx`). Model: SNAPSHOT, not a flag (Reid's design, kept): one transaction
-    writes a `trashedItem` with the published copy and the unpublished changes kept apart, and deletes the
-    original, so no site query or checkup count can show a trashed item (the delete fires the rebuild webhook).
-    It refuses, in plain words, while another item references it (`REFERRERS_QUERY`). Desk item "Trash (bring
-    things back)" (`DESK.trash`, newest first, no "+"): "Bring it back" re-creates each copy under its own id
-    with `create` (never overwrites; a never-published item comes back unpublished), "Delete forever" asks
-    twice. The checkup's `things-in-trash` card is For information.
+  - **Trash, not Delete** (the kit's since 2026-10-18, `src/sanity/kit/trash.tsx`). On
+    `kitConfig.trashTypes` (photos, clearance items, questions, price tags, thread colors, fonts; NOT
+    categories or pages) "Move to Trash" writes a `trashedItem` with the published copy and the unpublished
+    changes kept apart and deletes the original, in one transaction (this site's model, ported to the
+    starter). It refuses, in plain words, while another item references it. Desk item "Trash (bring things
+    back)" (`DESK.trash`): "Bring it back" re-creates each copy under its own id; "Delete forever" asks
+    twice and is not offered in her staff view.
   - **Drag to reorder** (`@sanity/orderable-document-list` 2.0.9) on photos, clearance items, price tags,
     questions, fonts and shop categories: `dragList()` in `structure.ts` wraps `orderableDocumentListDeskItem`,
     titles the pane "...: drag to put them in the order you want" and REPLACES its menu (no "Reset Order" or
@@ -149,8 +170,8 @@ template}`, `{tool}`. The Welcome cards are data in `src/sanity/welcomeTasks.ts`
     alone, and redirects would add a redirect list, a build reader and a Publish wrapper she cannot see. To
     change an address, Nathan patches the slug and adds `/<old> /<new> 301` to `public/_redirects` by hand.
   - **"My brand kit" (Phase F, 2026-10-05).** `components/BrandKitPane.tsx`, registered as the top-bar tool
-    `brand-kit` (`BrandKitTool`) AND the desk item `DESK.brandKit` (after the QR item), with the Welcome card
-    "Get my logo, colors and fonts". It replaced the old static `BrandKit.tsx` panel (deleted; its id
+    `brand-kit` (`BrandKitTool`, `masTools`) AND the desk item `DESK.brandKit` (after the QR item), linked
+    from Home's "Your pages". It replaced the old static `BrandKit.tsx` panel (deleted; its id
     `brand-kit` moved to the desk root). Sections: Download everything (the ZIP), My logo (3 logos x 4
     colourways, each a tile on its own ground with PNG 2000px / PNG 512px / SVG buttons, plus "Using my logo"
     with a clear-space diagram), pictures by platform, Ready to print (PDF and PNG), My colors (Copy buttons

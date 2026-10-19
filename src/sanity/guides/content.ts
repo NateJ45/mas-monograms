@@ -66,7 +66,7 @@ export const editingGuides: Guide[] = [
         kind: 'steps',
         items: [
           {
-            text: 'Open the thing you want to change from the menu on the left, or from a big button on the Welcome page.',
+            text: 'Open the thing you want to change from a big button on `Home`, or from the menu on the left in `Edit my content`.',
             see: 'The boxes for that page or photo open on the right.',
           },
           {
@@ -75,7 +75,7 @@ export const editingGuides: Guide[] = [
           },
           {
             text: 'When it looks right, press `Publish` at the bottom right.',
-            see: 'A small note says it is published and will be on your website in about 2 to 3 minutes.',
+            see: 'A small note says it is published, and the line under the top bar counts down while your website updates.',
           },
           {
             text: 'Wait 2 or 3 minutes, then refresh your website.',
@@ -92,13 +92,13 @@ export const editingGuides: Guide[] = [
       { kind: 'h', text: 'Getting back to the start' },
       {
         kind: 'p',
-        text: 'Click `Welcome` at the top of the menu on the left whenever you feel lost. It has big buttons for the jobs you do most.',
+        text: 'Click `Home` at the left of the bar along the top whenever you feel lost. It has big buttons for the jobs you do most, your weekly 15 minutes, and says whether your last change is on your website yet.',
       },
       {
         kind: 'path',
-        label: 'Open the Welcome page',
-        detail: 'The first item in the menu on the left',
-        to: { pane: 'welcome' },
+        label: 'Open Home',
+        detail: 'The first word in the bar along the top',
+        to: { tool: 'home' },
       },
       { kind: 'seealso', ids: ['find-your-way', 'undo-a-change', 'nothing-happened'] },
     ],
@@ -116,10 +116,13 @@ export const editingGuides: Guide[] = [
       {
         kind: 'bullets',
         items: [
-          '`Edit my content` is where you are now: the menu on the left and the boxes you type in.',
+          '`Home` opens first: big buttons for the jobs you do most, your weekly 15 minutes, and anything worth fixing.',
+          '`Edit my content` is the menu on the left and the boxes you type in.',
           '`Edit on the page` shows your website. You can click words on it and change them right there.',
+          '`Messages` lists the quote requests people send from your website, once Nathan has switched it on. They still come to your email too.',
           '`My photo library` shows every photo you have ever added, in one place.',
-          '`What needs attention` looks over your website and lists anything worth fixing, like a photo with no description.',
+          '`Site Guide` is these guides and the quick answers. You can print any of them.',
+          '`Checkup` looks over your website and lists anything worth fixing, like a photo with no description.',
           '`Make a QR code` and `My brand kit` are there too. They are also in the menu on the left.',
         ],
       },
@@ -127,9 +130,6 @@ export const editingGuides: Guide[] = [
       {
         kind: 'bullets',
         items: [
-          '`Welcome`: big buttons for the jobs you do most.',
-          '`Help (how do I...?)`: these guides, and quick answers.',
-          '`What needs attention`: anything on your website worth fixing.',
           '`My business details`: your phone number, email, address, hours and the menus.',
           '`Pages on my website`: the words on every page, one page at a time.',
           '`Photos of my work`: your gallery photos, in the same order as on your website. Drag a photo up or down to move it.',
@@ -137,6 +137,7 @@ export const editingGuides: Guide[] = [
           '`Fonts, threads and categories`: your embroidery fonts, thread colors and shop categories.',
           '`Questions and answers`: the questions on your How It Works and Pricing pages.',
           '`Make a QR code` and `My brand kit`: a QR code for your tags and cards, and your logo, colors and fonts.',
+          '`My notes and ideas`: your own notes, who to ask for help, and ideas to grow your studio.',
           '`Trash (bring things back)`: anything you moved to Trash. Open one and press `Bring it back`.',
         ],
       },
@@ -158,7 +159,7 @@ export const editingGuides: Guide[] = [
             see: 'Its boxes open on the right, ready to type in.',
           },
           {
-            text: 'To go back, click a different item in the menu on the left, or click `Welcome`.',
+            text: 'To go back, click a different item in the menu on the left, or click `Home` in the bar along the top.',
             see: 'The columns change to match what you clicked. Nothing is lost.',
           },
         ],
@@ -661,7 +662,7 @@ export const editingGuides: Guide[] = [
         kind: 'steps',
         items: [
           {
-            text: 'On the Welcome page, click `Add a photo of my work`. (Or click `Photos of my work` in the menu, then the + button at the top, `Add a photo of my work`.)',
+            text: 'On `Home`, click `Add a photo of my work`. (Or click `Photos of my work` in the menu, then the + button at the top, `Add a photo of my work`.)',
             see: 'A new, empty photo opens.',
           },
           {
@@ -784,7 +785,7 @@ export const editingGuides: Guide[] = [
       {
         kind: 'callout',
         tone: 'tip',
-        text: '`What needs attention` lists any photo that is missing its description, with a button to open it.',
+        text: 'The `Checkup` lists any photo that is missing its description, with a button to open it. Home shows the same list.',
       },
       { kind: 'path', label: 'Open Photos of my work', to: { pane: 'photos' } },
     ],
@@ -1401,7 +1402,7 @@ export const editingGuides: Guide[] = [
             see: 'See "I pressed Publish and nothing changed".',
           },
           {
-            text: 'Open `What needs attention` in the bar at the top.',
+            text: 'Open `Checkup` in the bar at the top.',
             see: 'Anything it finds is listed, with a button to go and fix it.',
           },
           {
@@ -1424,9 +1425,9 @@ export const editingGuides: Guide[] = [
         kind: 'callout',
         tone: 'why',
         title: 'Asking is never a bother',
-        text: 'A confusing Studio is something Nathan can fix, not something you have to work around. Who to ask is shown at the bottom of the Help page.',
+        text: 'A confusing Studio is something Nathan can fix, not something you have to work around. Who to ask is shown at the bottom of the Site Guide.',
       },
-      { kind: 'path', label: 'Open What needs attention', to: { pane: 'what-needs-attention' } },
+      { kind: 'path', label: 'Open the Checkup', to: { tool: 'checkup' } },
     ],
   },
 ];

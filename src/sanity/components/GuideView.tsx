@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Button, Card, Flex, Heading, Stack, Text, TextInput } from '@sanity/ui';
 import { ArrowLeftIcon } from '@sanity/icons/ArrowLeft';
@@ -407,34 +407,10 @@ function PrintableGuide({ guide }: { guide: Guide }) {
 
 // ── One guide ─────────────────────────────────────────────────────────────────
 
-function GuidePage({
-  guide,
-  back,
-  open,
-}: {
-  guide: Guide;
-  back: () => void;
-  open: (id: string) => void;
-}) {
+/** The guide itself: title, badge, summary, "have ready" and the steps. */
+function GuideBody({ guide, open }: { guide: Guide; open: (id: string) => void }) {
   return (
     <Stack gap={5}>
-      <Flex gap={3} wrap="wrap">
-        <Button
-          icon={ArrowLeftIcon}
-          text="Back to all guides"
-          mode="ghost"
-          fontSize={2}
-          padding={4}
-          onClick={back}
-        />
-        <Button
-          text="Print this guide"
-          mode="ghost"
-          fontSize={2}
-          padding={4}
-          onClick={() => window.print()}
-        />
-      </Flex>
       <Stack gap={4}>
         <Flex align="center" gap={3}>
           <IconChip guide={guide} />
@@ -484,6 +460,39 @@ function GuidePage({
           <BlockView key={i} block={block} open={open} />
         ))}
       </Stack>
+    </Stack>
+  );
+}
+
+function GuidePage({
+  guide,
+  back,
+  open,
+}: {
+  guide: Guide;
+  back: () => void;
+  open: (id: string) => void;
+}) {
+  return (
+    <Stack gap={5}>
+      <Flex gap={3} wrap="wrap">
+        <Button
+          icon={ArrowLeftIcon}
+          text="Back to all guides"
+          mode="ghost"
+          fontSize={2}
+          padding={4}
+          onClick={back}
+        />
+        <Button
+          text="Print this guide"
+          mode="ghost"
+          fontSize={2}
+          padding={4}
+          onClick={() => window.print()}
+        />
+      </Flex>
+      <GuideBody guide={guide} open={open} />
       <Flex>
         <Button
           icon={ArrowLeftIcon}
@@ -498,6 +507,26 @@ function GuidePage({
         createPortal(<PrintableGuide guide={guide} />, document.body)}
     </Stack>
   );
+}
+
+/**
+ * One guide on its own, for the kit's "Help for this page" panel beside each
+ * document (starter PORTS.md card 110; kitConfig.guide.view). A "See also"
+ * button switches to that guide in place.
+ */
+export function makeGuideView(slug: string): ComponentType {
+  return function OneGuide() {
+    const [id, setId] = useState(slug);
+    const guide = guideById(id);
+    if (!guide) {
+      return (
+        <Text size={2} muted>
+          That guide has moved. Open the Site Guide to find it.
+        </Text>
+      );
+    }
+    return <GuideBody guide={guide} open={setId} />;
+  };
 }
 
 // ── The list ──────────────────────────────────────────────────────────────────

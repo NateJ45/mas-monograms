@@ -28,7 +28,7 @@ export const studioNotes = defineType({
       title: 'Who to ask for help',
       type: 'string',
       description:
-        'The name, and an email or phone number, of the person who looks after your website. The Help page shows it so you always know who to ask. It is never shown on your website.',
+        'The name, and an email or phone number, of the person who looks after your website. The Site Guide shows it so you always know who to ask. It is never shown on your website.',
     }),
   ],
   preview: { prepare: () => ({ title: 'Business Notes' }) },

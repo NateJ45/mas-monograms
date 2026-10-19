@@ -53,6 +53,12 @@
   // Compute > Email Service > Email Sending in the dashboard. QUOTE_OWNER_EMAIL is
   // where new quote requests land (Mary Ann's published contact address).
   "send_email": [{ "name": "EMAIL" }],
+  // The Studio's Messages inbox (starter PORTS.md card 117): quote requests in D1 beside the R2
+  // backup. NOT bound yet (docs/PENDING.md): create the database, then uncomment and fill the id.
+  // src/pages/api/quote.ts writes a row only when CONTACT_DB exists.
+  // "d1_databases": [
+  //   { "binding": "CONTACT_DB", "database_name": "mas-monograms-messages", "database_id": "<id>" },
+  // ],
   "vars": { "QUOTE_OWNER_EMAIL": "mastone37@gmail.com" },
   // Secrets (set via: wrangler secret put SECRET_NAME) — never in this file:
   //   SANITY_API_READ_TOKEN — Sanity viewer token for build-time reads

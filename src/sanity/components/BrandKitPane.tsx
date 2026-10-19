@@ -7,7 +7,8 @@ import {
   type ReactNode,
 } from 'react';
 import { Box, Card, Flex, Grid, Heading, Stack, Text } from '@sanity/ui';
-import { ToolHeading } from './ToolHeading';
+import { ToolHeading } from '../kit/shared';
+import { brandIcon } from '../brandIcons';
 import { HEADING_STACK, HEIRLOOM } from '../theme';
 import {
   BRAND_COLORS,
@@ -914,7 +915,7 @@ export function BrandKitPane() {
     <Box padding={[3, 4, 5]}>
       <Stack gap={6} style={{ maxWidth: 1040, margin: '0 auto' }}>
         <Stack gap={4}>
-          <ToolHeading emoji="🎨">My brand kit</ToolHeading>
+          <ToolHeading icon={brandIcon('download')}>My brand kit</ToolHeading>
           <Text size={3} style={{ lineHeight: 1.6 }}>
             Your logo, colors and fonts, and pictures made at the right size for Facebook,
             Instagram, Pinterest and Google. They are yours to use anywhere.
