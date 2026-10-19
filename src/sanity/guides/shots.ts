@@ -27,6 +27,79 @@
 import type { GuideShotData } from '../../lib/studio-look.ts';
 
 export const GUIDE_SHOTS: Record<string, GuideShotData> = {
+  // Captured 2026-10-19 from the kit harness (/kit-harness/studio/, the real
+  // Studio on a pretend sign-in, reading the published site). Desk shots are cut
+  // below the top bar, so no account avatar or name is in them; phone shots show
+  // only the phone top bar, which has neither. Recipe: docs/agent/studio-kit.md.
+  'home-weekly': {
+    src: '/guide-shots/home-weekly.webp',
+    alt: 'The "My weekly 15 minutes" card on Home, with five jobs: two ticked, three with a numbered circle and a button, and beside it the "Is it live?" card.',
+    width: 1040,
+    height: 657,
+    marks: [
+      { kind: 'stone', x: 22, y: 16.5, label: 'A button takes you straight to the job.' },
+      { kind: 'stone', x: 2.5, y: 33, label: 'A tick means it is done for this week.' },
+      {
+        kind: 'stone',
+        x: 94,
+        y: 3,
+        label: '"Is it live?" says when your change is on the website.',
+      },
+    ],
+  },
+  'quick-update-tiles': {
+    src: '/guide-shots/quick-update-tiles.webp',
+    alt: 'Quick update on a phone: big buttons for Post a photo, Put up a notice and Order deadline, one under the other.',
+    width: 520,
+    height: 1125,
+    marks: [
+      { kind: 'ring', x: 5, y: 39.3, w: 90, h: 16.8 },
+      {
+        kind: 'stone',
+        x: 90,
+        y: 41,
+        label: 'Post a photo of your work, straight from your phone.',
+      },
+      { kind: 'stone', x: 90, y: 76, label: 'Order deadline is worded for you.' },
+    ],
+  },
+  'deadline-form': {
+    src: '/guide-shots/deadline-form.webp',
+    alt: 'The Order deadline form on a phone: a box for what it is for, a date box for the last day to order, and a box for your own words.',
+    width: 520,
+    height: 1125,
+    marks: [
+      { kind: 'stone', x: 93, y: 44, label: 'One or two words, like Christmas.' },
+      { kind: 'stone', x: 93, y: 57.5, label: 'The last day you can take an order.' },
+      { kind: 'stone', x: 93, y: 80, label: 'Leave this empty and it is worded for you.' },
+    ],
+  },
+  'away-form': {
+    src: '/guide-shots/away-form.webp',
+    alt: 'The I am away for a while form on a phone: date boxes for the first and last day away, a box for the words, and the Put it on my website button.',
+    width: 520,
+    height: 1125,
+    marks: [
+      { kind: 'stone', x: 93, y: 51.5, label: 'The last day you are away.' },
+      {
+        kind: 'stone',
+        x: 93,
+        y: 73.5,
+        label: 'Leave this empty and the words are written for you.',
+      },
+      { kind: 'ring', x: 4, y: 95, w: 92, h: 5 },
+    ],
+  },
+  'post-photo-form': {
+    src: '/guide-shots/post-photo-form.webp',
+    alt: 'Post a photo on a phone: a short note saying to pick My Style Gallery, three numbered steps, and the buttons to take or choose a photo.',
+    width: 520,
+    height: 1125,
+    marks: [
+      { kind: 'stone', x: 93, y: 46, label: 'Pick My Style Gallery, as this note says.' },
+      { kind: 'ring', x: 4, y: 95, w: 92, h: 5 },
+    ],
+  },
   // 'publish-button': {
   //   src: '/guide-shots/publish-button.webp',
   //   alt: 'The bottom right of the editor, with the Publish button in the corner.',

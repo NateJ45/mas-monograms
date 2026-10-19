@@ -38,10 +38,11 @@
 import type { Guide } from './types.ts';
 import { getFoundGuides } from './getFound.ts';
 import { brandAndPrintGuides } from './brandAndPrint.ts';
+import { weekAndSeasonGuides } from './weekAndSeasons.ts';
 
 const WAIT = 'about 2 to 3 minutes';
 
-export const editingGuides: Guide[] = [
+const coreGuides: Guide[] = [
   // ───────────────────────────────────────────────────────────── Start here ──
   {
     id: 'start-here',
@@ -85,6 +86,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'publish-button' },
       {
         kind: 'callout',
         tone: 'why',
@@ -346,6 +348,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'price-tag-form' },
       {
         kind: 'callout',
         tone: 'tip',
@@ -537,6 +540,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'question-form' },
       { kind: 'h', text: 'Add a new question' },
       {
         kind: 'steps',
@@ -650,6 +654,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'notice-templates' },
       { kind: 'h', text: 'The full way, with a ready-made notice' },
       {
         kind: 'steps',
@@ -804,6 +809,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'photo-new-form' },
       {
         kind: 'callout',
         tone: 'tip',
@@ -1019,6 +1025,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'clearance-new-form' },
       {
         kind: 'callout',
         tone: 'careful',
@@ -1064,6 +1071,7 @@ export const editingGuides: Guide[] = [
           },
         ],
       },
+      { kind: 'shot', key: 'clearance-sold-switch' },
       {
         kind: 'callout',
         tone: 'tip',
@@ -1549,8 +1557,11 @@ export const editingGuides: Guide[] = [
   },
 ];
 
+/** Every editing guide: the core set, then her week and her seasons (./weekAndSeasons.ts). */
+export const editingGuides: Guide[] = [...coreGuides, ...weekAndSeasonGuides];
+
 // The shape src/lib/guide-shots.test.ts (PORTABLE, card 130) reads: every guide with its
-// slug and blocks. This site's guides carry no picture blocks yet, so it passes trivially.
+// slug and blocks. Picture blocks name a key in ./shots.ts (2026-10-19).
 export const guides = [...editingGuides, ...getFoundGuides, ...brandAndPrintGuides].map((g) => ({
   slug: g.id,
   body: g.blocks as unknown[],
