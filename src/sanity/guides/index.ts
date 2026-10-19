@@ -18,7 +18,8 @@ import { getFoundGuides } from './getFound.ts';
 import { GUIDE_CATEGORIES, type Guide, type GuideCategory } from './types.ts';
 
 export * from './types.ts';
-export { GUIDE_ICON_NAMES } from './iconNames.ts';
+export { GUIDE_ICON_NAMES, GUIDE_MEANINGS } from './iconNames.ts';
+import { GUIDE_MEANINGS } from './iconNames.ts';
 
 export const ALL_GUIDES: Guide[] = [...editingGuides, ...getFoundGuides, ...brandAndPrintGuides];
 
@@ -62,11 +63,21 @@ export function searchGuides(query: string, guides: Guide[] = ALL_GUIDES): Guide
   );
 }
 
-// ── The Studio kit's view of the handbook (2026-10-18) ──────────────────────
-// The shared kit (src/sanity/kit/, starter PORTS.md cards 106, 110, 115) reads
-// guides as { slug, category, title, lead, body }. Home's "Watch how it is done"
-// row, its search and the "Help for this page" panel use these; the Site Guide
-// tool itself shows the full handbook (HelpPane), so nothing is lost.
+// ── The Studio kit's view of the handbook (2026-10-18, card 128 2026-10-19) ──
+// The shared kit (src/sanity/kit/, starter PORTS.md cards 106, 110, 115, 128)
+// reads guides as { slug, category, title, lead, body, icon, diy }. Home's
+// "Watch how it is done" row and its search use these. The Site Guide tool and
+// the "Help for this page" panel show HER handbook (HelpPane and GuideView),
+// drawn in the kit's design language, because her guides carry more than the
+// kit's shape holds: what you will see after a step, the time and cost, what
+// to have ready, and "Take me there" cards to outside pages.
+
+/** Her badge as the kit's "who does this job" level. */
+export const BADGE_DIY: Record<Guide['badge'], 'self' | 'mixed' | 'ask'> = {
+  'You can do this yourself': 'self',
+  'Mostly yourself': 'mixed',
+  'Check with Nathan first': 'ask',
+};
 
 /** Every guide, in the kit's shape. `body` is the guide's own blocks (searched word by word). */
 export const KIT_GUIDES = ALL_GUIDES.map((g) => ({
@@ -75,6 +86,8 @@ export const KIT_GUIDES = ALL_GUIDES.map((g) => ({
   title: g.title,
   lead: g.summary,
   body: g.blocks as unknown[],
+  icon: GUIDE_MEANINGS[g.icon],
+  diy: BADGE_DIY[g.badge],
   ...(g.video ? { video: g.video } : {}),
 }));
 

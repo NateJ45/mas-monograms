@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useClient } from 'sanity';
-import { Box, Card, Heading, Stack, Text } from '@sanity/ui';
+import { Box } from '@sanity/ui';
 import { GuideView } from './GuideView';
-import { ToolHeading } from '../kit/shared';
-import { brandIcon } from '../brandIcons';
+import { KitNotice, KitPanel, KitScope, PageBanner } from '../kit/ui';
 import { useStudioLink, type StudioTarget } from './studioLink';
 import { DESK } from '../studioTargets';
-import { HEADING_STACK, HEIRLOOM } from '../theme';
 
 // =============================================================================
 // HelpPane: the Site Guide (Phase A, extended in Phase B, 2026-10-05; the
@@ -18,6 +16,10 @@ import { HEADING_STACK, HEIRLOOM } from '../theme';
 // as repo data in src/sanity/guides (PORTS.md card 41). Bottom: who to ask,
 // read from the "Who to ask for help" box in My notes (studioNotes.helpContact),
 // or HELP_CONTACT_FALLBACK when it is empty. No contact details are invented.
+//
+// Drawn in the Studio's design language (starter card 128, 2026-10-19): the
+// Midnight banner with "Site Guide" in her swash italic and the stitch hem,
+// sections opened by her gold cross stitch, answers as paper cards.
 //
 // Every answer must be TRUE of the site as it is (spec principle 8): the
 // rebuild takes 2 to 3 minutes since the 2026-10-05 deploy hook, Undo is in the
@@ -67,23 +69,32 @@ function AnswerCard({ item }: { item: Answer }) {
   const linkTo = useStudioLink();
   const link = item.link ? linkTo(item.link.target) : null;
   return (
-    <Card padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-      <Stack gap={3}>
-        <Text size={3} weight="semibold">
-          {item.question}
-        </Text>
-        <Text size={2} style={{ lineHeight: 1.6 }}>
-          {item.answer}
-        </Text>
-        {link && item.link && (
-          <Text size={2} weight="semibold">
-            <a href={link.href} onClick={link.onClick} style={{ color: HEIRLOOM.indigo }}>
-              {item.link.label} →
-            </a>
-          </Text>
-        )}
-      </Stack>
-    </Card>
+    <article
+      style={{
+        display: 'grid',
+        gap: 10,
+        padding: '20px 22px',
+        borderRadius: 'var(--ui-radius)',
+        border: '1px solid var(--ui-rule)',
+        background: 'var(--ui-surface)',
+      }}
+    >
+      <h3 className="ui-h3" style={{ fontSize: 21, margin: 0 }}>
+        {item.question}
+      </h3>
+      <p className="ui-p" style={{ fontSize: 17, lineHeight: 1.6, margin: 0 }}>
+        {item.answer}
+      </p>
+      {link && item.link && (
+        <a
+          href={link.href}
+          onClick={link.onClick}
+          style={{ fontWeight: 700, fontSize: 16, textUnderlineOffset: 4, justifySelf: 'start' }}
+        >
+          {item.link.label} →
+        </a>
+      )}
+    </article>
   );
 }
 
@@ -115,48 +126,44 @@ function useHelpContact(): string | null {
 export function HelpPane() {
   const contact = useHelpContact();
   return (
-    <Box padding={[4, 4, 5]} style={{ overflowY: 'auto', height: '100%' }}>
-      <Stack gap={6} style={{ maxWidth: 760, margin: '0 auto' }}>
-        <ToolHeading
-          icon={brandIcon('guide')}
-          lead="Step-by-step help for the jobs you do on your website. Start with a quick answer, or pick a guide."
-        >
-          Site Guide
-        </ToolHeading>
-        <Stack gap={3}>
-          <Text size={3} weight="semibold">
-            Quick answers
-          </Text>
-          {ANSWERS.map((a) => (
-            <AnswerCard key={a.question} item={a} />
-          ))}
-        </Stack>
-
-        <Stack gap={4}>
-          <Heading as="h2" size={3} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
-            Guides by topic
-          </Heading>
-          <Text size={2} style={{ lineHeight: 1.6 }}>
-            Step-by-step guides, with what you will see after each step. Each one says whether you
-            can do it yourself. Open a guide, then press Print this guide if you would like it on
-            paper.
-          </Text>
-          <GuideView />
-        </Stack>
-
-        <Card padding={4} radius={3} tone="primary" border>
-          <Stack gap={3}>
-            <Text size={3} weight="semibold">
-              Still stuck?
-            </Text>
-            <Text size={2} style={{ lineHeight: 1.6 }}>
+    <Box
+      padding={[3, 4, 5]}
+      paddingBottom={[6, 6, 7]}
+      style={{ overflowY: 'auto', height: '100%' }}
+    >
+      <KitScope style={{ maxWidth: 860, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gap: 44 }}>
+          <PageBanner
+            eyebrow="Help"
+            title="Site Guide"
+            lead="Step-by-step help for the jobs you do on your website. Start with a quick answer, or pick a guide."
+            // Her Hoop Seal on the disc (the home meaning draws it, brandIconArt.tsx), not the generic guide icon.
+            meaning="home"
+          />
+          <KitPanel title="Quick answers" id="mas-quick-answers">
+            <div style={{ display: 'grid', gap: 14 }}>
+              {ANSWERS.map((a) => (
+                <AnswerCard key={a.question} item={a} />
+              ))}
+            </div>
+          </KitPanel>
+          <KitPanel title="Guides by topic" id="mas-guides-by-topic">
+            <p className="ui-p" style={{ fontSize: 17, lineHeight: 1.6, margin: 0 }}>
+              Step-by-step guides, with what you will see after each step. Each one says whether you
+              can do it yourself. Open a guide, then press Print this guide if you would like it on
+              paper.
+            </p>
+            <GuideView />
+          </KitPanel>
+          <KitNotice tone="note" title="Still stuck?">
+            <span style={{ fontSize: 17, lineHeight: 1.6 }}>
               Ask {contact ?? HELP_CONTACT_FALLBACK}. A confusing Studio is something they can fix,
               not something you have to work around. The guide "Before you ask for help" says what
               to tell them.
-            </Text>
-          </Stack>
-        </Card>
-      </Stack>
+            </span>
+          </KitNotice>
+        </div>
+      </KitScope>
     </Box>
   );
 }

@@ -143,12 +143,17 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: code work queued
 
-- **Starter card 128 (Studio design language with a per-site art slot) to adopt when it merges.** The
-  art is ready in `public/studio-art/` (2026-10-19 art pass, drawn by `node scripts/gen-studio-art.mjs`
-  from the site's own parts): `hoop.svg` / `hoop-thread.svg` (her Hoop Seal lettering in the Home hero's
-  gilded hoop), `stitch-rule.svg` (the header's running-stitch hem), `cross-stitch.svg` (the gold list
-  stitch), `weave-midnight.svg` / `weave-linen.svg` (the grounds). Heading treatment: Fraunces, with the
-  accent words in the site's swash italic in thread gold (`public/studio-banner/fraunces-swash.woff2`).
+- **Starter card 128 (Studio design language) adopted 2026-10-19; left: signed-in checks and real guide
+  pictures.** `brand/brand.config.json` `studio.look` names her devices (gold cross-stitch marker, round claret
+  stones joined by a claret running stitch that draws itself, indigo / gold / claret callouts, the thread hem
+  along banner feet, the Midnight weave on featured panels, banner titles in the swash italic in thread gold).
+  Her Site Guide (`HelpPane` + `GuideView`, her own richer guide format) is drawn in the kit's pieces
+  (`src/sanity/kit/ui/`); guide icons are registry meanings (`GUIDE_MEANINGS` in `src/sanity/guides/iconNames.ts`).
+  "View the website" on Home's banner wears her site's paper-patch button (`src/sanity/studioArt.css`), and
+  the /studio splash sets her name as the site does with a stitch that sews itself (`StudioSplashMotif.astro`).
+  Still to do: check the signed-in Studio (Home banner, Site Guide, Help for this page) in a real browser; the
+  kit's own `/kit-harness/guide/` view reads the kit's guide shape, not hers, so use `/kit-harness/studio/site-guide`.
+  Art sources in `public/studio-art/` (drawn by `node scripts/gen-studio-art.mjs`).
 
 - **Starter card 122 (private and hidden pages) to adopt next round.** Only its PORTABLE copies are in
   (2026-10-18). This site has no `_seoFields.ts` and no `hideFromSearch` box, and its menus are typed by hand

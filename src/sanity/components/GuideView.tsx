@@ -1,13 +1,25 @@
-import { Fragment, useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react';
+// Safe to edit by hand (the pieces are the kit's: src/sanity/kit/ui/, PORTS.md card 128)
+import { useMemo, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Box, Button, Card, Flex, Heading, Stack, Text, TextInput } from '@sanity/ui';
+import { Button, Flex, TextInput } from '@sanity/ui';
 import { ArrowLeftIcon } from '@sanity/icons/ArrowLeft';
-import { LaunchIcon } from '@sanity/icons/Launch';
 import { SearchIcon } from '@sanity/icons/Search';
 import { useStudioLink } from './studioLink';
-import { HEADING_STACK, HEIRLOOM } from '../theme';
+import {
+  InlineText,
+  KitCard,
+  KitNotice,
+  KitScope,
+  PageBanner,
+  SectionRule,
+  Stone,
+  StepPath,
+  StoneTag,
+} from '../kit/ui';
+import type { GuideViewProps } from '../kit/types';
 import {
   ALL_GUIDES,
+  GUIDE_MEANINGS,
   guideById,
   guidesByCategory,
   searchGuides,
@@ -17,22 +29,28 @@ import {
   type GuideStep,
   type GuideTarget,
 } from '../guides';
-import { GUIDE_ICONS } from '../guides/icons';
 
 // =============================================================================
-// GuideView: the handbook reader inside Help (Mary Ann's Studio, Phase B)
+// GuideView: the handbook reader inside Help (Mary Ann's Studio, Phase B;
+// redrawn in the Studio's design language, starter card 128, 2026-10-19)
 // =============================================================================
-// Ported from stonesteps-50k's GuideView (itself from west-chester-preschool)
-// and made calmer and larger for Mary Ann: 18px+ step text, big numbered
-// discs, a big "can I do this myself?" badge, "Take me there" cards, a search
-// box, and a "Print this guide" button that prints ONLY the guide.
+// Her handbook keeps everything it had: 18px+ step text with "What you will
+// see" under a step, the "can I do this myself?" badge, the time and the cost,
+// "Before you start, have ready", "Take me there" cards (to a place in the
+// Studio or an outside page), See also, a search box and Print this guide.
+//
+// What changed is the drawing. It is now the kit's pieces in HER look
+// (brand/brand.config.json studio.look): a Midnight banner with the guide's
+// title in the swash italic in thread gold and the running-stitch hem along
+// its foot, the gold cross stitch opening each section (the site's list
+// stitch), steps in round claret stones joined by a claret running stitch that
+// sews itself along (the How It Works path on her home page), callouts in her
+// indigo, gold and claret, and art tiles with her own hoop, needle, spool,
+// hang tag and tote.
 //
 // The guides are DATA in ../guides (repo files, tested by
 // src/lib/studio-guides.test.ts), never editable documents, so they cannot be
 // edited out of date or deleted by accident.
-//
-// One component holds the list and the open guide (local state), so there is
-// no extra desk pane per guide and "Back to all guides" is one click.
 //
 // PRINTING. window.print() prints the whole Studio, so while a guide is open a
 // plain-HTML copy of it is portalled to <body> (#mas-guide-print), hidden on
@@ -40,281 +58,199 @@ import { GUIDE_ICONS } from '../guides/icons';
 // Studio's own styles print badly (fixed heights, scroll boxes).
 // =============================================================================
 
-const BADGE_TONE: Record<GuideBadge, 'positive' | 'primary' | 'caution'> = {
-  'You can do this yourself': 'positive',
-  'Mostly yourself': 'primary',
-  'Check with Nathan first': 'caution',
-};
-const BADGE_MARK: Record<GuideBadge, string> = {
-  'You can do this yourself': '✓',
-  'Mostly yourself': '◐',
-  'Check with Nathan first': '!',
+/** Her badge as a stone tag: the same three tones as the kit's StatusBadge, in her words. */
+const BADGE_TONE: Record<GuideBadge, 'note' | 'tip' | 'careful'> = {
+  'You can do this yourself': 'note',
+  'Mostly yourself': 'tip',
+  'Check with Nathan first': 'careful',
 };
 
-// Inline marks: **bold** and `a thing you click` (a button-look chip).
-function RichText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**'))
-          return <strong key={i}>{part.slice(2, -2)}</strong>;
-        if (part.startsWith('`') && part.endsWith('`'))
-          return (
-            <span
-              key={i}
-              style={{
-                display: 'inline-block',
-                background: HEIRLOOM.linen,
-                border: `1px solid ${HEIRLOOM.indigo}`,
-                color: HEIRLOOM.ink,
-                borderRadius: 6,
-                padding: '0 0.4em',
-                fontWeight: 600,
-                lineHeight: 1.4,
-              }}
-            >
-              {part.slice(1, -1)}
-            </span>
-          );
-        return <Fragment key={i}>{part}</Fragment>;
-      })}
-    </>
-  );
-}
+/** Her three callouts: tip, take care, and why (the reason, in her indigo). */
+const CALLOUT: Record<
+  'tip' | 'careful' | 'why',
+  { tone: 'tip' | 'careful' | 'note'; word: string }
+> = {
+  tip: { tone: 'tip', word: 'Tip' },
+  careful: { tone: 'careful', word: 'Take care' },
+  why: { tone: 'note', word: 'Why' },
+};
 
 /** Strip the marks for the printed copy. */
 const plain = (text: string) =>
   text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/`([^`]+)`/g, '"$1"');
 
-function BadgeChip({ badge, large }: { badge: GuideBadge; large?: boolean }) {
-  return (
-    <Card
-      tone={BADGE_TONE[badge]}
-      border
-      radius={5}
-      paddingX={large ? 4 : 3}
-      paddingY={large ? 3 : 2}
-      style={{ display: 'inline-block' }}
-    >
-      <Text size={large ? 2 : 1} weight="semibold">
-        <span aria-hidden>{BADGE_MARK[badge]} </span>
-        {badge}
-      </Text>
-    </Card>
-  );
-}
+const stepText = (s: GuideStep) => (typeof s === 'string' ? s : s.text);
 
-function IconChip({ guide, size = 48 }: { guide: Guide; size?: number }) {
-  const Icon = GUIDE_ICONS[guide.icon];
-  return (
-    <span
-      aria-hidden
-      style={{
-        background: HEIRLOOM.linen,
-        boxShadow: `inset 0 0 0 1.5px ${HEIRLOOM.claret}`,
-        color: HEIRLOOM.claret,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: size,
-        height: size,
-        borderRadius: 14,
-        fontSize: size * 0.6,
-        flexShrink: 0,
-      }}
-    >
-      <Icon />
-    </span>
-  );
-}
+/** Body text at her size (18px), on the look's ink. */
+const BODY = { fontSize: 18, lineHeight: 1.6 } as const;
 
 // ── "Take me there" ───────────────────────────────────────────────────────────
 
 function TakeMeThere({ label, detail, to }: { label: string; detail?: string; to: GuideTarget }) {
   const linkTo = useStudioLink();
-  const external = 'url' in to;
-  const link = external
-    ? { href: to.url, onClick: undefined, target: '_blank', rel: 'noopener noreferrer' }
-    : { ...linkTo(to), target: undefined, rel: undefined };
+  if ('url' in to) {
+    const url = to.url;
+    return (
+      <KitCard
+        title={label}
+        lead={detail ? `${detail} Opens in a new tab.` : 'Opens in a new tab.'}
+        meaning="link"
+        href={url}
+        onClick={(e) => {
+          e.preventDefault();
+          window.open(url, '_blank', 'noopener,noreferrer');
+        }}
+      />
+    );
+  }
+  const link = linkTo(to);
   return (
-    <Card
-      as="a"
+    <KitCard
+      title={label}
+      lead={detail ?? 'Take me there'}
+      meaning="redirect"
       href={link.href}
       onClick={link.onClick}
-      target={link.target}
-      rel={link.rel}
-      padding={4}
-      radius={3}
-      border
-      tone="primary"
-      style={{ textDecoration: 'none', color: 'inherit', display: 'block', minHeight: 64 }}
-    >
-      <Flex align="center" gap={3}>
-        <Stack gap={3} style={{ flex: 1 }}>
-          <Text size={1} weight="semibold" style={{ color: HEIRLOOM.indigo }}>
-            {external ? 'Opens in a new tab' : 'Take me there'}
-          </Text>
-          <Text size={3} weight="semibold">
-            {label}
-          </Text>
-          {detail && (
-            <Text size={2} muted>
-              {detail}
-            </Text>
-          )}
-        </Stack>
-        <Text size={4} style={{ color: HEIRLOOM.indigo }}>
-          {external ? <LaunchIcon /> : '→'}
-        </Text>
-      </Flex>
-    </Card>
+    />
   );
 }
 
 // ── Blocks ────────────────────────────────────────────────────────────────────
 
-const stepText = (s: GuideStep) => (typeof s === 'string' ? s : s.text);
-
-function Steps({ items }: { items: GuideStep[] }) {
-  // Explicit numbered discs: @sanity/ui's reset strips native list markers.
+function Bullets({ items }: { items: string[] }) {
   return (
-    <Stack as="ol" gap={4} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
       {items.map((item, i) => (
-        <Flex as="li" key={i} gap={3} align="flex-start">
-          <span
-            aria-hidden
-            style={{
-              background: HEIRLOOM.indigo,
-              color: HEIRLOOM.paper,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              fontSize: 18,
-              fontWeight: 700,
-              flexShrink: 0,
-            }}
-          >
-            {i + 1}
+        <li key={i} style={{ display: 'grid', gridTemplateColumns: '22px minmax(0,1fr)', gap: 8 }}>
+          <span style={{ paddingTop: 9 }}>
+            <Stone index={0} size={11} seed={i + 50} />
           </span>
-          <Stack gap={3} style={{ flex: 1, paddingTop: 6 }}>
-            <Text size={3} style={{ lineHeight: 1.55 }}>
-              <RichText text={stepText(item)} />
-            </Text>
-            {typeof item !== 'string' && item.see && (
-              <Text size={2} style={{ lineHeight: 1.55, color: HEIRLOOM.ink }}>
-                <strong>What you will see: </strong>
-                <RichText text={item.see} />
-              </Text>
-            )}
-            {typeof item !== 'string' && item.picture && (
-              <Text size={1} muted style={{ lineHeight: 1.5 }}>
-                Picture: {item.picture}
-              </Text>
-            )}
-          </Stack>
-        </Flex>
+          <span style={BODY}>
+            <InlineText text={item} />
+          </span>
+        </li>
       ))}
-    </Stack>
+    </ul>
   );
 }
 
-const CALLOUT: Record<
-  'tip' | 'careful' | 'why',
-  { tone: 'positive' | 'caution' | 'primary'; word: string }
-> = {
-  tip: { tone: 'positive', word: 'Tip' },
-  careful: { tone: 'caution', word: 'Take care' },
-  why: { tone: 'primary', word: 'Why' },
-};
+function Step({ item }: { item: GuideStep }) {
+  return (
+    <span style={{ display: 'grid', gap: 8 }}>
+      <span style={BODY}>
+        <InlineText text={stepText(item)} />
+      </span>
+      {typeof item !== 'string' && item.see && (
+        <span className="ui-muted" style={{ fontSize: 16, lineHeight: 1.55 }}>
+          <strong>What you will see: </strong>
+          <InlineText text={item.see} />
+        </span>
+      )}
+      {typeof item !== 'string' && item.picture && (
+        <span className="ui-muted" style={{ fontSize: 14, lineHeight: 1.5 }}>
+          Picture: {item.picture}
+        </span>
+      )}
+    </span>
+  );
+}
 
 function BlockView({ block, open }: { block: GuideBlock; open: (id: string) => void }) {
   switch (block.kind) {
     case 'h':
-      return (
-        <Box paddingTop={3}>
-          <Heading as="h2" size={2} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
-            {block.text}
-          </Heading>
-        </Box>
-      );
+      return null; // Headings open a section (see sections() below).
     case 'p':
       return (
-        <Text size={3} style={{ lineHeight: 1.6 }}>
-          <RichText text={block.text} />
-        </Text>
+        <p className="ui-p" style={{ ...BODY, margin: 0 }}>
+          <InlineText text={block.text} />
+        </p>
       );
     case 'steps':
-      return <Steps items={block.items} />;
-    case 'bullets':
       return (
-        <Stack as="ul" gap={4} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {block.items.map((item, i) => (
-            <Flex as="li" key={i} gap={3} align="flex-start">
-              <span
-                aria-hidden
-                style={{
-                  background: HEIRLOOM.claret,
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  flexShrink: 0,
-                  marginTop: 10,
-                }}
-              />
-              <Text size={3} style={{ lineHeight: 1.55 }}>
-                <RichText text={item} />
-              </Text>
-            </Flex>
+        <StepPath
+          items={block.items.map((item, i) => (
+            <Step key={i} item={item} />
           ))}
-        </Stack>
+        />
       );
+    case 'bullets':
+      return <Bullets items={block.items} />;
     case 'path':
       return <TakeMeThere label={block.label} detail={block.detail} to={block.to} />;
     case 'callout': {
       const c = CALLOUT[block.tone];
       return (
-        <Card tone={c.tone} padding={4} radius={3} border>
-          <Stack gap={3}>
-            <Text size={2} weight="semibold">
-              {block.title ? `${c.word}: ${block.title}` : c.word}
-            </Text>
-            <Text size={3} style={{ lineHeight: 1.55 }}>
-              <RichText text={block.text} />
-            </Text>
-          </Stack>
-        </Card>
+        <KitNotice tone={c.tone} title={block.title ? `${c.word}: ${block.title}` : c.word}>
+          <span style={BODY}>
+            <InlineText text={block.text} />
+          </span>
+        </KitNotice>
       );
     }
-    case 'seealso': {
-      const guides = block.ids.map(guideById).filter((g): g is Guide => Boolean(g));
-      if (!guides.length) return null;
-      return (
-        <Stack gap={3} paddingTop={2}>
-          <Text size={2} weight="semibold">
-            See also
-          </Text>
-          <Flex gap={2} wrap="wrap">
-            {guides.map((g) => (
-              <Button
-                key={g.id}
-                text={g.title}
-                mode="ghost"
-                fontSize={2}
-                padding={3}
-                onClick={() => open(g.id)}
-              />
-            ))}
-          </Flex>
-        </Stack>
-      );
-    }
+    case 'seealso':
+      return <SeeAlso ids={block.ids} open={open} />;
     default:
       return null;
   }
+}
+
+function SeeAlso({ ids, open }: { ids: string[]; open: (id: string) => void }) {
+  const guides = ids.map(guideById).filter((g): g is Guide => Boolean(g));
+  if (!guides.length) return null;
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+        gap: 14,
+      }}
+    >
+      {guides.map((g) => (
+        <KitCard
+          key={g.id}
+          title={g.title}
+          lead={g.summary}
+          meaning={GUIDE_MEANINGS[g.icon]}
+          onClick={() => open(g.id)}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** Splits a guide's blocks at each heading, so every heading's section carries its rule. */
+function sections(blocks: GuideBlock[]) {
+  const out: { h?: string; blocks: GuideBlock[] }[] = [{ blocks: [] }];
+  for (const b of blocks) {
+    if (b.kind === 'h') out.push({ h: b.text, blocks: [] });
+    else if (b.kind === 'seealso') out.push({ h: 'See also', blocks: [b] });
+    else out[out.length - 1].blocks.push(b);
+  }
+  return out.filter((s) => s.h || s.blocks.length);
+}
+
+function Section({
+  heading,
+  compact,
+  children,
+}: {
+  heading?: string;
+  compact?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <section style={{ display: 'grid', gap: compact ? 16 : 22 }}>
+      {heading && (
+        <div style={{ display: 'grid', gap: 14 }}>
+          <SectionRule />
+          <h2 className="ui-h2" style={compact ? { fontSize: 22 } : undefined}>
+            {heading}
+          </h2>
+        </div>
+      )}
+      {children}
+    </section>
+  );
 }
 
 // ── The printed copy ──────────────────────────────────────────────────────────
@@ -407,60 +343,56 @@ function PrintableGuide({ guide }: { guide: Guide }) {
 
 // ── One guide ─────────────────────────────────────────────────────────────────
 
-/** The guide itself: title, badge, summary, "have ready" and the steps. */
-function GuideBody({ guide, open }: { guide: Guide; open: (id: string) => void }) {
+/** The guide itself: the banner (title, summary, badge, time, cost), "have ready" and the steps. */
+function GuideBody({
+  guide,
+  open,
+  compact = false,
+}: {
+  guide: Guide;
+  open: (id: string) => void;
+  compact?: boolean;
+}) {
   return (
-    <Stack gap={5}>
-      <Stack gap={4}>
-        <Flex align="center" gap={3}>
-          <IconChip guide={guide} />
-          <Heading as="h2" size={4} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
-            {guide.title}
-          </Heading>
-        </Flex>
-        <Flex gap={3} align="center" wrap="wrap">
-          <BadgeChip badge={guide.badge} large />
-          <Text size={2} muted>
-            {guide.time}
-          </Text>
-        </Flex>
-        <Text size={3} style={{ lineHeight: 1.6 }}>
-          {guide.summary}
-        </Text>
+    <KitScope>
+      <article style={{ display: 'grid', gap: compact ? 28 : 40 }}>
+        <PageBanner
+          compact={compact}
+          eyebrow={compact ? undefined : `Site Guide · ${guide.category}`}
+          title={guide.title}
+          lead={guide.summary}
+          meaning={GUIDE_MEANINGS[guide.icon]}
+          foot={
+            <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+              <StoneTag tone={BADGE_TONE[guide.badge]} onDark>
+                {guide.badge}
+              </StoneTag>
+              <StoneTag tone="plain" onDark>
+                {guide.time}
+              </StoneTag>
+            </span>
+          }
+        />
         {guide.cost && (
-          <Text size={2} style={{ lineHeight: 1.55 }}>
+          <p className="ui-p" style={{ ...BODY, margin: 0 }}>
             <strong>What it costs: </strong>
             {guide.cost}
-          </Text>
+          </p>
         )}
-      </Stack>
-      {guide.before?.length ? (
-        <Card padding={4} radius={3} border style={{ background: HEIRLOOM.paper }}>
-          <Stack gap={4}>
-            <Text size={2} weight="semibold">
-              Before you start, have ready
-            </Text>
-            <Stack as="ul" gap={3} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-              {guide.before.map((b, i) => (
-                <Flex as="li" key={i} gap={3}>
-                  <Text size={3} aria-hidden>
-                    ☐
-                  </Text>
-                  <Text size={3} style={{ lineHeight: 1.5 }}>
-                    <RichText text={b} />
-                  </Text>
-                </Flex>
-              ))}
-            </Stack>
-          </Stack>
-        </Card>
-      ) : null}
-      <Stack gap={5}>
-        {guide.blocks.map((block, i) => (
-          <BlockView key={i} block={block} open={open} />
+        {guide.before?.length ? (
+          <KitNotice tone="tip" title="Before you start, have ready">
+            <Bullets items={guide.before} />
+          </KitNotice>
+        ) : null}
+        {sections(guide.blocks).map((s, i) => (
+          <Section key={i} heading={s.h} compact={compact}>
+            {s.blocks.map((b, j) => (
+              <BlockView key={j} block={b} open={open} />
+            ))}
+          </Section>
         ))}
-      </Stack>
-    </Stack>
+      </article>
+    </KitScope>
   );
 }
 
@@ -473,17 +405,20 @@ function GuidePage({
   back: () => void;
   open: (id: string) => void;
 }) {
+  const backButton = (
+    <Button
+      icon={ArrowLeftIcon}
+      text="Back to all guides"
+      mode="ghost"
+      fontSize={2}
+      padding={4}
+      onClick={back}
+    />
+  );
   return (
-    <Stack gap={5}>
+    <div style={{ display: 'grid', gap: 28 }}>
       <Flex gap={3} wrap="wrap">
-        <Button
-          icon={ArrowLeftIcon}
-          text="Back to all guides"
-          mode="ghost"
-          fontSize={2}
-          padding={4}
-          onClick={back}
-        />
+        {backButton}
         <Button
           text="Print this guide"
           mode="ghost"
@@ -493,39 +428,31 @@ function GuidePage({
         />
       </Flex>
       <GuideBody guide={guide} open={open} />
-      <Flex>
-        <Button
-          icon={ArrowLeftIcon}
-          text="Back to all guides"
-          mode="ghost"
-          fontSize={2}
-          padding={4}
-          onClick={back}
-        />
-      </Flex>
+      <Flex>{backButton}</Flex>
       {typeof document !== 'undefined' &&
         createPortal(<PrintableGuide guide={guide} />, document.body)}
-    </Stack>
+    </div>
   );
 }
 
 /**
  * One guide on its own, for the kit's "Help for this page" panel beside each
- * document (starter PORTS.md card 110; kitConfig.guide.view). A "See also"
- * button switches to that guide in place.
+ * document (starter PORTS.md cards 110 and 128; kitConfig.guide.view). The
+ * panel passes variant 'panel', drawn compact. A "See also" card switches to
+ * that guide in place.
  */
-export function makeGuideView(slug: string): ComponentType {
-  return function OneGuide() {
+export function makeGuideView(slug: string): ComponentType<GuideViewProps> {
+  return function OneGuide({ variant = 'page', onOpen }: GuideViewProps) {
     const [id, setId] = useState(slug);
     const guide = guideById(id);
     if (!guide) {
       return (
-        <Text size={2} muted>
+        <p style={{ fontSize: 16, margin: 0 }}>
           That guide has moved. Open the Site Guide to find it.
-        </Text>
+        </p>
       );
     }
-    return <GuideBody guide={guide} open={setId} />;
+    return <GuideBody guide={guide} open={onOpen ?? setId} compact={variant === 'panel'} />;
   };
 }
 
@@ -533,44 +460,45 @@ export function makeGuideView(slug: string): ComponentType {
 
 function GuideRow({ guide, open }: { guide: Guide; open: (id: string) => void }) {
   return (
-    <Card
-      as="button"
-      type="button"
+    <KitCard
+      title={guide.title}
+      lead={
+        <>
+          {guide.summary}
+          <span
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: 8,
+              marginTop: 10,
+            }}
+          >
+            <StoneTag tone={BADGE_TONE[guide.badge]}>{guide.badge}</StoneTag>
+            <span style={{ fontSize: 14 }}>{guide.time}</span>
+          </span>
+        </>
+      }
+      meaning={GUIDE_MEANINGS[guide.icon]}
       onClick={() => open(guide.id)}
-      padding={4}
-      radius={3}
-      border
-      style={{ textAlign: 'left', width: '100%', background: HEIRLOOM.paper, cursor: 'pointer' }}
-    >
-      <Flex gap={3} align="flex-start">
-        <IconChip guide={guide} size={40} />
-        <Stack gap={3} style={{ flex: 1 }}>
-          <Text size={3} weight="semibold" style={{ color: HEIRLOOM.ink }}>
-            {guide.title}
-          </Text>
-          <Text size={2} muted style={{ lineHeight: 1.5 }}>
-            {guide.summary}
-          </Text>
-          <Flex gap={3} align="center" wrap="wrap">
-            <BadgeChip badge={guide.badge} />
-            <Text size={1} muted>
-              {guide.time}
-            </Text>
-          </Flex>
-        </Stack>
-      </Flex>
-    </Card>
+    />
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** Guide cards, two across when there is room. */
+function Rows({ guides, open }: { guides: Guide[]; open: (id: string) => void }) {
   return (
-    <Stack gap={3}>
-      <Heading as="h2" size={2} style={{ fontFamily: HEADING_STACK, color: HEIRLOOM.ink }}>
-        {title}
-      </Heading>
-      {children}
-    </Stack>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: 14,
+      }}
+    >
+      {guides.map((g) => (
+        <GuideRow key={g.id} guide={g} open={open} />
+      ))}
+    </div>
   );
 }
 
@@ -592,47 +520,47 @@ export function GuideView({ guides = ALL_GUIDES }: { guides?: Guide[] }) {
       {guide ? (
         <GuidePage guide={guide} back={() => open(null)} open={open} />
       ) : (
-        <Stack gap={5}>
-          <Stack gap={3}>
-            <Text as="label" htmlFor="mas-guide-search" size={2} weight="semibold">
-              Search the guides
-            </Text>
-            <TextInput
-              id="mas-guide-search"
-              icon={SearchIcon}
-              fontSize={3}
-              padding={4}
-              placeholder="For example: photo, price, phone, sold"
-              value={query}
-              onChange={(e) => setQuery(e.currentTarget.value)}
-              clearButton={query.length > 0}
-              onClear={() => setQuery('')}
-            />
-          </Stack>
-          {query.trim() ? (
-            <Section
-              title={found.length ? `Guides that mention "${query.trim()}"` : 'No guides found'}
-            >
-              {found.length ? (
-                found.map((g) => <GuideRow key={g.id} guide={g} open={open} />)
-              ) : (
-                <Text size={2} muted>
-                  Try a shorter word, such as "photo" or "price".
-                </Text>
-              )}
-            </Section>
-          ) : (
-            guidesByCategory(guides)
-              .filter(([, list]) => list.length > 0)
-              .map(([category, list]) => (
-                <Section key={category} title={category}>
-                  {list.map((g) => (
-                    <GuideRow key={g.id} guide={g} open={open} />
-                  ))}
-                </Section>
-              ))
-          )}
-        </Stack>
+        <KitScope>
+          <div style={{ display: 'grid', gap: 36 }}>
+            <div style={{ display: 'grid', gap: 10 }}>
+              <label htmlFor="mas-guide-search" style={{ fontSize: 16, fontWeight: 700 }}>
+                Search the guides
+              </label>
+              <TextInput
+                id="mas-guide-search"
+                icon={SearchIcon}
+                fontSize={3}
+                padding={4}
+                placeholder="For example: photo, price, phone, sold"
+                value={query}
+                onChange={(e) => setQuery(e.currentTarget.value)}
+                clearButton={query.length > 0}
+                onClear={() => setQuery('')}
+              />
+            </div>
+            {query.trim() ? (
+              <Section
+                heading={found.length ? `Guides that mention "${query.trim()}"` : 'No guides found'}
+              >
+                {found.length ? (
+                  <Rows guides={found} open={open} />
+                ) : (
+                  <p className="ui-p" style={{ ...BODY, margin: 0 }}>
+                    Try a shorter word, such as "photo" or "price".
+                  </p>
+                )}
+              </Section>
+            ) : (
+              guidesByCategory(guides)
+                .filter(([, list]) => list.length > 0)
+                .map(([category, list]) => (
+                  <Section key={category} heading={category}>
+                    <Rows guides={list} open={open} />
+                  </Section>
+                ))
+            )}
+          </div>
+        </KitScope>
       )}
     </div>
   );
