@@ -280,3 +280,10 @@ list`); post-bump sign-in check (Nathan, on staging, 2026-09-06); `sanity.types.
 - 2026-10-04: Redesign day closed: quote email via Cloudflare Email Service, Turnstile, hotspots on all
   76 images, label fields seeded, logo/header/footer rework, parity baselines re-captured for Direction D,
   44px tap targets (PORTS cards 82, 83).
+
+- **Studio as a phone app and Earlier versions (starter cards 125, copied 2026-10-19).** The files are in, and the
+  Studio can be installed from `/studio/` (icon `public/icon-maskable-512.png`, drawn from `favicon.svg` on white).
+  Earlier versions is OFF (`features.earlierVersions: false` in `src/sanity/kit.config.ts`): it needs the nightly
+  backups, `SANITY_API_WRITE_TOKEN` and `SANITY_PROJECT_ID` in the repo and a `GITHUB_DEPLOY_TOKEN` on the Worker,
+  none of which exist here. Turn it on once they do. "Post a photo" (`kitConfig.postPhoto`) is not configured.
+  Not checked on a real phone.

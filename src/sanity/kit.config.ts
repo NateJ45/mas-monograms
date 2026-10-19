@@ -404,6 +404,8 @@ export const kitConfig: KitConfig = {
   liveSlowAfterMinutes: 15,
 
   features: {
+    // Earlier versions (card 125) needs the nightly backups and a GitHub token on the Worker: off until set up.
+    earlierVersions: false,
     home: true,
     guide: true,
     checkup: true,
