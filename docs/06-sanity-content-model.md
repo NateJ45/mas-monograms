@@ -40,8 +40,7 @@ Spec: `docs/superpowers/specs/2026-10-05-studio-direction.md`. What changed in t
   `makerPhoto`, which is set), `styleGalleryPage.additionalFilterTags`, 21 old `requestAQuotePage` labels
   (`emailHelp`, `phoneHelp`, `itemTypeOtherLabel`, `monogramDetails*`, `placementLabel/Placeholder/Help`,
   `fontPreferenceGuideLinkLabel`, `fontPreferenceOtherLabel`, `colorPreference*`, `fileUpload*`,
-  `specialInstructions*`, `errorMessage`), `notFoundPage.body` (`404.astro` reads an undeclared `subhead`;
-  see `docs/PENDING.md`), `siteSettings.standardTurnaround` / `rushOrdersAvailable` / `rushTurnaround`
+  `specialInstructions*`, `errorMessage`), `siteSettings.standardTurnaround` / `rushOrdersAvailable` / `rushTurnaround`
   (`googleBusinessUrl` was hidden too, and unhidden the same day by the Get found site pass),
   `itemCategory.featured`, `threadColor.swatchImage`, `pricingTier.minQuantity` /
   `maxQuantity`, `clearanceItem.featured`. A hidden field is still queried where it was; unhide it in the same

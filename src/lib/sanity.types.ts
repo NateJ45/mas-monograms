@@ -288,13 +288,13 @@ export type NotFoundPage = {
   _updatedAt: string;
   _rev: string;
   headline?: string;
+  body?: string;
   primaryCtaLabel?: string;
   primaryCtaHref?: string;
   secondaryCtaLabel?: string;
   secondaryCtaHref?: string;
   seoTitle?: string;
   seoDescription?: string;
-  body?: string;
 };
 
 export type AtelierSettings = {
