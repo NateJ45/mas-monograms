@@ -143,11 +143,7 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: code work queued
 
-- **Studio complete, Phase B (2026-10-19, branch `feat/studio-complete-b`): code done, media left.** Card 137 resynced,
-  tours wired (`src/sanity/studio-tours.ts`), Quick update has Mark sold, Change a price, Change a clearance price and a
-  Messages link. Left: check tour anchors in the harness (plan doc, "Tour anchors"), capture the shot keys still drawing
-  the wireframe, record the five scripts in `tools/tutorial-videos/scripts/` (with music, under the build lock),
-  register them in `src/sanity/guides/videos.ts`, put them on the guides.
+- **Studio complete, Phase B (2026-10-19, branch `feat/studio-complete-b`): code, four videos and the shots done; signed-in checks left.** Card 137 resynced, tours wired (`src/sanity/studio-tours.ts`), Quick update has Mark sold, Change a price, Change a clearance price and a Messages link. Recorded with the pipeline and checked frame by frame: `change-a-price`, `order-deadline`, `away-notice` (registered in `src/sanity/guides/videos.ts`, on their guides and Home's row). `clearance-sold` was recorded and held back: the Quick update Sold checkbox draws no visible box in the harness (kit file, starter fix), so "Tick Sold" would show nothing to tick; re-record once that is fixed (script is in place). `photo-from-phone` is not recorded (the photo picker cannot upload while writes are refused). Left, needs a signed-in Studio: run the tours on her real account, the Messages tour stop and `messages-list` picture (they need real messages), and the `clearance-sold-switch`, `price-tag-form`, `publish-button` and `notice-templates` pictures (captured: `photo-new-form`, `clearance-new-form`, `question-form`).
 
 - **Starter card 128 (Studio design language) adopted 2026-10-19; left: signed-in checks and real guide
   pictures.** `brand/brand.config.json` `studio.look` names her devices (gold cross-stitch marker, round claret

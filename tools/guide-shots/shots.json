@@ -1,13 +1,36 @@
 {
   "base": "http://localhost:4321/kit-harness/studio",
-  "viewport": { "width": 1280, "height": 800 },
+  "viewport": {
+    "width": 1280,
+    "height": 800
+  },
   "shots": [
     {
       "key": "quick-update-list",
       "path": "/quick-update",
       "waitFor": "[data-tour=\"quick-list\"]",
       "clip": "[data-tour=\"quick-list\"]",
-      "measure": { "Pick the job you want to do.": "[data-quick=\"banner-message\"]" }
+      "measure": {
+        "Pick the job you want to do.": "[data-quick=\"banner-message\"]"
+      }
+    },
+    {
+      "key": "photo-new-form",
+      "path": "/intent/create/template=new-photo;type=galleryItem/",
+      "waitFor": "[data-testid=\"document-panel-scroller\"]",
+      "clip": "[data-testid=\"document-panel-scroller\"]"
+    },
+    {
+      "key": "clearance-new-form",
+      "path": "/intent/create/template=clearanceItem;type=clearanceItem/",
+      "waitFor": "[data-testid=\"document-panel-scroller\"]",
+      "clip": "[data-testid=\"document-panel-scroller\"]"
+    },
+    {
+      "key": "question-form",
+      "path": "/intent/create/template=faqItem;type=faqItem/",
+      "waitFor": "[data-testid=\"document-panel-scroller\"]",
+      "clip": "[data-testid=\"document-panel-scroller\"]"
     }
   ]
 }

@@ -260,6 +260,7 @@ export const weekAndSeasonGuides: Guide[] = [
     summary:
       'Tell customers the last day to order for Christmas, Mother’s Day, graduation or a wedding, across the top of every page. It comes down by itself.',
     time: 'About 2 minutes',
+    video: 'order-deadline',
     blocks: [
       {
         kind: 'steps',
@@ -297,6 +298,7 @@ export const weekAndSeasonGuides: Guide[] = [
     summary:
       'A vacation or a very busy week: a notice across the top says when you are back, so nobody thinks their request was lost.',
     time: 'About 2 minutes',
+    video: 'away-notice',
     blocks: [
       {
         kind: 'steps',
