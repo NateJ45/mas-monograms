@@ -5,7 +5,7 @@
 // =============================================================================
 // Since 2026-10-18 the Studio's theme is the shared kit's (src/sanity/
 // studioTheme.ts, starter PORTS.md cards 110 and 116): the brand accent and a
-// warm paper from brand/brand.config.json, the Indigo Deep top bar, the site's
+// warm paper from brand/brand.config.json, the Midnight top bar, the site's
 // Fraunces and Mulish. It replaced the old buildLegacyTheme() here, which was
 // light-only and could not take the brand fonts.
 //

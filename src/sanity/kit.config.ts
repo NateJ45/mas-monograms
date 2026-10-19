@@ -329,10 +329,15 @@ export const kitConfig: KitConfig = {
     },
   ],
 
-  // Home's banner: the Indigo Deep welcome with her Hoop Seal (the version made
-  // for dark grounds), the golden thread sewn along the foot ending at a
-  // needle, her name in thread gold and "Monograms" in Petemoss, the script the
-  // site uses for its accents, in the thread golds.
+  // Home's banner, drawn from the site (scripts/gen-studio-art.mjs): the
+  // Midnight of the site's header and hero, her Hoop Seal (the version made for
+  // dark grounds), and along the foot the Midnight weave, the header's running-
+  // stitch hem in thread gold with her "x" stitches, running into the hero's
+  // gilded hoop with her letters stitched in it and its claret thread falling
+  // away. "Monograms" is set in the site's own swash italic (the "made just for
+  // you." of the Home hero, src/assets/fonts/fraunces-swash-italic.woff2), its
+  // letters stepping through the thread-gold ramp (--thread-gold) as the site's
+  // gold text does.
   homeBanner: {
     markOnDark: '/brand/seal-dark.svg',
     motif: '/studio-banner/thread.svg',
@@ -340,9 +345,19 @@ export const kitConfig: KitConfig = {
     accent: '#F0D58A',
     lettering: {
       text: 'Monograms',
-      family: 'Petemoss',
-      src: '/studio-banner/petemoss.woff2',
-      colors: ['#F0D58A', '#D9B15F', '#F4EEE3'],
+      family: 'MAS Fraunces Swash',
+      src: '/studio-banner/fraunces-swash.woff2',
+      colors: [
+        '#C9A04F',
+        '#D9B15F',
+        '#E4C373',
+        '#F0D58A',
+        '#F0D58A',
+        '#E4C373',
+        '#D9B15F',
+        '#C9A04F',
+        '#B98A3E',
+      ],
     },
   },
 

@@ -38,7 +38,7 @@ generate`), not from a `studio/` workspace.
   the repo root; `sanity.cli.ts` configures it. Do **not** run `npx sanity deploy`.
   The Studio theme is the shared kit's since 2026-10-18 (starter cards 110 and 116,
   `src/sanity/studioTheme.ts` PORTABLE, from `brand/brand.config.json`: Heritage Indigo accent, Paper,
-  the Indigo Deep top bar, Fraunces and Mulish), with Mary Ann's larger type built in by
+  the Midnight top bar (the site header's ground, since the 2026-10-19 art pass), Fraunces and Mulish), with Mary Ann's larger type built in by
   `src/sanity/readableTheme.ts` (the 1.2x ramp from `src/sanity/theme.ts`, tested by
   `src/lib/studio-readable.test.ts`). The kit's colour gate is `studio-theme.test.ts` (PORTABLE).
 - **Mary Ann's Studio on the shared kit (2026-10-18; built for her 2026-10-05, Phase A to F, spec
