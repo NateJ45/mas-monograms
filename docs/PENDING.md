@@ -149,7 +149,7 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
   along banner feet, the Midnight weave on featured panels, banner titles in the swash italic in thread gold).
   Her Site Guide (`HelpPane` + `GuideView`, her own richer guide format) is drawn in the kit's pieces
   (`src/sanity/kit/ui/`); guide icons are registry meanings (`GUIDE_MEANINGS` in `src/sanity/guides/iconNames.ts`).
-  "View the website" on Home's banner wears her site's paper-patch button (`src/sanity/studioArt.css`), and
+  "View the website" on Home's banner wears her site's paper-patch button (`homeBanner.style.chip`, shape `stitched`, in `src/sanity/kit.config.ts`; card 135), and
   the /studio splash is her hoop with the name set as her headlines are (`StudioSplashMotif.astro`, in the slot of the shared `StudioSplash.astro`, card 132), with the kit's stone path as its progress; the offline page shares the partial and shows her thread motif.
   Still to do: check the signed-in Studio (Home banner, Site Guide, Help for this page) in a real browser; the
   kit's own `/kit-harness/guide/` view reads the kit's guide shape, not hers, so use `/kit-harness/studio/site-guide`.
