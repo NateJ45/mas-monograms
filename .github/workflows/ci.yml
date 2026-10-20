@@ -171,7 +171,10 @@ jobs:
         # project id is absent (src/lib/sanity.ts), which is what makes a
         # credential-less CI build meaningful rather than a smoke screen. Since
         # 2026-08-28 this ALSO builds the embedded Studio at /studio.
-        run: npm run build
+        # Wrapped in scripts/snapshot.mjs (PORTS.md card 138): with no Sanity project it
+        # just runs the build; with one it would serve a pinned content snapshot, never
+        # the live dataset, so a client edit in the Studio cannot turn CI red.
+        run: node scripts/snapshot.mjs run -- npm run build
 
       # The preview route's LOCAL `?dev-draft=1` switch (drafts without the
       # Studio cookie, for agents and screenshots against `astro dev`) sits

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { writeFileSync } from 'node:fs';
 import { createClient } from '@sanity/client';
 import { loadEnv } from './lib/loadEnv.mjs';
+import { snapshotClientOptions } from './snapshot.mjs';
 import { renderCard } from './lib/og-card.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,6 +25,8 @@ const client = createClient({
   apiVersion: env.PUBLIC_SANITY_API_VERSION ?? '2026-05-01',
   useCdn: true,
   perspective: 'published',
+  // CI reads a pinned snapshot (PORTS.md card 138); empty unless SANITY_SNAPSHOT_URL is set.
+  ...snapshotClientOptions(process.env),
 });
 
 // Page singletons and their routes. The headline is the page's own hero headline (and its

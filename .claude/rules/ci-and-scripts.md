@@ -85,3 +85,9 @@ scripts/with-workerd.mjs astro build"`, 2026-08-28). It works around a Windows
 - `.claude/settings.json` (deny rules for `git reset --hard` and force pushes) is PORTABLE
   from the starter (card 71). Change it there and pull forward; `sync-check` reports drift.
   `.claude/settings.local.json` stays per-machine and uncommitted.
+
+## CI and live content (starter card 138, 2026-10-19)
+
+- `scripts/snapshot.mjs` (PORTABLE) serves a committed `ci/sanity-snapshot.ndjson.gz` as a local Sanity query server and runs a command against it (`run -- <cmd>`); `export` refreshes the file from the live dataset. `src/lib/sanity.ts`, `generate-llms-full.mjs` and `generate-og-pages.mjs` honour `SANITY_SNAPSHOT_URL`; production deploys never set it and read live.
+- MAS CI is credential-less, so nothing is pinned today and `ci/sanity-snapshot.ndjson.gz` does not exist. The wrapper is in place so the family stays uniform and a future CI that reads Sanity cannot go red on a client edit.
+- `.github/workflows/live-watch.yml` runs `scripts/live-watch.mjs` daily against `SITE_URL` (sitemap pages and links). It is not a required check and never runs on a PR; a red run mails the owner. A finding means content moved: fix a redirect or restore a page, never revert the client.

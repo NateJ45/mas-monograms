@@ -65,7 +65,7 @@ jobs:
       # Credential-less, like ci.yml: the fixed pages render their empty-state
       # fallbacks and the embedded Studio shell builds alongside them.
       - name: Build
-        run: npm run build
+        run: node scripts/snapshot.mjs run -- npm run build
 
       # Accessibility is a hard gate (minScore 1) in lighthouserc.json, as are
       # LCP 4500ms and CLS 0.1; performance / best-practices / SEO are
