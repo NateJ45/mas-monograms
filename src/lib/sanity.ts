@@ -72,6 +72,7 @@ const apiVersion =
   clean(proc.PUBLIC_SANITY_API_VERSION) ??
   '2026-05-01';
 const readToken = clean(import.meta.env.SANITY_API_READ_TOKEN) ?? clean(proc.SANITY_API_READ_TOKEN);
+const snapshotUrl = clean(import.meta.env.SANITY_SNAPSHOT_URL) ?? clean(proc.SANITY_SNAPSHOT_URL);
 
 /** Returns true when no real Sanity project has been configured. */
 const PLACEHOLDER_IDS = new Set(['', 'your-project-id', 'placeholder']);
@@ -117,6 +118,14 @@ export const client: SanityClient = createClient({
   useCdn: true,
   perspective: 'published',
   ...(readToken ? { token: readToken } : {}),
+  // CI builds from a pinned content snapshot served on 127.0.0.1, never the live
+  // dataset (PORTS.md card 138, scripts/snapshot.mjs): a client edit in the Studio
+  // must not be able to turn CI red. Unset everywhere else, so production builds,
+  // dev and scripts read the live dataset exactly as before. Inlined here (not
+  // imported from scripts/) because this module also ships to the browser.
+  ...(snapshotUrl
+    ? { apiHost: snapshotUrl, useProjectHostname: false, useCdn: false, token: undefined }
+    : {}),
 });
 
 /**
