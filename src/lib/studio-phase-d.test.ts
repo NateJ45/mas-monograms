@@ -123,8 +123,11 @@ test('the Trash words she reads use no jargon and no em-dash', () => {
 
 test('the desk lists the Trash under her words, and the safety net never does', () => {
   const desk = read('../sanity/structure.ts');
-  assert.match(desk, /\.id\(DESK\.trash\)/);
-  assert.match(desk, /\.title\('Trash \(bring things back\)'\)/);
+  // Since card 146 the desk's Trash item is the kit's trashListItem() (id 'trash', her title).
+  assert.match(desk, /trashListItem\(S, context, brandIcon\('trash'\)\)/);
+  const kitTrash = read('../sanity/kit/trash.tsx');
+  assert.match(kitTrash, /\.id\('trash'\)/);
+  assert.match(kitTrash, /\.title\('Trash \(bring things back\)'\)/);
   assert.match(desk, /\n  TRASH_TYPE,\n/); // in PLACED
   assert.equal(DESK.trash, 'trash'); // the kit's Checkup links to the pane 'trash'
 });
