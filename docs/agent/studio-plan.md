@@ -118,3 +118,7 @@ Checked 2026-10-19 in the local harness (phone and desk widths): the Home hooks,
 - A seasonal reminder on Home ("Christmas deadline in 3 weeks: put up an order deadline?") driven by a date list in
   kit.config.ts.
 - Quick update "Add a clearance item" with a photo, price and Stripe link, once the kit has an image field kind.
+
+## The Studio's own look (2026-10-19)
+
+Her devices in `brand/brand.config.json` `studio.look` vary in form, not only colour: a cross-stitch marker, a running-stitch connector that draws itself, the Midnight weave and thread motif on banners, swash lettering, and (since 2026-10-19) lozenge stones, the diamond of a monogram frame or a quilted tile, in four thread colours (claret, indigo, deep gold, sage) for the numbered steps and the status line. `npm run check:look` reports no neutral devices. Checked at 1280, 375 and 320 wide in the local harness with no sideways scroll.

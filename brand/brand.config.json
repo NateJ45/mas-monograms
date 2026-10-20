@@ -97,8 +97,8 @@
         "height": 12
       },
       "headingColor": "#28486B",
-      "markColors": ["#8C3A2E"],
-      "stone": "round",
+      "markColors": ["#8C3A2E", "#28486B", "#8A6420", "#2F6B5E"],
+      "stone": "lozenge",
       "connector": {
         "kind": "dashes",
         "color": "#8C3A2E"
