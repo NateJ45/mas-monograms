@@ -28,10 +28,10 @@
     {
       "do": "ring",
       "target": "[data-tour=\"quick-field-sold\"]",
-      "caption": "Tick Sold.",
+      "caption": "Turn Sold on.",
       "ms": 2200
     },
-    { "do": "click", "target": "[data-tour=\"quick-field-sold\"] input", "ms": 800 },
+    { "do": "click", "target": "[data-tour=\"quick-field-sold\"] [role=\"switch\"]", "ms": 800 },
     {
       "do": "ring",
       "target": "[data-tour=\"quick-submit\"]",

@@ -1056,6 +1056,7 @@ const coreGuides: Guide[] = [
     summary:
       'When the last one goes, turn on Sold. The item stays on the page with a Sold badge and the Buy button goes away.',
     time: 'About 1 minute',
+    video: 'clearance-sold',
     blocks: [
       {
         kind: 'steps',

@@ -30,6 +30,16 @@ export const GUIDE_VIDEOS: Record<string, GuideVideoData> = {
   //   width: 1280,
   //   height: 800,
   // },
+  'clearance-sold': {
+    title: 'Mark a clearance item sold',
+    src: '/guide-videos/clearance-sold.mp4',
+    webm: '/guide-videos/clearance-sold.webm',
+    poster: '/guide-videos/clearance-sold.jpg',
+    captions: '/guide-videos/clearance-sold.vtt',
+    duration: 24,
+    width: 390,
+    height: 844,
+  },
   'change-a-price': {
     title: 'Change a price',
     src: '/guide-videos/change-a-price.mp4',

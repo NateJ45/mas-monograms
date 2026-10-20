@@ -1,6 +1,6 @@
 # Studio tutorial videos: the scripts
 
-Written 2026-10-19 (studio-complete, Phase A). Recorded 2026-10-19 (Phase B): `change-a-price`, `order-deadline`, `away-notice` (`clearance-sold` recorded but held back until the Quick update Sold checkbox shows a visible box; the rest are still scripts). Recorded in Phase B with the kit's tutorial-video pipeline (starter
+Written 2026-10-19 (studio-complete, Phase A). Recorded 2026-10-19 (Phase B): `clearance-sold`, `change-a-price`, `order-deadline`, `away-notice` (`clearance-sold` recorded 2026-10-20 with the switch from card 141; the rest are still scripts). Recorded in Phase B with the kit's tutorial-video pipeline (starter
 card 137: Playwright against the local Studio with sample data, captions burned in, mp4 and webm, every caption frame
 checked). Each finished clip goes in `public/guide-videos/`, is registered in `src/sanity/guides/videos.ts` and named by the guide's `video` field
 (`src/sanity/guides/`), which puts it in "Watch how it is done" on Home and in the Site Guide.
