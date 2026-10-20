@@ -50,6 +50,7 @@ import { BrandKitPane } from './components/BrandKitPane';
 import StudioPlaybook from './components/StudioPlaybook';
 import { staffDesk } from './kit/shared';
 import { emptyAwareList } from './kit/emptyList';
+import { trashListItem } from './kit/trash';
 import { kitConfig } from './kit.config';
 import { brandIcon, typeIcon } from './brandIcons';
 import { tableListItem } from './workflow';
@@ -460,19 +461,8 @@ const fullDesk = (S: StructureBuilder, context: StructureResolverContext) =>
       // Everything "Move to Trash" took off the website, the most recent first.
       // Open one and press "Bring it back". "Delete forever" is only here, and
       // asks twice. No "+" button: things only arrive here from Move to Trash.
-      S.listItem()
-        .id(DESK.trash)
-        .title('Trash (bring things back)')
-        .icon(typeIcon(TRASH_TYPE))
-        .child(
-          S.documentTypeList('trashedItem')
-            .id('trash-list')
-            .title('Trash: open one and press "Bring it back"')
-            .defaultOrdering([{ field: 'deletedAt', direction: 'desc' }])
-            .initialValueTemplates([])
-            .canHandleIntent((intent) => intent === 'edit')
-            .menuItems([]),
-        ),
+      // An empty Trash shows a page of its own instead of a bare list (card 146).
+      trashListItem(S, context, brandIcon('trash')),
 
       // ── Safety net ──────────────────────────────────────────────────────────
       // Any type NOT placed above surfaces here under its own (plain) schema

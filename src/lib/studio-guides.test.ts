@@ -245,6 +245,8 @@ function studioNames(): Set<string> {
   add(/confirmButtonText: '([^']+)'/g, KIT_TRASH);
   add(/export const SHARE_LABEL = '([^']+)'/g, read('../sanity/lib/previewable.ts'));
   add(/addLabel: '([^']+)'/g, STRUCTURE);
+  // The desk's Trash item is the kit's trashListItem() since card 146.
+  add(/\.title\('(Trash \(bring things back\))'\)/g, KIT_TRASH);
   // Quick update's "Post a photo" (kit PostPhoto.tsx) and the Messages labels
   // (lib/studio-messages.ts), checked against their source so a rename fails here.
   for (const [file, words] of [

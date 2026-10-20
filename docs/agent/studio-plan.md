@@ -122,3 +122,7 @@ Checked 2026-10-19 in the local harness (phone and desk widths): the Home hooks,
 ## The Studio's own look (2026-10-19)
 
 Her devices in `brand/brand.config.json` `studio.look` vary in form, not only colour: a cross-stitch marker, a running-stitch connector that draws itself, the Midnight weave and thread motif on banners, swash lettering, and (since 2026-10-19) lozenge stones, the diamond of a monogram frame or a quilted tile, in four thread colours (claret, indigo, deep gold, sage) for the numbered steps and the status line. `npm run check:look` reports no neutral devices. Checked at 1280, 375 and 320 wide in the local harness with no sideways scroll.
+
+## Starter cards 141 to 146 (synced 2026-10-20)
+
+Quick update's yes/no is a visible switch (141); date fields carry the How-to chip (142); photos can go onto a document's own list (143); Home is a full-width dashboard with a status rail (145); and an empty Trash has a page of its own: the desk's Trash item in `src/sanity/structure.ts` is `trashListItem(S, context, brandIcon('trash'))` (146).
