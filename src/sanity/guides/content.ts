@@ -326,6 +326,7 @@ const coreGuides: Guide[] = [
     summary:
       'Each price on your Pricing page is its own small price tag that you can open and change.',
     time: 'About 2 minutes',
+    video: 'change-a-price',
     blocks: [
       {
         kind: 'steps',

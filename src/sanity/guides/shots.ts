@@ -100,6 +100,29 @@ export const GUIDE_SHOTS: Record<string, GuideShotData> = {
       { kind: 'ring', x: 4, y: 95, w: 92, h: 5 },
     ],
   },
+  'photo-new-form': {
+    src: '/guide-shots/photo-new-form.webp',
+    alt: 'A new Photo of my work in the editor: the Photo box with its Upload button, and the box to describe the photo in a few words.',
+    width: 654,
+    height: 548,
+    marks: [{ kind: 'stone', x: 90, y: 66, label: 'Press Upload and choose your photo.' }],
+  },
+  'clearance-new-form': {
+    src: '/guide-shots/clearance-new-form.webp',
+    alt: 'A new Clearance item in the editor: the name of the item and, below it, the Sold switch that takes the Buy button away.',
+    width: 856,
+    height: 548,
+    marks: [{ kind: 'stone', x: 19, y: 81, label: 'Turn Sold on when it sells.' }],
+  },
+  'question-form': {
+    src: '/guide-shots/question-form.webp',
+    alt: 'A new Question and answer in the editor: a box for the question and a box for the answer with a small toolbar.',
+    width: 654,
+    height: 548,
+    marks: [
+      { kind: 'stone', x: 90, y: 61, label: 'Type the question the way a customer would ask it.' },
+    ],
+  },
   // 'publish-button': {
   //   src: '/guide-shots/publish-button.webp',
   //   alt: 'The bottom right of the editor, with the Publish button in the corner.',

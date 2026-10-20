@@ -1,8 +1,8 @@
 # Studio tutorial videos: the scripts
 
-Written 2026-10-19 (studio-complete, Phase A). Recorded in Phase B with the kit's tutorial-video pipeline (starter
+Written 2026-10-19 (studio-complete, Phase A). Recorded 2026-10-19 (Phase B): `change-a-price`, `order-deadline`, `away-notice` (`clearance-sold` recorded but held back until the Quick update Sold checkbox shows a visible box; the rest are still scripts). Recorded in Phase B with the kit's tutorial-video pipeline (starter
 card 137: Playwright against the local Studio with sample data, captions burned in, mp4 and webm, every caption frame
-checked). Each finished clip goes in `public/guides/<guide id>.mp4` and the guide's `video` field
+checked). Each finished clip goes in `public/guide-videos/`, is registered in `src/sanity/guides/videos.ts` and named by the guide's `video` field
 (`src/sanity/guides/`), which puts it in "Watch how it is done" on Home and in the Site Guide.
 
 Rules for every clip: 1280 wide for the desk, 390 wide for the phone ones; under two minutes; light appearance; the
@@ -20,7 +20,7 @@ Sample data used across clips:
   person's name, email or phone.
 - Dates: a Christmas deadline of December 1, an away week of July 6 to July 12.
 
-## 1. Post a photo from my phone (`photo-from-phone`), 390 wide, about 60 s
+## 1. Post a photo from my phone (`photo-from-phone`), 390 wide, about 60 s (NOT recorded: the photo picker cannot upload while the recorder refuses writes; the guide has a picture instead)
 
 | #   | Shot                                                               | Caption                                                 |
 | --- | ------------------------------------------------------------------ | ------------------------------------------------------- |

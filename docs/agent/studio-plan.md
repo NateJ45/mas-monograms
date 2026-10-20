@@ -69,7 +69,7 @@ brand kit for print. Each has a guide in the Site Guide and a link on Home's "Yo
 | ------------------------- | ---------------------------- | ------------------------------------------ | ----- |
 | The week                  | `my-week`                    | `home-weekly`                              |       |
 | Quick update on the phone | `quick-update`               | `quick-update-tiles`                       | yes   |
-| Photo from the phone      | `photo-from-phone`           | `post-photo-form`                          | yes   |
+| Photo from the phone      | `photo-from-phone`           | `post-photo-form`                          |       |
 | Photo at a computer       | `add-a-photo`                | `photo-new-form`                           | yes   |
 | Quote requests            | `quote-requests`             | `messages-list` (Phase B, sample messages) | yes   |
 | Order deadline            | `order-deadline`             | `deadline-form`                            | yes   |
@@ -110,7 +110,7 @@ Still open:
 
 ## Tour anchors
 
-NOT yet checked against the running Studio (the build lock was held for hours). Home hooks (`home-*`, `navbar-status`), `tool:*` and `quick:<id>` come from the kit's documented list. Unverified guesses: `field:image` and `field:relatedCategory` (Sanity's `field-<path>` test ids) and the `new-photo` template goTo. A stop whose anchor is missing centres itself, so nothing breaks. Check them signed in or with the harness, then delete this paragraph.
+Checked 2026-10-19 in the local harness (phone and desk widths): the Home hooks, `navbar-status`, `quick-list` and every `quick:<id>` resolve, and the photo form carries Sanity's `field-image`, `field-relatedCategory` and `action-publish` test ids, so those three anchors and the `new-photo` template goTo hold. Not checked signed in: the tour on a real account, and the Messages stop (it needs real messages). A stop whose anchor is missing centres itself, so nothing breaks.
 
 ## Bigger ideas (not built)
 
