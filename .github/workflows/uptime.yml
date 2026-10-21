@@ -33,6 +33,7 @@ jobs:
       - name: Check key pages return 200
         env:
           SITE_URL: ${{ vars.SITE_URL }}
+        # curl -L follows the 307 to the trailing-slash URL the site serves.
         # The four routes deliberately exercise different data paths rather than
         # four variations of the homepage:
         #   /                  homePage singleton + hero imagery
@@ -47,7 +48,7 @@ jobs:
           base="${SITE_URL%/}"
           fail=0
           for path in "/" "/pricing" "/shop-by-item" "/thread-color-chart"; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 25 "${base}${path}")
+            code=$(curl -sL -o /dev/null -w "%{http_code}" --max-time 25 "${base}${path}")
             echo "${code}  ${base}${path}"
             if [ "$code" != "200" ]; then fail=1; fi
           done
