@@ -3,6 +3,12 @@
 /shop           /shop-by-item/   301
 /cart           /clearance/      301
 
+# Search Console 404s (checked live 2026-10-25). Both slash forms so each is one hop.
+/home           /                301
+/home/          /                301
+/seasonal       /shop-by-item/   301
+/seasonal/      /shop-by-item/   301
+
 # The /studio page (starter card 120) links the family's /site.webmanifest; this site's
 # manifest is /manifest.webmanifest.
 /site.webmanifest   /manifest.webmanifest   301
