@@ -15,6 +15,7 @@
 // code is rendering logic (weave per fabric, default pairings).
 import AtelierStage from './AtelierStage.astro';
 import AtelierStudioScript from './AtelierStudioScript.astro';
+import { internalHref } from '@/lib/internal-href';
 import { motifId } from '@/components/motifs/uid';
 import {
   cleanFabrics,
@@ -116,7 +117,7 @@ const ids = {
   <form
     class="atelier-studio__form"
     method="get"
-    action={`${action}#${anchor}`}
+    action={`${internalHref(action)}#${anchor}`}
     data-atelier-form
     aria-labelledby={headline ? headingId : undefined}
   >

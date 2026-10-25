@@ -67,7 +67,8 @@ const label = [
 
 const params = new URLSearchParams({ initials, style: 'classic', thread: thread.slug });
 if (fabric.key) params.set('fabric', fabric.key);
-const href = `${quoteHref}?${params.toString()}`;
+const quoteBase = internalHref(quoteHref);
+const href = `${quoteBase}?${params.toString()}`;
 ---
 
 <div class="panel" data-stitch-panel>
@@ -175,7 +176,7 @@ const href = `${quoteHref}?${params.toString()}`;
         href={internalHref(href)}
         class="btn btn-primary panel__cta"
         data-thread-cta
-        data-quote-href={quoteHref}
+        data-quote-href={quoteBase}
       >
         <span>{ctaLabel}</span>
         <span class="btn__arrow" aria-hidden="true">
