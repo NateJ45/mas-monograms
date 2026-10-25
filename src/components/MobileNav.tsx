@@ -38,6 +38,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { telHref } from '@/lib/phone';
+import { internalHref } from '@/lib/internal-href';
 
 interface SocialLink {
   platform?: string;
@@ -429,7 +430,7 @@ export default function MobileNav({
                 turn it off everywhere, here included. */}
             {showCta && (
               <div className="mnav-item mnav-gap mt-m" style={delay(140 + links.length * 45 + 40)}>
-                <a href={ctaHref} onClick={close} className="btn btn-primary w-full">
+                <a href={internalHref(ctaHref)} onClick={close} className="btn btn-primary w-full">
                   <span>{ctaLabel}</span>
                   <span className="btn__arrow" aria-hidden="true">
                     &rarr;
