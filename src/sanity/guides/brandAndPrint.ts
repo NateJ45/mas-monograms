@@ -68,7 +68,7 @@ export const brandAndPrintGuides: Guide[] = [
             see: 'Under **Your QR code**: the code, the words under it (such as "Scan to ask for a quote"), and a line saying how big to print it.',
           },
           {
-            text: 'If you like, change the words in `Words under the code`. Tick or untick `Put my seal in the middle` (your Hoop Seal in the centre; the code still scans). Pick a `Background`: White is best for most printing.',
+            text: 'If you like, change the words in `Words under the code`. Check or uncheck `Put my seal in the middle` (your Hoop Seal in the center; the code still scans). Pick a `Background`: White is best for most printing.',
           },
           {
             text: 'For a special batch, such as a fall craft fair, type a short name in `Name this batch (you can skip this)`. Leave it empty and the month is used.',
@@ -147,7 +147,7 @@ export const brandAndPrintGuides: Guide[] = [
         items: [
           'The phone does not react: hold it a little farther away, in good light, and keep it steady for a second. If it still does not work, the code is too small or too faded: print it bigger or darker.',
           'It opens the wrong page: press `Start again` and pick the right place it should lead.',
-          'My Facebook page or My Instagram is greyed out: press `Add my Facebook link` (or Instagram), add your page in My business details, then come back.',
+          'My Facebook page or My Instagram is grayed out: press `Add my Facebook link` (or Instagram), add your page in My business details, then come back.',
           'The `Print this` page does not open: your browser blocked it. Download the picture instead and print that.',
         ],
       },
@@ -282,6 +282,6 @@ export const brandAndPrintGuides: Guide[] = [
       { kind: 'seealso', ids: ['make-profiles-match', 'qr-codes', 'facebook-page'] },
     ],
     maintenance:
-      'Matched to the built pane on 2026-10-05 (second pass): section titles from SECTIONS in src/sanity/components/BrandKitPane.tsx ("Download everything (one file, <size>)" button, per-logo buttons from COLORWAYS, "Small picture (PNG)", "For printing (SVG)", "Download this picture", "Download to print (PDF)", "Download as a picture (PNG)", "Copy", "Get it free from Google Fonts"); logo names, use-when lines, LOGO_RULES (clear space = the M height, Hoop Seal half an inch minimum, do-not list), KIT_IMAGES names and pixel sizes, PRINT items, fonts and fallbacks from src/lib/brand/brandKit.ts. Font licence: OFL per the kit (its own licence files). The table sign QR square (SIGN_QR_INCHES) and the sign size in the QR tool were both set to 3 inches on 2026-10-05.',
+      'Matched to the built pane on 2026-10-05 (second pass): section titles from SECTIONS in src/sanity/components/BrandKitPane.tsx ("Download everything (one file, <size>)" button, per-logo buttons from COLORWAYS, "Small picture (PNG)", "For printing (SVG)", "Download this picture", "Download to print (PDF)", "Download as a picture (PNG)", "Copy", "Get it free from Google Fonts"); logo names, use-when lines, LOGO_RULES (clear space = the M height, Hoop Seal half an inch minimum, do-not list), KIT_IMAGES names and pixel sizes, PRINT items, fonts and fallbacks from src/lib/brand/brandKit.ts. Font license: OFL per the kit (its own license files). The table sign QR square (SIGN_QR_INCHES) and the sign size in the QR tool were both set to 3 inches on 2026-10-05.',
   },
 ];

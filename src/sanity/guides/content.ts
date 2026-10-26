@@ -1084,7 +1084,7 @@ const coreGuides: Guide[] = [
         kind: 'callout',
         tone: 'tip',
         title: 'On your phone',
-        text: 'Press `Quick update`, then `Mark a clearance item sold`. Pick the item and tick `Sold`. It goes up without waiting for Publish.',
+        text: 'Press `Quick update`, then `Mark a clearance item sold`. Pick the item and check `Sold`. It goes up without waiting for Publish.',
       },
       {
         kind: 'callout',
@@ -1335,7 +1335,7 @@ const coreGuides: Guide[] = [
           },
           {
             text: 'Still nothing after 10 minutes? Check the change really was published: open it in the Studio and look at the `Publish` button.',
-            see: 'If the button is greyed out, it is published. If you can still press it, press it now.',
+            see: 'If the button is grayed out, it is published. If you can still press it, press it now.',
           },
         ],
       },
@@ -1534,7 +1534,7 @@ const coreGuides: Guide[] = [
         items: [
           {
             text: 'Did you press `Publish`? Your website only changes after you do.',
-            see: 'The Publish button is greyed out once a change is published.',
+            see: 'The Publish button is grayed out once a change is published.',
           },
           {
             text: 'Did you wait 3 minutes and refresh your website?',

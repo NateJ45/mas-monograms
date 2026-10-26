@@ -122,7 +122,7 @@ export const siteSettings = defineType({
                   { title: 'Sunday', value: 'Sunday' },
                 ],
               },
-              validation: (R) => R.required().min(1).error('Please tick at least one day.'),
+              validation: (R) => R.required().min(1).error('Please check at least one day.'),
             }),
             defineField({
               name: 'opens',

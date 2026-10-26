@@ -119,7 +119,7 @@ export const BRAND_COLORS: BrandColor[] = [
     name: 'Sage',
     cssVar: '--color-tertiary',
     hex: '#E4E2D3',
-    useFor: 'A quiet green-grey for a band or a box when Linen needs a change.',
+    useFor: 'A quiet green-gray for a band or a box when Linen needs a change.',
   },
   {
     id: 'kraft',

@@ -37,7 +37,7 @@ export const TOURS: TourDef[] = [
         title: 'My weekly 15 minutes',
         short: 'Week',
         meaning: 'step',
-        body: 'The few jobs that keep your website fresh. Most of them tick themselves when you do them.',
+        body: 'The few jobs that keep your website fresh. Most of them check themselves when you do them.',
       },
       {
         anchor: 'navbar-status',
@@ -79,7 +79,7 @@ export const TOURS: TourDef[] = [
         anchor: 'home-this-week',
         title: 'This week',
         meaning: 'step',
-        body: 'The jobs that come round every week. Each one ticks itself when it is done, and the ones you do by hand have a tick box.',
+        body: 'The jobs that come round every week. Each one checks itself when it is done, and the ones you do by hand have a checkbox.',
       },
       {
         anchor: 'home-is-it-live',

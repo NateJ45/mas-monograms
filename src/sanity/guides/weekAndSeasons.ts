@@ -27,7 +27,7 @@ export const weekAndSeasonGuides: Guide[] = [
     icon: 'calendar',
     badge: 'You can do this yourself',
     summary:
-      'The few jobs that keep your website fresh, about 15 minutes a week. Home keeps the list and ticks most of them for you.',
+      'The few jobs that keep your website fresh, about 15 minutes a week. Home keeps the list and checks most of them for you.',
     time: 'About 15 minutes a week',
     blocks: [
       {
@@ -41,23 +41,23 @@ export const weekAndSeasonGuides: Guide[] = [
         items: [
           {
             text: 'Add a photo of something you made. On your phone, `Quick update` then `Post a photo`. At a computer, `Add a photo of my work` on `Home`.',
-            see: 'The job ticks itself once the photo is published.',
+            see: 'The job checks itself once the photo is published.',
           },
           {
             text: 'Answer every quote request. Each one comes to your email; `Messages` lists them too.',
-            see: 'Tick this one yourself once everyone has heard back.',
+            see: 'Check this one yourself once everyone has heard back.',
           },
           {
             text: 'Mark anything that sold on the clearance rack. Open it and turn on `Sold`.',
-            see: 'The job ticks itself when nothing with none left is still for sale.',
+            see: 'The job checks itself when nothing with none left is still for sale.',
           },
           {
             text: 'Share one photo on Facebook or Instagram, with a link to your website.',
-            see: 'Tick this one yourself.',
+            see: 'Check this one yourself.',
           },
           {
             text: 'Look at the `Checkup`. Anything under "Needs doing" has a button that takes you straight to it.',
-            see: 'The job ticks itself when the Checkup is clear.',
+            see: 'The job checks itself when the Checkup is clear.',
           },
         ],
       },
@@ -183,7 +183,7 @@ export const weekAndSeasonGuides: Guide[] = [
           },
           {
             text: 'Press `Open it in the full editor`. Pick `What kind of item is it?` and, if you know it, `Which font did you use?`. Then press `Publish`.',
-            see: `Your photo is in the gallery in ${WAIT}, and this week's photo job ticks itself on Home.`,
+            see: `Your photo is in the gallery in ${WAIT}, and this week's photo job checks itself on Home.`,
           },
         ],
       },
@@ -223,8 +223,8 @@ export const weekAndSeasonGuides: Guide[] = [
             see: 'The label changes, so you can see at a glance who is still waiting.',
           },
           {
-            text: 'Once everyone who asked this week has heard back, tick `Answer every quote request` on `Home`.',
-            see: 'The tick lasts until next week.',
+            text: 'Once everyone who asked this week has heard back, check `Answer every quote request` on `Home`.',
+            see: 'The check lasts until next week.',
           },
         ],
       },

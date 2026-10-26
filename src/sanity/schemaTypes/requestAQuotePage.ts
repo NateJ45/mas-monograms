@@ -91,12 +91,12 @@ export const requestAQuotePage = defineType({
     }),
     defineField({
       name: 'heroTrustItems',
-      title: 'Short promises with a tick',
+      title: 'Short promises with a check mark',
       type: 'array',
       of: [defineArrayMember({ type: 'string' })],
       group: 'hero',
       description:
-        'Shown beside the top of the page with a tick mark, for example "Free quotes". Drag to change the order.',
+        'Shown beside the top of the page with a check mark, for example "Free quotes". Drag to change the order.',
     }),
     defineField({
       name: 'turnaroundCallout',
@@ -292,7 +292,7 @@ export const requestAQuotePage = defineType({
     }),
     defineField({
       name: 'rushLabel',
-      title: 'Tick box: they need it by a certain date',
+      title: 'Checkbox: they need it by a certain date',
       type: 'string',
       group: 'order',
       description: orDefault('I need this rushed (a rush fee may apply)'),
@@ -300,7 +300,7 @@ export const requestAQuotePage = defineType({
     }),
     defineField({
       name: 'rushHelp',
-      title: 'Hint under that tick box',
+      title: 'Hint under that checkbox',
       type: 'string',
       group: 'order',
       description: HINT,

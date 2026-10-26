@@ -161,7 +161,7 @@ export const kitConfig: KitConfig = {
       id: 'quotes',
       title: 'Answer every quote request',
       detail:
-        'Each one comes to your email, and Messages lists them too. Tick this once everyone who asked this week has heard back.',
+        'Each one comes to your email, and Messages lists them too. Check this once everyone who asked this week has heard back.',
       manual: true,
       target: { tool: 'messages' },
       targetLabel: 'Open Messages',
