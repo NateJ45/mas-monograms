@@ -201,7 +201,9 @@ FCP 2709ms to perf 91, LCP 3009ms, FCP 2409ms, CLS 0 both (two alternating round
 `ci.yml` stays two parallel jobs, `build` and `test`, which are the required
 checks (never rename them, never put a path filter on `ci.yml`: a required check
 that never reports blocks the merge forever). Only `npm ci --no-audit --no-fund`
-was taken from the card.
+was taken from the card, plus (2026-10-26) the timeouts: the browser install runs each
+attempt under `timeout 360` inside a 15-minute step, and `test` has `timeout-minutes: 30`,
+because a throttled Ubuntu mirror once held this install for an hour.
 
 **Why the starter's split layout was rejected here.** The card splits CI into
 `static` + `site`, then an `e2e` job that downloads the built `dist/client`, with
