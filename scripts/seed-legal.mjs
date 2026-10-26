@@ -158,7 +158,7 @@ const accessibility = {
     ),
     h2('Our commitment'),
     p(
-      'We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.1 at Level AA. The site is built with semantic HTML, keyboard-navigable controls, descriptive text alternatives for images, and colour combinations chosen for readable contrast, and we check these as part of our build.',
+      'We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.1 at Level AA. The site is built with semantic HTML, keyboard-navigable controls, descriptive text alternatives for images, and color combinations chosen for readable contrast, and we check these as part of our build.',
     ),
     h2('Ongoing effort'),
     p(

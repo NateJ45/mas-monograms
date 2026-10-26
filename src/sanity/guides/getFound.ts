@@ -502,7 +502,7 @@ export const getFoundGuides: Guide[] = [
             see: 'Your business from Google, in a list.',
           },
           {
-            text: 'Tick MAS Monograms and check the details are right: name, phone, website, hours.',
+            text: 'Select MAS Monograms and check the details are right: name, phone, website, hours.',
           },
           {
             text: 'Press `Save` or `Done`.',

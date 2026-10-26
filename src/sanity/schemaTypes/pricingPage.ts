@@ -170,7 +170,7 @@ export const pricingPage = defineType({
       type: 'string',
       group: 'faq',
       description:
-        'The questions themselves live in Questions and answers. Tick "Show on Pricing" on a question to show it here.',
+        'The questions themselves live in Questions and answers. Check "Show on Pricing" on a question to show it here.',
       validation: (R) => R.max(100).warning(TOO_LONG),
     }),
 

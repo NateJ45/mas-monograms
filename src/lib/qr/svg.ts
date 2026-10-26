@@ -91,7 +91,7 @@ export function buildQrSvg(o: QrSvgOptions): QrSvg {
   const { qr, quietZone: q } = o;
   const fg = QR_COLOURS.midnight;
   const bg = QR_COLOURS[o.background ?? 'white'];
-  if (!qrColoursOk(fg, bg)) throw new Error(`Unsafe QR colours ${fg} on ${bg}`);
+  if (!qrColoursOk(fg, bg)) throw new Error(`Unsafe QR colors ${fg} on ${bg}`);
 
   const n = qr.size;
   const width = n + 2 * q;

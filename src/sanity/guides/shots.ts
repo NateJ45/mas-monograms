@@ -33,12 +33,12 @@ export const GUIDE_SHOTS: Record<string, GuideShotData> = {
   // only the phone top bar, which has neither. Recipe: docs/agent/studio-kit.md.
   'home-weekly': {
     src: '/guide-shots/home-weekly.webp',
-    alt: 'The "My weekly 15 minutes" card on Home, with five jobs: two ticked, three with a numbered circle and a button, and beside it the "Is it live?" card.',
+    alt: 'The "My weekly 15 minutes" card on Home, with five jobs: two checked, three with a numbered circle and a button, and beside it the "Is it live?" card.',
     width: 1040,
     height: 657,
     marks: [
       { kind: 'stone', x: 22, y: 16.5, label: 'A button takes you straight to the job.' },
-      { kind: 'stone', x: 2.5, y: 33, label: 'A tick means it is done for this week.' },
+      { kind: 'stone', x: 2.5, y: 33, label: 'A check means it is done for this week.' },
       {
         kind: 'stone',
         x: 94,
