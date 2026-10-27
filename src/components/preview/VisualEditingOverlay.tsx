@@ -8,6 +8,7 @@ import { startTiming } from './overlay/timing.ts';
 import {
   createRefreshState,
   onChange as onRefreshChange,
+  onKnownChange,
   onSettled,
   onStart,
   shouldStart,
@@ -188,8 +189,7 @@ export default function VisualEditingOverlay({ pageId }: Props) {
   // No resolver is registered: nobody is awaiting a promise for this, unlike
   // `softRefresh`, which serves the comlink's refresh button.
   const noteInstantChange = useCallback(() => {
-    schedule.current = onRefreshChange(schedule.current, Date.now());
-    tickRef.current();
+    schedule.current = onKnownChange(schedule.current);
   }, []);
 
   // Job 3: swap changed plain strings in as the edit arrives, without waiting

@@ -1374,6 +1374,15 @@ export type HomePage = {
   ctaHref?: string;
 };
 
+export type StudioStaff = {
+  _id: string;
+  _type: 'studioStaff';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  ids?: Array<string>;
+};
+
 export type StudioWeek = {
   _id: string;
   _type: 'studioWeek';
@@ -1586,6 +1595,7 @@ export type AllSanitySchemaTypes =
   | PricingPage
   | HowItWorksPage
   | HomePage
+  | StudioStaff
   | StudioWeek
   | TrashedItem
   | PreviewShare

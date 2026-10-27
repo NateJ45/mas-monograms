@@ -55,7 +55,7 @@ import { kitConfig } from './kit.config';
 import { brandIcon, typeIcon } from './brandIcons';
 import { tableListItem } from './workflow';
 import { TABLES } from './tables.config';
-import { WEEK_TYPE } from '../lib/studio-kit';
+import { STAFF_TYPE, WEEK_TYPE } from '../lib/studio-kit';
 import { TRASH_TYPE } from '../lib/studio-trash';
 import { SHARE_RECORD_TYPE } from '../lib/preview-share';
 import { NOTICE_TEMPLATES, SEASON_TEMPLATES } from './templates';
@@ -96,6 +96,8 @@ const PLACED = new Set<string>([
   TRASH_TYPE,
   // The kit's weekly hand ticks and the preview-link records: never lists.
   WEEK_TYPE,
+  // The kit's "Simple view" marks (card 175): written by the People tool only.
+  STAFF_TYPE,
   SHARE_RECORD_TYPE,
 ]);
 
