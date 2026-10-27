@@ -120,3 +120,10 @@ live inside the Studio: the "Edit on the page" tool at `/studio`, whose page lis
   `npx wrangler secret put` in production) and the origin on the project's CORS allow list
   (`npx sanity cors add <origin> --credentials`). Without the token everything **fails closed** (503
   naming the missing pieces). The public site builds and serves normally either way.
+- **Instant structure** (starter card 183, 2026-10-26). Section moves, removals, copies and picture
+  swaps are applied to the DOM from the same draft snapshots instant text uses, with no request:
+  `src/lib/preview-structure.ts` (PORTABLE) plans, `src/components/preview/overlay/instantStructure.ts`
+  does it, hooked up in `overlay/useInstantText.ts`. It finds sections by `data-sanity` values of the
+  shape `id=<doc>;path=pageBuilder:<key>` (the starter's `sectionEditAttr`). This site's pages are
+  bespoke, not a `pageBuilder` array, so nothing matches and it does nothing here; it is kept so the
+  files stay in step with the starter, and starts working if a page ever renders a keyed section array.
