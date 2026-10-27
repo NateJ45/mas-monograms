@@ -410,6 +410,69 @@ export type AtelierSettings = {
   heroPlaceholder?: string;
 };
 
+export type HomePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'homePage';
+};
+
+export type HowItWorksPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'howItWorksPage';
+};
+
+export type PricingPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'pricingPage';
+};
+
+export type AboutPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'aboutPage';
+};
+
+export type ShopIndexPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'shopIndexPage';
+};
+
+export type StyleGalleryPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'styleGalleryPage';
+};
+
+export type FontGuidePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'fontGuidePage';
+};
+
+export type ThreadChartPageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'threadChartPage';
+};
+
+export type ClearancePageReference = {
+  _ref: string;
+  _type: 'reference';
+  _weak?: boolean;
+  [internalGroqTypeReferenceTo]?: 'clearancePage';
+};
+
 export type SiteSettings = {
   _id: string;
   _type: 'siteSettings';
@@ -480,6 +543,24 @@ export type SiteSettings = {
   };
   quoteCtaLabel?: string;
   menuContactLabel?: string;
+  actionBars?: Array<{
+    everyPage?: boolean;
+    page?:
+      | HomePageReference
+      | HowItWorksPageReference
+      | PricingPageReference
+      | AboutPageReference
+      | ShopIndexPageReference
+      | StyleGalleryPageReference
+      | FontGuidePageReference
+      | ThreadChartPageReference
+      | ClearancePageReference
+      | ItemCategoryReference;
+    text?: string;
+    action?: NavLink;
+    _type: 'actionBar';
+    _key: string;
+  }>;
   showEmail?: boolean;
   showSocials?: boolean;
   footerColumns?: Array<{
@@ -527,74 +608,11 @@ export type SiteSettings = {
   rushTurnaround?: string;
 };
 
-export type HomePageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'homePage';
-};
-
-export type HowItWorksPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'howItWorksPage';
-};
-
-export type PricingPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'pricingPage';
-};
-
-export type AboutPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'aboutPage';
-};
-
 export type RequestAQuotePageReference = {
   _ref: string;
   _type: 'reference';
   _weak?: boolean;
   [internalGroqTypeReferenceTo]?: 'requestAQuotePage';
-};
-
-export type ShopIndexPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'shopIndexPage';
-};
-
-export type StyleGalleryPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'styleGalleryPage';
-};
-
-export type FontGuidePageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'fontGuidePage';
-};
-
-export type ThreadChartPageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'threadChartPage';
-};
-
-export type ClearancePageReference = {
-  _ref: string;
-  _type: 'reference';
-  _weak?: boolean;
-  [internalGroqTypeReferenceTo]?: 'clearancePage';
 };
 
 export type ThankYouPageReference = {
@@ -1568,17 +1586,17 @@ export type AllSanitySchemaTypes =
   | Font
   | NotFoundPage
   | AtelierSettings
-  | SiteSettings
   | HomePageReference
   | HowItWorksPageReference
   | PricingPageReference
   | AboutPageReference
-  | RequestAQuotePageReference
   | ShopIndexPageReference
   | StyleGalleryPageReference
   | FontGuidePageReference
   | ThreadChartPageReference
   | ClearancePageReference
+  | SiteSettings
+  | RequestAQuotePageReference
   | ThankYouPageReference
   | LegalPageReference
   | NavLink

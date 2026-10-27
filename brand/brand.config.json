@@ -31,7 +31,7 @@
   },
   "fonts": {
     "display": {
-      "familyValue": "\"Fraunces Variable\", Georgia, \"Times New Roman\", serif",
+      "familyValue": "\"Fraunces Variable\", \"Fraunces Variable Fallback\", \"Fraunces Variable Fallback Times\", Georgia, \"Times New Roman\", serif",
       "ogFontStack": "Fraunces, Georgia, serif",
       "imports": ["@fontsource-variable/fraunces/opsz.css"]
     },
