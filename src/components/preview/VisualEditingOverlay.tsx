@@ -8,6 +8,7 @@ import { startTiming } from './overlay/timing.ts';
 import {
   createRefreshState,
   onChange as onRefreshChange,
+  onKnownChange,
   onSettled,
   onStart,
   shouldStart,
@@ -188,8 +189,7 @@ export default function VisualEditingOverlay({ pageId }: Props) {
   // No resolver is registered: nobody is awaiting a promise for this, unlike
   // `softRefresh`, which serves the comlink's refresh button.
   const noteInstantChange = useCallback(() => {
-    schedule.current = onRefreshChange(schedule.current, Date.now());
-    tickRef.current();
+    schedule.current = onKnownChange(schedule.current);
   }, []);
 
   // Job 3: swap changed plain strings in as the edit arrives, without waiting
@@ -396,10 +396,19 @@ export default function VisualEditingOverlay({ pageId }: Props) {
       // when a shared doc changed (siteSettings, gallery items, categories,
       // pricing tiers, thread colors, fonts, FAQ items): anything that is not
       // some OTHER page singleton can appear on the page being previewed.
+      //
+      // But a mutation only MARKS a running render stale; it never starts one
+      // (card 182a, 2026-10-26). @sanity/visual-editing calls this twice per
+      // autosave, at once and again 1000ms later, and both arrive before the
+      // edit is visible to a query, so each started a render of the old data.
+      // The SSE `change` (query visibility) starts the one render that carries
+      // the edit. Returning false tells the library we did nothing, so it posts
+      // no "refreshing" state to the Studio.
       const id = payload.document._id.replace(/^drafts\./, '');
       const isThisPage = id === pageId;
       const isOtherPageSingleton = /Page$/.test(payload.document._type) && !isThisPage;
-      return isThisPage || !isOtherPageSingleton ? softRefresh() : false;
+      if (isThisPage || !isOtherPageSingleton) schedule.current = onKnownChange(schedule.current);
+      return false;
     },
     [pageId, softRefresh],
   );
