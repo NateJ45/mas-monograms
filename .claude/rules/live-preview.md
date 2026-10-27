@@ -127,3 +127,13 @@ live inside the Studio: the "Edit on the page" tool at `/studio`, whose page lis
   shape `id=<doc>;path=pageBuilder:<key>` (the starter's `sectionEditAttr`). This site's pages are
   bespoke, not a `pageBuilder` array, so nothing matches and it does nothing here; it is kept so the
   files stay in step with the starter, and starts working if a page ever renders a keyed section array.
+- **The preview renders the Studio's own copy of the draft** (starter card 184, 2026-10-26). The overlay
+  keeps the newest local draft of this page (`LiveDraftBridge` posts it) and its soft refresh POSTs it
+  (`x-preview-posted-draft: 1`, JSON, same origin, 512 KB cap; `src/lib/preview-posted-draft.ts`, PORTABLE).
+  In `src/pages/preview/[...slug].astro` the page loader's own `*[_type == "<type>"][0]{...}` query runs
+  over that draft through `previewFetchPostedDraft` (`cms-preview.ts`); every other query reads the dataset
+  as before, and a draft that is not this path's document (id and type) falls back to the stored one. Stega
+  is rebuilt from the API's source map plus identity mappings for the posted strings. `/preview/live` now
+  sends `{"id": "<documentId>"}` with each `change`, and the overlay ignores a change to its own page while
+  the local channel is live (`localChannelCovers`, 5 s). Category and collection previews are not covered
+  (their queries filter by slug) and keep the SSE path.
