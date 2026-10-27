@@ -137,3 +137,11 @@ live inside the Studio: the "Edit on the page" tool at `/studio`, whose page lis
   sends `{"id": "<documentId>"}` with each `change`, and the overlay ignores a change to its own page while
   the local channel is live (`localChannelCovers`, 5 s). Category and collection previews are not covered
   (their queries filter by slug) and keep the SSE path.
+- **Typing straight onto the page** (starter card 185, 2026-10-26). In Edit mode a heading, subhead, button
+  label or paragraph can be clicked and typed into in place. `overlay/InlineText.tsx` (mounted by the
+  resolver in `overlay/index.ts` on every text field, renders nothing) arms an element with
+  `contenteditable` on hover only when it shows exactly the stored value; on focus it strips the stega
+  runs after the caret and sets `data-inline-editing`. The morph keeps that element whole
+  (`INLINE_EDIT_ATTRIBUTE`, `preview-morph.ts`) and instant text skips it. Writes go through
+  `useDraftDocument`, throttled to 250 ms; the overlay asks for one refresh when the editor lets go only
+  if a render was held back meanwhile. Pure logic: `src/lib/preview-inline-edit.ts` (PORTABLE).
