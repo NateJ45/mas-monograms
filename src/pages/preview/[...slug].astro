@@ -43,7 +43,13 @@ export const prerender = false;
 import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
 import { isStudioPreview } from '@/lib/preview-auth';
 import PreviewLayout from '@/layouts/PreviewLayout.astro';
-import { previewFetch, previewConfig, previewUnconfiguredResponse } from '@/lib/cms-preview';
+import {
+  previewFetch,
+  previewFetchPostedDraft,
+  previewConfig,
+  previewUnconfiguredResponse,
+} from '@/lib/cms-preview';
+import { readPostedDraft } from '@/lib/preview-posted-draft';
 import { SITE_SETTINGS_PROJECTION } from '@/lib/queries';
 import {
   loadAbout,
@@ -166,7 +172,6 @@ const PREVIEW_PAGES: Record<string, PreviewPage> = {
 
 const draftFetch = <T,>(query: string, params: Record<string, unknown> = {}) =>
   previewFetch<T>(draftMode, query, params);
-const fetcher = previewFetcher(draftFetch);
 
 // The category slugs: a category page previews at /preview/<slug>, and the
 // click interceptor keeps a category card's click inside the canvas.
@@ -174,6 +179,9 @@ const categorySlugs: string[] =
   (await draftFetch<string[]>(
     `*[_type == "itemCategory" && defined(slug.current)].slug.current`,
   ).catch((): string[] => [])) ?? [];
+
+// The page singletons whose loader query is `*[_type == "<type>"][0]{...}`.
+const SINGLETON_QUERY_TYPES = new Set(Object.values(PREVIEW_PAGES).map((p) => p.type));
 
 let entry: PreviewPage | undefined = PREVIEW_PAGES[slug];
 let docId: string | null = null;
@@ -223,6 +231,30 @@ const pageId = (docId ?? entry.type).replace(/^drafts\./, '');
 // noindex and never part of the static build, and a preview opened before the
 // cookie lands would otherwise render uncontrollable items.
 const edit: EditDoc = { id: pageId, type: entry.type };
+
+// THE STUDIO'S OWN COPY OF THE DRAFT (2026-10-26, PORTS.md card 184). The soft
+// refresh POSTs the newest draft the Studio holds, so a structural edit renders
+// without waiting for the autosave and the query index. Same cookie gate
+// (draftMode), same request count: the page loader's own query for THIS
+// singleton (`*[_type == "<type>"][0]{...}`) runs over the posted draft instead
+// of the stored one, resolving references from the dataset. Every other query
+// (categories, settings, collections) reads the dataset as before, and anything
+// that is not this path's document falls back to the stored draft.
+// src/lib/preview-posted-draft.ts has the checks and the stega.
+const posted =
+  draftMode && SINGLETON_QUERY_TYPES.has(entry.type)
+    ? await readPostedDraft(Astro.request, Astro.url.origin)
+    : null;
+const PAGE_QUERY = /^\*\[_type == "(\w+)"\]\[0\](\{[\s\S]*\})$/;
+const pageType = entry.type;
+const pageFetch = <T,>(query: string, params: Record<string, unknown> = {}): Promise<T> => {
+  const match = posted ? PAGE_QUERY.exec(query.trim()) : null;
+  if (!posted || !match || match[1] !== pageType) return draftFetch<T>(query, params);
+  return previewFetchPostedDraft<T>(`*[_type == "${pageType}"]`, match[2], params, posted, pageType)
+    .then((doc) => doc ?? draftFetch<T>(query, params))
+    .catch(() => draftFetch<T>(query, params));
+};
+const fetcher = previewFetcher(pageFetch);
 
 const [data, siteSettings] = await Promise.all([
   entry.load(fetcher),
