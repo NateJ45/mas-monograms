@@ -98,6 +98,14 @@ export const SITE_SETTINGS_PROJECTION = `{
           links[] ${NAV_LINK_PROJECTION}
         },
         legalNav[] ${NAV_LINK_PROJECTION},
+        // The phone action bar (card 191, src/lib/wayfinding.ts). Empty on an untouched site.
+        actionBars[]{
+          _key,
+          everyPage,
+          text,
+          "page": page->{ "docType": _type, "slug": slug.current, archived },
+          action ${NAV_LINK_PROJECTION}
+        },
         showEmail,
         showSocials,
         showFooterSocials,

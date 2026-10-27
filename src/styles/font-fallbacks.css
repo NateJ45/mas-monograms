@@ -1,0 +1,23 @@
+/* Safe to edit by hand, but GENERATED (PORTS.md card 188, metric-matched fallback fonts). Stand-ins for
+   Fraunces Variable while it loads: a local font scaled to its average letter width and given its ascent
+   and descent, so a title drawn in the fallback breaks where the real one will and the page does not jump
+   when the font arrives. Named second in --font-display (globals.css).
+   Fraunces ships woff2 only, which scripts/font-fallback.mjs (opentype.js) cannot read, so the metrics were
+   read with fontkitten from node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2
+   (upm 2000, hhea 1956 / -510, weighted width 1036). */
+@font-face {
+  font-family: 'Fraunces Variable Fallback';
+  src: local('Georgia');
+  size-adjust: 116.2%;
+  ascent-override: 84.17%;
+  descent-override: 21.95%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Fraunces Variable Fallback Times';
+  src: local('Times New Roman'), local('Times'), local('Liberation Serif'), local('Tinos');
+  size-adjust: 127.51%;
+  ascent-override: 76.7%;
+  descent-override: 20%;
+  line-gap-override: 0%;
+}

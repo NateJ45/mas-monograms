@@ -15,6 +15,9 @@ import { internalHref } from '@/lib/internal-href';
 // Get found (2026-10-05): a review link joins the contact cluster ONLY when
 // googleReviewUrl is a real https address (src/lib/review-link.ts; words from
 // reviewLinkLabel), and TikTok, YouTube and Nextdoor got their own icons.
+// Phone action bar (2026-10-27, PORTS.md card 191): Site Settings > Top menu > "Bar at the
+// bottom of a phone screen" picks a bar per page (pickActionBar in src/lib/wayfinding.ts) and
+// ActionBar.astro draws it inside this <footer>. No bar = nothing rendered, no script.
 
 import { site } from '@/data/site';
 import {
@@ -32,6 +35,9 @@ import SanityImage from './SanityImage.astro';
 import { telHref } from '@/lib/phone';
 import { resolveChrome, fallbackFooterColumns, type RawFooterColumn } from '@/lib/siteSettings';
 import { isExternalHref, type RawNavLink } from '@/lib/nav-href';
+import { pickActionBar, type RawActionBar } from '@/lib/wayfinding';
+import { publicPath } from '@/lib/page-path';
+import ActionBar from './ActionBar.astro';
 
 interface SocialLink {
   platform?: string;
@@ -57,6 +63,7 @@ interface Props {
     logo?: { asset?: { _ref?: string; _id?: string }; alt?: string } | null;
     legalNav?: (RawNavLink | null)[] | null;
     showFooterSocials?: boolean | null;
+    actionBars?: RawActionBar[] | null;
   } | null;
   legalPages?: Array<{ title?: string; slug?: string }> | null;
   /** When false, Clearance links are hidden (nothing on clearance). */
@@ -99,6 +106,10 @@ const columns = (chrome.footerColumns ?? fallbackFooterColumns(hasClearance)).ma
 const smallPrint = chrome.legalNav
   ? chrome.legalNav.map((l) => ({ label: l.label, href: l.href }))
   : legal.map((lp) => ({ label: lp.title as string, href: internalHref(`/legal/${lp.slug}`) }));
+
+// The phone action bar for this page (the live path, so the draft preview draws the bar of the
+// page it previews), or null.
+const actionBar = pickActionBar(siteSettings?.actionBars, publicPath(Astro.url.pathname));
 
 function socialIcon(platform: string | undefined) {
   switch (platform) {
@@ -303,6 +314,7 @@ function socialIcon(platform: string | undefined) {
         ))}
     </div>
   </div>
+  {actionBar && <ActionBar bar={actionBar} />}
 </footer>
 
 <style>

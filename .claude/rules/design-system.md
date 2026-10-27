@@ -34,6 +34,17 @@ artifacts and ONE kicker per page.**
   (`full-italic.css`: wght, opsz, SOFT, WONK) so `.swash` can run SOFT 100 / WONK 1. Never synthesize
   oblique. Display sizes are light (`.display` 340, `.display-sm` 360, base headings 440, h4 to h6
   560). Hierarchy comes from size and the optical axis, not boldness.
+  While Fraunces loads, titles draw in metric-matched stand-ins ("Fraunces Variable Fallback" over
+  Georgia, "... Fallback Times" over Times/Liberation Serif), named second in `--font-display` and
+  `--font-swash`, from `src/styles/font-fallbacks.css` (PORTS.md card 188, 2026-10-27). Fraunces ships
+  woff2 only, which `scripts/font-fallback.mjs` (opentype.js) cannot read, so the file was written from
+  the same maths (`scripts/lib/font-fallback.mjs`) with fontkitten reading the opsz woff2; redo it the
+  same way if the display font changes.
+- **Phone action bar** (`ActionBar.astro`, PORTS.md card 191, 2026-10-27): the header's quote button
+  is hidden below 75rem, so Site Settings > Top menu > "Bar at the bottom of a phone screen" can dock
+  one short line and one claret `.btn-primary` to the bottom of a phone screen once the page heading
+  has scrolled away. Paper ground, a gold thread on its top edge; hidden while the footer shows and on
+  the page its button opens; BackToTop rides above it. Empty field = no bar, no script.
 - **`.swash`**: the one italic word or phrase that carries a headline. Claret on light grounds; the
   thread-gold gradient on dark ones (glyph-clipped, with `color` kept at gold-light so contrast
   tools measure a real colour). SectionHeading `swash` prop, CtaBanner `swash` prop.

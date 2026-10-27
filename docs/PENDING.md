@@ -249,6 +249,11 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Recently closed
 
+- 2026-10-27: Auburn port run (starter cards 186 to 198), taken where they fit this shop. Phone action bar
+  ("I reply within 1 business day" + Request a Quote, Site Settings > Top menu), metric-matched Fraunces
+  fallback faces, the new sync-check, the page-weight budget spec, the regex-backslash guard, and the
+  studio-messages/Messages tool copies. Not taken (photo hero, board, flow motion, builder blocks, form
+  builder, business facts, client notes, video and documents): see the PR body for each reason.
 - 2026-10-05: Get found, site support. A review link in the footer and on `/thank-you`, drawn only when
   `siteSettings.googleReviewUrl` is set (new `reviewLinkLabel`; live data has none, parity proved no HTML
   change); `googleBusinessUrl` unhidden ("Your Google listing link") and in the LocalBusiness `sameAs`

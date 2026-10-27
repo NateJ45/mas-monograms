@@ -41,6 +41,9 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
   `mas-monograms.com`. The Privacy page names Google Analytics; keep it true. `docs/08`.
 - **Internal links end in `/`** (`trailingSlash: 'always'`, 2026-10-09); use `internalHref()` for any href built at render time. See `.claude/rules/site-routes.md`.
 - Lenis smooth scroll was removed on 2026-10-04; do not reintroduce it.
+- 2026-10-27 (starter cards 186 to 198): a phone action bar brings the quote button back on phones
+  (`ActionBar.astro`, `siteSettings.actionBars`), and Fraunces has metric-matched fallback faces
+  (`src/styles/font-fallbacks.css`). Detail in `.claude/rules/design-system.md`.
 - What is open: `docs/PENDING.md`. History: git log and the vault note.
 
 ## Commands

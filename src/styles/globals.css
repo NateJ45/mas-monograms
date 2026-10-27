@@ -34,6 +34,9 @@
    today (checked on 14 routes). */
 @import '@fontsource-variable/fraunces/full-italic.css';
 @import '@fontsource-variable/mulish';
+/* Metric-matched stand-ins for Fraunces while it loads (PORTS.md card 188), named second in
+   --font-display and --font-swash below. */
+@import './font-fallbacks.css';
 @import '@fontsource/petemoss';
 
 /* Italic at first paint without the 150 KB full italic (2026-10-04, optimize pass).
@@ -150,9 +153,13 @@
 
   /* Fonts — "Heirloom Coast": Fraunces headings, Mulish body, Petemoss monogram.
      --font-heading is mapped to --font-display in the @theme inline block below. */
-  --font-display: 'Fraunces Variable', serif;
+  --font-display:
+    'Fraunces Variable', 'Fraunces Variable Fallback', 'Fraunces Variable Fallback Times', Georgia,
+    serif;
   /* the SOFT 100 / WONK 1 italic voice; falls back to the full italic per character */
-  --font-swash: 'Fraunces Swash', 'Fraunces Variable', serif;
+  --font-swash:
+    'Fraunces Swash', 'Fraunces Variable', 'Fraunces Variable Fallback',
+    'Fraunces Variable Fallback Times', serif;
   --font-body: 'Mulish Variable', sans-serif;
   --font-monogram: 'Petemoss', cursive;
   --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;

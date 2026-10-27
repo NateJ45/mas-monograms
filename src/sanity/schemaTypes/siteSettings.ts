@@ -411,6 +411,82 @@ export const siteSettings = defineType({
         'On a phone, the menu ends with your phone number and email. This small label sits above them, for example "At the bench".',
       validation: (Rule) => Rule.max(40).warning(TOO_LONG),
     }),
+    // The phone action bar (PORTS.md card 191, src/lib/wayfinding.ts, ActionBar.astro). The top
+    // bar's quote button is hidden on phones, so this bar brings it back once the page heading
+    // has scrolled away. Empty = no bar anywhere.
+    defineField({
+      name: 'actionBars',
+      title: 'Bar at the bottom of a phone screen (optional)',
+      type: 'array',
+      group: 'navigation',
+      description:
+        'A slim bar that sticks to the bottom of a phone screen once a visitor scrolls past the page heading: one short line and one button. Tick "Every page", or pick the one page it belongs to. It never shows on the page its button goes to, and never on a computer.',
+      validation: (Rule) => Rule.max(12),
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'actionBar',
+          title: 'Bar',
+          fields: [
+            defineField({
+              name: 'everyPage',
+              title: 'Every page',
+              type: 'boolean',
+              description:
+                'Show this bar on every page that has no bar of its own. Leave it off to pick one page below.',
+              initialValue: false,
+            }),
+            defineField({
+              name: 'page',
+              title: 'Page',
+              type: 'reference',
+              description: 'The page this bar shows on.',
+              to: [
+                { type: 'homePage' },
+                { type: 'howItWorksPage' },
+                { type: 'pricingPage' },
+                { type: 'aboutPage' },
+                { type: 'shopIndexPage' },
+                { type: 'styleGalleryPage' },
+                { type: 'fontGuidePage' },
+                { type: 'threadChartPage' },
+                { type: 'clearancePage' },
+                { type: 'itemCategory' },
+              ],
+              hidden: ({ parent }) => parent?.everyPage === true,
+            }),
+            defineField({
+              name: 'text',
+              title: 'Short line',
+              type: 'string',
+              description:
+                'One short line beside the button, for example "I reply within 1 business day". Keep it under about 30 letters so it fits a phone.',
+              validation: (Rule) => Rule.max(48).warning(TOO_LONG),
+            }),
+            defineField({
+              name: 'action',
+              title: 'Button',
+              type: 'navLink',
+              description:
+                'The one button. The bar only shows when the button has words and a page.',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: {
+              everyPage: 'everyPage',
+              pageTitle: 'page.title',
+              label: 'action.label',
+              text: 'text',
+            },
+            prepare: ({ everyPage, pageTitle, label, text }) => ({
+              title: label || '(no button yet)',
+              subtitle: `${everyPage ? 'Every page' : pageTitle || 'No page picked'}${text ? ` · ${text}` : ''}`,
+            }),
+          },
+        }),
+      ],
+    }),
     // Small on/off switches for the contact details in the menus. All three are
     // ON unless they are turned off, so a site nobody has touched looks exactly
     // the same as before these switches existed.

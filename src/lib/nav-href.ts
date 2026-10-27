@@ -65,6 +65,8 @@ export interface RawNavLink {
   slug?: string | null;
   /** internalPage->_type */
   docType?: string | null;
+  /** The linked page is archived: the link points nowhere (wayfinding.ts passes it, card 191). */
+  pageArchived?: boolean | null;
 }
 
 /** A link that came through resolution with both halves present. */
@@ -95,6 +97,7 @@ export function plain(value?: string | null): string {
 /** Work out where one link points, or undefined when it points nowhere. */
 export function navHref(link?: RawNavLink | null): string | undefined {
   if (!link) return undefined;
+  if (link.pageArchived === true) return undefined;
 
   const typed = plain(link.href);
   if (typed) return internalHref(typed);
