@@ -145,3 +145,12 @@ live inside the Studio: the "Edit on the page" tool at `/studio`, whose page lis
   (`INLINE_EDIT_ATTRIBUTE`, `preview-morph.ts`) and instant text skips it. Writes go through
   `useDraftDocument`, throttled to 250 ms; the overlay asks for one refresh when the editor lets go only
   if a render was held back meanwhile. Pure logic: `src/lib/preview-inline-edit.ts` (PORTABLE).
+- **Two host repairs, run by `VisualEditingOverlay`** (starter card 201, 2026-10-27, from
+  reid-design-site). `overlay/useUnionTypeRetry.ts` (pure half `src/lib/preview-union-retry.ts`, both
+  PORTABLE): the library asks the Studio once per keyed path which block type it is, and an item added
+  since the frame loaded shows (card 184) before the Studio can read it, so its fields never resolve
+  and inline typing never mounts on it. A hidden throwaway keyed target added 1.5 s and 4.5 s after a
+  new one appears makes the library ask again. `overlay/submenuWidthFix.ts` (PORTABLE): visual-editing
+  6.1.3 with @sanity/ui 4.4.9 writes `max-width: 0px` on the item menu's Move submenu; one preview-only
+  rule lifts it. This site has no page-builder section wrappers, so the starter's `SECTION_DRAG_FLOW`
+  does not apply here.
