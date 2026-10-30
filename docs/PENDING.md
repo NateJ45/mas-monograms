@@ -9,6 +9,8 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Open: needs a human (Nathan or Mary Ann)
 
+- **The `test` job is pinned to ubuntu-24.04 (2026-10-30).** `ubuntu-latest` moved to 26.04, where Playwright's WebKit will not launch, so every `[webkit-iphone]` test failed. `ci.yml` now says `runs-on: ubuntu-24.04` on that job only. Unpin it once a Playwright release supports 26.04 (try it on a branch first). Starter PORTS.md card and vault gotcha `playwright-webkit-ubuntu-26-04`.
+
 - **The Studio on the shared kit (2026-10-18, starter cards 106 to 120): Nathan's switches.** Built and
   unit-tested; the signed-out `/studio/` page was checked in a browser. Each item below unlocks one piece and
   until then that piece says "not set up yet" by itself:
