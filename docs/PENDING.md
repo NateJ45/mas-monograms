@@ -22,17 +22,17 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
     when it is set; it is not set in production), then on the Worker: secret `CF_ANALYTICS_TOKEN` (Account
     Analytics: Read), vars `CF_ACCOUNT_ID` and `CF_WEB_ANALYTICS_SITE_TAG`. The Privacy page names Google
     Analytics; add a line for Cloudflare Web Analytics (cookieless) in the same change.
-  - **Messages (quote requests in the Studio)**: `npx wrangler d1 create mas-monograms-messages`, add the
-    `CONTACT_DB` binding to `wrangler.jsonc` (a commented block is there), apply
-    `migrations/0001_contact_submissions.sql` and `0002_message_status.sql` with
-    `npx wrangler d1 migrations apply mas-monograms-messages --remote`, and say so on the Privacy page (the
-    quote details are then also kept in D1, beside the R2 backup). `src/pages/api/quote.ts` writes a row
-    only when the binding exists.
+  - **Messages (quote requests in the Studio)**: DONE 2026-10-30. D1 `mas-monograms-messages` created, bound as
+    `CONTACT_DB` in `wrangler.jsonc`, both migrations applied `--remote`. Still to do: the Privacy page (a
+    Sanity `legalPage`, so Nathan or Mary Ann edits it in the Studio) needs one line saying contact messages are
+    stored for the site owner, e.g. under "How your information is handled": "Messages sent through the quote
+    form are also stored in a private inbox that only the site owner can open, so a request is never lost."
+    Then send a test quote and check it shows in the Studio Messages tool.
   - **"The last update didn't go through"** (card 111) reads GitHub Actions, but this site deploys through
     Cloudflare Workers Builds, so the route answers "not set up" and the status line falls back to the
     build-time check. Nothing to set; a Workers Builds version is a starter proposal.
   - **Morning change note**: `.github/workflows/change-note.yml` is in with its schedule commented out. To
-    switch on: the `SANITY_PROJECT_ID` repo variable (`xp3elugr`), uncomment the schedule, and watch the
+    switch on: the `SANITY_PROJECT_ID` repo variable (set 2026-10-30), uncomment the schedule, and watch the
     repo. `SANITY_AUTH_TOKEN` is already set (the backup uses it).
   - **`PUBLIC_STUDIO_HELP_EMAIL`** build variable in Workers Builds, so Home's "Ask Nathan" has an email
     button (kept out of the repo on purpose).
@@ -237,7 +237,8 @@ Launch content and env-var work is tracked in `docs/08-deployment-and-status.md`
 
 ## Standing risks
 
-- **No backups (Nathan, 2026-10-03).** `.github/workflows/sanity-backup.yml` is disabled in GitHub
+- **No backups (Nathan, 2026-10-03).** The workflow now encrypts the export with `BACKUP_PASSPHRASE` before
+  upload and its gate skips when either secret is missing (2026-10-30), so turning it on is safe. `.github/workflows/sanity-backup.yml` is disabled in GitHub
   (`disabled_manually`); there is no second copy of Mary Ann's content and no restore drill. To turn it
   on: a read token at sanity.io/manage, `gh secret set SANITY_AUTH_TOKEN` and `BACKUP_PASSPHRASE`,
   `gh workflow enable 344134314 --repo NateJ45/mas-monograms`, confirm a real run, then

@@ -54,11 +54,15 @@
   // where new quote requests land (Mary Ann's published contact address).
   "send_email": [{ "name": "EMAIL" }],
   // The Studio's Messages inbox (starter PORTS.md card 117): quote requests in D1 beside the R2
-  // backup. NOT bound yet (docs/PENDING.md): create the database, then uncomment and fill the id.
+  // backup. Bound 2026-10-30 (database created, both migrations applied --remote).
   // src/pages/api/quote.ts writes a row only when CONTACT_DB exists.
-  // "d1_databases": [
-  //   { "binding": "CONTACT_DB", "database_name": "mas-monograms-messages", "database_id": "<id>" },
-  // ],
+  "d1_databases": [
+    {
+      "binding": "CONTACT_DB",
+      "database_name": "mas-monograms-messages",
+      "database_id": "9215694d-26ff-41fe-aef2-01ddea70849e",
+    },
+  ],
   // Visitors card (starter PORTS.md card 136): GA4 and Search Console read through
   // studio-status. SITE_DATA_KEY names this site there; ANALYTICS_PROVIDER picks ga4.
   "services": [{ "binding": "SITE_DATA", "service": "studio-status", "entrypoint": "SiteData" }],
