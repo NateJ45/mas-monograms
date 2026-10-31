@@ -102,3 +102,5 @@ Never bump one of the matched-set packages in isolation.
     **Cloudflare Workers Builds runs its own deploy command from the dashboard**,
     so that setting has to be changed by hand — see `docs/PENDING.md`.
 <!-- prettier-ignore-end -->
+
+- **Transitive security pins (PORTS.md card 214, 2026-10-31).** The `overrides` block in `package.json` also pins patched copies of packages that a parent fixes at an exact old version (scoped to that parent, same major where possible). Dependabot cannot do this itself. After touching it, `npm ls --all` must exit 0 (plain `npm ls` only checks the top level), and an entry goes once its parent ships the patched pin. Alerts left open on purpose: `extract-zip` and `deepmerge` (no patched release), `zod` 3 and `minimatch` (their parents need a release); reasons are in the card.
