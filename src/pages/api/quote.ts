@@ -19,6 +19,7 @@ import {
   type QuoteSubmission,
 } from '@/lib/quote-email';
 import { pickUtm } from '@/lib/utm';
+import { reportToInbox, type InboxEnv } from '@/lib/site-inbox';
 
 export const prerender = false;
 
@@ -335,6 +336,24 @@ export async function POST({ request, locals }: APIContext): Promise<Response> {
   if (results[0].status === 'rejected') {
     return jsonError('We could not send your request. Please email us directly.', 502);
   }
+
+  // ── 8. The studio dashboard Inbox (starter card 210) ──────────────────────
+  // What was asked for, never the email or phone (site-inbox.ts replaces any
+  // that are typed into the notes). Runs under waitUntil; never fatal.
+  reportToInbox((env ?? {}) as unknown as InboxEnv, locals, {
+    id: `quote-${submissionId}`,
+    form: 'quote',
+    name,
+    subject: owner.subject,
+    preview: [
+      itemType,
+      quantity && `quantity ${quantity}`,
+      neededBy && `needed by ${neededBy}`,
+      notes,
+    ]
+      .filter(Boolean)
+      .join('; '),
+  });
 
   return new Response(null, { status: 303, headers: { Location: '/thank-you/' } });
 }

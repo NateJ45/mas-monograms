@@ -137,6 +137,11 @@ meant requests were saved to R2 but nobody was emailed.) Setup, one time, in the
 5. Failure behaviour: the submission is saved to R2 first. If the owner email cannot be sent (binding
    missing, domain not onboarded, rate limit) the Worker answers 502 and the form shows its error
    state, instead of the old silent "Thank you". A failed customer confirmation is logged only.
+6. **The studio dashboard Inbox** (starter card 210, 2026-10-30): once Mary Ann's email has gone, the
+   route calls `reportToInbox()` (`src/lib/site-inbox.ts`, PORTABLE) through the `SITE_DATA` binding
+   (key `mas`). It sends the name, the email subject and a short preview (item, quantity, needed-by
+   date, notes), never the customer's email or phone, inside `waitUntil` so it never slows or fails
+   the quote.
 
 **File upload.** Two options:
 
