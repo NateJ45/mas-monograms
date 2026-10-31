@@ -137,6 +137,9 @@ meant requests were saved to R2 but nobody was emailed.) Setup, one time, in the
 5. Failure behaviour: the submission is saved to R2 first. If the owner email cannot be sent (binding
    missing, domain not onboarded, rate limit) the Worker answers 502 and the form shows its error
    state, instead of the old silent "Thank you". A failed customer confirmation is logged only.
+   The bindings come from `import { env } from 'cloudflare:workers'`. Never `locals.runtime.env`:
+   the Astro 6+ Cloudflare adapter throws on it, and from 2026-10-13 (adapter 14) to 2026-10-31 every
+   quote failed with an empty 500 before the backup or the email.
 6. **The studio dashboard Inbox** (starter card 210, 2026-10-30): once Mary Ann's email has gone, the
    route calls `reportToInbox()` (`src/lib/site-inbox.ts`, PORTABLE) through the `SITE_DATA` binding
    (key `mas`). It sends the name, the email subject and a short preview (item, quantity, needed-by
