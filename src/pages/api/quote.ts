@@ -12,6 +12,7 @@
  */
 
 import type { APIContext } from 'astro';
+import { env as workerEnv } from 'cloudflare:workers';
 import {
   buildCustomerEmail,
   buildOwnerEmail,
@@ -73,7 +74,9 @@ const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export async function POST({ request, locals }: APIContext): Promise<Response> {
-  const env = (locals as any).runtime?.env as Env | undefined;
+  // The Worker's bindings. Astro 6+ removed locals.runtime.env (reading it throws), so this
+  // reads them from cloudflare:workers, as the starter's form routes do.
+  const env = workerEnv as unknown as Env | undefined;
   if (!env) return jsonError('Server misconfiguration', 500);
 
   const contentType = request.headers.get('content-type') ?? '';
