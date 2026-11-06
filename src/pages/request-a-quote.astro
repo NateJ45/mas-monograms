@@ -393,8 +393,10 @@ const hLead = hWords.join(' ');
               <span>{L.orderInfoHeading}</span>
             </legend>
 
-            {/* Item type — real categories + a "not sure" escape */}
-            <div class="form-field">
+            {/* Item type — real categories + a "not sure" escape. This first question carries
+                data-track-form: the whole form is taller than 2.5 screens, so GA4's form_view
+                (40% of the marked element in view) would never fire on the form itself. */}
+            <div class="form-field" data-track-form="quote">
               <label for="itemType" class="form-label">
                 {L.itemTypeLabel}{' '}
                 <span class="form-req" aria-hidden="true">

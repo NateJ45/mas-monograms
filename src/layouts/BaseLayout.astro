@@ -19,6 +19,7 @@ import { localBusinessSchema } from '@/lib/schemas';
 import { getActiveNotices, getAllLegalPages, getAllClearanceItems } from '@/lib/queries';
 import { NOTICE_SCRIPT, placeNotices } from '@/lib/notices';
 import Analytics from '@/components/Analytics.astro';
+import SiteEvents from '@/components/analytics/SiteEvents.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop';
@@ -241,6 +242,10 @@ const noticeStyle = (style?: string | null) =>
       disclosure. See src/components/Analytics.astro.
     */}
     <Analytics />
+    {/* The shared GA4 event layer (starter card 217): one delegated listener, a bundled
+        script that does nothing unless the tag above defined window.gtag. This site's
+        map is src/config/events.ts. */}
+    <SiteEvents />
 
     <ClientRouter />
   </head>

@@ -38,7 +38,9 @@ Brief: `docs/superpowers/specs/2026-10-04-atelier-direction.md`.
 - Quote form: Cloudflare Email Service + Turnstile + R2 backup (live 2026-10-04).
 - **GA4 live (2026-10-04).** `<Analytics />` (PORTABLE) renders GA4 from `PUBLIC_GA_ID`, a **build**
   variable in Workers Builds (`G-JTX5TMPVQ0`; never put it in `ci.yml`). It fires only on
-  `mas-monograms.com`. The Privacy page names Google Analytics; keep it true. `docs/08`.
+  `mas-monograms.com`. The Privacy page names Google Analytics; keep it true. `docs/08`. Own events
+  (`generate_lead` on a sent quote, `form_view`, `contact_click`) and the admin-only Studio Report
+  (`features.report`, `src/config/board.ts`): `docs/agent/analytics.md`.
 - **Internal links end in `/`** (`trailingSlash: 'always'`, 2026-10-09); use `internalHref()` for any href built at render time. See `.claude/rules/site-routes.md`.
 - Lenis smooth scroll was removed on 2026-10-04; do not reintroduce it.
 - 2026-10-27 (starter cards 186 to 198): a phone action bar brings the quote button back on phones

@@ -10,6 +10,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import PortableText from '@/components/PortableText';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
 import { extractHeadings } from '@/lib/portable-text-headings';
+import { hasGa } from '@/lib/analytics-config';
+import { eventsConfig } from '@/config/events';
+import { withEventsSentence } from '@/lib/privacy-events';
 import { getSiteSettings, getAllLegalPages, getLegalPageBySlug } from '@/lib/queries';
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -37,7 +40,11 @@ const updated = page?.lastUpdated
       timeZone: 'UTC',
     })
   : null;
-const toc = extractHeadings(page?.body).filter((h) => h.level <= 3);
+// The privacy page also says what clicks and form actions are counted, worked out from
+// src/config/events.ts (card 217) so it cannot fall behind what the site sends. Nothing is
+// stored in Sanity for this; only the privacy page, only with GA4 on.
+const body = slug === 'privacy' ? withEventsSentence(page?.body, eventsConfig, hasGa) : page?.body;
+const toc = extractHeadings(body).filter((h) => h.level <= 3);
 const showToc = toc.length >= 2;
 ---
 
@@ -78,7 +85,7 @@ const showToc = toc.length >= 2;
         </nav>
       )}
       <article class="legal-prose">
-        <PortableText value={page?.body} />
+        <PortableText value={body} />
       </article>
     </div>
   </section>

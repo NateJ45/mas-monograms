@@ -31,3 +31,8 @@ worker-configuration.d.ts
 # excerpts (fragments of components, half a schema object) that prettier's
 # embedded formatter cannot parse, and the record is not meant to be rewritten.
 docs/superpowers
+
+# The chart kit (PORTS.md card 218): the same bytes the WordPress themes carry,
+# pinned by a hash in src/lib/studio-board.test.ts. Prettier must never rewrite them.
+src/sanity/kit/board/ncs-charts.js
+src/sanity/kit/board/ncs-charts.css
