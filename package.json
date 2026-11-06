@@ -81,7 +81,7 @@
     "react-is": "19.3.1",
     "sanity": "6.19.0",
     "sanity-plugin-asset-source-unsplash": "7.0.29",
-    "sanity-plugin-media": "6.3.5",
+    "sanity-plugin-media": "6.6.2",
     "shadcn": "^4.23.0",
     "sharp": "^0.35.5",
     "styled-components": "6.6.0",
@@ -98,13 +98,13 @@
     "qs": "^6.17.1",
     "browserslist": "^4.28.7",
     "fast-xml-parser": "^5.10.1",
-    "tmp": "^0.2.6",
+    "tmp": "0.2.7",
     "@vercel/frameworks": {
       "js-yaml": "3.15.2",
       "smol-toml": "1.9.1"
     },
     "external-editor": {
-      "tmp": "^0.2.6"
+      "tmp": "0.2.7"
     },
     "miniflare": {
       "undici": "7.30.1",
@@ -118,7 +118,12 @@
     },
     "typeid-js": {
       "uuid": "11.1.1"
-    }
+    },
+    "chromium-bidi": {
+      "zod": "4.6.7"
+    },
+    "@puppeteer/browsers": "3.2.6",
+    "minimatch@>=7 <11.0.1": "11.0.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
