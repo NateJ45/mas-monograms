@@ -8,6 +8,8 @@
 ---
 
 <script>
+  import { track } from '@/lib/track';
+
   let turnstileToken = '';
   (window as any).onTurnstileSuccess = (token: string) => {
     turnstileToken = token;
@@ -85,6 +87,16 @@
     el.addEventListener('change', () => setFieldError('ownership', false));
   });
 
+  // GA4 generate_lead (PORTS.md card 217): one event per request that the server accepted,
+  // sent before the page moves on to /thank-you/ (the redirect waits 1.2 seconds). The form's
+  // name only, never what was typed. The flag keeps it to one even if both success branches ran.
+  let leadSent = false;
+  function trackLeadOnce() {
+    if (leadSent) return;
+    leadSent = true;
+    track('generate_lead', { form_name: 'quote' });
+  }
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -158,6 +170,7 @@
       const res = await fetch('/api/quote/', { method: 'POST', body: data });
       if (res.redirected || res.status === 303) {
         const dest = res.redirected ? res.url : (res.headers.get('Location') ?? '/thank-you/');
+        trackLeadOnce();
         successEl?.classList.remove('hidden');
         setTimeout(() => {
           window.location.href = dest;
@@ -165,6 +178,7 @@
         return;
       }
       if (res.ok) {
+        trackLeadOnce();
         successEl?.classList.remove('hidden');
         setTimeout(() => {
           window.location.href = '/thank-you/';

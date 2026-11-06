@@ -13,6 +13,8 @@ import { join } from 'node:path';
 //                    (CLAUDE.md gotcha 13).
 //   /preview/**      SSR draft preview (prerender = false), dist/server only.
 //   /api/**          the quote Worker and draft-mode toggles, SSR only.
+//   /styleguide/**   the Report's test bench (card 218, PORTABLE): made-up numbers,
+//                    its own title, covered by tests/board-report.spec.ts.
 // lighthouserc.json and the `check:links` script exclude the same three.
 // =============================================================================
 
@@ -42,7 +44,7 @@ const fixedRoutes = [
 // of the excluded SSR surfaces. Locally (with .env) that is the eight item
 // categories and the three legal pages; in CI it is nothing, and the fixed
 // routes still run.
-const EXCLUDED = new Set(['studio', 'preview', 'api']);
+const EXCLUDED = new Set(['studio', 'preview', 'api', 'styleguide']);
 
 function discoverBuiltRoutes(): string[] {
   const dist = join(process.cwd(), 'dist', 'client');

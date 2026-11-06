@@ -113,6 +113,11 @@ says so; if GA4 is ever removed, change that sentence back. The id is deliberate
 Console: `mas-monograms.com` is a verified Domain property (DNS TXT record in Cloudflare; do not
 remove it).
 
+Since 2026-11-06 (starter cards 217 and 218) the site also sends its own GA4 events (a quote request sent, the quote
+form seen, email and phone clicks) and the Studio has a Report tool for administrators. The privacy page's
+Analytics paragraph gets a sentence derived from `src/config/events.ts` at build time, so it names what is counted
+without a change in Sanity. Detail: `docs/agent/analytics.md`.
+
 ### Runtime secrets (the Worker's Variables & Secrets, or `wrangler secret put`)
 
 Used by the quote-form Worker and, since 2026-08-28, by the live draft preview at request

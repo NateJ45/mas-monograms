@@ -32,6 +32,7 @@ import { MAS_RULES } from './checkupRules';
 import { GUIDE_CATEGORIES, GUIDE_FOR_FIELD, GUIDES_FOR_TYPE, KIT_GUIDES } from './guides';
 import { makeGuideView } from './components/GuideView';
 import { envVal } from './urls';
+import { boardConfig } from '../config/board';
 import { DESK } from './studioTargets';
 import { TOURS, WELCOME, WHATS_NEW } from './studio-tours';
 import { brandIcon, typeIcon } from './brandIcons';
@@ -85,6 +86,11 @@ export const kitConfig: KitConfig = {
   // the invitation, swap it for her Sanity user id (sanity.io/manage, Members).
   staff: ['mastone37@gmail.com'],
 
+  // The Report's parts and words (PORTS.md card 218).
+  board: boardConfig,
+
+  // The Report is left out of staffTools on purpose: only administrators see it until
+  // Mary Ann is shown it (add 'report' here then).
   staffTools: [
     'home',
     'quick-update',
@@ -99,6 +105,7 @@ export const kitConfig: KitConfig = {
   ],
   toolOrder: [
     'home',
+    'report',
     'quick-update',
     'structure',
     'presentation',
@@ -649,6 +656,10 @@ export const kitConfig: KitConfig = {
     // yet" until the Worker has CF_ANALYTICS_TOKEN, CF_ACCOUNT_ID and
     // CF_WEB_ANALYTICS_SITE_TAG (OPERATIONS notes in docs/08).
     visitors: true,
+    // The Report (card 218). ON in code, not by a build variable: this site deploys through
+    // Cloudflare Workers Builds from main, which has no deploy.yml to pass PUBLIC_BOARD_REPORT.
+    // Turning it off is a one-line commit (set this to false).
+    report: true,
     navbarStatus: true,
     helpPanel: true,
   },
