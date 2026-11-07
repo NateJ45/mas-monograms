@@ -87,7 +87,7 @@ jobs:
       # The sanity CLI is a root dependency (Studio folded into root, PORTS.md
       # card 10) -- no nested studio/ workspace to install separately.
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --no-audit --no-fund
 
       - name: Export production dataset
         env:
