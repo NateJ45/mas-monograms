@@ -8,7 +8,8 @@
   // request time. global_fetch_strictly_public predates it.
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "name": "mas-monograms",
-  "main": "@astrojs/cloudflare/entrypoints/server",
+  // src/worker.ts is Astro's handler plus video byte ranges (PORTS.md card 222).
+  "main": "./src/worker.ts",
   // Sessions: @astrojs/cloudflare needs a KV binding named SESSION even with
   // session:false in astro.config.mjs. Left unpinned, wrangler tries to
   // auto-provision "mas-monograms-session" on every deploy and fails with
@@ -23,6 +24,10 @@
     },
   ],
   "assets": {
+    // These two reach the Worker first: the asset store ignores Range, and iPhones
+    // expect a 206 for video. Keep in step with isVideoPath in src/lib/video-ranges.ts.
+    // "/*.mp4" covers subfolders too. "/**/*.mp4" misses a clip at the root of public/.
+    "run_worker_first": ["/*.mp4", "/*.webm"],
     // @astrojs/cloudflare v14 splits the build into dist/client (static assets)
     // + dist/server (the SSR bundle: /studio, /preview/**, /api/*).
     //
