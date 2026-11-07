@@ -185,7 +185,7 @@ The numbered gotchas keep their original numbers because code comments cite them
 ## Vault
 
 Business context and decisions live in `_vault/clients/mas-monograms.md` at the
-Projects root (read its `## Current state` first). Work log: the note keeps a `## Work log`, so append a row (`- YYYY-MM-DD | ~Xh | summary`) at the end of each real-work session and commit and push `_vault/` (`_vault/README.md` rule 6), even though `plan` is `none` (hours are the contract-evidence record). Update the repo docs
+Projects root (read its `## Current state` first). Work log: the note keeps a `## Work log`, so append a row (`- YYYY-MM-DD | ~Xh | summary`) at the end of each real-work session and commit and push `_vault/` (`_vault/README.md` rule 6). Update the repo docs
 (this file, the rules, `docs/PENDING.md`) in the same piece of work as any change.
 
 ## Ports
