@@ -4,16 +4,17 @@ import { routes } from './routes';
 import { settle } from './helpers';
 
 // =============================================================================
-// Accessibility (axe-core): every route, default rule set
+// Accessibility (axe-core): every route, WCAG 2.2 AA plus best-practice
 // =============================================================================
 // WCAG AA is a hard requirement, and Lighthouse's a11y gate (minScore 1) is
 // wired into CI. Lighthouse scores on axe's DEFAULT rules, which include
 // best-practice checks (heading-order, landmark-unique, region, ...) beyond the
-// wcag2a/aa tags. So we run the default rule set on ALL routes to stay in sync
-// with (and slightly ahead of) the Lighthouse gate. About 1s per page.
+// wcag2a/aa tags. So the run is tagged WCAG 2.0, 2.1 and 2.2 A/AA plus
+// best-practice on ALL routes, in step with the Lighthouse gate. About 1s per page.
 //
-// Do NOT narrow this to `.withTags([...])`: that would DROP the best-practice
-// and WCAG 2.2 coverage (target-size, SC 2.5.8) the default set gives us.
+// The tags make the 2.2 rules (target-size, SC 2.5.8) run by name. axe leaves target-size off in a plain
+// `analyze()`, so the old untagged run never checked it (found 2026-11-08, starter card 223).
+// Never drop `best-practice` from the list.
 // =============================================================================
 
 test.describe('Accessibility: no axe violations', () => {
@@ -23,7 +24,9 @@ test.describe('Accessibility: no axe violations', () => {
       // Settle fonts and reveal content so axe audits the real, fully-rendered
       // page; mid-transition opacity produces false color-contrast violations.
       await settle(page);
-      const results = await new AxeBuilder({ page }).analyze();
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
+        .analyze();
       expect(
         results.violations,
         results.violations.map((v) => `[${v.impact}] ${v.id}: ${v.help}`).join('\n'),
