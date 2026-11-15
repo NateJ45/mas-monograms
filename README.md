@@ -1,3 +1,7 @@
+<a href="https://nixoncreativestudio.com/work/mas-monograms/"><img src="https://raw.githubusercontent.com/NateJ45/NateJ45/main/assets/cards/mas-monograms.png" alt="MAS Monograms, case study by Nixon Creative Studio" width="100%"></a>
+
+<p align="center"><a href="https://nixoncreativestudio.com/work/mas-monograms/">Read the case study</a> · <a href="https://mas-monograms.com">Visit mas-monograms.com</a></p>
+
 # MAS Monograms
 
 **A custom embroidery shop rebuilt off Squarespace: a quote-first site with a CMS the owner edits in place.**
