@@ -9,6 +9,7 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PortableText from '@/components/PortableText';
 import RunningStitch from '@/components/motifs/RunningStitch.astro';
+import { formatDate } from '@/lib/format-date';
 import { extractHeadings } from '@/lib/portable-text-headings';
 import { hasGa } from '@/lib/analytics-config';
 import { eventsConfig } from '@/config/events';
@@ -32,14 +33,7 @@ if (!page && import.meta.env.PROD) {
 
 const title = page?.title ? `${page.title} — MAS Monograms` : 'MAS Monograms';
 const description = page?.seoDescription ?? `${page?.title ?? 'Policy'} for MAS Monograms.`;
-const updated = page?.lastUpdated
-  ? new Date(page.lastUpdated).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'UTC',
-    })
-  : null;
+const updated = page?.lastUpdated ? formatDate(page.lastUpdated) || null : null;
 // The privacy page also says what clicks and form actions are counted, worked out from
 // src/config/events.ts (card 217) so it cannot fall behind what the site sends. Nothing is
 // stored in Sanity for this; only the privacy page, only with GA4 on.

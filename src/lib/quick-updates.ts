@@ -9,6 +9,10 @@
 // src/lib/quick-updates.test.ts checks them in bare Node.
 // =============================================================================
 
+import { formatDate } from './format-date.ts';
+
+const MONTH_DAY: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric' };
+
 export type NoticeDoc = {
   _type: 'announcement';
   internalTitle: string;
@@ -62,7 +66,7 @@ export function buildAwayNotice(v: {
 }): NoticeDoc {
   const message =
     v.message?.trim() ||
-    `I am away until ${new Date(`${v.lastDay}T12:00:00`).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}. Quote requests will be answered when I am back.`;
+    `I am away until ${formatDate(v.lastDay, MONTH_DAY)}. Quote requests will be answered when I am back.`;
   const doc: NoticeDoc = {
     _type: 'announcement',
     internalTitle: noticeName(message, v.lastDay),
@@ -82,10 +86,7 @@ export function buildAwayNotice(v: {
 
 /** "December 1" from "2026-12-01", in her American date style. */
 export function shortDay(date: string): string {
-  return new Date(`${date}T12:00:00`).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-  });
+  return formatDate(date, MONTH_DAY);
 }
 
 /**

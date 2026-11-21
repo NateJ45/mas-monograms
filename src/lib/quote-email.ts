@@ -31,6 +31,7 @@
 // siteSettings.email / phone / address), with the same words as fallbacks.
 // =============================================================================
 
+import { formatDate } from './format-date.ts';
 import { describeUtm, type UtmTags } from './utm.ts';
 
 /** Production origin. Images must resolve from any inbox, so never the request origin. */
@@ -135,12 +136,11 @@ export function formatNeededBy(value: string): string {
   if (!m) return value;
   const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
   if (Number.isNaN(d.getTime()) || d.getUTCDate() !== +m[3]) return value;
-  return d.toLocaleDateString('en-US', {
+  return formatDate(value, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
   });
 }
 
